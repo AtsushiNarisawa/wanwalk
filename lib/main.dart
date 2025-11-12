@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/supabase_config.dart';
+import 'providers/auth_provider.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/home/home_screen.dart';
 
 void main() async {
   // Flutterバインディングの初期化
@@ -77,7 +80,7 @@ class WanMapApp extends StatelessWidget {
         ),
         
         // カードのテーマ
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -90,14 +93,14 @@ class WanMapApp extends StatelessWidget {
 }
 
 /// スプラッシュ画面
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   
@@ -120,15 +123,32 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     
     _animationController.forward();
     
-    // 2秒後に次の画面へ遷移（仮の実装）
-    Future.delayed(const Duration(seconds: 2), () {
-      // TODO: 認証状態に応じて適切な画面に遷移
-      // if (SupabaseConfig.isLoggedIn) {
-      //   Navigator.of(context).pushReplacement(...HomeScreen);
-      // } else {
-      //   Navigator.of(context).pushReplacement(...LoginScreen);
-      // }
-    });
+    // 認証状態をチェックして適切な画面に遷移
+    _checkAuthAndNavigate();
+  }
+  
+  /// 認証状態をチェックして画面遷移
+  Future<void> _checkAuthAndNavigate() async {
+    // スプラッシュ画面を2秒表示
+    await Future.delayed(const Duration(seconds: 2));
+    
+    if (!mounted) return;
+    
+    // 認証状態を確認
+    final isLoggedIn = SupabaseConfig.isLoggedIn;
+    
+    // 適切な画面に遷移
+    if (isLoggedIn) {
+      // ログイン済み → ホーム画面
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } else {
+      // 未ログイン → ログイン画面
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    }
   }
   
   @override
@@ -204,3 +224,4 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
   }
 }
+
