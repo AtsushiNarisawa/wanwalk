@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/route_service.dart';
+import '../../services/profile_service.dart';
+import '../../models/profile_model.dart';
+import 'profile_edit_screen.dart';
 
 /// ユーザー統計情報
 class UserStats {
@@ -59,6 +62,25 @@ final userStatsProvider = FutureProvider<UserStats>((ref) async {
   );
 });
 
+/// ユーザープロフィールを取得するProvider
+final userProfileProvider = FutureProvider<ProfileModel?>((ref) async {
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return null;
+
+  final profile = await ProfileService().getProfile(user.id);
+  
+  // プロフィールが存在しない場合は新規作成
+  if (profile == null) {
+    await ProfileService().createProfile(
+      userId: user.id,
+      email: user.email!,
+    );
+    return await ProfileService().getProfile(user.id);
+  }
+  
+  return profile;
+});
+
 /// プロフィール画面
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -67,6 +89,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = Supabase.instance.client.auth.currentUser;
     final statsAsync = ref.watch(userStatsProvider);
+    final profileAsync = ref.watch(userProfileProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -102,42 +125,79 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-            
-            CircleAvatar(
-              radius: 60,
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
-              child: Icon(
-                Icons.person,
-                size: 80,
-                color: Theme.of(context).primaryColor,
+      body: profileAsync.when(
+        data: (profile) => SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 24),
+              
+              // アバター画像
+              CircleAvatar(
+                radius: 60,
+                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+                backgroundImage: profile?.avatarUrl != null
+                    ? NetworkImage(profile!.avatarUrl!)
+                    : null,
+                child: profile?.avatarUrl == null
+                    ? Icon(
+                        Icons.person,
+                        size: 80,
+                        color: Theme.of(context).primaryColor,
+                      )
+                    : null,
               ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            if (user?.email != null)
-              Text(
-                user!.email!,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              
+              const SizedBox(height: 16),
+              
+              // 表示名
+              if (profile?.displayName != null)
+                Text(
+                  profile!.displayName!,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            
-            const SizedBox(height: 8),
-            
-            if (user?.createdAt != null)
-              Text(
-                '登録日: ${_formatDate(DateTime.parse(user!.createdAt!))}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
+              
+              const SizedBox(height: 4),
+              
+              // メールアドレス
+              if (profile?.email != null)
+                Text(
+                  profile!.email,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
                 ),
-              ),
+              
+              const SizedBox(height: 8),
+              
+              // 自己紹介
+              if (profile?.bio != null && profile!.bio!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    profile.bio!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ),
+              
+              const SizedBox(height: 8),
+              
+              // 登録日
+              if (profile?.createdAt != null)
+                Text(
+                  '登録日: ${_formatDate(profile!.createdAt)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
             
             const SizedBox(height: 32),
             
@@ -218,17 +278,38 @@ class ProfileScreen extends ConsumerWidget {
                   title: const Text('プロフィール編集'),
                   subtitle: const Text('ニックネーム・自己紹介を編集'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('この機能は今後実装予定です')),
-                    );
-                  },
+                  onTap: profile == null
+                      ? null
+                      : () async {
+                          final result = await Navigator.of(context).push<bool>(
+                            MaterialPageRoute(
+                              builder: (context) => ProfileEditScreen(profile: profile),
+                            ),
+                          );
+                          
+                          // 編集成功時はプロフィールを再読み込み
+                          if (result == true) {
+                            ref.invalidate(userProfileProvider);
+                          }
+                        },
                 ),
               ),
             ),
             
             const SizedBox(height: 24),
           ],
+        ),
+      ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('エラー: $error'),
+            ],
+          ),
         ),
       ),
     );
