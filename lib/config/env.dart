@@ -6,10 +6,10 @@
 class Environment {
   // Supabase設定
   // TODO: 実際のSupabase URLに置き換えてください
-  static const String supabaseUrl = 'https://your-project.supabase.co';
+  static const String supabaseUrl = 'https://jkpenklhrlbctebkpvax.supabase.co';
   
   // TODO: 実際のSupabase Anon Keyに置き換えてください
-  static const String supabaseAnonKey = 'your-supabase-anon-key-here';
+  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprcGVua2xocmxiY3RlYmtwdmF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjcwMDUsImV4cCI6MjA3ODUwMzAwNX0.7Blk7ZgGMBN1orsovHgaTON7IDVDJ0Er_QGru8ZMZz8';
   
   // Cloudflare R2設定（画像ストレージ）
   // TODO: 実際のR2認証情報に置き換えてください

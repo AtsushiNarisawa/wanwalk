@@ -1,0 +1,223 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:latlong2/latlong.dart';
+import '../models/route_model.dart';
+
+class RouteService {
+  final _supabase = Supabase.instance.client;
+
+  Future<String?> saveRoute(RouteModel route) async {
+    try {
+      final response = await _supabase.from('routes').insert({
+        'user_id': route.userId,
+        'title': route.title,
+        'description': route.description,
+        'distance': route.distance,
+        'duration': route.duration,
+        'started_at': route.startedAt.toIso8601String(),
+        'ended_at': route.endedAt?.toIso8601String(),
+      }).select().single();
+
+      final routeId = response['id'] as String;
+
+      if (route.points.isNotEmpty) {
+        final points = route.points.asMap().entries.map((entry) {
+          return {
+            'route_id': routeId,
+            'latitude': entry.value.latLng.latitude,
+            'longitude': entry.value.latLng.longitude,
+            'sequence_number': entry.key,
+            'timestamp': entry.value.timestamp.toIso8601String(),
+          };
+        }).toList();
+
+        await _supabase.from('route_points').insert(points);
+      }
+
+      return routeId;
+    } catch (e) {
+      print('ルート保存エラー: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<RouteModel>> getUserRoutes(String userId) async {
+    try {
+      final response = await _supabase
+          .from('routes')
+          .select()
+          .eq('user_id', userId)
+          .order('started_at', ascending: false);
+
+      return (response as List).map((json) {
+        return RouteModel(
+          id: json['id'] as String,
+          userId: json['user_id'] as String,
+          title: json['title'] as String,
+          description: json['description'] as String?,
+          distance: (json['distance'] as num?)?.toDouble() ?? 0.0,
+          duration: json['duration'] as int? ?? 0,
+          startedAt: DateTime.parse(json['started_at'] as String),
+          endedAt: json['ended_at'] != null ? DateTime.parse(json['ended_at'] as String) : null,
+          points: [],
+        );
+      }).toList();
+    } catch (e) {
+      print('ルート一覧取得エラー: $e');
+      rethrow;
+    }
+  }
+
+  Future<RouteModel?> getRouteDetail(String routeId) async {
+    try {
+      final routeResponse = await _supabase.from('routes').select().eq('id', routeId).single();
+      final pointsResponse = await _supabase.from('route_points').select().eq('route_id', routeId).order('sequence_number', ascending: true);
+
+      final points = (pointsResponse as List).asMap().entries.map((entry) {
+        final json = entry.value;
+        return RoutePoint(
+          latLng: LatLng(json['latitude'] as double, json['longitude'] as double),
+          timestamp: DateTime.parse(json['timestamp'] as String),
+          sequenceNumber: entry.key,
+        );
+      }).toList();
+
+      return RouteModel(
+        id: routeResponse['id'] as String,
+        userId: routeResponse['user_id'] as String,
+        title: routeResponse['title'] as String,
+        description: routeResponse['description'] as String?,
+        distance: (routeResponse['distance'] as num?)?.toDouble() ?? 0.0,
+        duration: routeResponse['duration'] as int? ?? 0,
+        startedAt: DateTime.parse(routeResponse['started_at'] as String),
+        endedAt: routeResponse['ended_at'] != null ? DateTime.parse(routeResponse['ended_at'] as String) : null,
+        points: points,
+      );
+    } catch (e) {
+      print('ルート詳細取得エラー: $e');
+      return null;
+    }
+  }
+
+  Future<bool> deleteRoute(String routeId, String userId) async {
+    try {
+      await _supabase.from('routes').delete().eq('id', routeId).eq('user_id', userId);
+      return true;
+    } catch (e) {
+      print('ルート削除エラー: $e');
+      return false;
+    }
+  }
+
+  Future<void> createTestData(String userId) async {
+    final now = DateTime.now();
+    
+    final route1 = RouteModel(
+      userId: userId,
+      title: '箱根の朝の散歩',
+      description: '芦ノ湖周辺の美しいルート。景色が最高でした！',
+      startedAt: now.subtract(const Duration(days: 2, hours: 3)),
+      endedAt: now.subtract(const Duration(days: 2, hours: 2)),
+      distance: 3200,
+      duration: 3600,
+      points: [
+        RoutePoint(latLng: LatLng(35.2042, 139.0244), timestamp: now.subtract(const Duration(days: 2, hours: 3)), sequenceNumber: 0),
+        RoutePoint(latLng: LatLng(35.2048, 139.0250), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 12)), sequenceNumber: 1),
+        RoutePoint(latLng: LatLng(35.2055, 139.0258), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 24)), sequenceNumber: 2),
+        RoutePoint(latLng: LatLng(35.2062, 139.0265), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 36)), sequenceNumber: 3),
+        RoutePoint(latLng: LatLng(35.2070, 139.0272), timestamp: now.subtract(const Duration(days: 2, hours: 2)), sequenceNumber: 4),
+      ],
+    );
+    
+    final route2 = RouteModel(
+      userId: userId,
+      title: '近所の公園',
+      description: '短めの散歩。ワンちゃんも満足そうでした。',
+      startedAt: now.subtract(const Duration(days: 1, hours: 5)),
+      endedAt: now.subtract(const Duration(days: 1, hours: 4, minutes: 30)),
+      distance: 1500,
+      duration: 1800,
+      points: [
+        RoutePoint(latLng: LatLng(35.6762, 139.6503), timestamp: now.subtract(const Duration(days: 1, hours: 5)), sequenceNumber: 0),
+        RoutePoint(latLng: LatLng(35.6765, 139.6510), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 45)), sequenceNumber: 1),
+        RoutePoint(latLng: LatLng(35.6770, 139.6515), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 37)), sequenceNumber: 2),
+        RoutePoint(latLng: LatLng(35.6775, 139.6520), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 30)), sequenceNumber: 3),
+      ],
+    );
+    
+    final route3 = RouteModel(
+      userId: userId,
+      title: '山道ハイキング',
+      description: '愛犬と一緒に山を登りました。疲れたけど楽しかった！',
+      startedAt: now.subtract(const Duration(hours: 2)),
+      endedAt: now.subtract(const Duration(hours: 1)),
+      distance: 5800,
+      duration: 3600,
+      points: [
+        RoutePoint(latLng: LatLng(35.3000, 139.1000), timestamp: now.subtract(const Duration(hours: 2)), sequenceNumber: 0),
+        RoutePoint(latLng: LatLng(35.3010, 139.1010), timestamp: now.subtract(const Duration(hours: 1, minutes: 50)), sequenceNumber: 1),
+        RoutePoint(latLng: LatLng(35.3020, 139.1020), timestamp: now.subtract(const Duration(hours: 1, minutes: 40)), sequenceNumber: 2),
+        RoutePoint(latLng: LatLng(35.3030, 139.1030), timestamp: now.subtract(const Duration(hours: 1, minutes: 30)), sequenceNumber: 3),
+        RoutePoint(latLng: LatLng(35.3040, 139.1040), timestamp: now.subtract(const Duration(hours: 1, minutes: 20)), sequenceNumber: 4),
+        RoutePoint(latLng: LatLng(35.3050, 139.1050), timestamp: now.subtract(const Duration(hours: 1)), sequenceNumber: 5),
+      ],
+    );
+    
+    await saveRoute(route1);
+    await saveRoute(route2);
+    await saveRoute(route3);
+  }
+
+  Future<List<RouteModel>> getPublicRoutes({int limit = 20}) async {
+    try {
+      final response = await _supabase
+          .from('routes')
+          .select()
+          .eq('is_public', true)
+          .order('created_at', ascending: false)
+          .limit(limit);
+
+      return (response as List).map((json) {
+        return RouteModel(
+          id: json['id'] as String,
+          userId: json['user_id'] as String,
+          title: json['title'] as String,
+          description: json['description'] as String?,
+          distance: (json['distance'] as num?)?.toDouble() ?? 0.0,
+          duration: json['duration'] as int? ?? 0,
+          startedAt: DateTime.parse(json['started_at'] as String),
+          endedAt: json['ended_at'] != null ? DateTime.parse(json['ended_at'] as String) : null,
+          points: [],
+          isPublic: json['is_public'] as bool? ?? false,
+        );
+      }).toList();
+    } catch (e) {
+      print('公開ルート一覧取得エラー: $e');
+      rethrow;
+    }
+  }
+
+  Future<bool> updateRoute({
+    required String routeId,
+    required String userId,
+    required String title,
+    String? description,
+    required bool isPublic,
+  }) async {
+    try {
+      await _supabase
+          .from('routes')
+          .update({
+            'title': title,
+            'description': description,
+            'is_public': isPublic,
+          })
+          .eq('id', routeId)
+          .eq('user_id', userId);
+
+      return true;
+    } catch (e) {
+      print('ルート更新エラー: $e');
+      return false;
+    }
+  }
+}

@@ -32,15 +32,12 @@ class AuthService {
     required String password,
     required String displayName,
   }) async {
-    print('🔵 [AuthService] signUp開始');
-    print('🔵 [AuthService] email: $email');
-    print('🔵 [AuthService] displayName: $displayName');
-    
+    print('🔵 [AuthService] signUp開始 email: $email');
     try {
       print('🔵 [AuthService] Supabase signUp呼び出し中...');
-      
       // Supabase Authでサインアップ
       final response = await _supabase.auth.signUp(
+
         email: email,
         password: password,
         data: {
@@ -48,12 +45,9 @@ class AuthService {
         },
       );
 
-      print('🟢 [AuthService] signUp成功！');
-      print('🟢 [AuthService] user.id: ${response.user?.id}');
-      print('🟢 [AuthService] user.email: ${response.user?.email}');
-
-      // サインアップ成功時、usersテーブルにプロフィール作成
-      
+         // サインアップ成功時、usersテーブルにプロフィール作成
+      // TODO: Supabaseにusersテーブルを作成した後、このコメントを外す
+      /*
       if (response.user != null) {
         await _supabase.from(SupabaseTables.users).insert({
           'id': response.user!.id,
@@ -62,15 +56,12 @@ class AuthService {
           'created_at': DateTime.now().toIso8601String(),
         });
       }
+      */
 
       return response;
     } on AuthException catch (e) {
-      print('🔴 [AuthService] AuthException: ${e.message}');
-      print('🔴 [AuthService] statusCode: ${e.statusCode}');
       throw AuthException(e.message);
     } catch (e) {
-      print('🔴 [AuthService] Exception: $e');
-      print('🔴 [AuthService] Type: ${e.runtimeType}');
       throw Exception('サインアップに失敗しました: $e');
     }
   }
@@ -86,27 +77,15 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    print('🔵 [AuthService] signIn開始');
-    print('🔵 [AuthService] email: $email');
-    
     try {
-      print('🔵 [AuthService] Supabase signIn呼び出し中...');
-      
       final response = await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
-      
-      print('🟢 [AuthService] signIn成功！');
-      print('🟢 [AuthService] user.id: ${response.user?.id}');
-      
       return response;
     } on AuthException catch (e) {
-      print('🔴 [AuthService] AuthException: ${e.message}');
-      print('🔴 [AuthService] statusCode: ${e.statusCode}');
       throw AuthException(e.message);
     } catch (e) {
-      print('🔴 [AuthService] Exception: $e');
       throw Exception('ログインに失敗しました: $e');
     }
   }

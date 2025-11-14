@@ -29,7 +29,7 @@ dependencies:
   cached_network_image: ^3.3.0
   
   # 画像処理
-  image_picker: ^1.0.4
+  image_picker: ^1.2.1
   image: ^4.1.3
   
   # HTTP・ネットワーク
