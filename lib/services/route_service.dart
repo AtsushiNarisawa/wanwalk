@@ -170,6 +170,7 @@ class RouteService {
   Future<List<RouteModel>> getPublicRoutes({
     int limit = 20,
     String? area,
+    bool includePoints = true, // マップ表示用にpointsを含めるかどうか
   }) async {
     try {
       var query = _supabase
@@ -186,9 +187,37 @@ class RouteService {
           .order('created_at', ascending: false)
           .limit(limit);
 
-      return (response as List).map((json) {
-        return RouteModel(
-          id: json['id'] as String,
+      final routes = <RouteModel>[];
+      
+      for (final json in response as List) {
+        final routeId = json['id'] as String;
+        
+        // ポイントデータを取得（マップ表示用）
+        List<RoutePoint> points = [];
+        if (includePoints) {
+          try {
+            final pointsResponse = await _supabase
+                .from('route_points')
+                .select()
+                .eq('route_id', routeId)
+                .order('sequence_number', ascending: true)
+                .limit(100); // パフォーマンスのため最大100ポイントに制限
+            
+            points = (pointsResponse as List).map((p) {
+              return RoutePoint(
+                latitude: (p['latitude'] as num).toDouble(),
+                longitude: (p['longitude'] as num).toDouble(),
+                timestamp: DateTime.parse(p['timestamp'] as String),
+              );
+            }).toList();
+          } catch (e) {
+            print('ポイント取得エラー (route_id: $routeId): $e');
+            // ポイント取得失敗してもルート自体は返す
+          }
+        }
+        
+        routes.add(RouteModel(
+          id: routeId,
           userId: json['user_id'] as String,
           title: json['title'] as String,
           description: json['description'] as String?,
@@ -196,13 +225,15 @@ class RouteService {
           duration: json['duration'] as int? ?? 0,
           startedAt: DateTime.parse(json['started_at'] as String),
           endedAt: json['ended_at'] != null ? DateTime.parse(json['ended_at'] as String) : null,
-          points: [],
+          points: points,
           isPublic: json['is_public'] as bool? ?? false,
           area: json['area'] as String?,
           prefecture: json['prefecture'] as String?,
           thumbnailUrl: json['thumbnail_url'] as String?,
-        );
-      }).toList();
+        ));
+      }
+      
+      return routes;
     } catch (e) {
       print('公開ルート一覧取得エラー: $e');
       rethrow;

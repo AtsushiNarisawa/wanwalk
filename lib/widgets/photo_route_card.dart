@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/area_info.dart';
 
@@ -195,7 +196,7 @@ class PhotoRouteCard extends StatelessWidget {
       ),
       child: route.thumbnailUrl != null
           ? Image.network(
-              route.thumbnailUrl!,
+              _getImageUrl(route.thumbnailUrl!),
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return _buildPlaceholder(context);
@@ -214,6 +215,26 @@ class PhotoRouteCard extends StatelessWidget {
             )
           : _buildPlaceholder(context),
     );
+  }
+  
+  /// Supabase Storage URLを生成
+  String _getImageUrl(String storagePath) {
+    // storage_pathが既に完全なURLの場合はそのまま返す
+    if (storagePath.startsWith('http://') || storagePath.startsWith('https://')) {
+      return storagePath;
+    }
+    
+    // Supabase Storage URLを生成
+    // storage_path例: "7e40bb57-cd1f-4b96-a60f-f600126ee148/1731599234567_route_photo.jpg"
+    try {
+      return Supabase.instance.client.storage
+          .from('route-photos')
+          .getPublicUrl(storagePath);
+    } catch (e) {
+      print('画像URL生成エラー: $e');
+      // エラー時は元のpathを返す（errorBuilderで処理）
+      return storagePath;
+    }
   }
 
   /// プレースホルダー画像（写真がない場合）
