@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/route_service.dart';
 import '../../services/profile_service.dart';
 import '../../models/profile_model.dart';
+import '../auth/login_screen.dart';
 import 'profile_edit_screen.dart';
 
 /// ユーザー統計情報
@@ -107,7 +108,7 @@ class ProfileScreen extends ConsumerWidget {
               );
             },
           ),
-          actions: [
+          // 設定ボタン
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -119,8 +120,7 @@ class ProfileScreen extends ConsumerWidget {
               );
             },
           ),
-        ],
-        actions: [
+          // ログアウトボタン
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'ログアウト',
@@ -145,7 +145,36 @@ class ProfileScreen extends ConsumerWidget {
               );
 
               if (result == true && context.mounted) {
-                await Supabase.instance.client.auth.signOut();
+                try {
+                  // ログアウト実行
+                  await Supabase.instance.client.auth.signOut();
+                  
+                  // ログアウト成功メッセージ
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('ログアウトしました'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    
+                    // ログイン画面に遷移（戻れないように）
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  }
+                } catch (e) {
+                  // エラーハンドリング
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('ログアウトに失敗しました: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
               }
             },
           ),
