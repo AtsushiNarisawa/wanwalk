@@ -28,7 +28,7 @@ class AreaInfo {
 
   /// エリアマスターデータ
   static final List<AreaInfo> areas = [
-    // 箱根エリア
+    // 箱根エリア（小田原含む）
     AreaInfo(
       id: 'hakone',
       name: '箱根',
@@ -36,10 +36,10 @@ class AreaInfo {
       prefecture: '神奈川県',
       center: LatLng(35.25, 139.05),
       bounds: LatLngBounds(
-        LatLng(35.2, 139.0),   // 南西
-        LatLng(35.3, 139.1),   // 北東
+        LatLng(35.15, 138.95),   // 南西（小田原市を含むよう拡大）
+        LatLng(35.35, 139.15),   // 北東（箱根全域をカバー）
       ),
-      description: '箱根温泉と芦ノ湖周辺の散歩コース',
+      description: '箱根・小田原エリアの散歩コース',
       emoji: '🏔️',
     ),
 
