@@ -134,6 +134,9 @@ class GpsService {
 
     print('🔵 ルートモデル作成中: userId=$userId, title=$title, points=${_currentRoutePoints.length}');
 
+    // 終了時刻
+    final endTime = DateTime.now();
+    
     // ルートモデルを作成
     final route = RouteModel(
       userId: userId,
@@ -142,6 +145,8 @@ class GpsService {
       description: description,
       points: List.from(_currentRoutePoints),
       duration: duration,
+      startedAt: _startTime,  // 開始時刻を明示的に設定
+      endedAt: endTime,       // 終了時刻を明示的に設定
       isPublic: isPublic,
     );
 
