@@ -122,6 +122,10 @@ class RouteModel {
     }
   }
 
+  // Convenience getters for formatted values
+  String get formattedDistance => formatDistance();
+  String get formattedDuration => formatDuration();
+
   /// 日付をフォーマット（例：2024年1月15日）
   String formatDate() {
     return '${startedAt.year}年${startedAt.month}月${startedAt.day}日';
@@ -172,6 +176,10 @@ class RoutePoint {
     required this.timestamp,
     required this.sequenceNumber,
   });
+
+  // Convenience getters for accessing coordinates
+  double get latitude => latLng.latitude;
+  double get longitude => latLng.longitude;
 
   factory RoutePoint.fromJson(Map<String, dynamic> json) {
     return RoutePoint(

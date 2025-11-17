@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wanmap/services/like_service.dart';
+import 'package:wanmap_v2/services/like_service.dart';
 
 final likeServiceProvider = Provider((ref) => LikeService());
 

@@ -7,10 +7,8 @@ import '../../services/route_service.dart';
 import '../../services/favorite_service.dart';
 import '../../services/photo_service.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:wanmap/providers/like_provider.dart';
+import 'package:wanmap_v2/providers/like_provider.dart';
 import 'route_edit_screen.dart';
-
-import '../../../models/comment_model.dart';
 class RouteDetailScreen extends StatefulWidget {
   final String routeId;
 

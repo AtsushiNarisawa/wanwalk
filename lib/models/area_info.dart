@@ -12,7 +12,7 @@ class AreaInfo {
   final String description;
   final String emoji;
 
-  const AreaInfo({
+  AreaInfo({
     required this.id,
     required this.name,
     required this.displayName,
@@ -27,7 +27,7 @@ class AreaInfo {
   double get defaultZoom => 12.0;
 
   /// エリアマスターデータ
-  static const List<AreaInfo> areas = [
+  static final List<AreaInfo> areas = [
     // 箱根エリア
     AreaInfo(
       id: 'hakone',

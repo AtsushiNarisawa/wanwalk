@@ -103,7 +103,7 @@ class ProfileScreen extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const UserSearchScreen(),
+                  builder: (context) => UserSearchScreen(),
                 ),
               );
             },
@@ -115,7 +115,7 @@ class ProfileScreen extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SettingsScreen(),
+                  builder: (context) => SettingsScreen(),
                 ),
               );
             },
