@@ -75,16 +75,20 @@ class RouteLikeModel {
 /// ユーザープロフィール（フォロー関連情報付き）
 class UserProfileModel {
   final String id;
-  final String username;
+  final String email;
+  final String? displayName;
   final String? avatarUrl;
+  final String? bio;
   final int followersCount;
   final int followingCount;
   final DateTime? followedAt; // このユーザーをフォローした日時（オプション）
 
   UserProfileModel({
     required this.id,
-    required this.username,
+    required this.email,
+    this.displayName,
     this.avatarUrl,
+    this.bio,
     required this.followersCount,
     required this.followingCount,
     this.followedAt,
@@ -93,8 +97,10 @@ class UserProfileModel {
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
       id: json['user_id'] ?? json['id'],
-      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      displayName: json['display_name'],
       avatarUrl: json['avatar_url'],
+      bio: json['bio'],
       followersCount: json['followers_count'] ?? 0,
       followingCount: json['following_count'] ?? 0,
       followedAt: json['followed_at'] != null
@@ -106,13 +112,18 @@ class UserProfileModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'username': username,
+      'email': email,
+      'display_name': displayName,
       'avatar_url': avatarUrl,
+      'bio': bio,
       'followers_count': followersCount,
       'following_count': followingCount,
       if (followedAt != null) 'followed_at': followedAt!.toIso8601String(),
     };
   }
+
+  /// 表示名（displayNameがあればそれを、なければemailを使用）
+  String get displayText => displayName ?? email.split('@')[0];
 
   /// フォロワー表示用文字列（例: "123 フォロワー"）
   String get followersText => '$followersCount フォロワー';
@@ -125,50 +136,56 @@ class UserProfileModel {
 class TimelineItemModel {
   final String routeId;
   final String title;
-  final String? description;
   final String? thumbnailUrl;
   final double distance;
-  final int duration;
   final String? area;
-  final String? prefecture;
   final int likesCount;
   final String userId;
-  final String username;
+  final String userEmail;
+  final String? userDisplayName;
   final String? avatarUrl;
-  final DateTime createdAt;
+  final DateTime startedAt;
+  final DateTime? endedAt;
 
   TimelineItemModel({
     required this.routeId,
     required this.title,
-    this.description,
     this.thumbnailUrl,
     required this.distance,
-    required this.duration,
     this.area,
-    this.prefecture,
     required this.likesCount,
     required this.userId,
-    required this.username,
+    required this.userEmail,
+    this.userDisplayName,
     this.avatarUrl,
-    required this.createdAt,
+    required this.startedAt,
+    this.endedAt,
   });
 
   factory TimelineItemModel.fromJson(Map<String, dynamic> json) {
     return TimelineItemModel(
       routeId: json['route_id'],
       title: json['title'] ?? '',
-      description: json['description'],
       thumbnailUrl: json['thumbnail_url'],
       distance: (json['distance'] ?? 0).toDouble(),
-      duration: json['duration'] ?? 0,
       area: json['area'],
-      prefecture: json['prefecture'],
       likesCount: json['likes_count'] ?? 0,
       userId: json['user_id'],
-      username: json['username'] ?? '',
+      userEmail: json['email'] ?? '',
+      userDisplayName: json['display_name'],
       avatarUrl: json['avatar_url'],
-      createdAt: DateTime.parse(json['created_at']),
+      startedAt: DateTime.parse(json['started_at']),
+      endedAt: json['ended_at'] != null ? DateTime.parse(json['ended_at']) : null,
     );
+  }
+
+  /// 表示名
+  String get displayName => userDisplayName ?? userEmail.split('@')[0];
+
+  /// 所要時間を計算
+  int get duration {
+    if (endedAt == null) return 0;
+    return endedAt!.difference(startedAt).inSeconds;
   }
 
   /// 距離をキロメートルで取得
@@ -188,17 +205,13 @@ class TimelineItemModel {
     return '$hours時間$mins分';
   }
 
-  /// エリア表示（例: "箱根（神奈川県）"）
-  String? get areaDisplay {
-    if (area == null) return null;
-    if (prefecture == null) return area;
-    return '$area（$prefecture）';
-  }
+  /// エリア表示
+  String? get areaDisplay => area;
 
   /// 相対時間表示（例: "2時間前"、"3日前"）
   String get relativeTime {
     final now = DateTime.now();
-    final difference = now.difference(createdAt);
+    final difference = now.difference(startedAt);
 
     if (difference.inMinutes < 1) {
       return 'たった今';
@@ -225,50 +238,56 @@ class TimelineItemModel {
 class PopularRouteModel {
   final String routeId;
   final String title;
-  final String? description;
   final String? thumbnailUrl;
   final double distance;
-  final int duration;
   final String? area;
-  final String? prefecture;
   final int likesCount;
   final String userId;
-  final String username;
+  final String userEmail;
+  final String? userDisplayName;
   final String? avatarUrl;
-  final DateTime createdAt;
+  final DateTime startedAt;
+  final DateTime? endedAt;
 
   PopularRouteModel({
     required this.routeId,
     required this.title,
-    this.description,
     this.thumbnailUrl,
     required this.distance,
-    required this.duration,
     this.area,
-    this.prefecture,
     required this.likesCount,
     required this.userId,
-    required this.username,
+    required this.userEmail,
+    this.userDisplayName,
     this.avatarUrl,
-    required this.createdAt,
+    required this.startedAt,
+    this.endedAt,
   });
 
   factory PopularRouteModel.fromJson(Map<String, dynamic> json) {
     return PopularRouteModel(
       routeId: json['route_id'],
       title: json['title'] ?? '',
-      description: json['description'],
       thumbnailUrl: json['thumbnail_url'],
       distance: (json['distance'] ?? 0).toDouble(),
-      duration: json['duration'] ?? 0,
       area: json['area'],
-      prefecture: json['prefecture'],
       likesCount: json['likes_count'] ?? 0,
       userId: json['user_id'],
-      username: json['username'] ?? '',
+      userEmail: json['email'] ?? '',
+      userDisplayName: json['display_name'],
       avatarUrl: json['avatar_url'],
-      createdAt: DateTime.parse(json['created_at']),
+      startedAt: DateTime.parse(json['started_at']),
+      endedAt: json['ended_at'] != null ? DateTime.parse(json['ended_at']) : null,
     );
+  }
+
+  /// 表示名
+  String get displayName => userDisplayName ?? userEmail.split('@')[0];
+
+  /// 所要時間を計算
+  int get duration {
+    if (endedAt == null) return 0;
+    return endedAt!.difference(startedAt).inSeconds;
   }
 
   /// 距離をキロメートルで取得
@@ -289,11 +308,7 @@ class PopularRouteModel {
   }
 
   /// エリア表示
-  String? get areaDisplay {
-    if (area == null) return null;
-    if (prefecture == null) return area;
-    return '$area（$prefecture）';
-  }
+  String? get areaDisplay => area;
 
   /// いいね数表示（例: "123 いいね"）
   String get likesText => '$likesCount いいね';
@@ -302,13 +317,15 @@ class PopularRouteModel {
 /// いいねしたユーザー情報
 class LikerModel {
   final String userId;
-  final String username;
+  final String email;
+  final String? displayName;
   final String? avatarUrl;
   final DateTime likedAt;
 
   LikerModel({
     required this.userId,
-    required this.username,
+    required this.email,
+    this.displayName,
     this.avatarUrl,
     required this.likedAt,
   });
@@ -316,11 +333,15 @@ class LikerModel {
   factory LikerModel.fromJson(Map<String, dynamic> json) {
     return LikerModel(
       userId: json['user_id'],
-      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      displayName: json['display_name'],
       avatarUrl: json['avatar_url'],
       likedAt: DateTime.parse(json['liked_at']),
     );
   }
+
+  /// 表示名
+  String get displayText => displayName ?? email.split('@')[0];
 
   /// 相対時間表示
   String get relativeTime {
