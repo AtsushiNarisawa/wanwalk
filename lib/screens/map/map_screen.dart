@@ -265,6 +265,8 @@ class _MapScreenState extends State<MapScreen> {
         'description': route.description,
         'distance': route.distance,
         'duration': route.duration,
+        'started_at': route.startedAt.toIso8601String(),
+        'ended_at': route.endedAt?.toIso8601String(),
         'is_public': route.isPublic,
       }).select().single();
 
