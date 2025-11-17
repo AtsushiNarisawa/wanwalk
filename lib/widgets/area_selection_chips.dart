@@ -87,16 +87,17 @@ class AreaSelectionChips extends StatelessWidget {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               emoji,
-              style: const TextStyle(fontSize: 24),
+              style: const TextStyle(fontSize: 20),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 9,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 color: isSelected ? Colors.white : Colors.grey[800],
               ),
