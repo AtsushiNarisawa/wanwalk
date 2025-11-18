@@ -3,6 +3,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../services/gps_service.dart';
 import '../../config/supabase_config.dart';
+import '../../config/wanmap_colors.dart';
+import '../../config/wanmap_typography.dart';
+import '../../config/wanmap_spacing.dart';
+import '../../widgets/wanmap_widgets.dart';
 import '../../models/route_model.dart';
 
 /// マップ画面
@@ -120,117 +124,186 @@ class _MapScreenState extends State<MapScreen> {
     _showSaveRouteDialog(userId);
   }
 
-  /// ルート保存ダイアログ
+  /// ルート保存ダイアログ（リデザイン版）
   void _showSaveRouteDialog(String userId) {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
-    bool isPublic = false; // デフォルトは非公開
+    bool isPublic = false;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('ルートを保存'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'タイトル',
-                    hintText: '朝の散歩',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: '説明（任意）',
-                    hintText: '公園を一周',
-                  ),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 16),
-                // 公開設定トグル
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: SwitchListTile(
-                    title: const Text(
-                      '公開設定',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                      isPublic 
-                          ? '他のユーザーがこのルートを閲覧できます' 
-                          : 'このルートは非公開です',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    value: isPublic,
-                    onChanged: (value) {
-                      setState(() => isPublic = value);
-                    },
-                  ),
-                ),
-              ],
+        builder: (context, setState) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: WanMapSpacing.borderRadiusXL,
             ),
-          ),
-          actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('キャンセル'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              print('🔵 保存ボタンがタップされました');
-              
-              final title = titleController.text.trim();
-              print('🔵 入力されたタイトル: "$title"');
-              
-              if (title.isEmpty) {
-                print('❌ タイトルが空です');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('タイトルを入力してください'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
+            child: Container(
+              padding: const EdgeInsets.all(WanMapSpacing.xl),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // タイトル
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(WanMapSpacing.sm),
+                          decoration: BoxDecoration(
+                            color: WanMapColors.accent.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.save,
+                            color: WanMapColors.accent,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: WanMapSpacing.md),
+                        Expanded(
+                          child: Text(
+                            'お散歩を保存',
+                            style: WanMapTypography.headlineSmall.copyWith(
+                              color: isDark 
+                                  ? WanMapColors.textPrimaryDark 
+                                  : WanMapColors.textPrimaryLight,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: WanMapSpacing.xl),
+                    
+                    // タイトル入力
+                    WanMapTextField(
+                      controller: titleController,
+                      labelText: 'ルート名',
+                      hintText: '朝の散歩、公園コースなど',
+                      prefixIcon: Icons.edit,
+                    ),
+                    
+                    const SizedBox(height: WanMapSpacing.lg),
+                    
+                    // 説明入力
+                    WanMapTextField(
+                      controller: descriptionController,
+                      labelText: '説明（任意）',
+                      hintText: 'ルートの特徴やメモ',
+                      prefixIcon: Icons.notes,
+                      maxLines: 3,
+                    ),
+                    
+                    const SizedBox(height: WanMapSpacing.lg),
+                    
+                    // 公開設定
+                    WanMapCard(
+                      size: WanMapCardSize.small,
+                      padding: const EdgeInsets.all(WanMapSpacing.md),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isPublic ? Icons.public : Icons.lock,
+                            color: isPublic 
+                                ? WanMapColors.secondary 
+                                : WanMapColors.textSecondaryLight,
+                          ),
+                          const SizedBox(width: WanMapSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '公開設定',
+                                  style: WanMapTypography.titleSmall.copyWith(
+                                    color: isDark 
+                                        ? WanMapColors.textPrimaryDark 
+                                        : WanMapColors.textPrimaryLight,
+                                  ),
+                                ),
+                                const SizedBox(height: WanMapSpacing.xxs),
+                                Text(
+                                  isPublic 
+                                      ? '他のユーザーが閲覧できます' 
+                                      : 'あなただけが閲覧できます',
+                                  style: WanMapTypography.labelSmall.copyWith(
+                                    color: isDark 
+                                        ? WanMapColors.textSecondaryDark 
+                                        : WanMapColors.textSecondaryLight,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: isPublic,
+                            activeColor: WanMapColors.secondary,
+                            onChanged: (value) {
+                              setState(() => isPublic = value);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: WanMapSpacing.xl),
+                    
+                    // ボタン
+                    Row(
+                      children: [
+                        Expanded(
+                          child: WanMapButton(
+                            text: 'キャンセル',
+                            variant: WanMapButtonVariant.outlined,
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                        const SizedBox(width: WanMapSpacing.md),
+                        Expanded(
+                          flex: 2,
+                          child: WanMapButton(
+                            text: '保存',
+                            icon: Icons.check,
+                            onPressed: () {
+                              final title = titleController.text.trim();
+                              
+                              if (title.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text('ルート名を入力してください'),
+                                    backgroundColor: WanMapColors.error,
+                                  ),
+                                );
+                                return;
+                              }
 
-              print('🔵 stopRecording を呼び出します (isPublic: $isPublic)');
-              final route = _gpsService.stopRecording(
-                userId: userId,
-                title: title,
-                description: descriptionController.text.trim(),
-                isPublic: isPublic,
-              );
+                              final route = _gpsService.stopRecording(
+                                userId: userId,
+                                title: title,
+                                description: descriptionController.text.trim(),
+                                isPublic: isPublic,
+                              );
+                              
+                              Navigator.pop(context);
 
-              print('🔵 stopRecording の結果: ${route != null ? "成功" : "null"}');
-              
-              Navigator.pop(context);
-
-              if (route != null && mounted) {
-                print('🔵 _saveRouteToSupabase を呼び出します');
-                // Supabase にルートを保存
-                _saveRouteToSupabase(route);
-              } else {
-                print('❌ route が null または mounted が false');
-              }
-            },
-            child: const Text('保存'),
-          ),
-        ],
-        ),
+                              if (route != null && mounted) {
+                                _saveRouteToSupabase(route);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -330,58 +403,35 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+      return Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: WanMapColors.primaryGradient,
+          ),
+          child: const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ),
         ),
       );
     }
 
+    // 距離と時間の計算
+    final distance = _gpsService.currentDistance;
+    final duration = _gpsService.currentDuration;
+    final pace = distance > 0 ? duration / distance : 0.0;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('マップ'),
-        backgroundColor: const Color(0xFF4A90E2),
-        foregroundColor: Colors.white,
-        actions: [
-          if (_isRecording)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '記録中 (${_gpsService.currentPointCount}点)',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+      backgroundColor: isDark 
+          ? WanMapColors.backgroundDark 
+          : WanMapColors.backgroundLight,
       body: Stack(
         children: [
-          // 地図表示
+          // 背景のマップ（全画面）
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -391,10 +441,10 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               // OpenStreetMapタイル
               TileLayer(
-          urlTemplate: Theme.of(context).brightness == Brightness.dark
-              ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
-              : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.wanmap_v2',
+                urlTemplate: isDark
+                    ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+                    : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.doghub.wanmap',
               ),
               
               // 記録中のルート
@@ -403,8 +453,8 @@ class _MapScreenState extends State<MapScreen> {
                   polylines: [
                     Polyline(
                       points: _routePoints,
-                      color: const Color(0xFF4A90E2),
-                      strokeWidth: 4.0,
+                      color: WanMapColors.accent,
+                      strokeWidth: 5.0,
                     ),
                   ],
                 ),
@@ -415,24 +465,25 @@ class _MapScreenState extends State<MapScreen> {
                   markers: [
                     Marker(
                       point: _currentPosition!,
-                      width: 40,
-                      height: 40,
+                      width: 50,
+                      height: 50,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4A90E2),
+                          color: WanMapColors.accent,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
+                          border: Border.all(color: Colors.white, width: 4),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.3),
-                              blurRadius: 10,
+                              blurRadius: 12,
+                              spreadRadius: 2,
                             ),
                           ],
                         ),
                         child: const Icon(
                           Icons.navigation,
                           color: Colors.white,
-                          size: 20,
+                          size: 24,
                         ),
                       ),
                     ),
@@ -441,42 +492,322 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
 
+          // 半透明オーバーレイ（記録中のみ）
+          if (_isRecording)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.3),
+              ),
+            ),
+
+          // 上部の統計カード
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _buildTopStatsCard(context, distance, duration, pace),
+          ),
+
+          // 下部のコントロールパネル
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildBottomControls(context),
+          ),
+
           // 現在位置ボタン
           Positioned(
-            right: 16,
-            bottom: 100,
-            child: FloatingActionButton(
-              heroTag: 'current_location',
-              onPressed: () async {
-                final position = await _gpsService.getCurrentPosition();
-                if (position != null) {
-                  setState(() {
-                    _currentPosition = position;
-                  });
-                  _mapController.move(position, 15.0);
-                }
-              },
-              backgroundColor: Colors.white,
-              child: const Icon(Icons.my_location, color: Color(0xFF4A90E2)),
+            right: WanMapSpacing.lg,
+            bottom: 200,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                iconSize: 28,
+                icon: Icon(
+                  Icons.my_location,
+                  color: WanMapColors.accent,
+                ),
+                onPressed: () async {
+                  final position = await _gpsService.getCurrentPosition();
+                  if (position != null) {
+                    setState(() {
+                      _currentPosition = position;
+                    });
+                    _mapController.move(position, 15.0);
+                  }
+                },
+              ),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          print('🔵🔵🔵 FloatingActionButton がタップされました！');
-          print('🔵🔵🔵 _isRecording = $_isRecording');
-          if (_isRecording) {
-            print('🔵🔵🔵 _stopRecording を呼び出します');
-            _stopRecording();
-          } else {
-            print('🔵🔵🔵 _startRecording を呼び出します');
-            _startRecording();
-          }
-        },
-        backgroundColor: _isRecording ? Colors.red : const Color(0xFF7ED321),
-        icon: Icon(_isRecording ? Icons.stop : Icons.play_arrow),
-        label: Text(_isRecording ? '記録停止' : '記録開始'),
+    );
+  }
+
+  /// 上部の統計カード（Nike Run Club風）
+  Widget _buildTopStatsCard(BuildContext context, double distance, int duration, double pace) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final distanceKm = distance / 1000;
+    final durationMinutes = duration ~/ 60;
+    final durationSeconds = duration % 60;
+    final paceMinutes = pace.isFinite ? pace ~/ 60 : 0;
+    final paceSeconds = pace.isFinite ? (pace % 60).toInt() : 0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark 
+            ? WanMapColors.surfaceDark.withOpacity(0.95)
+            : Colors.white.withOpacity(0.95),
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(WanMapSpacing.radiusXXL),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.only(
+        top: 60, // ステータスバー分
+        bottom: WanMapSpacing.xl,
+        left: WanMapSpacing.xl,
+        right: WanMapSpacing.xl,
+      ),
+      child: Column(
+        children: [
+          // 記録中インジケーター
+          if (_isRecording) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: WanMapColors.error,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: WanMapSpacing.xs),
+                Text(
+                  '記録中',
+                  style: WanMapTypography.labelLarge.copyWith(
+                    color: WanMapColors.error,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: WanMapSpacing.lg),
+          ],
+
+          // メイン距離表示（超大サイズ）
+          WanMapHeroStat(
+            value: distanceKm.toStringAsFixed(2),
+            unit: 'km',
+            label: '距離',
+          ),
+          
+          const SizedBox(height: WanMapSpacing.xl),
+          
+          // サブ統計（時間・ペース）
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildSubStat(
+                context,
+                icon: Icons.access_time,
+                value: durationMinutes.toString().padLeft(2, '0'),
+                subValue: durationSeconds.toString().padLeft(2, '0'),
+                label: '時間',
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: isDark 
+                    ? WanMapColors.textTertiaryDark 
+                    : WanMapColors.textTertiaryLight,
+              ),
+              _buildSubStat(
+                context,
+                icon: Icons.speed,
+                value: paceMinutes.toString().padLeft(2, '0'),
+                subValue: paceSeconds.toString().padLeft(2, '0'),
+                label: 'ペース/km',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// サブ統計アイテム
+  Widget _buildSubStat(
+    BuildContext context, {
+    required IconData icon,
+    required String value,
+    required String subValue,
+    required String label,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark 
+        ? WanMapColors.textPrimaryDark 
+        : WanMapColors.textPrimaryLight;
+    final secondaryColor = isDark 
+        ? WanMapColors.textSecondaryDark 
+        : WanMapColors.textSecondaryLight;
+
+    return Column(
+      children: [
+        Icon(
+          icon,
+          size: 24,
+          color: WanMapColors.accent,
+        ),
+        const SizedBox(height: WanMapSpacing.xs),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                color: textColor,
+                height: 1.0,
+              ),
+            ),
+            Text(
+              ':',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                color: textColor,
+              ),
+            ),
+            Text(
+              subValue,
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                color: textColor,
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: WanMapSpacing.xxs),
+        Text(
+          label,
+          style: WanMapTypography.labelSmall.copyWith(
+            color: secondaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 下部のコントロールパネル
+  Widget _buildBottomControls(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark 
+            ? WanMapColors.surfaceDark.withOpacity(0.95)
+            : Colors.white.withOpacity(0.95),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(WanMapSpacing.radiusXXL),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, -10),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(WanMapSpacing.xl),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // メインコントロールボタン
+            WanMapButton(
+              text: _isRecording ? 'お散歩を終了' : 'お散歩を開始',
+              icon: _isRecording ? Icons.stop : Icons.play_arrow,
+              size: WanMapButtonSize.large,
+              fullWidth: true,
+              variant: _isRecording 
+                  ? WanMapButtonVariant.outlined 
+                  : WanMapButtonVariant.primary,
+              onPressed: () {
+                if (_isRecording) {
+                  _stopRecording();
+                } else {
+                  _startRecording();
+                }
+              },
+            ),
+            
+            // 一時停止ボタン（記録中のみ）
+            if (_isRecording) ...[
+              const SizedBox(height: WanMapSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: WanMapButton(
+                      text: '一時停止',
+                      icon: Icons.pause,
+                      size: WanMapButtonSize.medium,
+                      variant: WanMapButtonVariant.outlined,
+                      onPressed: () {
+                        // TODO: 一時停止機能
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('一時停止機能は近日実装予定です'),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: WanMapSpacing.md),
+                  Expanded(
+                    child: WanMapButton(
+                      text: '写真',
+                      icon: Icons.camera_alt,
+                      size: WanMapButtonSize.medium,
+                      variant: WanMapButtonVariant.secondary,
+                      onPressed: () {
+                        // TODO: 写真撮影機能
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('写真撮影機能は近日実装予定です'),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
