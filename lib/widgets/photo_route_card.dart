@@ -95,6 +95,8 @@ class PhotoRouteCard extends StatelessWidget {
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ),
                           ],

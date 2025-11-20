@@ -129,9 +129,13 @@ class WanMapButton extends StatelessWidget {
                 if (text.isNotEmpty) const SizedBox(width: 4.0),
               ],
               if (text.isNotEmpty)
-                Text(
-                  text,
-                  style: textStyle.copyWith(color: foregroundColor),
+                Flexible(
+                  child: Text(
+                    text,
+                    style: textStyle.copyWith(color: foregroundColor),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                 ),
             ],
           );
