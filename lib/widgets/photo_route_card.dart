@@ -165,7 +165,7 @@ class PhotoRouteCard extends StatelessWidget {
                       
                       const SizedBox(height: 3),
                       
-                      // 日付といいね（TODO: いいね数は後で実装）
+                      // 日付といいね数
                       Row(
                         children: [
                           Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
@@ -185,7 +185,7 @@ class PhotoRouteCard extends StatelessWidget {
                           Icon(Icons.favorite, size: 14, color: Colors.red[300]),
                           const SizedBox(width: 4),
                           Text(
-                            '${route.likeCount ?? 0}',
+                            '${route.likeCount}',
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey[700],

@@ -149,6 +149,10 @@ class RouteModel {
     DateTime? endedAt,
     bool? isPublic,
     DateTime? createdAt,
+    String? area,
+    String? prefecture,
+    String? thumbnailUrl,
+    int? likeCount,
   }) {
     return RouteModel(
       id: id ?? this.id,
@@ -163,6 +167,10 @@ class RouteModel {
       endedAt: endedAt ?? this.endedAt,
       isPublic: isPublic ?? this.isPublic,
       createdAt: createdAt ?? this.createdAt,
+      area: area ?? this.area,
+      prefecture: prefecture ?? this.prefecture,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      likeCount: likeCount ?? this.likeCount,
     );
   }
 }

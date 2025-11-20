@@ -11,7 +11,6 @@ import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../widgets/wanmap_widgets.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:wanmap_v2/providers/like_provider.dart';
 import 'route_edit_screen.dart';
 import '../../widgets/photo_viewer.dart';
 
@@ -696,100 +695,6 @@ class _StatRow extends StatelessWidget {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ],
-    );
-  }
-}
-
-/// 写真フルスクリーン表示
-class _PhotoViewScreen extends StatefulWidget {
-  final List<RoutePhoto> photos;
-  final int initialIndex;
-
-  const _PhotoViewScreen({
-    required this.photos,
-    required this.initialIndex,
-  });
-
-  @override
-  State<_PhotoViewScreen> createState() => _PhotoViewScreenState();
-}
-
-class _PhotoViewScreenState extends State<_PhotoViewScreen> {
-  late PageController _pageController;
-  late int _currentIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.initialIndex;
-    _pageController = PageController(initialPage: widget.initialIndex);
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
-          '${_currentIndex + 1} / ${widget.photos.length}',
-          style: const TextStyle(color: Colors.white),
-        ),
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.photos.length,
-        onPageChanged: (index) {
-          setState(() => _currentIndex = index);
-        },
-        itemBuilder: (context, index) {
-          final photo = widget.photos[index];
-          return InteractiveViewer(
-            minScale: 0.5,
-            maxScale: 4.0,
-            child: Center(
-              child: Image.network(
-                photo.publicUrl,
-                fit: BoxFit.contain,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                      color: Colors.white,
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error_outline, size: 64, color: Colors.white),
-                        SizedBox(height: 16),
-                        Text(
-                          '画像を読み込めませんでした',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }

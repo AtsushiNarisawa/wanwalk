@@ -79,6 +79,7 @@ class GpsService {
     _currentRoutePoints.clear();
     _startTime = DateTime.now();
     _isRecording = true;
+    _isPaused = false;  // 一時停止状態をリセット
 
     // 位置情報の更新を監視
     const locationSettings = LocationSettings(
@@ -112,6 +113,7 @@ class GpsService {
     }
 
     _isRecording = false;
+    _isPaused = false;  // 一時停止状態もリセット
     _positionStreamSubscription?.cancel();
     _positionStreamSubscription = null;
 

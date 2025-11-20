@@ -73,7 +73,11 @@ class _MapScreenState extends State<MapScreen> {
     if (success && mounted) {
       setState(() {
         _isRecording = true;
+        _isPaused = false;  // 一時停止状態をリセット
         _routePoints.clear();
+        _tempPhotoUrls.clear();  // 一時写真URLをクリア
+        _pauseStartTime = null;  // 一時停止開始時刻をリセット
+        _totalPauseDuration = Duration.zero;  // 累積一時停止時間をリセット
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -521,7 +525,11 @@ class _MapScreenState extends State<MapScreen> {
       if (mounted) {
         setState(() {
           _isRecording = false;
+          _isPaused = false;  // 一時停止状態をリセット
           _routePoints.clear();
+          _tempPhotoUrls.clear();  // 一時写真URLをクリア
+          _pauseStartTime = null;  // 一時停止開始時刻をリセット
+          _totalPauseDuration = Duration.zero;  // 累積一時停止時間をリセット
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -542,7 +550,11 @@ class _MapScreenState extends State<MapScreen> {
       if (mounted) {
         setState(() {
           _isRecording = false;
+          _isPaused = false;  // 一時停止状態をリセット
           _routePoints.clear();
+          _tempPhotoUrls.clear();  // 一時写真URLをクリア
+          _pauseStartTime = null;  // 一時停止開始時刻をリセット
+          _totalPauseDuration = Duration.zero;  // 累積一時停止時間をリセット
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
