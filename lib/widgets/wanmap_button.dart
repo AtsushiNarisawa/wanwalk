@@ -146,21 +146,21 @@ class WanMapButton extends StatelessWidget {
         color: backgroundColor,
         elevation: elevation,
         borderRadius: WanMapSpacing.borderRadiusXL,
-          child: InkWell(
-            onTap: isDisabled ? null : onPressed,
-            borderRadius: WanMapSpacing.borderRadiusXL,
-            child: Container(
-              padding: padding,
-              decoration: BoxDecoration(
-                borderRadius: WanMapSpacing.borderRadiusXL,
-                border: borderColor != null
-                    ? Border.all(color: borderColor, width: 2)
-                    : null,
-              ),
-              child: buttonChild,
+        child: InkWell(
+          onTap: isDisabled ? null : onPressed,
+          borderRadius: WanMapSpacing.borderRadiusXL,
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              borderRadius: WanMapSpacing.borderRadiusXL,
+              border: borderColor != null
+                  ? Border.all(color: borderColor, width: 2)
+                  : null,
             ),
+            child: buttonChild,
           ),
-        );
+        ),
+      ),
     );
   }
 }

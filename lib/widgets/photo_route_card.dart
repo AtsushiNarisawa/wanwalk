@@ -76,27 +76,28 @@ class PhotoRouteCard extends StatelessWidget {
                             const SizedBox(width: 6),
                             Flexible(
                               child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                  color: Theme.of(context).primaryColor.withOpacity(0.3),
-                                  width: 1,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
                                 ),
-                              ),
-                              child: Text(
-                                '${area.emoji} ${area.displayName}',
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: Theme.of(context).primaryColor.withOpacity(0.3),
+                                    width: 1,
+                                  ),
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
+                                child: Text(
+                                  '${area.emoji} ${area.displayName}',
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               ),
                             ),
                           ],
