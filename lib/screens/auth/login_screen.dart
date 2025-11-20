@@ -264,7 +264,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('アカウントをお持ちでないですか？'),
+                      Flexible(
+                        child: const Text(
+                          'アカウントをお持ちでないですか？',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).push(
