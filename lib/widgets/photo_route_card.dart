@@ -23,25 +23,28 @@ class PhotoRouteCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(
-          height: 170,
+        child: IntrinsicHeight(
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 左: サムネイル画像
               _buildThumbnail(context),
               
               // 右: ルート情報
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                child: ClipRect(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                       // 公開バッジ + エリアバッジ
                       Row(
                         children: [
                           // 公開バッジ
-                          Container(
+                          Flexible(
+                            flex: 0,
+                            child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
                               vertical: 2,
@@ -66,11 +69,13 @@ class PhotoRouteCard extends StatelessWidget {
                               ],
                             ),
                           ),
+                          ),
                           
                           // エリアバッジ
                           if (area != null) ...[
                             const SizedBox(width: 6),
-                            Container(
+                            Flexible(
+                              child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
                                 vertical: 2,
@@ -96,7 +101,7 @@ class PhotoRouteCard extends StatelessWidget {
                         ],
                       ),
                       
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       
                       // タイトル
                       Text(
@@ -109,7 +114,7 @@ class PhotoRouteCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       
                       // エリア・都道府県
                       if (route.prefecture != null)
@@ -121,63 +126,78 @@ class PhotoRouteCard extends StatelessWidget {
                           ),
                         ),
                       
-                      const Spacer(),
+                      const SizedBox(height: 10),
                       
                       // 統計情報
                       Row(
                         children: [
                           Icon(Icons.straighten, size: 14, color: Colors.grey[600]),
                           const SizedBox(width: 4),
-                          Text(
-                            '${(route.distance / 1000).toStringAsFixed(1)}km',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w500,
+                          Flexible(
+                            child: Text(
+                              '${(route.distance / 1000).toStringAsFixed(1)}km',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Icon(Icons.timer, size: 14, color: Colors.grey[600]),
                           const SizedBox(width: 4),
-                          Text(
-                            '${(route.duration / 60).toStringAsFixed(0)}分',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w500,
+                          Flexible(
+                            child: Text(
+                              '${(route.duration / 60).toStringAsFixed(0)}分',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
                       
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       
                       // 日付といいね（TODO: いいね数は後で実装）
                       Row(
                         children: [
                           Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
                           const SizedBox(width: 4),
-                          Text(
-                            route.formatDate(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey[600],
+                          Expanded(
+                            child: Text(
+                              route.formatDate(),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          // TODO: いいね数を表示
-                          // const Spacer(),
-                          // Row(
-                          //   children: [
-                          //     Icon(Icons.favorite, size: 14, color: Colors.red[300]),
-                          //     const SizedBox(width: 4),
-                          //     Text('15', style: TextStyle(fontSize: 11)),
-                          //   ],
-                          // ),
+                          const SizedBox(width: 12),
+                          Icon(Icons.favorite, size: 14, color: Colors.red[300]),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${route.likeCount ?? 0}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
+              ),
               ),
             ],
           ),
@@ -190,7 +210,7 @@ class PhotoRouteCard extends StatelessWidget {
   Widget _buildThumbnail(BuildContext context) {
     return Container(
       width: 150,
-      height: 170,
+      constraints: const BoxConstraints(minHeight: 180),
       decoration: BoxDecoration(
         color: Colors.grey[300],
       ),

@@ -18,6 +18,7 @@ class RouteModel {
   final String? area; // エリアID (hakone, izu, nasu, etc.)
   final String? prefecture; // 都道府県名
   final String? thumbnailUrl; // サムネイル画像URL
+  final int likeCount; // いいね数
 
   RouteModel({
     this.id,
@@ -35,6 +36,7 @@ class RouteModel {
     this.area,
     this.prefecture,
     this.thumbnailUrl,
+    this.likeCount = 0,
   }) : startedAt = startedAt ?? DateTime.now(),
        createdAt = createdAt ?? DateTime.now();
 
@@ -56,6 +58,7 @@ class RouteModel {
       area: json['area'] as String?,
       prefecture: json['prefecture'] as String?,
       thumbnailUrl: json['thumbnail_url'] as String?,
+      likeCount: json['like_count'] as int? ?? 0,
     );
   }
 
@@ -76,6 +79,7 @@ class RouteModel {
       'area': area,
       'prefecture': prefecture,
       'thumbnail_url': thumbnailUrl,
+      'like_count': likeCount,
     };
   }
 

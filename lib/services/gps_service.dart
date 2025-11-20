@@ -9,6 +9,7 @@ class GpsService {
   final List<RoutePoint> _currentRoutePoints = [];
   DateTime? _startTime;
   bool _isRecording = false;
+  bool _isPaused = false;
 
   /// 位置情報の権限をチェック
   Future<bool> checkPermission() async {
@@ -164,9 +165,31 @@ class GpsService {
     return completedRoute;
   }
 
+  /// 記録を一時停止
+  void pauseRecording() {
+    if (!_isRecording || _isPaused) {
+      print('一時停止できません: isRecording=$_isRecording, isPaused=$_isPaused');
+      return;
+    }
+
+    _isPaused = true;
+    print('✅ GPS記録を一時停止しました');
+  }
+
+  /// 記録を再開
+  void resumeRecording() {
+    if (!_isRecording || !_isPaused) {
+      print('再開できません: isRecording=$_isRecording, isPaused=$_isPaused');
+      return;
+    }
+
+    _isPaused = false;
+    print('✅ GPS記録を再開しました');
+  }
+
   /// ポイントを追加
   void _addRoutePoint(Position position) {
-    if (!_isRecording) return;
+    if (!_isRecording || _isPaused) return;
 
     final point = RoutePoint(
       latLng: LatLng(position.latitude, position.longitude),
@@ -182,6 +205,9 @@ class GpsService {
   /// 記録中かどうか
   bool get isRecording => _isRecording;
 
+  /// 一時停止中かどうか
+  bool get isPaused => _isPaused;
+
   /// 現在のルートポイント数
   int get currentPointCount => _currentRoutePoints.length;
 
@@ -194,5 +220,6 @@ class GpsService {
     _positionStreamSubscription = null;
     _currentRoutePoints.clear();
     _isRecording = false;
+    _isPaused = false;
   }
 }

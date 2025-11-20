@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../services/gps_service.dart';
+import '../../services/photo_service.dart';
 import '../../config/supabase_config.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
@@ -24,7 +26,11 @@ class _MapScreenState extends State<MapScreen> {
   LatLng? _currentPosition;
   bool _isLoading = true;
   bool _isRecording = false;
+  bool _isPaused = false;
   List<LatLng> _routePoints = [];
+  DateTime? _pauseStartTime;
+  Duration _totalPauseDuration = Duration.zero;
+  List<String> _tempPhotoUrls = []; // 記録中に撮影した写真のURL
 
   @override
   void initState() {
@@ -89,6 +95,116 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  /// ルート記録を一時停止
+  void _pauseRecording() {
+    if (!_isRecording || _isPaused) return;
+
+    setState(() {
+      _isPaused = true;
+      _pauseStartTime = DateTime.now();
+    });
+
+    _gpsService.pauseRecording();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('記録を一時停止しました'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// ルート記録を再開
+  void _resumeRecording() {
+    if (!_isRecording || !_isPaused) return;
+
+    if (_pauseStartTime != null) {
+      _totalPauseDuration += DateTime.now().difference(_pauseStartTime!);
+    }
+
+    setState(() {
+      _isPaused = false;
+      _pauseStartTime = null;
+    });
+
+    _gpsService.resumeRecording();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('記録を再開しました'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// 写真撮影（記録中）
+  Future<void> _takePhoto() async {
+    if (!_isRecording) return;
+
+    final userId = SupabaseConfig.userId;
+    if (userId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ログインしてください')),
+        );
+      }
+      return;
+    }
+
+    try {
+      // カメラで撮影
+      final file = await PhotoService().takePhoto();
+      if (file == null) return;
+
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('写真をアップロード中...')),
+      );
+
+      // 一時的なrouteIdを生成（記録終了時に実際のrouteIdに置き換え）
+      final tempRouteId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+      
+      // 写真をアップロード
+      final storagePath = await PhotoService().uploadPhoto(
+        file: file,
+        routeId: tempRouteId,
+        userId: userId,
+      );
+
+      if (storagePath != null && mounted) {
+        setState(() {
+          _tempPhotoUrls.add(storagePath);
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('写真を追加しました（${_tempPhotoUrls.length}枚）'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('写真のアップロードに失敗しました'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('エラー: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   /// ルート記録停止（ダイアログ表示のみ）
   void _stopRecording() {
     print('🔵 _stopRecording が呼ばれました');
@@ -141,8 +257,9 @@ class _MapScreenState extends State<MapScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: WanMapSpacing.borderRadiusXL,
             ),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
-              padding: const EdgeInsets.all(WanMapSpacing.xl),
+              padding: const EdgeInsets.all(WanMapSpacing.lg),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -256,15 +373,45 @@ class _MapScreenState extends State<MapScreen> {
                     Row(
                       children: [
                         Expanded(
+                          flex: 5,
                           child: WanMapButton(
                             text: 'キャンセル',
+                            size: WanMapButtonSize.small,
                             variant: WanMapButtonVariant.outlined,
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('お散歩を終了しますか？'),
+                                  content: const Text('記録したデータを保存せずに終了します。'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx),
+                                      child: const Text('戻る'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        _gpsService.stopRecording(
+                                          userId: '',
+                                          title: '',
+                                          description: '',
+                                          isPublic: false,
+                                        );
+                                        Navigator.pop(ctx);
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('保存せずに終了', style: TextStyle(color: Colors.red)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                         ),
-                        const SizedBox(width: WanMapSpacing.md),
+                        const SizedBox(width: WanMapSpacing.sm),
                         Expanded(
-                          flex: 2,
+                          flex: 5,
                           child: WanMapButton(
                             text: '保存',
                             icon: Icons.check,
@@ -292,6 +439,13 @@ class _MapScreenState extends State<MapScreen> {
 
                               if (route != null && mounted) {
                                 _saveRouteToSupabase(route);
+                                
+                                // 保存成功後、ホーム画面に戻る
+                                Future.delayed(const Duration(milliseconds: 500), () {
+                                  if (mounted) {
+                                    Navigator.of(context).popUntil((route) => route.isFirst);
+                                  }
+                                });
                               }
                             },
                           ),
@@ -420,10 +574,26 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    // 距離と時間の計算
-    final distance = _gpsService.currentDistance;
-    final duration = _gpsService.currentDuration;
-    final pace = distance > 0 ? duration / distance : 0.0;
+    // 距離と時間の計算（currentRoutePointsから計算）
+    double distance = 0.0;
+    int duration = 0;
+    final points = _gpsService.currentRoutePoints;
+    
+    if (points.isNotEmpty) {
+      for (int i = 0; i < points.length - 1; i++) {
+        final p1 = points[i].latLng;
+        final p2 = points[i + 1].latLng;
+        distance += Geolocator.distanceBetween(
+          p1.latitude, p1.longitude,
+          p2.latitude, p2.longitude,
+        );
+      }
+      if (points.length > 1) {
+        duration = points.last.timestamp.difference(points.first.timestamp).inSeconds;
+      }
+    }
+    
+    final pace = distance > 0 ? duration / distance * 1000 : 0.0; // 秒/km
 
     return Scaffold(
       backgroundColor: isDark 
@@ -441,7 +611,6 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               // OpenStreetMapタイル
               TileLayer(
-                urlTemplate: isDark
                     ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
                     : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.doghub.wanmap',
@@ -772,35 +941,23 @@ class _MapScreenState extends State<MapScreen> {
                 children: [
                   Expanded(
                     child: WanMapButton(
-                      text: '一時停止',
-                      icon: Icons.pause,
-                      size: WanMapButtonSize.medium,
+                      text: _isPaused ? '再開' : '一時停止',
+                      icon: _isPaused ? Icons.play_arrow : Icons.pause,
+                      size: WanMapButtonSize.small,
                       variant: WanMapButtonVariant.outlined,
-                      onPressed: () {
-                        // TODO: 一時停止機能
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('一時停止機能は近日実装予定です'),
-                          ),
-                        );
-                      },
+                      onPressed: _isPaused ? _resumeRecording : _pauseRecording,
                     ),
                   ),
                   const SizedBox(width: WanMapSpacing.md),
                   Expanded(
                     child: WanMapButton(
-                      text: '写真',
+                      text: _tempPhotoUrls.isEmpty 
+                          ? '写真' 
+                          : '写真 (${_tempPhotoUrls.length})',
                       icon: Icons.camera_alt,
-                      size: WanMapButtonSize.medium,
+                      size: WanMapButtonSize.small,
                       variant: WanMapButtonVariant.secondary,
-                      onPressed: () {
-                        // TODO: 写真撮影機能
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('写真撮影機能は近日実装予定です'),
-                          ),
-                        );
-                      },
+                      onPressed: _takePhoto,
                     ),
                   ),
                 ],

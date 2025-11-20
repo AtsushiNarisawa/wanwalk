@@ -13,6 +13,8 @@ import '../../widgets/wanmap_widgets.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wanmap_v2/providers/like_provider.dart';
 import 'route_edit_screen.dart';
+import '../../widgets/photo_viewer.dart';
+
 class RouteDetailScreen extends StatefulWidget {
   final String routeId;
 
@@ -318,6 +320,103 @@ ${_route!.title}
     }
   }
 
+  List<Widget> _buildActions(BuildContext context, bool isOwnRoute) {
+    return [
+      if (!_isFavoriteLoading)
+        Container(
+          margin: const EdgeInsets.all(WanMapSpacing.sm),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: Icon(
+              _isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: _isFavorite ? Colors.red : WanMapColors.primary,
+            ),
+            onPressed: _toggleFavorite,
+          ),
+        ),
+      Container(
+        margin: const EdgeInsets.all(WanMapSpacing.sm),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          icon: Icon(Icons.share, color: WanMapColors.primary),
+          onPressed: _shareRoute,
+        ),
+      ),
+      if (isOwnRoute) ...[
+        Container(
+          margin: const EdgeInsets.all(WanMapSpacing.sm),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: Icon(Icons.edit, color: WanMapColors.primary),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RouteEditScreen(route: _route!),
+                ),
+              );
+              if (result == true) {
+                _loadRouteDetail();
+              }
+            },
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.all(WanMapSpacing.sm),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: _showDeleteDialog,
+          ),
+        ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentUser = Supabase.instance.client.auth.currentUser;
@@ -364,7 +463,6 @@ ${_route!.title}
   Widget _buildContent(BuildContext context, bool isOwnRoute, bool isDark) {
     return CustomScrollView(
       slivers: [
-        // ヒーロー画像＋マップ
         SliverAppBar(
           expandedHeight: 350,
           pinned: true,
@@ -384,186 +482,188 @@ ${_route!.title}
               ],
             ),
             child: IconButton(
-              icon: Icon(Icons.arrow_back, color: WanMapColors.primary),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(Icons.arrow_back, color: WanMapColors.primary, size: 24),
               onPressed: () => Navigator.pop(context),
             ),
           ),
           actions: _buildActions(context, isOwnRoute),
           flexibleSpace: FlexibleSpaceBar(
-            background: Stack(
-              fit: StackFit.expand,
+            background: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: _route!.points.isNotEmpty
+                    ? _route!.points.first.latLng
+                    : const LatLng(35.6762, 139.6503),
+                initialZoom: 14.0,
+              ),
               children: [
-                // マップ背景
-                SizedBox(
-                  height: 350,
-                  child: FlutterMap(
-                              mapController: _mapController,
-                              options: MapOptions(
-                                initialCenter: _route!.points.isNotEmpty
-                                    ? _route!.points.first.latLng
-                                    : const LatLng(35.6762, 139.6503),
-                                initialZoom: 14.0,
-                              ),
-                              children: [
-                                TileLayer(
-                                  urlTemplate: Theme.of(context).brightness == Brightness.dark
-                ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
-                : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  userAgentPackageName: 'com.example.wanmap_v2',
-                                ),
-                                if (_route!.points.isNotEmpty)
-                                  PolylineLayer(
-                                    polylines: [
-                                      Polyline(
-                                        points: _route!.points.map((p) => p.latLng).toList(),
-                                        color: Colors.red,
-                                        strokeWidth: 4.0,
-                                      ),
-                                    ],
-                                  ),
-                                if (_route!.points.isNotEmpty)
-                                  MarkerLayer(
-                                    markers: [
-                                      Marker(
-                                        point: _route!.points.first.latLng,
-                                        width: 40,
-                                        height: 40,
-                                        child: const Icon(Icons.play_circle, color: Colors.green, size: 40),
-                                      ),
-                                      Marker(
-                                        point: _route!.points.last.latLng,
-                                        width: 40,
-                                        height: 40,
-                                        child: const Icon(Icons.stop_circle, color: Colors.red, size: 40),
-                                      ),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                          ),
-                          
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _route!.title,
-                                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 8),
-                                
-                                if (_route!.description != null && _route!.description!.isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: Text(
-                                      _route!.description!,
-                                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-                                    ),
-                                  ),
-                                
-                                Card(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      children: [
-                                        _StatRow(
-                                          icon: Icons.straighten,
-                                          label: '距離',
-                                          value: '${(_route!.distance / 1000).toStringAsFixed(2)} km',
-                                        ),
-                                        const Divider(),
-                                        _StatRow(
-                                          icon: Icons.timer,
-                                          label: '時間',
-                                          value: _route!.formatDuration(),
-                                        ),
-                                        const Divider(),
-                                        _StatRow(
-                                          icon: Icons.calendar_today,
-                                          label: '日付',
-                                          value: _route!.formatDate(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                
-                                const SizedBox(height: 24),
-                                
-                                // 写真ギャラリー
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      '写真',
-                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                    ),
-                                    if (isOwnRoute)
-                                      TextButton.icon(
-                                        onPressed: _addPhoto,
-                                        icon: const Icon(Icons.add_photo_alternate),
-                                        label: const Text('追加'),
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                
-                                if (_isPhotosLoading)
-                                  const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(24),
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                else if (_photos.isEmpty)
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(24),
-                                      child: Text(
-                                        '写真がありません',
-                                        style: TextStyle(color: Colors.grey[600]),
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  GridView.builder(
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 8,
-                                      mainAxisSpacing: 8,
-                                    ),
-                                    itemCount: _photos.length,
-                                    itemBuilder: (context, index) {
-                                      final photo = _photos[index];
-                                      return GestureDetector(
-                                        onTap: () {
-                                          // TODO: 写真を拡大表示
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Image.network(
-                                            photo.publicUrl,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Container(
-                                                color: Colors.grey[300],
-                                                child: const Icon(Icons.error),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
+                TileLayer(
+                  urlTemplate: Theme.of(context).brightness == Brightness.dark
+                      ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+                      : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.wanmap_v2',
+                ),
+                if (_route!.points.isNotEmpty)
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: _route!.points.map((p) => p.latLng).toList(),
+                        color: Colors.red,
+                        strokeWidth: 4.0,
+                      ),
+                    ],
+                  ),
+                if (_route!.points.isNotEmpty)
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: _route!.points.first.latLng,
+                        width: 40,
+                        height: 40,
+                        child: const Icon(Icons.play_circle, color: Colors.green, size: 40),
+                      ),
+                      Marker(
+                        point: _route!.points.last.latLng,
+                        width: 40,
+                        height: 40,
+                        child: const Icon(Icons.stop_circle, color: Colors.red, size: 40),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _route!.title,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                
+                if (_route!.description != null && _route!.description!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      _route!.description!,
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                    ),
+                  ),
+                
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _StatRow(
+                          icon: Icons.straighten,
+                          label: '距離',
+                          value: '${(_route!.distance / 1000).toStringAsFixed(2)} km',
+                        ),
+                        const Divider(),
+                        _StatRow(
+                          icon: Icons.timer,
+                          label: '時間',
+                          value: _route!.formatDuration(),
+                        ),
+                        const Divider(),
+                        _StatRow(
+                          icon: Icons.calendar_today,
+                          label: '日付',
+                          value: _route!.formatDate(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '写真',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    if (isOwnRoute)
+                      TextButton.icon(
+                        onPressed: _addPhoto,
+                        icon: const Icon(Icons.add_photo_alternate),
+                        label: const Text('追加'),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                
+                if (_isPhotosLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (_photos.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        '写真がありません',
+                        style: TextStyle(color: Colors.grey[600]),
                       ),
                     ),
+                  )
+                else
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: _photos.length,
+                    itemBuilder: (context, index) {
+                      final photo = _photos[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PhotoViewer(
+                                photoUrls: _photos.map((p) => p.publicUrl).toList(),
+                                initialIndex: index,
+                              ),
+                            ),
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            photo.publicUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.error),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -596,6 +696,100 @@ class _StatRow extends StatelessWidget {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ],
+    );
+  }
+}
+
+/// 写真フルスクリーン表示
+class _PhotoViewScreen extends StatefulWidget {
+  final List<RoutePhoto> photos;
+  final int initialIndex;
+
+  const _PhotoViewScreen({
+    required this.photos,
+    required this.initialIndex,
+  });
+
+  @override
+  State<_PhotoViewScreen> createState() => _PhotoViewScreenState();
+}
+
+class _PhotoViewScreenState extends State<_PhotoViewScreen> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          '${_currentIndex + 1} / ${widget.photos.length}',
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.photos.length,
+        onPageChanged: (index) {
+          setState(() => _currentIndex = index);
+        },
+        itemBuilder: (context, index) {
+          final photo = widget.photos[index];
+          return InteractiveViewer(
+            minScale: 0.5,
+            maxScale: 4.0,
+            child: Center(
+              child: Image.network(
+                photo.publicUrl,
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                      color: Colors.white,
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 64, color: Colors.white),
+                        SizedBox(height: 16),
+                        Text(
+                          '画像を読み込めませんでした',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
