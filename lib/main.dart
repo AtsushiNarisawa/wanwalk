@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'config/supabase_config.dart';
 import 'config/wanmap_theme.dart';
 import 'config/wanmap_colors.dart';
+import 'config/env.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -26,6 +28,14 @@ void main() async {
   };
   
   try {
+    // 環境変数の読み込み
+    await dotenv.load(fileName: ".env");
+    print('✅ Environment variables loaded');
+    
+    // 環境変数のバリデーション
+    Environment.validate();
+    print('✅ Environment variables validated');
+    
     // Supabaseの初期化
     await SupabaseConfig.initialize();
     print('✅ Supabase initialized successfully');
@@ -36,12 +46,17 @@ void main() async {
     print('✅ Notification system initialized successfully');
   } catch (e) {
     print('❌ Failed to initialize: $e');
+    // エラーが発生しても起動を継続
   }
   
   // アプリを起動
   runApp(
-    const ProviderScope(
-      child: WanMapApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        // 他のProviderをここに追加
+      ],
+      child: const WanMapApp(),
     ),
   );
 }
@@ -64,14 +79,14 @@ class WanMapApp extends StatelessWidget {
 }
 
 /// スプラッシュ画面
-class SplashScreen extends ConsumerStatefulWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   
@@ -201,4 +216,3 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     );
   }
 }
-

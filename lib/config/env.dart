@@ -1,37 +1,48 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// 環境変数設定
 /// 
-/// 本番環境では、これらの値を実際の認証情報に置き換えてください。
-/// セキュリティのため、本番環境ではenv_prod.dartを作成し、
-/// .gitignoreに追加することを推奨します。
+/// .envファイルから環境変数を読み込みます。
+/// セキュリティのため、.envファイルはGit管理対象外(.gitignore)に設定してください。
 class Environment {
   // Supabase設定
-  // TODO: 実際のSupabase URLに置き換えてください
-  static const String supabaseUrl = 'https://jkpenklhrlbctebkpvax.supabase.co';
+  static String get supabaseUrl => dotenv.get('SUPABASE_URL', fallback: '');
+  static String get supabaseAnonKey => dotenv.get('SUPABASE_ANON_KEY', fallback: '');
   
-  // TODO: 実際のSupabase Anon Keyに置き換えてください
-  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprcGVua2xocmxiY3RlYmtwdmF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjcwMDUsImV4cCI6MjA3ODUwMzAwNX0.7Blk7ZgGMBN1orsovHgaTON7IDVDJ0Er_QGru8ZMZz8';
-  
-  // Cloudflare R2設定（画像ストレージ）
-  // TODO: 実際のR2認証情報に置き換えてください
-  static const String r2AccountId = 'your-r2-account-id';
-  static const String r2AccessKeyId = 'your-r2-access-key-id';
-  static const String r2SecretAccessKey = 'your-r2-secret-access-key';
-  static const String r2BucketName = 'wanmap-photos';
-  static const String r2PublicUrl = 'https://your-bucket.r2.dev';
+  // Thunderforest地図タイル
+  static String get thunderforestApiKey => dotenv.get('THUNDERFOREST_API_KEY', fallback: '');
   
   // アプリ設定
-  static const String appName = 'WanMap';
-  static const String appVersion = '1.0.0';
+  static String get appName => dotenv.get('APP_NAME', fallback: 'WanMap');
+  static String get appVersion => dotenv.get('APP_VERSION', fallback: '1.0.0');
   
   // デバッグモード
-  static const bool isDebugMode = true;
+  static bool get isDebugMode => dotenv.get('DEBUG_MODE', fallback: 'true') == 'true';
   
   // マップ設定
-  static const double defaultLatitude = 35.6762; // 東京（デフォルト位置）
-  static const double defaultLongitude = 139.6503;
-  static const double defaultZoom = 14.0;
+  static double get defaultLatitude => 
+    double.tryParse(dotenv.get('DEFAULT_LATITUDE', fallback: '35.6762')) ?? 35.6762;
+  static double get defaultLongitude => 
+    double.tryParse(dotenv.get('DEFAULT_LONGITUDE', fallback: '139.6503')) ?? 139.6503;
+  static double get defaultZoom => 
+    double.tryParse(dotenv.get('DEFAULT_ZOOM', fallback: '14.0')) ?? 14.0;
   
   // GPS設定
-  static const int locationUpdateInterval = 5000; // ミリ秒
-  static const double minDistanceFilter = 10.0; // メートル
+  static int get locationUpdateInterval => 
+    int.tryParse(dotenv.get('LOCATION_UPDATE_INTERVAL', fallback: '5000')) ?? 5000;
+  static double get minDistanceFilter => 
+    double.tryParse(dotenv.get('MIN_DISTANCE_FILTER', fallback: '10.0')) ?? 10.0;
+  
+  /// 環境変数のバリデーション
+  static void validate() {
+    if (supabaseUrl.isEmpty) {
+      throw Exception('SUPABASE_URL環境変数が設定されていません');
+    }
+    if (supabaseAnonKey.isEmpty) {
+      throw Exception('SUPABASE_ANON_KEY環境変数が設定されていません');
+    }
+    if (thunderforestApiKey.isEmpty || thunderforestApiKey == 'your-api-key-here') {
+      print('⚠️ Warning: THUNDERFOREST_API_KEY環境変数が設定されていません。地図タイルが表示されない可能性があります。');
+    }
+  }
 }
