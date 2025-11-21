@@ -416,21 +416,4 @@ class _MapView extends StatelessWidget {
   }
 }
 
-/// RouteDetailScreenのプレースホルダー（後で実装）
-class RouteDetailScreen extends StatelessWidget {
-  final String routeId;
-  
-  const RouteDetailScreen({super.key, required this.routeId});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('ルート詳細'),
-      ),
-      body: Center(
-        child: Text('Route ID: $routeId'),
-      ),
-    );
-  }
-}
