@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/supabase_config.dart';
 import 'config/wanmap_theme.dart';
 import 'config/wanmap_colors.dart';
 import 'config/env.dart';
-import 'providers/auth_provider.dart';
-import 'providers/dog_provider.dart';
-import 'providers/gps_provider.dart';
-import 'providers/route_provider.dart';
-import 'providers/spot_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'services/notification_service.dart';
@@ -53,18 +48,10 @@ void main() async {
     // エラーが発生しても起動を継続
   }
   
-  // アプリを起動
+  // アプリを起動（Riverpod対応）
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => DogProvider()),
-        ChangeNotifierProvider(create: (_) => GpsProvider()),
-        ChangeNotifierProvider(create: (_) => RouteProvider()),
-        ChangeNotifierProvider(create: (_) => SpotProvider()),
-        // 他のProviderをここに追加
-      ],
-      child: const WanMapApp(),
+    const ProviderScope(
+      child: WanMapApp(),
     ),
   );
 }

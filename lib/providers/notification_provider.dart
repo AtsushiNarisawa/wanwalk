@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wanmap_v2/services/notification_service.dart';
+import '../services/notification_service.dart';
 
 /// 通知設定の状態
 class NotificationSettings {
@@ -55,21 +54,20 @@ class NotificationSettings {
   }
 }
 
-/// 通知設定プロバイダー
-final notificationSettingsProvider =
-    StateNotifierProvider<NotificationSettingsNotifier, NotificationSettings>(
-        (ref) {
-  return NotificationSettingsNotifier();
-});
+/// 通知設定の状態を管理するProvider
+/// ChangeNotifierを使用してProviderパッケージと連携
+class NotificationProvider extends ChangeNotifier {
+  NotificationSettings _settings = const NotificationSettings();
+  
+  static const String _key = 'notification_settings';
+  final _notificationService = NotificationService();
 
-/// 通知設定の状態管理
-class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
-  NotificationSettingsNotifier() : super(const NotificationSettings()) {
+  NotificationProvider() {
     _loadSettings();
   }
 
-  static const String _key = 'notification_settings';
-  final _notificationService = NotificationService();
+  /// 現在の設定
+  NotificationSettings get settings => _settings;
 
   /// 設定を読み込む
   Future<void> _loadSettings() async {
@@ -81,10 +79,11 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
         final json = Map<String, dynamic>.from(
           Uri.splitQueryString(jsonString),
         );
-        state = NotificationSettings.fromJson(json);
+        _settings = NotificationSettings.fromJson(json);
+        notifyListeners();
         
         // 設定に基づいて通知を再スケジュール
-        if (state.dailyReminderEnabled) {
+        if (_settings.dailyReminderEnabled) {
           await _scheduleDailyReminder();
         }
       }
@@ -97,7 +96,7 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
   Future<void> _saveSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final json = state.toJson();
+      final json = _settings.toJson();
       final queryString = Uri(queryParameters: json.map(
         (key, value) => MapEntry(key, value.toString()),
       )).query;
@@ -123,13 +122,14 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
       await _notificationService.cancelAllNotifications();
     }
 
-    state = state.copyWith(enabled: enabled);
+    _settings = _settings.copyWith(enabled: enabled);
+    notifyListeners();
     await _saveSettings();
   }
 
   /// 毎日のリマインダーを設定
   Future<void> setDailyReminderEnabled(bool enabled) async {
-    if (enabled && state.enabled) {
+    if (enabled && _settings.enabled) {
       await _scheduleDailyReminder();
     } else {
       await _notificationService.cancelNotification(
@@ -137,15 +137,17 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
       );
     }
 
-    state = state.copyWith(dailyReminderEnabled: enabled);
+    _settings = _settings.copyWith(dailyReminderEnabled: enabled);
+    notifyListeners();
     await _saveSettings();
   }
 
   /// リマインダー時刻を設定
   Future<void> setDailyReminderTime(TimeOfDay time) async {
-    state = state.copyWith(dailyReminderTime: time);
+    _settings = _settings.copyWith(dailyReminderTime: time);
+    notifyListeners();
     
-    if (state.dailyReminderEnabled && state.enabled) {
+    if (_settings.dailyReminderEnabled && _settings.enabled) {
       await _scheduleDailyReminder();
     }
     
@@ -154,7 +156,8 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
 
   /// お気に入りルート更新通知を設定
   Future<void> setFavoriteUpdateEnabled(bool enabled) async {
-    state = state.copyWith(favoriteUpdateEnabled: enabled);
+    _settings = _settings.copyWith(favoriteUpdateEnabled: enabled);
+    notifyListeners();
     await _saveSettings();
   }
 
@@ -164,13 +167,13 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
       id: NotificationIds.dailyWalkReminder,
       title: '散歩の時間です 🐕',
       body: '今日もワンちゃんと楽しく散歩しましょう！',
-      time: state.dailyReminderTime,
+      time: _settings.dailyReminderTime,
     );
   }
 
   /// テスト通知を送信
   Future<void> sendTestNotification() async {
-    if (!state.enabled) {
+    if (!_settings.enabled) {
       await setEnabled(true);
     }
 

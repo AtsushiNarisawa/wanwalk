@@ -152,6 +152,8 @@ class WanMapSpacing {
       BorderRadius.all(Radius.circular(radiusLG));
   static const BorderRadius borderRadiusXL = 
       BorderRadius.all(Radius.circular(radiusXL));
+  static const BorderRadius borderRadiusXXL = 
+      BorderRadius.all(Radius.circular(radiusXXL));
   
   // ==================================================
   // シャドウ（影）

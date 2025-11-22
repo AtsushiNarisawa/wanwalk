@@ -116,7 +116,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: WanMapColors.background,
+      backgroundColor: WanMapColors.backgroundLight,
       body: Consumer<RouteProvider>(
         builder: (context, routeProvider, child) {
           if (routeProvider.isLoading) {
@@ -317,7 +317,9 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                             child: _StatCard(
                               icon: Icons.speed,
                               label: '平均速度',
-                              value: route.averageSpeed,
+                              value: route.duration > 0 
+                                  ? (route.distance / route.duration * 3.6).toStringAsFixed(1) 
+                                  : '0.0',
                               color: Colors.purple,
                             ),
                           ),

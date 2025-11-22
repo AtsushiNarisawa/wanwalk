@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wanmap_v2/providers/theme_provider.dart';
-import 'package:wanmap_v2/providers/notification_provider.dart';
+import 'package:provider/provider.dart';
+import '../../providers/theme_provider.dart';
+import '../../providers/notification_provider.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('設定'),
@@ -30,13 +28,17 @@ class SettingsScreen extends ConsumerWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.brightness_6),
-                  title: const Text('テーマ'),
-                  subtitle: Text(_getThemeModeLabel(themeMode)),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    _showThemeDialog(context, ref);
+                Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, child) {
+                    return ListTile(
+                      leading: const Icon(Icons.brightness_6),
+                      title: const Text('テーマ'),
+                      subtitle: Text(_getThemeModeLabel(themeProvider.themeMode)),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        _showThemeDialog(context);
+                      },
+                    );
                   },
                 ),
               ],
@@ -58,76 +60,65 @@ class SettingsScreen extends ConsumerWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               children: [
-                Consumer(
-                  builder: (context, ref, child) {
-                    final notificationSettings =
-                        ref.watch(notificationSettingsProvider);
+                Consumer<NotificationProvider>(
+                  builder: (context, notificationProvider, child) {
                     return SwitchListTile(
                       secondary: const Icon(Icons.notifications_active),
                       title: const Text('通知を有効にする'),
                       subtitle: const Text('リマインダーやお知らせを受け取る'),
-                      value: notificationSettings.enabled,
+                      value: notificationProvider.settings.enabled,
                       onChanged: (value) {
-                        ref
-                            .read(notificationSettingsProvider.notifier)
-                            .setEnabled(value);
+                        notificationProvider.setEnabled(value);
                       },
                     );
                   },
                 ),
                 const Divider(height: 1),
-                Consumer(
-                  builder: (context, ref, child) {
-                    final notificationSettings =
-                        ref.watch(notificationSettingsProvider);
+                Consumer<NotificationProvider>(
+                  builder: (context, notificationProvider, child) {
+                    final settings = notificationProvider.settings;
                     return SwitchListTile(
                       secondary: const Icon(Icons.alarm),
                       title: const Text('毎日のリマインダー'),
                       subtitle: Text(
-                        '${notificationSettings.dailyReminderTime.hour}:${notificationSettings.dailyReminderTime.minute.toString().padLeft(2, '0')}に通知',
+                        '${settings.dailyReminderTime.hour}:${settings.dailyReminderTime.minute.toString().padLeft(2, '0')}に通知',
                       ),
-                      value: notificationSettings.dailyReminderEnabled,
-                      onChanged: notificationSettings.enabled
+                      value: settings.dailyReminderEnabled,
+                      onChanged: settings.enabled
                           ? (value) {
-                              ref
-                                  .read(notificationSettingsProvider.notifier)
-                                  .setDailyReminderEnabled(value);
+                              notificationProvider.setDailyReminderEnabled(value);
                             }
                           : null,
                     );
                   },
                 ),
-                Consumer(
-                  builder: (context, ref, child) {
-                    final notificationSettings =
-                        ref.watch(notificationSettingsProvider);
+                Consumer<NotificationProvider>(
+                  builder: (context, notificationProvider, child) {
+                    final settings = notificationProvider.settings;
                     return ListTile(
                       leading: const Icon(Icons.schedule),
                       title: const Text('リマインダー時刻'),
                       subtitle: Text(
-                        '${notificationSettings.dailyReminderTime.hour}:${notificationSettings.dailyReminderTime.minute.toString().padLeft(2, '0')}',
+                        '${settings.dailyReminderTime.hour}:${settings.dailyReminderTime.minute.toString().padLeft(2, '0')}',
                       ),
                       trailing: const Icon(Icons.chevron_right),
-                      enabled: notificationSettings.enabled &&
-                          notificationSettings.dailyReminderEnabled,
+                      enabled: settings.enabled && settings.dailyReminderEnabled,
                       onTap: () {
                         // TODO: Implement reminder time selection
-                        // _selectReminderTime(context, ref);
+                        // _selectReminderTime(context);
                       },
                     );
                   },
                 ),
                 const Divider(height: 1),
-                Consumer(
-                  builder: (context, ref, child) {
+                Consumer<NotificationProvider>(
+                  builder: (context, notificationProvider, child) {
                     return ListTile(
                       leading: const Icon(Icons.notifications_outlined),
                       title: const Text('テスト通知を送信'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
-                        await ref
-                            .read(notificationSettingsProvider.notifier)
-                            .sendTestNotification();
+                        await notificationProvider.sendTestNotification();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('テスト通知を送信しました')),
@@ -140,7 +131,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-const SizedBox(height: 16),
+          const SizedBox(height: 16),
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
@@ -197,8 +188,9 @@ const SizedBox(height: 16),
     }
   }
 
-  void _showThemeDialog(BuildContext context, WidgetRef ref) {
-    final currentThemeMode = ref.read(themeModeProvider);
+  void _showThemeDialog(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final currentThemeMode = themeProvider.themeMode;
 
     showDialog(
       context: context,
@@ -214,7 +206,7 @@ const SizedBox(height: 16),
               groupValue: currentThemeMode,
               onChanged: (value) {
                 if (value != null) {
-                  ref.read(themeModeProvider.notifier).setThemeMode(value);
+                  themeProvider.setThemeMode(value);
                   Navigator.pop(context);
                 }
               },
@@ -226,7 +218,7 @@ const SizedBox(height: 16),
               groupValue: currentThemeMode,
               onChanged: (value) {
                 if (value != null) {
-                  ref.read(themeModeProvider.notifier).setThemeMode(value);
+                  themeProvider.setThemeMode(value);
                   Navigator.pop(context);
                 }
               },
@@ -238,7 +230,7 @@ const SizedBox(height: 16),
               groupValue: currentThemeMode,
               onChanged: (value) {
                 if (value != null) {
-                  ref.read(themeModeProvider.notifier).setThemeMode(value);
+                  themeProvider.setThemeMode(value);
                   Navigator.pop(context);
                 }
               },

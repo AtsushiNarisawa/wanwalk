@@ -104,7 +104,7 @@ class WanMapTheme {
       ),
       
       // カード
-      cardTheme: const CardThemeData(
+      cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: WanMapSpacing.borderRadiusMD,

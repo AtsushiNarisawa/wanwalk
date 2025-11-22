@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// テーマモードの状態を管理するプロバイダー
-final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
-  return ThemeModeNotifier();
-});
+/// テーマモードの状態を管理するProvider
+/// ChangeNotifierを使用してProviderパッケージと連携
+class ThemeProvider extends ChangeNotifier {
+  ThemeMode _themeMode = ThemeMode.system;
+  
+  static const String _key = 'theme_mode';
 
-/// テーマモード状態管理クラス
-class ThemeModeNotifier extends StateNotifier<ThemeMode> {
-  ThemeModeNotifier() : super(ThemeMode.system) {
+  ThemeProvider() {
     _loadThemeMode();
   }
 
-  static const String _key = 'theme_mode';
+  /// 現在のテーマモード
+  ThemeMode get themeMode => _themeMode;
 
   /// 保存されたテーマモードを読み込む
   Future<void> _loadThemeMode() async {
@@ -22,10 +22,11 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
       final themeModeString = prefs.getString(_key);
       
       if (themeModeString != null) {
-        state = ThemeMode.values.firstWhere(
+        _themeMode = ThemeMode.values.firstWhere(
           (mode) => mode.toString() == themeModeString,
           orElse: () => ThemeMode.system,
         );
+        notifyListeners();
       }
     } catch (e) {
       debugPrint('テーマモード読み込みエラー: $e');
@@ -34,7 +35,8 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
 
   /// テーマモードを変更して保存
   Future<void> setThemeMode(ThemeMode mode) async {
-    state = mode;
+    _themeMode = mode;
+    notifyListeners();
     
     try {
       final prefs = await SharedPreferences.getInstance();
