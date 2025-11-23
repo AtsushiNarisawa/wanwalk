@@ -19,14 +19,23 @@ class RouteModel {
   final String? prefecture; // 都道府県名
   final String? thumbnailUrl; // サムネイル画像URL
   final int likeCount; // いいね数
+  // 🆕 Phase 4: ホーム画面・履歴画面用フィールド
+  final String? name; // ルート名（official_routes用）
+  final String? areaName; // エリア名
+  final String? difficulty; // 難易度 (easy, moderate, hard)
+  final List<String>? features; // 特徴 (scenic_view, cafe_nearby, etc.)
+  final int? totalPins; // 総ピン数
+  final double? averageRating; // 平均評価
+  final int? recentPinsCount; // 直近のピン数（人気急上昇用）
+  final bool? hasWalked; // 歩いたことがあるか
 
   RouteModel({
     this.id,
-    required this.userId,
+    String? userId,
     this.dogId,
-    required this.title,
+    String? title,
     this.description,
-    required this.points,
+    List<RoutePoint>? points,
     this.distance = 0.0,
     this.duration = 0,
     DateTime? startedAt,
@@ -37,7 +46,18 @@ class RouteModel {
     this.prefecture,
     this.thumbnailUrl,
     this.likeCount = 0,
-  }) : startedAt = startedAt ?? DateTime.now(),
+    this.name,
+    this.areaName,
+    this.difficulty,
+    this.features,
+    this.totalPins,
+    this.averageRating,
+    this.recentPinsCount,
+    this.hasWalked,
+  }) : userId = userId ?? '',
+       title = title ?? name ?? '',
+       points = points ?? [],
+       startedAt = startedAt ?? DateTime.now(),
        createdAt = createdAt ?? DateTime.now();
 
   /// JSONからモデルを作成
@@ -153,6 +173,14 @@ class RouteModel {
     String? prefecture,
     String? thumbnailUrl,
     int? likeCount,
+    String? name,
+    String? areaName,
+    String? difficulty,
+    List<String>? features,
+    int? totalPins,
+    double? averageRating,
+    int? recentPinsCount,
+    bool? hasWalked,
   }) {
     return RouteModel(
       id: id ?? this.id,
@@ -171,6 +199,14 @@ class RouteModel {
       prefecture: prefecture ?? this.prefecture,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       likeCount: likeCount ?? this.likeCount,
+      name: name ?? this.name,
+      areaName: areaName ?? this.areaName,
+      difficulty: difficulty ?? this.difficulty,
+      features: features ?? this.features,
+      totalPins: totalPins ?? this.totalPins,
+      averageRating: averageRating ?? this.averageRating,
+      recentPinsCount: recentPinsCount ?? this.recentPinsCount,
+      hasWalked: hasWalked ?? this.hasWalked,
     );
   }
 }

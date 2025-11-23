@@ -1,186 +1,161 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/user_statistics.dart';
 import '../services/notification_service.dart';
+import 'auth_provider.dart';
 
-/// 通知設定の状態
-class NotificationSettings {
-  final bool enabled;
-  final bool dailyReminderEnabled;
-  final TimeOfDay dailyReminderTime;
-  final bool favoriteUpdateEnabled;
+/// NotificationService プロバイダー
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  return NotificationService(Supabase.instance.client);
+});
 
-  const NotificationSettings({
-    this.enabled = false,
-    this.dailyReminderEnabled = false,
-    this.dailyReminderTime = const TimeOfDay(hour: 10, minute: 0),
-    this.favoriteUpdateEnabled = false,
+/// 通知一覧プロバイダー
+class NotificationsParams {
+  final String userId;
+  final int limit;
+  final int offset;
+
+  const NotificationsParams({
+    required this.userId,
+    this.limit = 20,
+    this.offset = 0,
   });
 
-  NotificationSettings copyWith({
-    bool? enabled,
-    bool? dailyReminderEnabled,
-    TimeOfDay? dailyReminderTime,
-    bool? favoriteUpdateEnabled,
-  }) {
-    return NotificationSettings(
-      enabled: enabled ?? this.enabled,
-      dailyReminderEnabled: dailyReminderEnabled ?? this.dailyReminderEnabled,
-      dailyReminderTime: dailyReminderTime ?? this.dailyReminderTime,
-      favoriteUpdateEnabled:
-          favoriteUpdateEnabled ?? this.favoriteUpdateEnabled,
-    );
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is NotificationsParams &&
+        other.userId == userId &&
+        other.limit == limit &&
+        other.offset == offset;
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'enabled': enabled,
-      'dailyReminderEnabled': dailyReminderEnabled,
-      'dailyReminderHour': dailyReminderTime.hour,
-      'dailyReminderMinute': dailyReminderTime.minute,
-      'favoriteUpdateEnabled': favoriteUpdateEnabled,
-    };
-  }
-
-  factory NotificationSettings.fromJson(Map<String, dynamic> json) {
-    return NotificationSettings(
-      enabled: json['enabled'] ?? false,
-      dailyReminderEnabled: json['dailyReminderEnabled'] ?? false,
-      dailyReminderTime: TimeOfDay(
-        hour: json['dailyReminderHour'] ?? 10,
-        minute: json['dailyReminderMinute'] ?? 0,
-      ),
-      favoriteUpdateEnabled: json['favoriteUpdateEnabled'] ?? false,
-    );
-  }
+  @override
+  int get hashCode => Object.hash(userId, limit, offset);
 }
 
-/// 通知設定の状態を管理するProvider
-/// ChangeNotifierを使用してProviderパッケージと連携
-class NotificationProvider extends ChangeNotifier {
-  NotificationSettings _settings = const NotificationSettings();
-  
-  static const String _key = 'notification_settings';
-  final _notificationService = NotificationService();
+final notificationsProvider = FutureProvider.family<
+    List<NotificationModel>,
+    NotificationsParams>((ref, params) async {
+  final service = ref.read(notificationServiceProvider);
+  return await service.getNotifications(
+    userId: params.userId,
+    limit: params.limit,
+    offset: params.offset,
+  );
+});
 
-  NotificationProvider() {
-    _loadSettings();
+/// 未読通知数プロバイダー
+final unreadNotificationsCountProvider = FutureProvider.family<int, String>(
+  (ref, userId) async {
+    final service = ref.read(notificationServiceProvider);
+    return await service.getUnreadCount(userId: userId);
+  },
+);
+
+/// リアルタイム通知状態管理
+class NotificationStateNotifier extends StateNotifier<List<NotificationModel>> {
+  final NotificationService _service;
+  final String _userId;
+  RealtimeChannel? _channel;
+
+  NotificationStateNotifier(this._service, this._userId) : super([]) {
+    _subscribeToNotifications();
   }
 
-  /// 現在の設定
-  NotificationSettings get settings => _settings;
+  void _subscribeToNotifications() {
+    _channel = _service.subscribeToNotifications(
+      userId: _userId,
+      onNotification: (notification) {
+        // 新しい通知を先頭に追加
+        state = [notification, ...state];
+      },
+    );
+  }
 
-  /// 設定を読み込む
-  Future<void> _loadSettings() async {
+  /// 通知を既読にする
+  Future<void> markAsRead(String notificationId) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonString = prefs.getString(_key);
-      
-      if (jsonString != null) {
-        final json = Map<String, dynamic>.from(
-          Uri.splitQueryString(jsonString),
-        );
-        _settings = NotificationSettings.fromJson(json);
-        notifyListeners();
-        
-        // 設定に基づいて通知を再スケジュール
-        if (_settings.dailyReminderEnabled) {
-          await _scheduleDailyReminder();
-        }
-      }
-    } catch (e) {
-      debugPrint('通知設定読み込みエラー: $e');
-    }
-  }
-
-  /// 設定を保存
-  Future<void> _saveSettings() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final json = _settings.toJson();
-      final queryString = Uri(queryParameters: json.map(
-        (key, value) => MapEntry(key, value.toString()),
-      )).query;
-      await prefs.setString(_key, queryString);
-    } catch (e) {
-      debugPrint('通知設定保存エラー: $e');
-    }
-  }
-
-  /// 通知の有効/無効を切り替え
-  Future<void> setEnabled(bool enabled) async {
-    if (enabled) {
-      // 通知権限をリクエスト
-      final granted = await _notificationService.requestPermission();
-      if (!granted) {
-        debugPrint('通知権限が拒否されました');
-        return;
-      }
-      
-      await _notificationService.initialize();
-    } else {
-      // すべての通知をキャンセル
-      await _notificationService.cancelAllNotifications();
-    }
-
-    _settings = _settings.copyWith(enabled: enabled);
-    notifyListeners();
-    await _saveSettings();
-  }
-
-  /// 毎日のリマインダーを設定
-  Future<void> setDailyReminderEnabled(bool enabled) async {
-    if (enabled && _settings.enabled) {
-      await _scheduleDailyReminder();
-    } else {
-      await _notificationService.cancelNotification(
-        NotificationIds.dailyWalkReminder,
+      await _service.markAsRead(
+        userId: _userId,
+        notificationId: notificationId,
       );
+      
+      // 状態を更新
+      state = state.map((notification) {
+        if (notification.notificationId == notificationId) {
+          return NotificationModel(
+            notificationId: notification.notificationId,
+            type: notification.type,
+            actorId: notification.actorId,
+            actorName: notification.actorName,
+            targetId: notification.targetId,
+            title: notification.title,
+            body: notification.body,
+            isRead: true,
+            createdAt: notification.createdAt,
+          );
+        }
+        return notification;
+      }).toList();
+    } catch (e) {
+      print('Error marking notification as read: $e');
     }
-
-    _settings = _settings.copyWith(dailyReminderEnabled: enabled);
-    notifyListeners();
-    await _saveSettings();
   }
 
-  /// リマインダー時刻を設定
-  Future<void> setDailyReminderTime(TimeOfDay time) async {
-    _settings = _settings.copyWith(dailyReminderTime: time);
-    notifyListeners();
-    
-    if (_settings.dailyReminderEnabled && _settings.enabled) {
-      await _scheduleDailyReminder();
+  /// すべての通知を既読にする
+  Future<void> markAllAsRead() async {
+    try {
+      await _service.markAllAsRead(userId: _userId);
+      
+      // 状態を更新
+      state = state.map((notification) {
+        return NotificationModel(
+          notificationId: notification.notificationId,
+          type: notification.type,
+          actorId: notification.actorId,
+          actorName: notification.actorName,
+          targetId: notification.targetId,
+          title: notification.title,
+          body: notification.body,
+          isRead: true,
+          createdAt: notification.createdAt,
+        );
+      }).toList();
+    } catch (e) {
+      print('Error marking all notifications as read: $e');
     }
-    
-    await _saveSettings();
   }
 
-  /// お気に入りルート更新通知を設定
-  Future<void> setFavoriteUpdateEnabled(bool enabled) async {
-    _settings = _settings.copyWith(favoriteUpdateEnabled: enabled);
-    notifyListeners();
-    await _saveSettings();
-  }
-
-  /// 毎日のリマインダーをスケジュール
-  Future<void> _scheduleDailyReminder() async {
-    await _notificationService.scheduleDailyNotification(
-      id: NotificationIds.dailyWalkReminder,
-      title: '散歩の時間です 🐕',
-      body: '今日もワンちゃんと楽しく散歩しましょう！',
-      time: _settings.dailyReminderTime,
-    );
-  }
-
-  /// テスト通知を送信
-  Future<void> sendTestNotification() async {
-    if (!_settings.enabled) {
-      await setEnabled(true);
+  /// 通知を削除
+  Future<void> deleteNotification(String notificationId) async {
+    try {
+      await _service.deleteNotification(
+        userId: _userId,
+        notificationId: notificationId,
+      );
+      
+      // 状態を更新
+      state = state.where((n) => n.notificationId != notificationId).toList();
+    } catch (e) {
+      print('Error deleting notification: $e');
     }
+  }
 
-    await _notificationService.showNotification(
-      id: 999,
-      title: 'テスト通知 🔔',
-      body: 'WanMapからの通知が正常に動作しています！',
-    );
+  @override
+  void dispose() {
+    if (_channel != null) {
+      _service.unsubscribeFromNotifications(_channel!);
+    }
+    super.dispose();
   }
 }
+
+/// リアルタイム通知プロバイダー
+final realtimeNotificationsProvider = StateNotifierProvider.family<
+    NotificationStateNotifier,
+    List<NotificationModel>,
+    String>((ref, userId) {
+  final service = ref.read(notificationServiceProvider);
+  return NotificationStateNotifier(service, userId);
+});

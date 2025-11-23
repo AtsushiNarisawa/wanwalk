@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
-import '../map/map_screen.dart';
+import 'daily_walking_screen.dart';
+import '../badges/badge_list_screen.dart';
+import '../profile/statistics_dashboard_screen.dart';
 
 /// Daily Walk View（日常の散歩モード）
 /// - プライベート記録
@@ -28,6 +30,11 @@ class DailyWalkView extends ConsumerWidget {
 
           // 散歩開始ボタン
           _buildStartWalkButton(context, isDark),
+
+          const SizedBox(height: WanMapSpacing.xxxl),
+
+          // クイックアクション
+          _buildQuickActions(context, isDark),
 
           const SizedBox(height: WanMapSpacing.xxxl),
 
@@ -100,6 +107,65 @@ class DailyWalkView extends ConsumerWidget {
     );
   }
 
+  /// クイックアクション
+  Widget _buildQuickActions(BuildContext context, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'クイックアクション',
+            style: WanMapTypography.headlineSmall.copyWith(
+              color: isDark
+                  ? WanMapColors.textPrimaryDark
+                  : WanMapColors.textPrimaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: WanMapSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.emoji_events,
+                  label: 'バッジ',
+                  color: Colors.amber,
+                  isDark: isDark,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BadgeListScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: WanMapSpacing.md),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.bar_chart,
+                  label: '統計',
+                  color: Colors.blue,
+                  isDark: isDark,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StatisticsDashboardScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 散歩開始ボタン
   Widget _buildStartWalkButton(BuildContext context, bool isDark) {
     return Padding(
@@ -112,7 +178,7 @@ class DailyWalkView extends ConsumerWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const MapScreen(),
+                builder: (context) => const DailyWalkingScreen(),
               ),
             );
           },
@@ -256,6 +322,64 @@ class DailyWalkView extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// クイックアクションカード
+class _QuickActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        decoration: BoxDecoration(
+          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: color,
+              size: 48,
+            ),
+            const SizedBox(height: WanMapSpacing.sm),
+            Text(
+              label,
+              style: WanMapTypography.bodyMedium.copyWith(
+                color: isDark
+                    ? WanMapColors.textPrimaryDark
+                    : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

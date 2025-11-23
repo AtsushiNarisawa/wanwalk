@@ -1,134 +1,66 @@
-import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/profile_model.dart';
 
+/// ユーザープロフィール更新サービス
 class ProfileService {
-  final _supabase = Supabase.instance.client;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
-  /// プロフィールを取得
-  Future<ProfileModel?> getProfile(String userId) async {
+  /// 散歩完了後にプロフィールを自動更新
+  /// 
+  /// [userId] - ユーザーID
+  /// [distanceMeters] - 歩いた距離（メートル）
+  /// [durationMinutes] - 所要時間（分）
+  /// 
+  /// Returns: 更新後のプロフィール情報（JSON）
+  Future<Map<String, dynamic>?> updateWalkingProfile({
+    required String userId,
+    required double distanceMeters,
+    required int durationMinutes,
+  }) async {
     try {
-      final response = await _supabase
-          .from('profiles')
-          .select()
-          .eq('id', userId)
-          .maybeSingle();
+      print('🔵 プロフィール更新開始: userId=$userId, distance=$distanceMeters, duration=$durationMinutes');
+      
+      // Supabase RPC関数を呼び出し
+      final result = await _supabase.rpc(
+        'update_user_walking_profile',
+        params: {
+          'p_user_id': userId,
+          'p_distance_meters': distanceMeters,
+          'p_duration_minutes': durationMinutes,
+        },
+      );
 
-      if (response == null) {
-        return null;
-      }
-
-      return ProfileModel.fromJson(response);
+      print('✅ プロフィール更新成功: $result');
+      return result as Map<String, dynamic>?;
     } catch (e) {
-      print('❌ Error getting profile: $e');
+      print('❌ プロフィール更新エラー: $e');
       return null;
     }
   }
 
-  /// プロフィールを作成（新規ユーザー登録時）
-  Future<bool> createProfile({
-    required String userId,
-    required String email,
-    String? displayName,
-  }) async {
-    try {
-      await _supabase.from('profiles').insert({
-        'id': userId,
-        'email': email,
-        'display_name': displayName ?? email.split('@')[0], // デフォルトはメールの@前
-      });
-
-      print('✅ Profile created for user: $userId');
-      return true;
-    } catch (e) {
-      print('❌ Error creating profile: $e');
-      return false;
-    }
-  }
-
-  /// プロフィールを更新
-  Future<bool> updateProfile({
-    required String userId,
-    String? displayName,
-    String? bio,
-    String? avatarUrl,
-  }) async {
-    try {
-      final Map<String, dynamic> updates = {};
-
-      if (displayName != null) updates['display_name'] = displayName;
-      if (bio != null) updates['bio'] = bio;
-      if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
-
-      if (updates.isEmpty) {
-        print('⚠️ No updates provided');
-        return false;
-      }
-
-      await _supabase
-          .from('profiles')
-          .update(updates)
-          .eq('id', userId);
-
-      print('✅ Profile updated for user: $userId');
-      return true;
-    } catch (e) {
-      print('❌ Error updating profile: $e');
-      return false;
-    }
-  }
-
-  /// アバター画像をアップロード
-  Future<String?> uploadAvatar({
-    required File file,
+  /// ユーザーの散歩統計を取得
+  /// 
+  /// [userId] - ユーザーID
+  /// 
+  /// Returns: 散歩統計情報（JSON）
+  Future<Map<String, dynamic>?> getUserWalkStatistics({
     required String userId,
   }) async {
     try {
-      final fileExt = file.path.split('.').last;
-      final fileName = '$userId-${DateTime.now().millisecondsSinceEpoch}.$fileExt';
-      final filePath = 'avatars/$fileName';
+      print('🔵 散歩統計取得開始: userId=$userId');
+      
+      // Supabase RPC関数を呼び出し
+      final result = await _supabase.rpc(
+        'get_user_walk_statistics',
+        params: {
+          'p_user_id': userId,
+        },
+      );
 
-      // Supabase Storageにアップロード
-      await _supabase.storage
-          .from('profile-avatars')
-          .upload(filePath, file);
-
-      // 公開URLを取得
-      final publicUrl = _supabase.storage
-          .from('profile-avatars')
-          .getPublicUrl(filePath);
-
-      print('✅ Avatar uploaded: $publicUrl');
-      return publicUrl;
+      print('✅ 散歩統計取得成功: $result');
+      return result as Map<String, dynamic>?;
     } catch (e) {
-      print('❌ Error uploading avatar: $e');
+      print('❌ 散歩統計取得エラー: $e');
       return null;
     }
   }
-
-  /// 既存のアバター画像を削除
-  Future<bool> deleteAvatar(String storagePath) async {
-    try {
-      await _supabase.storage
-          .from('profile-avatars')
-          .remove([storagePath]);
-
-      print('✅ Avatar deleted: $storagePath');
-      return true;
-    } catch (e) {
-      print('❌ Error deleting avatar: $e');
-      return false;
-    }
-  }
-  /// IDでプロフィールを取得
-  Future<ProfileModel> getProfileById(String userId) async {
-    final response = await _supabase
-        .from('profiles')
-        .select()
-        .eq('id', userId)
-        .single();
-
-    return ProfileModel.fromJson(response);
-  }
-
 }

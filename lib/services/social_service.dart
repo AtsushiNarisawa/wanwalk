@@ -1,270 +1,183 @@
-// ==================================================
-// Social Service for WanMap v2
-// ==================================================
-// Author: AI Assistant
-// Created: 2024-11-17
-// Purpose: Service layer for follow and like features
-// ==================================================
-
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/social_model.dart';
+import '../models/user_profile.dart';
 
+/// ソーシャル機能サービス
 class SocialService {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  final SupabaseClient _supabase;
 
-  // ==================================================
-  // フォロー機能
-  // ==================================================
+  SocialService(this._supabase);
 
-  /// 指定ユーザーをフォローする
-  /// [targetUserId] フォローするユーザーのID
-  Future<void> followUser(String targetUserId) async {
+  /// ユーザーをフォロー
+  Future<void> followUser({
+    required String followerId,
+    required String followingId,
+  }) async {
+    if (followerId == followingId) {
+      throw Exception('自分自身をフォローすることはできません');
+    }
+
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        throw Exception('ユーザーがログインしていません');
-      }
-
-      if (userId == targetUserId) {
-        throw Exception('自分自身をフォローすることはできません');
-      }
-
       await _supabase.from('user_follows').insert({
-        'follower_id': userId,
-        'following_id': targetUserId,
+        'follower_id': followerId,
+        'following_id': followingId,
       });
+
+      // 通知を作成
+      await _createNotification(
+        userId: followingId,
+        type: 'new_follower',
+        actorId: followerId,
+        targetId: followerId,
+        title: '新しいフォロワー',
+        body: 'があなたをフォローしました',
+      );
     } catch (e) {
-      if (e.toString().contains('duplicate key')) {
-        throw Exception('すでにフォローしています');
-      }
-      throw Exception('フォローに失敗しました: $e');
+      print('Error following user: $e');
+      rethrow;
     }
   }
 
-  /// 指定ユーザーのフォローを解除する
-  /// [targetUserId] フォロー解除するユーザーのID
-  Future<void> unfollowUser(String targetUserId) async {
+  /// フォロー解除
+  Future<void> unfollowUser({
+    required String followerId,
+    required String followingId,
+  }) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        throw Exception('ユーザーがログインしていません');
-      }
-
       await _supabase
           .from('user_follows')
           .delete()
-          .eq('follower_id', userId)
-          .eq('following_id', targetUserId);
+          .eq('follower_id', followerId)
+          .eq('following_id', followingId);
     } catch (e) {
-      throw Exception('フォロー解除に失敗しました: $e');
+      print('Error unfollowing user: $e');
+      rethrow;
     }
   }
 
-  /// 指定ユーザーをフォローしているか確認
-  /// [targetUserId] 確認するユーザーのID
-  Future<bool> isFollowing(String targetUserId) async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        return false;
-      }
+  /// フォロー状態をトグル
+  Future<void> toggleFollow({
+    required String followerId,
+    required String followingId,
+    required bool isFollowing,
+  }) async {
+    if (isFollowing) {
+      await unfollowUser(followerId: followerId, followingId: followingId);
+    } else {
+      await followUser(followerId: followerId, followingId: followingId);
+    }
+  }
 
+  /// フォローしているか確認
+  Future<bool> isFollowing({
+    required String followerId,
+    required String followingId,
+  }) async {
+    try {
       final response = await _supabase
           .from('user_follows')
           .select('id')
-          .eq('follower_id', userId)
-          .eq('following_id', targetUserId)
+          .eq('follower_id', followerId)
+          .eq('following_id', followingId)
           .maybeSingle();
 
       return response != null;
     } catch (e) {
-      throw Exception('フォロー状態の確認に失敗しました: $e');
+      print('Error checking follow status: $e');
+      return false;
     }
   }
 
-  /// フォロワー一覧を取得
-  /// [userId] ユーザーID（指定しない場合は自分のフォロワー）
-  /// [limit] 取得件数
-  /// [offset] オフセット
-  Future<List<UserProfileModel>> getFollowers({
-    String? userId,
-    int limit = 20,
+  /// フォロワー一覧取得
+  Future<List<UserProfile>> getFollowers({
+    required String userId,
+    int limit = 50,
     int offset = 0,
   }) async {
     try {
-      final targetUserId = userId ?? _supabase.auth.currentUser?.id;
-      if (targetUserId == null) {
-        throw Exception('ユーザーがログインしていません');
-      }
-
-      final response = await _supabase.rpc(
-        'get_followers',
-        params: {
-          'p_user_id': targetUserId,
-          'p_limit': limit,
-          'p_offset': offset,
-        },
-      );
-
-      if (response == null) return [];
-
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((item) => UserProfileModel.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      throw Exception('フォロワー一覧の取得に失敗しました: $e');
-    }
-  }
-
-  /// フォロー中のユーザー一覧を取得
-  /// [userId] ユーザーID（指定しない場合は自分がフォロー中のユーザー）
-  /// [limit] 取得件数
-  /// [offset] オフセット
-  Future<List<UserProfileModel>> getFollowing({
-    String? userId,
-    int limit = 20,
-    int offset = 0,
-  }) async {
-    try {
-      final targetUserId = userId ?? _supabase.auth.currentUser?.id;
-      if (targetUserId == null) {
-        throw Exception('ユーザーがログインしていません');
-      }
-
-      final response = await _supabase.rpc(
-        'get_following',
-        params: {
-          'p_user_id': targetUserId,
-          'p_limit': limit,
-          'p_offset': offset,
-        },
-      );
-
-      if (response == null) return [];
-
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((item) => UserProfileModel.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      throw Exception('フォロー中一覧の取得に失敗しました: $e');
-    }
-  }
-
-  // ==================================================
-  // いいね機能
-  // ==================================================
-
-  /// ルートにいいねする
-  /// [routeId] いいねするルートのID
-  Future<void> likeRoute(String routeId) async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        throw Exception('ユーザーがログインしていません');
-      }
-
-      await _supabase.from('route_likes').insert({
-        'user_id': userId,
-        'route_id': routeId,
-      });
-    } catch (e) {
-      if (e.toString().contains('duplicate key')) {
-        throw Exception('すでにいいねしています');
-      }
-      throw Exception('いいねに失敗しました: $e');
-    }
-  }
-
-  /// ルートのいいねを解除する
-  /// [routeId] いいね解除するルートのID
-  Future<void> unlikeRoute(String routeId) async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        throw Exception('ユーザーがログインしていません');
-      }
-
-      await _supabase
-          .from('route_likes')
-          .delete()
-          .eq('user_id', userId)
-          .eq('route_id', routeId);
-    } catch (e) {
-      throw Exception('いいね解除に失敗しました: $e');
-    }
-  }
-
-  /// ルートにいいねしているか確認
-  /// [routeId] 確認するルートのID
-  Future<bool> isLiked(String routeId) async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        return false;
-      }
-
       final response = await _supabase
-          .from('route_likes')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('route_id', routeId)
-          .maybeSingle();
-
-      return response != null;
-    } catch (e) {
-      throw Exception('いいね状態の確認に失敗しました: $e');
-    }
-  }
-
-  /// ルートにいいねしたユーザー一覧を取得
-  /// [routeId] ルートID
-  /// [limit] 取得件数
-  /// [offset] オフセット
-  Future<List<LikerModel>> getRouteLikers({
-    required String routeId,
-    int limit = 20,
-    int offset = 0,
-  }) async {
-    try {
-      final response = await _supabase.rpc(
-        'get_route_likers',
-        params: {
-          'p_route_id': routeId,
-          'p_limit': limit,
-          'p_offset': offset,
-        },
-      );
+          .from('user_follows')
+          .select('follower_id, follower:follower_id(id, raw_user_meta_data)')
+          .eq('following_id', userId)
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
 
       if (response == null) return [];
 
       final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((item) => LikerModel.fromJson(item as Map<String, dynamic>))
-          .toList();
+      return data.map((item) {
+        final followerData = item['follower'] as Map<String, dynamic>;
+        return UserProfile.fromMap(followerData);
+      }).toList();
     } catch (e) {
-      throw Exception('いいねしたユーザー一覧の取得に失敗しました: $e');
+      print('Error getting followers: $e');
+      return [];
     }
   }
 
-  // ==================================================
-  // タイムライン機能
-  // ==================================================
+  /// フォロー中一覧取得
+  Future<List<UserProfile>> getFollowing({
+    required String userId,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _supabase
+          .from('user_follows')
+          .select('following_id, following:following_id(id, raw_user_meta_data)')
+          .eq('follower_id', userId)
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
 
-  /// フォロー中のユーザーの最新ルートを取得（タイムライン）
-  /// [limit] 取得件数
-  /// [offset] オフセット
-  Future<List<TimelineItemModel>> getFollowingTimeline({
+      if (response == null) return [];
+
+      final List<dynamic> data = response as List<dynamic>;
+      return data.map((item) {
+        final followingData = item['following'] as Map<String, dynamic>;
+        return UserProfile.fromMap(followingData);
+      }).toList();
+    } catch (e) {
+      print('Error getting following: $e');
+      return [];
+    }
+  }
+
+  /// フォロワー数取得
+  Future<int> getFollowersCount({required String userId}) async {
+    try {
+      final response = await _supabase
+          .from('user_follows')
+          .select('id', const FetchOptions(count: CountOption.exact))
+          .eq('following_id', userId);
+
+      return (response as PostgrestList).count ?? 0;
+    } catch (e) {
+      print('Error getting followers count: $e');
+      return 0;
+    }
+  }
+
+  /// フォロー中の数取得
+  Future<int> getFollowingCount({required String userId}) async {
+    try {
+      final response = await _supabase
+          .from('user_follows')
+          .select('id', const FetchOptions(count: CountOption.exact))
+          .eq('follower_id', userId);
+
+      return (response as PostgrestList).count ?? 0;
+    } catch (e) {
+      print('Error getting following count: $e');
+      return 0;
+    }
+  }
+
+  /// タイムライン取得（フォロー中のユーザーの新着ピン）
+  Future<List<Map<String, dynamic>>> getFollowingTimeline({
+    required String userId,
     int limit = 20,
     int offset = 0,
   }) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        throw Exception('ユーザーがログインしていません');
-      }
-
       final response = await _supabase.rpc(
         'get_following_timeline',
         params: {
@@ -276,164 +189,37 @@ class SocialService {
 
       if (response == null) return [];
 
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((item) => TimelineItemModel.fromJson(item as Map<String, dynamic>))
+      return (response as List<dynamic>)
+          .map((item) => item as Map<String, dynamic>)
           .toList();
     } catch (e) {
-      throw Exception('タイムラインの取得に失敗しました: $e');
+      print('Error getting following timeline: $e');
+      return [];
     }
   }
 
-  // ==================================================
-  // 人気ルート機能
-  // ==================================================
-
-  /// 人気のルートを取得（いいね数順）
-  /// [limit] 取得件数
-  /// [offset] オフセット
-  /// [area] エリアでフィルター（オプション）
-  Future<List<PopularRouteModel>> getPopularRoutes({
-    int limit = 20,
-    int offset = 0,
-    String? area,
+  /// 通知を作成（内部使用）
+  Future<void> _createNotification({
+    required String userId,
+    required String type,
+    String? actorId,
+    String? targetId,
+    required String title,
+    String? body,
   }) async {
     try {
-      final response = await _supabase.rpc(
-        'get_popular_routes',
-        params: {
-          'p_limit': limit,
-          'p_offset': offset,
-          'p_area': area,
-        },
-      );
-
-      if (response == null) return [];
-
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((item) => PopularRouteModel.fromJson(item as Map<String, dynamic>))
-          .toList();
+      await _supabase.from('notifications').insert({
+        'user_id': userId,
+        'type': type,
+        'actor_id': actorId,
+        'target_id': targetId,
+        'title': title,
+        'body': body,
+        'is_read': false,
+      });
     } catch (e) {
-      throw Exception('人気ルート一覧の取得に失敗しました: $e');
-    }
-  }
-
-  // ==================================================
-  // ユーザー検索機能
-  // ==================================================
-
-  /// ユーザーを検索する
-  /// [query] 検索クエリ（ユーザー名）
-  /// [limit] 取得件数
-  Future<List<UserProfileModel>> searchUsers({
-    required String query,
-    int limit = 20,
-  }) async {
-    try {
-      if (query.trim().isEmpty) {
-        return [];
-      }
-
-      final response = await _supabase
-          .from('users')
-          .select('id, username, avatar_url, followers_count, following_count')
-          .ilike('username', '%$query%')
-          .limit(limit);
-
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((item) => UserProfileModel.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      throw Exception('ユーザー検索に失敗しました: $e');
-    }
-  }
-
-  // ==================================================
-  // ユーザープロフィール取得
-  // ==================================================
-
-  /// ユーザープロフィール情報を取得
-  /// [userId] ユーザーID（指定しない場合は自分のプロフィール）
-  Future<UserProfileModel?> getUserProfile({String? userId}) async {
-    try {
-      final targetUserId = userId ?? _supabase.auth.currentUser?.id;
-      if (targetUserId == null) {
-        throw Exception('ユーザーがログインしていません');
-      }
-
-      final response = await _supabase
-          .from('users')
-          .select('id, username, avatar_url, followers_count, following_count')
-          .eq('id', targetUserId)
-          .maybeSingle();
-
-      if (response == null) return null;
-
-      return UserProfileModel.fromJson(response as Map<String, dynamic>);
-    } catch (e) {
-      throw Exception('プロフィールの取得に失敗しました: $e');
-    }
-  }
-
-  // ==================================================
-  // 複数状態の一括取得（効率化）
-  // ==================================================
-
-  /// 複数ルートのいいね状態を一括取得
-  /// [routeIds] ルートIDのリスト
-  Future<Map<String, bool>> getMultipleLikeStatus(List<String> routeIds) async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null || routeIds.isEmpty) {
-        return {};
-      }
-
-      final response = await _supabase
-          .from('route_likes')
-          .select('route_id')
-          .eq('user_id', userId)
-          .inFilter('route_id', routeIds);
-
-      final List<dynamic> data = response as List<dynamic>;
-      final likedRouteIds = data
-          .map((item) => (item as Map<String, dynamic>)['route_id'] as String)
-          .toSet();
-
-      return Map.fromEntries(
-        routeIds.map((id) => MapEntry(id, likedRouteIds.contains(id))),
-      );
-    } catch (e) {
-      throw Exception('いいね状態の一括取得に失敗しました: $e');
-    }
-  }
-
-  /// 複数ユーザーのフォロー状態を一括取得
-  /// [userIds] ユーザーIDのリスト
-  Future<Map<String, bool>> getMultipleFollowStatus(List<String> userIds) async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null || userIds.isEmpty) {
-        return {};
-      }
-
-      final response = await _supabase
-          .from('user_follows')
-          .select('following_id')
-          .eq('follower_id', userId)
-          .inFilter('following_id', userIds);
-
-      final List<dynamic> data = response as List<dynamic>;
-      final followingUserIds = data
-          .map((item) => (item as Map<String, dynamic>)['following_id'] as String)
-          .toSet();
-
-      return Map.fromEntries(
-        userIds.map((id) => MapEntry(id, followingUserIds.contains(id))),
-      );
-    } catch (e) {
-      throw Exception('フォロー状態の一括取得に失敗しました: $e');
+      print('Error creating notification: $e');
+      // 通知作成失敗は致命的ではないのでエラーを投げない
     }
   }
 }

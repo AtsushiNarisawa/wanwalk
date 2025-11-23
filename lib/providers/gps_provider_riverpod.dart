@@ -13,6 +13,9 @@ class GpsState {
   final List<RoutePoint> currentRoutePoints;
   final String? errorMessage;
   final WalkMode walkMode; // 記録開始時のモード
+  final DateTime? startTime; // 記録開始時刻
+  final double distance; // 累積距離（メートル）
+  final int elapsedSeconds; // 経過時間（秒）
 
   GpsState({
     this.isRecording = false,
@@ -21,6 +24,9 @@ class GpsState {
     this.currentRoutePoints = const [],
     this.errorMessage,
     required this.walkMode,
+    this.startTime,
+    this.distance = 0.0,
+    this.elapsedSeconds = 0,
   });
 
   GpsState copyWith({
@@ -30,6 +36,9 @@ class GpsState {
     List<RoutePoint>? currentRoutePoints,
     String? errorMessage,
     WalkMode? walkMode,
+    DateTime? startTime,
+    double? distance,
+    int? elapsedSeconds,
   }) {
     return GpsState(
       isRecording: isRecording ?? this.isRecording,
@@ -38,11 +47,36 @@ class GpsState {
       currentRoutePoints: currentRoutePoints ?? this.currentRoutePoints,
       errorMessage: errorMessage,
       walkMode: walkMode ?? this.walkMode,
+      startTime: startTime ?? this.startTime,
+      distance: distance ?? this.distance,
+      elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
     );
   }
 
   int get currentPointCount => currentRoutePoints.length;
   bool get hasPermission => currentLocation != null;
+  
+  /// 距離を km 単位でフォーマット
+  String get formattedDistance {
+    if (distance < 1000) {
+      return '${distance.toStringAsFixed(0)}m';
+    } else {
+      return '${(distance / 1000).toStringAsFixed(2)}km';
+    }
+  }
+  
+  /// 経過時間をフォーマット（分または時間:分）
+  String get formattedDuration {
+    if (elapsedSeconds < 60) {
+      return '${elapsedSeconds}秒';
+    } else if (elapsedSeconds < 3600) {
+      return '${(elapsedSeconds / 60).toStringAsFixed(0)}分';
+    } else {
+      final hours = elapsedSeconds ~/ 3600;
+      final minutes = (elapsedSeconds % 3600) ~/ 60;
+      return '${hours}時間${minutes}分';
+    }
+  }
 }
 
 /// GPS記録を管理するNotifier（Riverpod版）
@@ -93,16 +127,20 @@ class GpsNotifier extends StateNotifier<GpsState> {
 
       final success = await _gpsService.startRecording();
       if (success) {
+        final now = DateTime.now();
         state = state.copyWith(
           isRecording: true,
           isPaused: false,
           currentRoutePoints: [],
           errorMessage: null,
           walkMode: currentMode, // 記録開始時のモードを保存
+          startTime: now,
+          distance: 0.0,
+          elapsedSeconds: 0,
         );
 
-        // 定期的にポイント数を更新
-        _startPointCountUpdater();
+        // 定期的に統計情報を更新
+        _startStatsUpdater();
         return true;
       } else {
         state = state.copyWith(
@@ -163,6 +201,9 @@ class GpsNotifier extends StateNotifier<GpsState> {
         isPaused: false,
         currentRoutePoints: [],
         errorMessage: null,
+        startTime: null,
+        distance: 0.0,
+        elapsedSeconds: 0,
       );
     } else {
       state = state.copyWith(
@@ -181,14 +222,40 @@ class GpsNotifier extends StateNotifier<GpsState> {
       isPaused: false,
       currentRoutePoints: [],
       errorMessage: null,
+      startTime: null,
+      distance: 0.0,
+      elapsedSeconds: 0,
     );
   }
 
-  /// 定期的にポイント数を更新
-  void _startPointCountUpdater() {
+  /// 定期的に統計情報を更新（距離・時間・ポイント数）
+  void _startStatsUpdater() {
     Future.doWhile(() async {
       await Future.delayed(const Duration(seconds: 1));
-      if (state.isRecording) {
+      if (state.isRecording && !state.isPaused) {
+        final points = _gpsService.currentRoutePoints;
+        
+        // 距離を計算（Haversine公式）
+        double totalDistance = 0.0;
+        for (int i = 1; i < points.length; i++) {
+          final prev = points[i - 1].latLng;
+          final curr = points[i].latLng;
+          totalDistance += _calculateDistance(prev, curr);
+        }
+        
+        // 経過時間を計算
+        final elapsed = state.startTime != null
+            ? DateTime.now().difference(state.startTime!).inSeconds
+            : 0;
+        
+        state = state.copyWith(
+          currentRoutePoints: points,
+          distance: totalDistance,
+          elapsedSeconds: elapsed,
+        );
+        return true;
+      } else if (state.isRecording && state.isPaused) {
+        // 一時停止中は時間だけ停止、ポイントは更新
         state = state.copyWith(
           currentRoutePoints: _gpsService.currentRoutePoints,
         );
@@ -196,6 +263,24 @@ class GpsNotifier extends StateNotifier<GpsState> {
       }
       return false;
     });
+  }
+  
+  /// Haversine公式で2点間の距離を計算（メートル）
+  double _calculateDistance(LatLng point1, LatLng point2) {
+    const double earthRadius = 6371000; // 地球の半径（メートル）
+    
+    final lat1Rad = point1.latitude * (3.141592653589793 / 180);
+    final lat2Rad = point2.latitude * (3.141592653589793 / 180);
+    final deltaLat = (point2.latitude - point1.latitude) * (3.141592653589793 / 180);
+    final deltaLon = (point2.longitude - point1.longitude) * (3.141592653589793 / 180);
+    
+    final a = (deltaLat / 2).sin() * (deltaLat / 2).sin() +
+        lat1Rad.cos() * lat2Rad.cos() *
+        (deltaLon / 2).sin() * (deltaLon / 2).sin();
+    
+    final c = 2 * a.sqrt().asin();
+    
+    return earthRadius * c;
   }
 
   /// エラーメッセージをクリア

@@ -5,6 +5,8 @@ import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../providers/area_provider.dart';
 import 'area_list_screen.dart';
+import '../badges/badge_list_screen.dart';
+import '../profile/statistics_dashboard_screen.dart';
 
 /// Outing Walk View（おでかけ散歩モード）
 /// - 公式ルートを探す
@@ -107,36 +109,93 @@ class OutingWalkView extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _ActionCard(
-            icon: Icons.location_on,
-            title: '近くのルートを探す',
-            description: '現在地から近いルートを検索',
-            color: Colors.green,
-            isDark: isDark,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('近くのルート検索機能は準備中です'),
-                ),
-              );
-            },
+          Text(
+            'クイックアクション',
+            style: WanMapTypography.headlineSmall.copyWith(
+              color: isDark
+                  ? WanMapColors.textPrimaryDark
+                  : WanMapColors.textPrimaryLight,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: WanMapSpacing.md),
-          _ActionCard(
-            icon: Icons.map,
-            title: 'エリアから探す',
-            description: '箱根、横浜などのエリアを選択',
-            color: Colors.blue,
-            isDark: isDark,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AreaListScreen(),
+          // Row 1: バッジ・統計
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.emoji_events,
+                  label: 'バッジ',
+                  color: Colors.amber,
+                  isDark: isDark,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BadgeListScreen(),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+              const SizedBox(width: WanMapSpacing.md),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.bar_chart,
+                  label: '統計',
+                  color: Colors.blue,
+                  isDark: isDark,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StatisticsDashboardScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: WanMapSpacing.md),
+          // Row 2: 近くのルート・エリア
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.location_on,
+                  label: '近くのルート',
+                  color: Colors.green,
+                  isDark: isDark,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('近くのルート検索機能は準備中です'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: WanMapSpacing.md),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.map,
+                  label: 'エリア',
+                  color: Colors.teal,
+                  isDark: isDark,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AreaListScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -265,19 +324,17 @@ class OutingWalkView extends ConsumerWidget {
   }
 }
 
-/// アクションカード
-class _ActionCard extends StatelessWidget {
+/// クイックアクションカード（DailyWalkViewと統一）
+class _QuickActionCard extends StatelessWidget {
   final IconData icon;
-  final String title;
-  final String description;
+  final String label;
   final Color color;
   final bool isDark;
   final VoidCallback onTap;
 
-  const _ActionCard({
+  const _QuickActionCard({
     required this.icon,
-    required this.title,
-    required this.description,
+    required this.label,
     required this.color,
     required this.isDark,
     required this.onTap,
@@ -285,8 +342,9 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(WanMapSpacing.lg),
         decoration: BoxDecoration(
@@ -300,51 +358,22 @@ class _ActionCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Row(
+        child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(WanMapSpacing.md),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 32,
-              ),
-            ),
-            const SizedBox(width: WanMapSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: WanMapTypography.bodyLarge.copyWith(
-                      color: isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: WanMapSpacing.xs),
-                  Text(
-                    description,
-                    style: WanMapTypography.caption.copyWith(
-                      color: isDark
-                          ? WanMapColors.textSecondaryDark
-                          : WanMapColors.textSecondaryLight,
-                    ),
-                  ),
-                ],
-              ),
-            ),
             Icon(
-              Icons.chevron_right,
-              color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+              icon,
+              color: color,
+              size: 48,
+            ),
+            const SizedBox(height: WanMapSpacing.sm),
+            Text(
+              label,
+              style: WanMapTypography.bodyMedium.copyWith(
+                color: isDark
+                    ? WanMapColors.textPrimaryDark
+                    : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),

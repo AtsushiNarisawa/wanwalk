@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../models/official_route.dart';
+import '../../models/walk_mode.dart';
 import '../../providers/gps_provider_riverpod.dart';
+import '../../services/profile_service.dart';
+import '../../services/walk_save_service.dart';
 import 'pin_create_screen.dart';
 
 /// 散歩中画面（公式ルートを歩いている時）
@@ -97,9 +101,10 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     if (confirmed != true) return;
 
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
-    final userId = ref.read(gpsProviderRiverpod).currentLocation != null
-        ? 'user-id-placeholder'
-        : null;
+    final gpsState = ref.read(gpsProviderRiverpod);
+    
+    // Supabaseから現在のユーザーIDを取得
+    final userId = Supabase.instance.client.auth.currentUser?.id;
 
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -119,10 +124,45 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
 
     if (mounted) {
       if (route != null) {
+        final distanceMeters = gpsState.distance;
+        final durationMinutes = (gpsState.elapsedSeconds / 60).ceil();
+        
+        // 1. Supabaseに散歩記録を保存
+        final walkSaveService = WalkSaveService();
+        final walkId = await walkSaveService.saveWalk(
+          route: route,
+          userId: userId,
+          walkMode: WalkMode.outing,
+          officialRouteId: widget.route.id,
+        );
+
+        if (walkId == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('記録の保存に失敗しました'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        print('✅ 散歩記録保存成功: walkId=$walkId');
+
+        // 2. プロフィールを自動更新
+        final profileService = ProfileService();
+        await profileService.updateWalkingProfile(
+          userId: userId,
+          distanceMeters: distanceMeters,
+          durationMinutes: durationMinutes,
+        );
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('散歩記録を保存しました'),
+          SnackBar(
+            content: Text(
+              '散歩記録を保存しました！\n${gpsState.formattedDistance} / ${gpsState.formattedDuration}'
+            ),
             backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
           ),
         );
         Navigator.of(context).pop(route);
@@ -371,13 +411,13 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                   _StatItem(
                     icon: Icons.straighten,
                     label: '距離',
-                    value: '0.0km',
+                    value: gpsState.formattedDistance,
                     isDark: isDark,
                   ),
                   _StatItem(
                     icon: Icons.timer,
                     label: '時間',
-                    value: '0分',
+                    value: gpsState.formattedDuration,
                     isDark: isDark,
                   ),
                   _StatItem(

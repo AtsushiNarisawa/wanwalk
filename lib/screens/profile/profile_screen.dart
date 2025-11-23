@@ -7,6 +7,8 @@ import '../../models/profile_model.dart';
 import '../auth/login_screen.dart';
 import '../social/user_search_screen.dart';
 import '../settings/settings_screen.dart';
+import '../badges/badge_list_screen.dart';
+import 'statistics_dashboard_screen.dart';
 import 'profile_edit_screen.dart';
 
 /// ユーザー統計情報
@@ -324,7 +326,59 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
             
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            
+            // バッジコレクションへのリンク
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                child: ListTile(
+                  leading: Icon(
+                    Icons.workspace_premium,
+                    color: Colors.amber[700],
+                  ),
+                  title: const Text('バッジコレクション'),
+                  subtitle: const Text('獲得したバッジを確認'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BadgeListScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 8),
+            
+            // 統計ダッシュボードへのリンク
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                child: ListTile(
+                  leading: Icon(
+                    Icons.analytics,
+                    color: Colors.blue[700],
+                  ),
+                  title: const Text('統計ダッシュボード'),
+                  subtitle: const Text('詳細な統計とグラフを表示'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StatisticsDashboardScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
             
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),

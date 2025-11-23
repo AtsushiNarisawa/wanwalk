@@ -6,7 +6,7 @@ import 'config/wanmap_theme.dart';
 import 'config/wanmap_colors.dart';
 import 'config/env.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/home/home_screen.dart';
+import 'screens/main/main_screen.dart';
 import 'services/notification_service.dart';
 
 void main() async {
@@ -120,9 +120,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     
     // 適切な画面に遷移
     if (isLoggedIn) {
-      // ログイン済み → ホーム画面
+      // ログイン済み → メイン画面（4タブUI）
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const MainScreen()),
       );
     } else {
       // 未ログイン → ログイン画面
@@ -207,7 +207,4 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             ),
           ),
         ),
-      ),
-    );
-  }
-}
+      )

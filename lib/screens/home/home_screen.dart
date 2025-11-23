@@ -8,6 +8,7 @@ import '../../widgets/walk_mode_switcher.dart';
 import '../../providers/walk_mode_provider.dart';
 import '../daily/daily_walk_view.dart';
 import '../outing/outing_walk_view.dart';
+import '../profile/profile_screen.dart';
 
 /// ホーム画面 (WanMap リニューアル版)
 /// 
@@ -59,9 +60,10 @@ class HomeScreen extends ConsumerWidget {
                 icon: const Icon(Icons.person),
                 tooltip: 'プロフィール',
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('プロフィール機能は準備中です'),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
                     ),
                   );
                 },

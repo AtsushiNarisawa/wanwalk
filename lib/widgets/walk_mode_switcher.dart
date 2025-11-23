@@ -19,21 +19,25 @@ class WalkModeSwitcher extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: WanMapSpacing.lg,
-        vertical: WanMapSpacing.md,
+        vertical: WanMapSpacing.lg,  // md → lg に変更（目立たせる）
       ),
       decoration: BoxDecoration(
         color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(  // 枠線を追加（目立たせる）
+          color: WanMapColors.accent.withOpacity(0.3),
+          width: 2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: WanMapColors.accent.withOpacity(0.15),  // accentカラーの影に変更
+            blurRadius: 15,  // 10 → 15 に変更（より強調）
+            offset: const Offset(0, 6),  // 4 → 6 に変更
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(6),  // 4 → 6 に変更（余白を増やす）
         child: Row(
           children: [
             // Daily モードボタン
@@ -85,14 +89,21 @@ class _ModeButton extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(
-          vertical: WanMapSpacing.md,
-          horizontal: WanMapSpacing.sm,
+          vertical: WanMapSpacing.lg,  // md → lg に変更（余白を増やす）
+          horizontal: WanMapSpacing.md,  // sm → md に変更
         ),
         decoration: BoxDecoration(
           color: isSelected
               ? WanMapColors.accent
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
+          // 選択されていない時も薄い枠線を追加
+          border: isSelected
+              ? null
+              : Border.all(
+                  color: (isDark ? Colors.grey[700] : Colors.grey[300])!,
+                  width: 1,
+                ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -102,7 +113,7 @@ class _ModeButton extends StatelessWidget {
               color: isSelected
                   ? Colors.white
                   : (isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight),
-              size: 28,
+              size: 32,  // 28 → 32 に変更（アイコンを大きく）
             ),
             const SizedBox(height: WanMapSpacing.xs),
             Text(

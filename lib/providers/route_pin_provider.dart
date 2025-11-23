@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_pin.dart';
+import '../services/storage_service.dart';
 
 /// Supabaseクライアントのインスタンス取得
 final _supabase = Supabase.instance.client;
@@ -90,6 +91,8 @@ final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
 final createPinProvider = Provider((ref) => CreatePinUseCase());
 
 class CreatePinUseCase {
+  final StorageService _storageService = StorageService();
+
   /// ピンを作成（写真アップロード含む）
   Future<RoutePin> createPin({
     required String routeId,
@@ -102,58 +105,55 @@ class CreatePinUseCase {
     List<String>? photoFilePaths, // ローカルファイルパス
   }) async {
     try {
+      print('🔵 ピン作成開始: routeId=$routeId, userId=$userId');
+      
       // 1. ピンレコードを作成
       final pinResponse = await _supabase.from('route_pins').insert({
-        'route_id': routeId,
+        'official_route_id': routeId,  // カラム名を修正
         'user_id': userId,
-        'location': {
-          'type': 'Point',
-          'coordinates': [longitude, latitude],
-        },
+        'location': 'SRID=4326;POINT($longitude $latitude)',  // PostGIS WKT形式
         'pin_type': pinType.value,
         'title': title,
         'comment': comment,
       }).select().single();
 
+      print('✅ ピンレコード作成成功: ${pinResponse['id']}');
+
       final pin = RoutePin.fromJson(pinResponse);
 
       // 2. 写真があればアップロード
       if (photoFilePaths != null && photoFilePaths.isNotEmpty) {
-        final photoUrls = <String>[];
-        for (var i = 0; i < photoFilePaths.length && i < 5; i++) {
-          final filePath = photoFilePaths[i];
-          final fileName = '${pin.id}_$i.jpg';
-          final storagePath = 'pin_photos/$fileName';
+        print('🔵 写真アップロード開始: ${photoFilePaths.length}枚');
+        
+        final photoUrls = await _storageService.uploadMultiplePinPhotos(
+          filePaths: photoFilePaths,
+          userId: userId,
+          pinId: pin.id,
+        );
 
+        print('✅ 写真アップロード完了: ${photoUrls.length}枚');
+
+        // 3. route_pin_photosテーブルに登録
+        for (var i = 0; i < photoUrls.length; i++) {
           try {
-            // Supabase Storageにアップロード
-            await _supabase.storage.from('photos').upload(
-                  storagePath,
-                  // ローカルファイルをアップロード（実装はアプリ側で調整）
-                  filePath as Object,
-                );
-
-            // 公開URLを取得
-            final publicUrl = _supabase.storage.from('photos').getPublicUrl(storagePath);
-
-            // route_pin_photosテーブルに登録
             await _supabase.from('route_pin_photos').insert({
-              'pin_id': pin.id,
-              'photo_url': publicUrl,
-              'sequence_number': i + 1,
+              'route_pin_id': pin.id,
+              'photo_url': photoUrls[i],
+              'display_order': i + 1,
             });
-
-            photoUrls.add(publicUrl);
+            print('✅ 写真レコード登録成功: ${i + 1}枚目');
           } catch (e) {
-            print('Failed to upload photo $i: $e');
+            print('❌ 写真レコード登録失敗: $e');
           }
         }
 
         return pin.copyWith(photoUrls: photoUrls);
       }
 
+      print('✅ ピン作成完了（写真なし）');
       return pin;
     } catch (e) {
+      print('❌ ピン作成エラー: $e');
       throw Exception('Failed to create pin: $e');
     }
   }
