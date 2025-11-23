@@ -118,25 +118,16 @@ class WalkHistoryService {
       final startDate = DateTime(year, month, 1);
       final endDate = DateTime(year, month + 1, 0, 23, 59, 59);
 
-      // お出かけ散歩の回数
-      final outingCount = await _supabase
-          .from('route_walks')
+      // walks テーブルから全ての散歩回数を取得
+      final walkCount = await _supabase
+          .from('walks')
           .select('id')
           .eq('user_id', userId)
-          .gte('walked_at', startDate.toIso8601String())
-          .lte('walked_at', endDate.toIso8601String())
+          .gte('start_time', startDate.toIso8601String())
+          .lte('start_time', endDate.toIso8601String())
           .count();
 
-      // 日常散歩の回数
-      final dailyCount = await _supabase
-          .from('daily_walks')
-          .select('id')
-          .eq('user_id', userId)
-          .gte('walked_at', startDate.toIso8601String())
-          .lte('walked_at', endDate.toIso8601String())
-          .count();
-
-      return (outingCount.count ?? 0) + (dailyCount.count ?? 0);
+      return walkCount.count ?? 0;
     } catch (e) {
       print('Error fetching monthly walk count: $e');
       return 0;
@@ -154,17 +145,19 @@ class WalkHistoryService {
   }) async {
     try {
       final response = await _supabase
-          .from('route_walks')
-          .select('official_routes!inner(area_id)')
-          .eq('user_id', userId);
+          .from('walks')
+          .select('routes!inner(area)')
+          .eq('user_id', userId)
+          .eq('walk_type', 'outing')
+          .not('route_id', 'is', null);
 
       if (response == null) return [];
 
       final Set<String> areaIds = {};
       for (var item in response) {
-        final route = item['official_routes'];
-        if (route != null && route['area_id'] != null) {
-          areaIds.add(route['area_id'] as String);
+        final route = item['routes'];
+        if (route != null && route['area'] != null) {
+          areaIds.add(route['area'] as String);
         }
       }
 

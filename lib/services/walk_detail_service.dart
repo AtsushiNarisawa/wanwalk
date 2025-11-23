@@ -18,56 +18,54 @@ class WalkDetailService {
     try {
       // 1. 散歩の基本情報を取得
       final walkResponse = await _supabase
-          .from('route_walks')
+          .from('walks')
           .select('''
             id,
-            walked_at,
-            duration,
-            official_routes!inner(
+            start_time,
+            duration_minutes,
+            routes!inner(
               id,
               name,
-              distance_meters,
-              estimated_minutes,
-              difficulty_level,
-              areas!inner(
-                id,
-                display_name
-              )
+              distance_km,
+              estimated_time_minutes,
+              difficulty,
+              area
             )
           ''')
           .eq('id', walkId)
+          .eq('walk_type', 'outing')
           .single();
 
       if (walkResponse == null) return null;
 
-      final route = walkResponse['official_routes'];
-      final area = route['areas'];
+      final route = walkResponse['routes'];
+      final areaName = route['area'] as String;
 
-      // 2. GPSポイントを取得（順序付き）
-      final pointsResponse = await _supabase
-          .from('route_walk_points')
-          .select('id, sequence, point, altitude, timestamp')
-          .eq('route_walk_id', walkId)
-          .order('sequence', ascending: true);
-
+      // 2. GPSポイントを path_geojson から取得
       List<RoutePoint> routePoints = [];
-      if (pointsResponse != null && pointsResponse is List) {
-        routePoints = (pointsResponse as List<dynamic>).map((point) {
-          // PostGIS POINT形式を解析: "POINT(longitude latitude)"
-          final pointStr = point['point'] as String;
-          final coords = _parsePostGISPoint(pointStr);
-          
-          return RoutePoint(
-            latLng: coords,
-            altitude: point['altitude']?.toDouble(),
-            timestamp: DateTime.parse(point['timestamp']),
-            sequenceNumber: point['sequence'],
-          );
-        }).toList();
+      if (walkResponse['path_geojson'] != null) {
+        final geoJson = walkResponse['path_geojson'] as Map<String, dynamic>;
+        if (geoJson['type'] == 'LineString' && geoJson['coordinates'] != null) {
+          final coordinates = geoJson['coordinates'] as List<dynamic>;
+          routePoints = coordinates.asMap().entries.map((entry) {
+            final index = entry.key;
+            final coord = entry.value as List<dynamic>;
+            final lon = coord[0] as double;
+            final lat = coord[1] as double;
+            final alt = coord.length > 2 ? coord[2] as double? : null;
+            
+            return RoutePoint(
+              latLng: LatLng(lat, lon),
+              altitude: alt,
+              timestamp: DateTime.now(), // GeoJSONにはtimestampがない
+              sequenceNumber: index,
+            );
+          }).toList();
+        }
       }
 
       // 3. ピン情報を取得（このルートで、この日に投稿されたピン）
-      final walkedDate = DateTime.parse(walkResponse['walked_at']);
+      final walkedDate = DateTime.parse(walkResponse['start_time']);
       final startOfDay = DateTime(walkedDate.year, walkedDate.month, walkedDate.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
@@ -87,7 +85,7 @@ class WalkDetailService {
               display_order
             )
           ''')
-          .eq('official_route_id', route['id'])
+          .eq('route_id', route['id'])
           .gte('created_at', startOfDay.toIso8601String())
           .lt('created_at', endOfDay.toIso8601String())
           .order('created_at', ascending: true);
@@ -125,11 +123,11 @@ class WalkDetailService {
         id: walkResponse['id'],
         routeId: route['id'],
         routeName: route['name'],
-        areaName: area['display_name'],
+        areaName: areaName,
         walkedAt: walkedDate,
-        distanceMeters: route['distance_meters']?.toDouble() ?? 0.0,
-        durationSeconds: walkResponse['duration'] ?? 0,
-        difficulty: route['difficulty_level'] ?? 'easy',
+        distanceMeters: (route['distance_km']?.toDouble() ?? 0.0) * 1000.0,
+        durationSeconds: (walkResponse['duration_minutes'] ?? 0) * 60,
+        difficulty: route['difficulty'] ?? 'easy',
         routePoints: routePoints,
         pins: pins,
         photoUrls: allPhotos,

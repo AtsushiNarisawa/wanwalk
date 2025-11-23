@@ -29,7 +29,7 @@ final pinsByRouteProvider = FutureProvider.family<List<RoutePin>, String>(
               .from('route_pin_photos')
               .select('photo_url')
               .eq('pin_id', pin.id)
-              .order('sequence_number', ascending: true);
+              .order('display_order', ascending: true);
 
           final photoUrls = (photosResponse as List)
               .map((photo) => photo['photo_url'] as String)
@@ -70,7 +70,7 @@ final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
             .from('route_pin_photos')
             .select('photo_url')
             .eq('pin_id', pinId)
-            .order('sequence_number', ascending: true);
+            .order('display_order', ascending: true);
 
         final photoUrls = (photosResponse as List)
             .map((photo) => photo['photo_url'] as String)
@@ -109,7 +109,7 @@ class CreatePinUseCase {
       
       // 1. ピンレコードを作成
       final pinResponse = await _supabase.from('route_pins').insert({
-        'official_route_id': routeId,  // カラム名を修正
+        'route_id': routeId,
         'user_id': userId,
         'location': 'SRID=4326;POINT($longitude $latitude)',  // PostGIS WKT形式
         'pin_type': pinType.value,
@@ -137,7 +137,7 @@ class CreatePinUseCase {
         for (var i = 0; i < photoUrls.length; i++) {
           try {
             await _supabase.from('route_pin_photos').insert({
-              'route_pin_id': pin.id,
+              'pin_id': pin.id,
               'photo_url': photoUrls[i],
               'display_order': i + 1,
             });

@@ -22,42 +22,33 @@ class WalkSaveService {
     try {
       print('🔵 日常散歩保存開始: userId=$userId, points=${route.points.length}');
 
-      // 1. daily_walksテーブルに保存
-      final walkResponse = await _supabase.from('daily_walks').insert({
+      // 1. GeoJSON 形式に変換
+      Map<String, dynamic>? pathGeoJson;
+      if (route.points.isNotEmpty) {
+        pathGeoJson = {
+          'type': 'LineString',
+          'coordinates': route.points.map((p) => [
+            p.latLng.longitude,
+            p.latLng.latitude,
+            p.altitude ?? 0.0,
+          ]).toList(),
+        };
+      }
+
+      // 2. walks テーブルに保存 (walk_type='daily')
+      final walkResponse = await _supabase.from('walks').insert({
         'user_id': userId,
-        'dog_id': dogId,
-        'walked_at': route.startedAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
-        'distance_meters': route.distance,
-        'duration': route.duration,
+        'walk_type': 'daily',
+        'route_id': null,
+        'start_time': route.startedAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
+        'end_time': route.finishedAt?.toIso8601String(),
+        'distance_km': route.distance / 1000.0,
+        'duration_minutes': (route.duration / 60).ceil(),
+        'path_geojson': pathGeoJson,
       }).select().single();
 
       final walkId = walkResponse['id'] as String;
-      print('✅ daily_walks保存成功: walkId=$walkId');
-
-      // 2. daily_walk_pointsテーブルにGPSポイントを保存
-      if (route.points.isNotEmpty) {
-        final pointsData = route.points.asMap().entries.map((entry) {
-          final index = entry.key;
-          final point = entry.value;
-          
-          return {
-            'daily_walk_id': walkId,
-            'sequence': index,
-            'point': 'SRID=4326;POINT(${point.latLng.longitude} ${point.latLng.latitude})',
-            'altitude': point.altitude,
-            'timestamp': point.timestamp.toIso8601String(),
-          };
-        }).toList();
-
-        // バッチ挿入（最大1000件ずつ）
-        for (var i = 0; i < pointsData.length; i += 1000) {
-          final batch = pointsData.skip(i).take(1000).toList();
-          await _supabase.from('daily_walk_points').insert(batch);
-          print('✅ daily_walk_points保存: ${batch.length}件');
-        }
-
-        print('✅ 全GPSポイント保存完了: ${route.points.length}件');
-      }
+      print('✅ walks保存成功 (daily): walkId=$walkId');
 
       return walkId;
     } catch (e) {
@@ -83,19 +74,33 @@ class WalkSaveService {
     try {
       print('🔵 おでかけ散歩保存開始: userId=$userId, routeId=$officialRouteId');
 
-      // route_walksテーブルに保存
-      final walkResponse = await _supabase.from('route_walks').insert({
-        'official_route_id': officialRouteId,
+      // 1. GeoJSON 形式に変換
+      Map<String, dynamic>? pathGeoJson;
+      if (route.points.isNotEmpty) {
+        pathGeoJson = {
+          'type': 'LineString',
+          'coordinates': route.points.map((p) => [
+            p.latLng.longitude,
+            p.latLng.latitude,
+            p.altitude ?? 0.0,
+          ]).toList(),
+        };
+      }
+
+      // 2. walks テーブルに保存 (walk_type='outing')
+      final walkResponse = await _supabase.from('walks').insert({
         'user_id': userId,
-        'dog_id': dogId,
-        'walked_at': route.startedAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
-        'actual_distance_meters': route.distance,
-        'actual_duration_minutes': (route.duration / 60).ceil(),
-        'completed': true,
+        'walk_type': 'outing',
+        'route_id': officialRouteId,
+        'start_time': route.startedAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
+        'end_time': route.finishedAt?.toIso8601String(),
+        'distance_km': route.distance / 1000.0,
+        'duration_minutes': (route.duration / 60).ceil(),
+        'path_geojson': pathGeoJson,
       }).select().single();
 
       final walkId = walkResponse['id'] as String;
-      print('✅ route_walks保存成功: walkId=$walkId');
+      print('✅ walks保存成功 (outing): walkId=$walkId');
 
       return walkId;
     } catch (e) {
@@ -157,13 +162,8 @@ class WalkSaveService {
     try {
       print('🔵 散歩削除開始: walkId=$walkId, mode=${walkMode.value}');
 
-      if (walkMode == WalkMode.daily) {
-        // daily_walksから削除（daily_walk_pointsはCASCADE削除される）
-        await _supabase.from('daily_walks').delete().eq('id', walkId);
-      } else {
-        // route_walksから削除
-        await _supabase.from('route_walks').delete().eq('id', walkId);
-      }
+      // walks テーブルから削除
+      await _supabase.from('walks').delete().eq('id', walkId);
 
       print('✅ 散歩削除成功: walkId=$walkId');
       return true;
@@ -188,29 +188,24 @@ class WalkSaveService {
     try {
       print('🔵 散歩履歴取得: userId=$userId, mode=${walkMode?.value}');
 
-      if (walkMode == null || walkMode == WalkMode.daily) {
-        // 日常散歩履歴を取得
-        final dailyWalks = await _supabase
-            .from('daily_walks')
-            .select()
-            .eq('user_id', userId)
-            .order('walked_at', ascending: false)
-            .limit(limit);
+      // walks テーブルから履歴を取得
+      var query = _supabase
+          .from('walks')
+          .select('*, routes(name, distance_km)')
+          .eq('user_id', userId)
+          .order('start_time', ascending: false)
+          .limit(limit);
 
-        print('✅ 日常散歩履歴取得: ${(dailyWalks as List).length}件');
-        return List<Map<String, dynamic>>.from(dailyWalks);
-      } else {
-        // おでかけ散歩履歴を取得
-        final routeWalks = await _supabase
-            .from('route_walks')
-            .select('*, official_routes(title, distance_meters)')
-            .eq('user_id', userId)
-            .order('walked_at', ascending: false)
-            .limit(limit);
-
-        print('✅ おでかけ散歩履歴取得: ${(routeWalks as List).length}件');
-        return List<Map<String, dynamic>>.from(routeWalks);
+      // walk_mode でフィルター
+      if (walkMode == WalkMode.daily) {
+        query = query.eq('walk_type', 'daily');
+      } else if (walkMode == WalkMode.outing) {
+        query = query.eq('walk_type', 'outing');
       }
+
+      final walks = await query;
+      print('✅ 散歩履歴取得: ${(walks as List).length}件');
+      return List<Map<String, dynamic>>.from(walks);
     } catch (e) {
       print('❌ 散歩履歴取得エラー: $e');
       return [];

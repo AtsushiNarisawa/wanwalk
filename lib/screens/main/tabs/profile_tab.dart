@@ -99,7 +99,7 @@ class ProfileTab extends ConsumerWidget {
                 const SizedBox(height: WanMapSpacing.xl),
                 
                 // ソーシャル統計
-                _buildSocialStats(context, isDark),
+                _buildSocialStats(context, isDark, userId),
                 
                 const SizedBox(height: WanMapSpacing.xl),
                 
@@ -225,7 +225,7 @@ class ProfileTab extends ConsumerWidget {
   }
 
   /// ソーシャル統計
-  Widget _buildSocialStats(BuildContext context, bool isDark) {
+  Widget _buildSocialStats(BuildContext context, bool isDark, String userId) {
     return Row(
       children: [
         Expanded(
