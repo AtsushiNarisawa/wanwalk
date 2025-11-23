@@ -65,14 +65,24 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   Future<void> _saveProfile() async {
-    if (!_formKey.currentState!.validate()) return;
+    print('📝 ProfileEdit: Save button pressed');
+    
+    if (!_formKey.currentState!.validate()) {
+      print('📝 ProfileEdit: Validation failed');
+      return;
+    }
 
     setState(() => _isSaving = true);
 
     try {
       final userId = ref.read(currentUserIdProvider);
-      if (userId == null) return;
+      print('📝 ProfileEdit: userId=$userId');
+      if (userId == null) {
+        print('📝 ProfileEdit: userId is null, aborting');
+        return;
+      }
 
+      print('📝 ProfileEdit: Upserting profile data...');
       await Supabase.instance.client.from('profiles').upsert({
         'id': userId,
         'display_name': _nameController.text.trim(),
@@ -80,6 +90,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         'updated_at': DateTime.now().toIso8601String(),
       });
 
+      print('📝 ProfileEdit: Profile saved successfully');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('プロフィールを更新しました')),
@@ -87,6 +98,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         Navigator.of(context).pop(true); // 更新成功を通知
       }
     } catch (e) {
+      print('📝 ProfileEdit: Error saving profile: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('更新に失敗しました: $e')),
