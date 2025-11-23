@@ -101,7 +101,7 @@ class DogService {
           .toList();
     } catch (e) {
       print('犬一覧取得エラー: $e');
-      return [];
+      rethrow; // エラーを上位に伝播させる
     }
   }
 

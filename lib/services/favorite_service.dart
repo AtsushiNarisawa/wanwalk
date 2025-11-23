@@ -7,7 +7,7 @@ class FavoriteService {
   /// お気に入りに追加
   Future<bool> addFavorite(String routeId, String userId) async {
     try {
-      await _supabase.from('favorites').insert({
+      await _supabase.from('route_favorites').insert({
         'user_id': userId,
         'route_id': routeId,
       });
@@ -22,7 +22,7 @@ class FavoriteService {
   Future<bool> removeFavorite(String routeId, String userId) async {
     try {
       await _supabase
-          .from('favorites')
+          .from('route_favorites')
           .delete()
           .eq('user_id', userId)
           .eq('route_id', routeId);
@@ -37,7 +37,7 @@ class FavoriteService {
   Future<bool> isFavorite(String routeId, String userId) async {
     try {
       final response = await _supabase
-          .from('favorites')
+          .from('route_favorites')
           .select()
           .eq('user_id', userId)
           .eq('route_id', routeId)
@@ -54,7 +54,7 @@ class FavoriteService {
   Future<List<String>> getUserFavoriteRouteIds(String userId) async {
     try {
       final response = await _supabase
-          .from('favorites')
+          .from('route_favorites')
           .select('route_id')
           .eq('user_id', userId);
 
