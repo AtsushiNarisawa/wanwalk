@@ -4,8 +4,6 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import 'daily_walking_screen.dart';
-import '../badges/badge_list_screen.dart';
-import '../profile/statistics_dashboard_screen.dart';
 
 /// Daily Walk View（日常の散歩モード）
 /// - プライベート記録
@@ -133,11 +131,8 @@ class DailyWalkView extends ConsumerWidget {
                   color: Colors.amber,
                   isDark: isDark,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BadgeListScreen(),
-                      ),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('バッジ機能は準備中です')),
                     );
                   },
                 ),
@@ -150,11 +145,8 @@ class DailyWalkView extends ConsumerWidget {
                   color: Colors.blue,
                   isDark: isDark,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const StatisticsDashboardScreen(),
-                      ),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('統計機能は準備中です')),
                     );
                   },
                 ),

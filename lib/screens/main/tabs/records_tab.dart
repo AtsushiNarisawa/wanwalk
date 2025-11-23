@@ -4,10 +4,8 @@ import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
 import '../../../providers/auth_provider.dart';
-import '../../../providers/user_provider.dart';
 import '../../../providers/badge_provider.dart';
 import '../../daily/daily_walking_screen.dart';
-import '../../badges/badge_list_screen.dart';
 import '../../history/walk_history_screen.dart';
 
 /// RecordsTab - 日常の散歩記録+統計+バッジ統合
@@ -245,7 +243,11 @@ class RecordsTab extends ConsumerWidget {
               ),
               const SizedBox(height: WanMapSpacing.md),
               TextButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BadgeListScreen())),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('バッジ一覧は準備中です')),
+                  );
+                },
                 child: const Text('すべて見る'),
               ),
             ],

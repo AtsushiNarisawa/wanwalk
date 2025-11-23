@@ -5,8 +5,6 @@ import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../providers/area_provider.dart';
 import 'area_list_screen.dart';
-import '../badges/badge_list_screen.dart';
-import '../profile/statistics_dashboard_screen.dart';
 
 /// Outing Walk View（おでかけ散歩モード）
 /// - 公式ルートを探す
@@ -131,11 +129,8 @@ class OutingWalkView extends ConsumerWidget {
                   color: Colors.amber,
                   isDark: isDark,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BadgeListScreen(),
-                      ),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('バッジ機能は準備中です')),
                     );
                   },
                 ),
@@ -148,11 +143,8 @@ class OutingWalkView extends ConsumerWidget {
                   color: Colors.blue,
                   isDark: isDark,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const StatisticsDashboardScreen(),
-                      ),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('統計機能は準備中です')),
                     );
                   },
                 ),
