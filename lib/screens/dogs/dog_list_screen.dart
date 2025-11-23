@@ -16,16 +16,13 @@ class DogListScreen extends ConsumerStatefulWidget {
 }
 
 class _DogListScreenState extends ConsumerState<DogListScreen> {
-  bool _hasLoadedDogs = false;
-
   @override
   void initState() {
     super.initState();
     // 初回のみ犬一覧を読み込み
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Future.microtask(() {
       final userId = ref.read(currentUserIdProvider);
-      if (userId != null && !_hasLoadedDogs) {
-        _hasLoadedDogs = true;
+      if (userId != null) {
         print('🐕 DogListScreen: Loading dogs for user $userId');
         ref.read(dogProvider.notifier).loadUserDogs(userId);
       }
@@ -37,6 +34,8 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final userId = ref.watch(currentUserIdProvider);
     final dogState = ref.watch(dogProvider);
+    
+    print('🐕 DogListScreen build: dogs=${dogState.dogs.length}, loading=${dogState.isLoading}, error=${dogState.errorMessage}');
 
     return Scaffold(
       backgroundColor: isDark
