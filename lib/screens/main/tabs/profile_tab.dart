@@ -304,9 +304,13 @@ class ProfileTab extends ConsumerWidget {
             label: '愛犬の管理',
             isDark: isDark,
             onTap: () {
+              print('🐕 ProfileTab: Navigating to DogListScreen');
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const DogListScreen()),
+                MaterialPageRoute(builder: (context) {
+                  print('🐕 ProfileTab: Building DogListScreen');
+                  return const DogListScreen();
+                }),
               );
             },
           ),
