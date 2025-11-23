@@ -179,17 +179,17 @@ class ProfileTab extends ConsumerWidget {
           
           const SizedBox(height: WanMapSpacing.lg),
           
-          // レベルとXP
+          // 統計情報
           statisticsAsync.when(
             data: (stats) => Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 28),
+                    const Icon(Icons.directions_walk, color: Colors.amber, size: 28),
                     const SizedBox(width: WanMapSpacing.xs),
                     Text(
-                      'レベル ${stats.userLevel}',
+                      '総散歩回数: ${stats.totalWalks}',
                       style: WanMapTypography.headlineSmall.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -198,21 +198,18 @@ class ProfileTab extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: WanMapSpacing.sm),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: stats.xpProgress,
-                    backgroundColor: Colors.white.withOpacity(0.3),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.amber),
-                    minHeight: 8,
-                  ),
-                ),
-                const SizedBox(height: WanMapSpacing.xs),
-                Text(
-                  '${stats.currentXP} / ${stats.nextLevelXP} XP',
-                  style: WanMapTypography.caption.copyWith(
-                    color: Colors.white.withOpacity(0.9),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.route, color: Colors.amber, size: 24),
+                    const SizedBox(width: WanMapSpacing.xs),
+                    Text(
+                      '総距離: ${stats.totalDistanceKm.toStringAsFixed(1)} km',
+                      style: WanMapTypography.bodyLarge.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
