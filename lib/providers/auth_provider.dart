@@ -40,12 +40,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// 初期化：認証状態の変更を監視
   void _init() {
     _authService.authStateChanges.listen((authState) {
-      state = state.copyWith(currentUser: authState.session?.user);
+      final user = authState.session?.user;
+      state = state.copyWith(currentUser: user);
+      print('🔐 Auth state changed: userId=${user?.id ?? "null"}');
     });
 
     // 現在のユーザーを取得
     final currentUser = Supabase.instance.client.auth.currentUser;
     state = state.copyWith(currentUser: currentUser);
+    print('🔐 Initial auth state: userId=${currentUser?.id ?? "null"}');
   }
 
   /// サインアップ
