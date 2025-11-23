@@ -54,8 +54,8 @@ class ProfileTab extends ConsumerWidget {
       );
     }
 
-    final profileAsync = ref.watch(currentUserProfileProvider);
     final statisticsAsync = ref.watch(userStatisticsProvider(userId));
+    final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
       backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
@@ -87,15 +87,14 @@ class ProfileTab extends ConsumerWidget {
           ),
         ],
       ),
-      body: profileAsync.when(
-        data: (profile) => SingleChildScrollView(
+      body: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.all(WanMapSpacing.lg),
             child: Column(
               children: [
                 // ユーザー情報カード
-                _buildUserInfoCard(context, isDark, profile, statisticsAsync),
+                _buildUserInfoCard(context, isDark, currentUser, statisticsAsync),
                 
                 const SizedBox(height: WanMapSpacing.xl),
                 
@@ -105,26 +104,11 @@ class ProfileTab extends ConsumerWidget {
                 const SizedBox(height: WanMapSpacing.xl),
                 
                 // メニューリスト
-                _buildMenuList(context, isDark, profile, ref),
+                _buildMenuList(context, isDark, currentUser, ref),
               ],
             ),
           ),
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-              const SizedBox(height: WanMapSpacing.lg),
-              Text(
-                'プロフィールの読み込みに失敗しました',
-                style: WanMapTypography.bodyMedium.copyWith(color: Colors.grey[600]),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -132,7 +116,7 @@ class ProfileTab extends ConsumerWidget {
   Widget _buildUserInfoCard(
     BuildContext context,
     bool isDark,
-    dynamic profile,
+    User? currentUser,
     AsyncValue<dynamic> statisticsAsync,
   ) {
     return Container(
@@ -161,10 +145,10 @@ class ProfileTab extends ConsumerWidget {
           CircleAvatar(
             radius: 50,
             backgroundColor: Colors.white,
-            backgroundImage: profile?.avatarUrl != null
-                ? NetworkImage(profile!.avatarUrl!)
+            backgroundImage: currentUser?.userMetadata?['avatar_url'] != null
+                ? NetworkImage(currentUser!.userMetadata!['avatar_url'] as String)
                 : null,
-            child: profile?.avatarUrl == null
+            child: currentUser?.userMetadata?['avatar_url'] == null
                 ? const Icon(Icons.person, size: 60, color: WanMapColors.accent)
                 : null,
           ),
@@ -173,7 +157,7 @@ class ProfileTab extends ConsumerWidget {
           
           // 表示名
           Text(
-            profile?.displayName ?? 'ユーザー名未設定',
+            currentUser?.userMetadata?['display_name'] as String? ?? 'ユーザー名未設定',
             style: WanMapTypography.headlineMedium.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -184,9 +168,9 @@ class ProfileTab extends ConsumerWidget {
           const SizedBox(height: WanMapSpacing.xs),
           
           // メールアドレス
-          if (profile?.email != null)
+          if (currentUser?.email != null)
             Text(
-              profile!.email!,
+              currentUser!.email!,
               style: WanMapTypography.bodySmall.copyWith(
                 color: Colors.white.withOpacity(0.9),
               ),
@@ -282,7 +266,7 @@ class ProfileTab extends ConsumerWidget {
   Widget _buildMenuList(
     BuildContext context,
     bool isDark,
-    dynamic profile,
+    User? currentUser,
     WidgetRef ref,
   ) {
     return Container(
