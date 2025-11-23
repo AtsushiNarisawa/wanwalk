@@ -12,6 +12,10 @@ import '../../legal/terms_of_service_screen.dart';
 import '../../legal/privacy_policy_screen.dart';
 import '../../social/followers_screen.dart';
 import '../../social/following_screen.dart';
+import '../../routes/favorites_screen.dart';
+import '../../profile/profile_edit_screen.dart';
+import '../../dogs/dog_list_screen.dart';
+import '../../settings/settings_screen.dart';
 
 /// ProfileTab - ユーザープロフィールとアカウント管理
 /// 
@@ -283,10 +287,15 @@ class ProfileTab extends ConsumerWidget {
             icon: Icons.edit_outlined,
             label: 'プロフィール編集',
             isDark: isDark,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('プロフィール編集は準備中です')),
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
               );
+              // プロフィールが更新された場合、統計を再読み込み
+              if (result == true) {
+                ref.invalidate(userStatisticsProvider);
+              }
             },
           ),
           const Divider(height: 1),
@@ -295,8 +304,9 @@ class ProfileTab extends ConsumerWidget {
             label: '愛犬の管理',
             isDark: isDark,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('愛犬管理は準備中です')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DogListScreen()),
               );
             },
           ),
@@ -306,8 +316,9 @@ class ProfileTab extends ConsumerWidget {
             label: 'お気に入り',
             isDark: isDark,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('お気に入り機能は準備中です')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
               );
             },
           ),
@@ -327,8 +338,9 @@ class ProfileTab extends ConsumerWidget {
             label: '設定',
             isDark: isDark,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('設定画面は準備中です')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
               );
             },
           ),
