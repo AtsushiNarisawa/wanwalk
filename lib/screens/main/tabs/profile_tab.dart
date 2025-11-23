@@ -235,8 +235,11 @@ class ProfileTab extends ConsumerWidget {
             value: '0',
             isDark: isDark,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('フォロワー機能は準備中です')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => FollowersScreen(userId: userId),
+                ),
               );
             },
           ),
@@ -249,8 +252,11 @@ class ProfileTab extends ConsumerWidget {
             value: '0',
             isDark: isDark,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('フォロー機能は準備中です')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => FollowingScreen(userId: userId),
+                ),
               );
             },
           ),
