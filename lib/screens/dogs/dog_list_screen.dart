@@ -13,9 +13,11 @@ class DogListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('🐕 DogListScreen: build() called');
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final userId = ref.watch(currentUserIdProvider);
     final dogState = ref.watch(dogProvider);
+    print('🐕 DogListScreen: userId=$userId, dogsCount=${dogState.dogs.length}, isLoading=${dogState.isLoading}, errorMessage=${dogState.errorMessage}');
 
     // ユーザーIDが取得できたら犬一覧を読み込み（初回のみ）
     // エラーがある場合は再読み込みしない
