@@ -13,15 +13,16 @@ class UserStatisticsService {
   }) async {
     try {
       final response = await _supabase.rpc(
-        'get_user_statistics',
+        'get_user_walk_statistics',
         params: {'p_user_id': userId},
       );
 
-      if (response == null || (response as List).isEmpty) {
+      if (response == null) {
         return UserStatistics.empty;
       }
 
-      final data = (response as List).first as Map<String, dynamic>;
+      // RPC returns a single object, not a list
+      final data = response as Map<String, dynamic>;
       return UserStatistics.fromMap(data);
     } catch (e) {
       print('Error getting user statistics: $e');

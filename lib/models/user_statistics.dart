@@ -26,16 +26,16 @@ class UserStatistics {
 
   factory UserStatistics.fromMap(Map<String, dynamic> map) {
     return UserStatistics(
-      totalWalks: map['total_walks'] as int,
-      totalOutingWalks: map['total_outing_walks'] as int,
-      totalDistanceKm: (map['total_distance_km'] as num).toDouble(),
-      totalDurationHours: (map['total_duration_hours'] as num).toDouble(),
-      areasVisited: map['areas_visited'] as int,
-      routesCompleted: map['routes_completed'] as int,
-      pinsCreated: map['pins_created'] as int,
-      pinsLikedCount: map['pins_liked_count'] as int,
-      followersCount: map['followers_count'] as int,
-      followingCount: map['following_count'] as int,
+      totalWalks: (map['total_walks'] as int?) ?? 0,
+      totalOutingWalks: (map['total_outing_walks'] as int?) ?? 0,
+      totalDistanceKm: ((map['total_distance_km'] as num?) ?? 0).toDouble(),
+      totalDurationHours: ((map['total_duration_hours'] as num?) ?? 0).toDouble(),
+      areasVisited: (map['areas_visited'] as int?) ?? 0,
+      routesCompleted: (map['routes_completed'] as int?) ?? 0,
+      pinsCreated: (map['pins_created'] as int?) ?? 0,
+      pinsLikedCount: (map['pins_liked_count'] as int?) ?? 0,
+      followersCount: (map['followers_count'] as int?) ?? 0,
+      followingCount: (map['following_count'] as int?) ?? 0,
     );
   }
 
