@@ -1,269 +1,177 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/route_model.dart';
 import '../services/route_service.dart';
 
-/// ルート情報の状態を管理するProvider
-class RouteProvider extends ChangeNotifier {
+/// ルート情報の状態クラス
+class RouteState {
+  final List<RouteModel> routes;
+  final List<RouteModel> publicRoutes;
+  final RouteModel? selectedRoute;
+  final bool isLoading;
+  final String? errorMessage;
+  final String? areaFilter;
+
+  RouteState({
+    this.routes = const [],
+    this.publicRoutes = const [],
+    this.selectedRoute,
+    this.isLoading = false,
+    this.errorMessage,
+    this.areaFilter,
+  });
+
+  bool get hasRoutes => routes.isNotEmpty;
+  bool get hasPublicRoutes => publicRoutes.isNotEmpty;
+
+  RouteState copyWith({
+    List<RouteModel>? routes,
+    List<RouteModel>? publicRoutes,
+    RouteModel? selectedRoute,
+    bool? isLoading,
+    String? errorMessage,
+    String? areaFilter,
+    bool clearSelectedRoute = false,
+  }) {
+    return RouteState(
+      routes: routes ?? this.routes,
+      publicRoutes: publicRoutes ?? this.publicRoutes,
+      selectedRoute: clearSelectedRoute ? null : (selectedRoute ?? this.selectedRoute),
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage,
+      areaFilter: areaFilter ?? this.areaFilter,
+    );
+  }
+}
+
+/// ルート情報の状態を管理するRiverpod StateNotifier
+class RouteNotifier extends StateNotifier<RouteState> {
   final RouteService _routeService = RouteService();
-  
-  List<RouteModel> _routes = [];
-  List<RouteModel> _publicRoutes = [];
-  RouteModel? _selectedRoute;
-  bool _isLoading = false;
-  String? _errorMessage;
-  
-  // 検索フィルタ
-  String? _areaFilter;
-  
-  // Getters
-  List<RouteModel> get routes => _routes;
-  List<RouteModel> get publicRoutes => _publicRoutes;
-  RouteModel? get selectedRoute => _selectedRoute;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  String? get areaFilter => _areaFilter;
-  bool get hasRoutes => _routes.isNotEmpty;
-  bool get hasPublicRoutes => _publicRoutes.isNotEmpty;
-  
+
+  RouteNotifier() : super(RouteState());
+
   /// ユーザーのルート一覧を読み込み
   Future<void> loadUserRoutes(String userId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
     try {
-      _routes = await _routeService.getUserRoutes(userId);
-      _isLoading = false;
-      notifyListeners();
+      final routes = await _routeService.getUserRoutes(userId);
+      state = state.copyWith(routes: routes, isLoading: false);
     } catch (e) {
-      _errorMessage = 'ルート一覧の取得に失敗しました: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        errorMessage: 'ルート一覧の取得に失敗しました: ${e.toString()}',
+        isLoading: false,
+      );
     }
   }
-  
+
   /// 公開ルート一覧を読み込み
   Future<void> loadPublicRoutes({
     int limit = 20,
     String? area,
     bool includePoints = true,
   }) async {
-    _isLoading = true;
-    _errorMessage = null;
-    _areaFilter = area;
-    notifyListeners();
-    
+    state = state.copyWith(isLoading: true, errorMessage: null, areaFilter: area);
+
     try {
-      _publicRoutes = await _routeService.getPublicRoutes(
+      final publicRoutes = await _routeService.getPublicRoutes(
         limit: limit,
         area: area,
         includePoints: includePoints,
       );
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(publicRoutes: publicRoutes, isLoading: false);
     } catch (e) {
-      _errorMessage = '公開ルートの取得に失敗しました: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        errorMessage: '公開ルートの取得に失敗しました: ${e.toString()}',
+        isLoading: false,
+      );
     }
   }
-  
+
   /// ルート詳細を取得
   Future<RouteModel?> getRouteDetail(String routeId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
     try {
       final route = await _routeService.getRouteDetail(routeId);
-      _isLoading = false;
-      
       if (route != null) {
-        _selectedRoute = route;
+        state = state.copyWith(selectedRoute: route, isLoading: false);
       } else {
-        _errorMessage = 'ルート詳細の取得に失敗しました';
+        state = state.copyWith(
+          errorMessage: 'ルート詳細の取得に失敗しました',
+          isLoading: false,
+        );
       }
-      
-      notifyListeners();
       return route;
     } catch (e) {
-      _errorMessage = 'ルート詳細の取得に失敗しました: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        errorMessage: 'ルート詳細の取得に失敗しました: ${e.toString()}',
+        isLoading: false,
+      );
       return null;
     }
   }
-  
+
   /// ルートを保存
   Future<String?> saveRoute(RouteModel route) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
     try {
       final routeId = await _routeService.saveRoute(route);
-      
       if (routeId != null) {
-        // ローカルリストを更新
-        final savedRoute = route.copyWith(id: routeId);
-        _routes.insert(0, savedRoute); // 先頭に追加
-        _isLoading = false;
-        notifyListeners();
+        await loadUserRoutes(route.userId);
       }
-      
+      state = state.copyWith(isLoading: false);
       return routeId;
     } catch (e) {
-      _errorMessage = 'ルートの保存に失敗しました: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        errorMessage: 'ルートの保存に失敗しました: ${e.toString()}',
+        isLoading: false,
+      );
       return null;
     }
   }
-  
-  /// ルートを更新
-  Future<bool> updateRoute({
-    required String routeId,
-    required String userId,
-    required String title,
-    String? description,
-    required bool isPublic,
-  }) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
-    try {
-      final success = await _routeService.updateRoute(
-        routeId: routeId,
-        userId: userId,
-        title: title,
-        description: description,
-        isPublic: isPublic,
-      );
-      
-      if (success) {
-        // ローカルリストを更新
-        final index = _routes.indexWhere((r) => r.id == routeId);
-        if (index != -1) {
-          _routes[index] = _routes[index].copyWith(
-            title: title,
-            description: description,
-            isPublic: isPublic,
-          );
-        }
-        
-        if (_selectedRoute?.id == routeId) {
-          _selectedRoute = _selectedRoute!.copyWith(
-            title: title,
-            description: description,
-            isPublic: isPublic,
-          );
-        }
-      }
-      
-      _isLoading = false;
-      notifyListeners();
-      return success;
-    } catch (e) {
-      _errorMessage = 'ルートの更新に失敗しました: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-  
+
   /// ルートを削除
   Future<bool> deleteRoute(String routeId, String userId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
     try {
       final success = await _routeService.deleteRoute(routeId, userId);
-      
       if (success) {
-        _routes.removeWhere((r) => r.id == routeId);
-        _publicRoutes.removeWhere((r) => r.id == routeId);
-        
-        if (_selectedRoute?.id == routeId) {
-          _selectedRoute = null;
-        }
+        final updatedRoutes = state.routes.where((r) => r.id != routeId).toList();
+        state = state.copyWith(
+          routes: updatedRoutes,
+          isLoading: false,
+          clearSelectedRoute: state.selectedRoute?.id == routeId,
+        );
       }
-      
-      _isLoading = false;
-      notifyListeners();
       return success;
     } catch (e) {
-      _errorMessage = 'ルートの削除に失敗しました: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        errorMessage: 'ルートの削除に失敗しました: ${e.toString()}',
+        isLoading: false,
+      );
       return false;
     }
   }
-  
-  /// 特定ユーザーの公開ルートを取得
-  Future<void> loadPublicRoutesByUser(String userId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
-    try {
-      _publicRoutes = await _routeService.getPublicRoutesByUser(userId);
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _errorMessage = 'ユーザーの公開ルート取得に失敗しました: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-  
+
   /// ルートを選択
   void selectRoute(RouteModel route) {
-    _selectedRoute = route;
-    notifyListeners();
+    state = state.copyWith(selectedRoute: route);
   }
-  
+
   /// ルートの選択を解除
   void clearSelectedRoute() {
-    _selectedRoute = null;
-    notifyListeners();
+    state = state.copyWith(clearSelectedRoute: true);
   }
-  
-  /// エリアフィルタを設定
-  void setAreaFilter(String? area) {
-    _areaFilter = area;
-    notifyListeners();
-  }
-  
-  /// フィルタをクリア
-  void clearFilters() {
-    _areaFilter = null;
-    notifyListeners();
-  }
-  
+
   /// エラーメッセージをクリア
   void clearError() {
-    _errorMessage = null;
-    notifyListeners();
-  }
-  
-  /// テストデータを作成
-  Future<void> createTestData(String userId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
-    try {
-      await _routeService.createTestData(userId);
-      // テストデータ作成後、ルート一覧を再読み込み
-      await loadUserRoutes(userId);
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _errorMessage = 'テストデータの作成に失敗しました: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-    }
+    state = state.copyWith(errorMessage: null);
   }
 }
+
+/// RouteProvider（Riverpod版）
+final routeProvider = StateNotifierProvider<RouteNotifier, RouteState>((ref) {
+  return RouteNotifier();
+});
