@@ -20,6 +20,7 @@ class DogListScreen extends ConsumerWidget {
     // ユーザーIDが取得できたら犬一覧を読み込み（初回のみ）
     // エラーがある場合は再読み込みしない
     if (userId != null && dogState.dogs.isEmpty && !dogState.isLoading && dogState.errorMessage == null) {
+      print('🐕 DogListScreen: Triggering loadUserDogs (userId=$userId, isEmpty=${dogState.dogs.isEmpty}, isLoading=${dogState.isLoading}, hasError=${dogState.errorMessage != null})');
       Future.microtask(() => ref.read(dogProvider.notifier).loadUserDogs(userId));
     }
 

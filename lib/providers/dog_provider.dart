@@ -43,12 +43,15 @@ class DogNotifier extends StateNotifier<DogState> {
 
   /// ユーザーの犬一覧を読み込み
   Future<void> loadUserDogs(String userId) async {
+    print('🐕 Loading dogs for user: $userId');
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
       final dogs = await _dogService.getUserDogs(userId);
+      print('🐕 Dogs loaded successfully: ${dogs.length} dogs');
       state = state.copyWith(dogs: dogs, isLoading: false);
     } catch (e) {
+      print('🐕 Error loading dogs: $e');
       state = state.copyWith(
         errorMessage: '犬一覧の取得に失敗しました: ${e.toString()}',
         isLoading: false,
