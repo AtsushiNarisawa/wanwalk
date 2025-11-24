@@ -21,55 +21,11 @@ class Area {
   factory Area.fromJson(Map<String, dynamic> json) {
     print('🔵 Area.fromJson: $json');
     
-    // center_pointから座標を抽出（GEOGRAPHY型の場合）
-    double latitude = 35.6762; // デフォルト値（東京）
-    double longitude = 139.6503;
+    // RPC関数から直接longitude/latitudeを取得
+    final latitude = (json['latitude'] as num?)?.toDouble() ?? 35.6762;
+    final longitude = (json['longitude'] as num?)?.toDouble() ?? 139.6503;
     
-    if (json['center_point'] != null) {
-      try {
-        // PostGISのGEOGRAPHY型はバイナリで返ってくる
-        // Supabase PostgRESTはGeoJSON形式にも対応
-        final centerPoint = json['center_point'];
-        print('🔍 center_point type: ${centerPoint.runtimeType}');
-        print('🔍 center_point value: $centerPoint');
-        
-        if (centerPoint is Map) {
-          // GeoJSON形式の場合
-          if (centerPoint.containsKey('coordinates') && centerPoint['coordinates'] is List) {
-            final coordinates = centerPoint['coordinates'] as List;
-            if (coordinates.length >= 2) {
-              final lon = coordinates[0];
-              final lat = coordinates[1];
-              if (lon != null && lat != null) {
-                longitude = (lon is num) ? lon.toDouble() : double.tryParse(lon.toString()) ?? longitude;
-                latitude = (lat is num) ? lat.toDouble() : double.tryParse(lat.toString()) ?? latitude;
-              }
-            }
-          }
-        } else if (centerPoint is String) {
-          // WKT形式の場合: "POINT(139.1071 35.2328)"
-          if (centerPoint.startsWith('POINT(')) {
-            final coords = centerPoint
-                .replaceAll('POINT(', '')
-                .replaceAll(')', '')
-                .split(' ');
-            if (coords.length == 2) {
-              final lonParsed = double.tryParse(coords[0]);
-              final latParsed = double.tryParse(coords[1]);
-              if (lonParsed != null && latParsed != null) {
-                longitude = lonParsed;
-                latitude = latParsed;
-              }
-            }
-          }
-        }
-        // バイナリ形式の場合はデフォルト値を使用
-        print('📍 Parsed location: lat=$latitude, lon=$longitude');
-      } catch (e, stackTrace) {
-        print('⚠️ Failed to parse center_point: $e');
-        print('⚠️ Stack trace: $stackTrace');
-      }
-    }
+    print('📍 Location: lat=$latitude, lon=$longitude');
     
     return Area(
       id: json['id'] as String,
