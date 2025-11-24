@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
+import '../../../models/walk_history.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/badge_provider.dart';
 import '../../../providers/user_statistics_provider.dart';
@@ -311,9 +312,9 @@ class RecordsTab extends ConsumerWidget {
   }
 
   /// 散歩履歴カード（写真表示機能付き - Phase 3拡張）
-  Widget _buildWalkHistoryCard(BuildContext context, bool isDark, dynamic walk, String userId) {
+  Widget _buildWalkHistoryCard(BuildContext context, bool isDark, WalkHistoryItem walk, String userId) {
     // 散歩タイプを判定
-    final isOuting = walk.walkType == 'outing';
+    final isOuting = walk.type == WalkHistoryType.outing;
     final walkId = walk.walkId;
 
     return Card(
@@ -336,7 +337,7 @@ class RecordsTab extends ConsumerWidget {
                 const SizedBox(width: WanMapSpacing.sm),
                 Expanded(
                   child: Text(
-                    isOuting ? (walk.routeTitle ?? 'おでかけ散歩') : '日常散歩',
+                    isOuting ? (walk.routeName ?? 'おでかけ散歩') : '日常散歩',
                     style: WanMapTypography.bodyLarge.copyWith(
                       color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
