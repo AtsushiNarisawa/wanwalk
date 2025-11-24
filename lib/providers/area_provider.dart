@@ -6,7 +6,7 @@ import '../models/area.dart';
 final _supabase = Supabase.instance.client;
 
 /// エリア一覧を取得するProvider
-final areasProvider = FutureProvider<List<Area>>((ref) async {
+final areasProvider = FutureProvider.autoDispose<List<Area>>((ref) async {
   print('🔵 areasProvider: Starting to fetch areas...');
   try {
     print('🔵 Querying Supabase areas table...');
