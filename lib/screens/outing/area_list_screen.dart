@@ -95,6 +95,15 @@ class AreaListScreen extends ConsumerWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: WanMapSpacing.lg),
+              ElevatedButton.icon(
+                onPressed: () {
+                  print('🔄 Refresh button pressed - invalidating areasProvider');
+                  ref.invalidate(areasProvider);
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('再試行'),
+              ),
             ],
           ),
         ),
