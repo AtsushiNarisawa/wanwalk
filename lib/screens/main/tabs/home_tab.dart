@@ -22,8 +22,11 @@ class HomeTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('🟡 HomeTab.build() called');
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    print('🟡 About to watch areasProvider in HomeTab...');
     final areasAsync = ref.watch(areasProvider);
+    print('🟡 HomeTab areasAsync state: ${areasAsync.runtimeType}');
 
     return Scaffold(
       backgroundColor: isDark 

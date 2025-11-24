@@ -16,8 +16,11 @@ class OutingWalkView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('🔴 OutingWalkView.build() called');
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    print('🔴 About to watch areasProvider in OutingWalkView...');
     final areasAsync = ref.watch(areasProvider);
+    print('🔴 OutingWalkView areasAsync state: ${areasAsync.runtimeType}');
 
     return SingleChildScrollView(
       child: Column(
