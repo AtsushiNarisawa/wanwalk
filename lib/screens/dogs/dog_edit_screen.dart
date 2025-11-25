@@ -59,7 +59,6 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
       initialDate: _birthDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      locale: const Locale('ja', 'JP'),
     );
     
     if (picked != null) {

@@ -6,6 +6,7 @@ import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_statistics_provider.dart';
+import '../../../providers/profile_provider.dart';
 import '../../auth/login_screen.dart';
 import '../../notifications/notifications_screen.dart';
 import '../../legal/terms_of_service_screen.dart';
@@ -59,6 +60,7 @@ class ProfileTab extends ConsumerWidget {
     }
 
     final statisticsAsync = ref.watch(userStatisticsProvider(userId));
+    final profileAsync = ref.watch(profileProvider(userId));
     final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
@@ -98,7 +100,11 @@ class ProfileTab extends ConsumerWidget {
             child: Column(
               children: [
                 // ユーザー情報カード
-                _buildUserInfoCard(context, isDark, currentUser, statisticsAsync),
+                profileAsync.when(
+                  data: (profile) => _buildUserInfoCard(context, isDark, profile, currentUser, statisticsAsync),
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (_, __) => _buildUserInfoCard(context, isDark, null, currentUser, statisticsAsync),
+                ),
                 
                 const SizedBox(height: WanMapSpacing.xl),
                 
@@ -120,6 +126,7 @@ class ProfileTab extends ConsumerWidget {
   Widget _buildUserInfoCard(
     BuildContext context,
     bool isDark,
+    ProfileData? profile,
     User? currentUser,
     AsyncValue<dynamic> statisticsAsync,
   ) {
@@ -149,10 +156,10 @@ class ProfileTab extends ConsumerWidget {
           CircleAvatar(
             radius: 50,
             backgroundColor: Colors.white,
-            backgroundImage: currentUser?.userMetadata?['avatar_url'] != null
-                ? NetworkImage(currentUser!.userMetadata!['avatar_url'] as String)
+            backgroundImage: profile?.avatarUrl != null
+                ? NetworkImage(profile!.avatarUrl!)
                 : null,
-            child: currentUser?.userMetadata?['avatar_url'] == null
+            child: profile?.avatarUrl == null
                 ? const Icon(Icons.person, size: 60, color: WanMapColors.accent)
                 : null,
           ),
@@ -161,7 +168,7 @@ class ProfileTab extends ConsumerWidget {
           
           // 表示名
           Text(
-            currentUser?.userMetadata?['display_name'] as String? ?? 'ユーザー名未設定',
+            profile?.displayName ?? 'ユーザー名未設定',
             style: WanMapTypography.headlineMedium.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -292,9 +299,10 @@ class ProfileTab extends ConsumerWidget {
                 context,
                 MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
               );
-              // プロフィールが更新された場合、統計を再読み込み
+              // プロフィールが更新された場合、再読み込み
               if (result == true) {
                 ref.invalidate(userStatisticsProvider);
+                ref.invalidate(profileProvider);
               }
             },
           ),
