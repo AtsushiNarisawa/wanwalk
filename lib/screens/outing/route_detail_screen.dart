@@ -146,6 +146,7 @@ class RouteDetailScreen extends ConsumerWidget {
                 ),
               ),
               Marker(
+                alignment: Alignment.center,
                 point: route.endLocation,
                 width: 50,
                 height: 50,
