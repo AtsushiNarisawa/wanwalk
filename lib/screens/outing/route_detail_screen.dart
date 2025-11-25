@@ -183,14 +183,37 @@ class RouteDetailScreen extends ConsumerWidget {
   }
 
   /// ルートの距離に基づいてズームレベルを計算
+  /// ルートの境界に基づいて適切なズームレベルを計算
   double _calculateZoom(OfficialRoute route) {
-    final distance = route.distanceMeters;
-    if (distance < 500) return 18.0;
-    if (distance < 1000) return 17.0;
-    if (distance < 2000) return 16.5;
-    if (distance < 5000) return 15.5;
-    if (distance < 10000) return 14.5;
-    return 13.0;
+    if (route.routeLine == null || route.routeLine!.isEmpty) {
+      return 15.0;
+    }
+    
+    // ルートの緯度経度の範囲を計算
+    double minLat = route.routeLine!.first.latitude;
+    double maxLat = route.routeLine!.first.latitude;
+    double minLon = route.routeLine!.first.longitude;
+    double maxLon = route.routeLine!.first.longitude;
+    
+    for (var point in route.routeLine!) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLon) minLon = point.longitude;
+      if (point.longitude > maxLon) maxLon = point.longitude;
+    }
+    
+    // 緯度経度の差分（度）
+    final latDiff = maxLat - minLat;
+    final lonDiff = maxLon - minLon;
+    final maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
+    
+    // 差分に基づいてズームレベルを計算（経験則）
+    if (maxDiff > 0.1) return 11.0;  // 約10km以上
+    if (maxDiff > 0.05) return 12.5; // 約5km
+    if (maxDiff > 0.02) return 13.5; // 約2km
+    if (maxDiff > 0.01) return 14.5; // 約1km
+    if (maxDiff > 0.005) return 15.5; // 約500m
+    return 16.5; // 500m未満
   }
 
 
