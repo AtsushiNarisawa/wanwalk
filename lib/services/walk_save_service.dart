@@ -23,14 +23,14 @@ class WalkSaveService {
       print('🔵 日常散歩保存開始: userId=$userId, points=${route.points.length}');
 
       // 1. GeoJSON 形式に変換
+      // PostGISはLineStringに最低2ポイント必要
       Map<String, dynamic>? pathGeoJson;
-      if (route.points.isNotEmpty) {
+      if (route.points.length >= 2) {
         pathGeoJson = {
           'type': 'LineString',
           'coordinates': route.points.map((p) => [
             p.latLng.longitude,
             p.latLng.latitude,
-            p.altitude ?? 0.0,
           ]).toList(),
         };
       }
@@ -75,14 +75,14 @@ class WalkSaveService {
       print('🔵 おでかけ散歩保存開始: userId=$userId, routeId=$officialRouteId');
 
       // 1. GeoJSON 形式に変換
+      // PostGISはLineStringに最低2ポイント必要
       Map<String, dynamic>? pathGeoJson;
-      if (route.points.isNotEmpty) {
+      if (route.points.length >= 2) {
         pathGeoJson = {
           'type': 'LineString',
           'coordinates': route.points.map((p) => [
             p.latLng.longitude,
             p.latLng.latitude,
-            p.altitude ?? 0.0,
           ]).toList(),
         };
       }

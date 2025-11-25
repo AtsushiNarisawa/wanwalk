@@ -75,11 +75,41 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
   /// 散歩を終了
   Future<void> _finishWalking() async {
+    // 写真選択ダイアログを表示
+    final shouldAddPhotos = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('散歩を終了'),
+        content: const Text('写真を追加しますか？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('スキップ'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: WanMapColors.accent,
+            ),
+            child: const Text('写真を選択'),
+          ),
+        ],
+      ),
+    );
+
+    // 写真を選択
+    if (shouldAddPhotos == true) {
+      await _selectPhotos();
+    }
+
+    // 終了確認
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('散歩を終了'),
-        content: const Text('散歩を終了してもよろしいですか？'),
+        content: Text(_photoFiles.isEmpty 
+          ? '散歩を終了してもよろしいですか？'
+          : '散歩を終了します。選択した${_photoFiles.length}枚の写真をアップロードします。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -206,14 +236,13 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     ref.read(gpsProviderRiverpod.notifier).resumeRecording();
   }
 
-  /// 写真を撮影（Phase 3新機能）
-  /// 散歩中に撮影した写真はローカルに保存し、散歩終了時にまとめてアップロード
-  Future<void> _takePhoto() async {
+  /// 写真を選択（散歩終了時）
+  Future<void> _selectPhotos() async {
     try {
-      print('📷 写真撮影開始...');
+      print('📷 写真選択開始...');
       
-      // ギャラリーから写真を選択（iOS Simulatorではカメラが使えないため）
-      final file = await _photoService.takePhoto();
+      // ギャラリーから写真を選択
+      final file = await _photoService.pickImageFromGallery();
       
       if (file == null) {
         print('❌ 写真選択がキャンセルされました');
@@ -222,32 +251,14 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
       print('✅ 写真選択成功: ${file.path}');
 
-      // 写真をローカルリストに追加（散歩終了時にアップロード）
+      // 写真をローカルリストに追加
       setState(() {
         _photoFiles.add(file);
       });
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('写真を追加しました（${_photoFiles.length}枚）'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-
       print('✅ 写真追加成功: ${_photoFiles.length}枚');
     } catch (e) {
       print('❌ 写真選択エラー: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('エラー: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 
