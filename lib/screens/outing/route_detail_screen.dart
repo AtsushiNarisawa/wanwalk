@@ -125,16 +125,17 @@ class RouteDetailScreen extends ConsumerWidget {
                 Polyline(
                   points: route.routeLine!,
                   strokeWidth: 4.0,
-                  color: WanMapColors.accent,
+                  color: const Color(0xFFFF69B4),
                 ),
               ],
             ),
           MarkerLayer(
             markers: [
               Marker(
+                alignment: Alignment.center,
                 point: route.startLocation,
-                width: 40,
-                height: 40,
+                width: 50,
+                height: 50,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.green,
@@ -146,8 +147,8 @@ class RouteDetailScreen extends ConsumerWidget {
               ),
               Marker(
                 point: route.endLocation,
-                width: 40,
-                height: 40,
+                width: 50,
+                height: 50,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.red,
@@ -491,7 +492,7 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: WanMapColors.accent,
+            color: const Color(0xFFFF69B4),
             size: 28,
           ),
           const SizedBox(height: WanMapSpacing.xs),
