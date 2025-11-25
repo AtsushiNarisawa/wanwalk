@@ -98,13 +98,21 @@ class RouteDetailScreen extends ConsumerWidget {
 
   /// 地図セクション
   Widget _buildMapSection(OfficialRoute route, AsyncValue pinsAsync, bool isDark) {
+    print('🗺️ Building map for route: ${route.name}');
+    print('🗺️ Route line points: ${route.routeLine?.length ?? 0}');
+    if (route.routeLine != null) {
+      print('🗺️ First point: ${route.routeLine!.first}');
+      print('🗺️ Last point: ${route.routeLine!.last}');
+    }
     return Container(
       height: 300,
       color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
       child: FlutterMap(
         options: MapOptions(
-          initialCenter: route.startLocation,
-          initialZoom: 14.0,
+          initialCenter: _calculateCenter(route),
+          initialZoom: _calculateZoom(route),
+          minZoom: 10.0,
+          maxZoom: 18.0,
         ),
         children: [
           TileLayer(
@@ -154,6 +162,35 @@ class RouteDetailScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+
+  /// ルートの中心点を計算
+  LatLng _calculateCenter(OfficialRoute route) {
+    if (route.routeLine == null || route.routeLine!.isEmpty) {
+      return route.startLocation;
+    }
+    double latSum = 0;
+    double lonSum = 0;
+    for (var point in route.routeLine!) {
+      latSum += point.latitude;
+      lonSum += point.longitude;
+    }
+    return LatLng(
+      latSum / route.routeLine!.length,
+      lonSum / route.routeLine!.length,
+    );
+  }
+
+  /// ルートの距離に基づいてズームレベルを計算
+  double _calculateZoom(OfficialRoute route) {
+    final distance = route.distanceMeters;
+    if (distance < 500) return 16.0;
+    if (distance < 1000) return 15.0;
+    if (distance < 2000) return 14.5;
+    if (distance < 5000) return 13.5;
+    if (distance < 10000) return 12.5;
+    return 11.0;
   }
 
 
