@@ -1,0 +1,47 @@
+-- ===============================================
+-- テストユーザーの再作成
+-- ===============================================
+-- このSQLは、check_test_users.sqlでユーザーが見つからなかった場合に実行してください
+--
+-- ⚠️ 重要: このSQLは直接実行できません！
+-- テストユーザーの作成は、Supabase Dashboard → Authentication → Users から手動で行う必要があります
+--
+-- 実行手順:
+-- 1. https://supabase.com/dashboard にアクセス
+-- 2. WanMapプロジェクトを選択
+-- 3. 左サイドバー → Authentication → Users
+-- 4. "Add user" ボタンをクリック
+-- 5. 以下の情報を入力:
+--
+-- ユーザー1:
+--   Email: test1@example.com
+--   Password: test1234
+--   ☑️ Auto Confirm User (必ずチェック)
+--
+-- ユーザー2:
+--   Email: test2@example.com
+--   Password: test1234
+--   ☑️ Auto Confirm User (必ずチェック)
+--
+-- ユーザー3:
+--   Email: test3@example.com
+--   Password: test1234
+--   ☑️ Auto Confirm User (必ずチェック)
+--
+-- ===============================================
+
+-- 参考: ユーザー作成後にusersテーブル(public.users)にプロフィールデータを追加
+-- まず、作成されたユーザーのIDを確認してください:
+-- SELECT id, email FROM auth.users WHERE email LIKE 'test%@example.com';
+
+-- その後、以下のSQLで各ユーザーIDを置き換えて実行:
+-- 
+-- INSERT INTO public.users (id, display_name, avatar_url, created_at, updated_at)
+-- VALUES
+--   ('取得したtest1のユーザーID', 'テストユーザー1', NULL, NOW(), NOW()),
+--   ('取得したtest2のユーザーID', 'テストユーザー2', NULL, NOW(), NOW()),
+--   ('取得したtest3のユーザーID', 'テストユーザー3', NULL, NOW(), NOW())
+-- ON CONFLICT (id) DO UPDATE
+-- SET 
+--   display_name = EXCLUDED.display_name,
+--   updated_at = NOW();
