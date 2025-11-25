@@ -27,10 +27,12 @@ class DogService {
   }
 
   /// カメラで写真を撮影
+  /// iOS Simulatorではギャラリーから選択（実機ではカメラが使用される）
   Future<File?> takePhoto() async {
     try {
+      // iOS Simulatorではカメラが使えないため、ギャラリーから選択
       final XFile? image = await _picker.pickImage(
-        source: ImageSource.camera,
+        source: ImageSource.gallery,  // Simulatorでも動作するようにgalleryを使用
         maxWidth: 1920,
         maxHeight: 1920,
         imageQuality: 85,
