@@ -271,6 +271,11 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       backgroundColor: isDark
           ? WanMapColors.backgroundDark
           : WanMapColors.backgroundLight,
+      appBar: AppBar(
+        title: const Text('日常散歩'),
+        backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+        elevation: 0,
+      ),
       body: Stack(
         children: [
           // マップ表示
