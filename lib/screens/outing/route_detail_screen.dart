@@ -28,82 +28,55 @@ class RouteDetailScreen extends ConsumerWidget {
       backgroundColor: isDark
           ? WanMapColors.backgroundDark
           : WanMapColors.backgroundLight,
+      appBar: AppBar(
+        title: const Text('ルート詳細'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: routeAsync.when(
         data: (route) {
           if (route == null) {
             return const Center(child: Text('ルートが見つかりません'));
           }
-          return CustomScrollView(
-            slivers: [
-              // ヘッダー
-              SliverAppBar(
-                expandedHeight: 200,
-                floating: false,
-                pinned: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  title: Text(
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(WanMapSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ルート名
+                  Text(
                     route.name,
-                    style: const TextStyle(
+                    style: WanMapTypography.headlineMedium.copyWith(
+                      color: isDark
+                          ? WanMapColors.textPrimaryDark
+                          : WanMapColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black45,
-                          blurRadius: 8,
-                        ),
-                      ],
                     ),
                   ),
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          WanMapColors.accent,
-                          WanMapColors.accent.withOpacity(0.7),
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.route,
-                        size: 80,
-                        color: Colors.white.withOpacity(0.3),
-                      ),
-                    ),
-                  ),
-                ),
+
+                  const SizedBox(height: WanMapSpacing.xl),
+
+                  // 統計情報
+                  _buildStats(route, isDark),
+
+                  const SizedBox(height: WanMapSpacing.xl),
+
+                  // 説明
+                  _buildDescription(route, isDark),
+
+                  const SizedBox(height: WanMapSpacing.xl),
+
+                  // 散歩を開始ボタン
+                  _buildStartButton(context, isDark, route),
+
+                  const SizedBox(height: WanMapSpacing.xxxl),
+
+                  // ピンセクション
+                  _buildPinsSection(context, ref, pinsAsync, isDark),
+                ],
               ),
-
-              // コンテンツ
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(WanMapSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 統計情報
-                      _buildStats(route, isDark),
-
-                      const SizedBox(height: WanMapSpacing.xl),
-
-                      // 説明
-                      _buildDescription(route, isDark),
-
-                      const SizedBox(height: WanMapSpacing.xl),
-
-                      // 散歩を開始ボタン
-                      _buildStartButton(context, isDark, route),
-
-                      const SizedBox(height: WanMapSpacing.xxxl),
-
-                      // ピンセクション
-                      _buildPinsSection(context, ref, pinsAsync, isDark),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

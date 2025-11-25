@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/official_route.dart';
@@ -8,17 +9,38 @@ final _supabase = Supabase.instance.client;
 /// エリアIDで公式ルート一覧を取得するProvider
 final routesByAreaProvider = FutureProvider.family<List<OfficialRoute>, String>(
   (ref, areaId) async {
+    if (kDebugMode) {
+      print('🔵 routesByAreaProvider: Starting fetch for areaId=$areaId');
+    }
     try {
-      final response = await _supabase
-          .from('official_routes')
-          .select()
-          .eq('area_id', areaId)
-          .order('total_pins', ascending: false); // 人気順
+      // PostGISデータをGeoJSON形式で取得するためにRPCを使用
+      if (kDebugMode) {
+        print('🔵 Calling RPC: get_routes_by_area_geojson with areaId=$areaId');
+      }
+      final response = await _supabase.rpc(
+        'get_routes_by_area_geojson',
+        params: {'p_area_id': areaId},
+      );
 
-      return (response as List)
+      if (kDebugMode) {
+        print('🔵 RPC Response type: ${response.runtimeType}');
+        print('🔵 RPC Response: $response');
+      }
+
+      final routes = (response as List)
           .map((json) => OfficialRoute.fromJson(json))
           .toList();
-    } catch (e) {
+      
+      if (kDebugMode) {
+        print('✅ Successfully parsed ${routes.length} routes');
+      }
+      
+      return routes;
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print('❌ Error in routesByAreaProvider: $e');
+        print('Stack trace: $stack');
+      }
       throw Exception('Failed to fetch routes by area: $e');
     }
   },
@@ -28,22 +50,28 @@ final routesByAreaProvider = FutureProvider.family<List<OfficialRoute>, String>(
 final routeByIdProvider = FutureProvider.family<OfficialRoute?, String>(
   (ref, routeId) async {
     try {
-      final response = await _supabase
-          .from('official_routes')
-          .select()
-          .eq('id', routeId)
-          .maybeSingle();
+      // PostGISデータをGeoJSON形式で取得
+      final response = await _supabase.rpc(
+        'get_route_by_id_geojson',
+        params: {'p_route_id': routeId},
+      );
 
-      if (response == null) return null;
-      return OfficialRoute.fromJson(response);
+      if (response == null || (response is List && response.isEmpty)) {
+        return null;
+      }
+      
+      final data = response is List ? response.first : response;
+      return OfficialRoute.fromJson(data);
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error in routeByIdProvider: $e');
+      }
       throw Exception('Failed to fetch route: $e');
     }
   },
 );
 
 /// 近くの公式ルートを検索するProvider
-/// 引数: [latitude, longitude, radiusMeters]
 class NearbyRoutesParams {
   final double latitude;
   final double longitude;
@@ -71,7 +99,6 @@ class NearbyRoutesParams {
 final nearbyRoutesProvider = FutureProvider.family<List<OfficialRoute>, NearbyRoutesParams>(
   (ref, params) async {
     try {
-      // RPC関数を呼び出して近くのルートを取得
       final response = await _supabase.rpc(
         'find_nearby_routes',
         params: {
@@ -82,16 +109,13 @@ final nearbyRoutesProvider = FutureProvider.family<List<OfficialRoute>, NearbyRo
         },
       );
 
-      // RPC関数の戻り値をパース
       return (response as List).map((json) {
-        // RPC関数は一部のフィールドしか返さないため、
-        // 完全なルート情報を取得するために個別にクエリ
         return OfficialRoute.fromJson({
           'id': json['route_id'],
           'name': json['route_name'],
-          'area_id': '', // RPC関数からは取得できないため空
+          'area_id': '',
           'description': '',
-          'start_location': null, // 後で取得
+          'start_location': null,
           'end_location': null,
           'route_line': null,
           'distance_meters': json['distance_meters'],
@@ -103,6 +127,9 @@ final nearbyRoutesProvider = FutureProvider.family<List<OfficialRoute>, NearbyRo
         });
       }).toList();
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error in nearbyRoutesProvider: $e');
+      }
       throw Exception('Failed to fetch nearby routes: $e');
     }
   },

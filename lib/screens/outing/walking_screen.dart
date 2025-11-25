@@ -504,6 +504,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         children: [
           // ピン投稿ボタン
           FloatingActionButton.extended(
+            heroTag: "pin_button",
             onPressed: gpsState.currentLocation != null ? _createPin : null,
             backgroundColor: WanMapColors.accent,
             icon: const Icon(Icons.push_pin, color: Colors.white),
@@ -518,6 +519,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           const SizedBox(height: WanMapSpacing.md),
           // 現在位置追従ボタン
           FloatingActionButton(
+            heroTag: "location_button",
             onPressed: () {
               if (gpsState.currentLocation != null) {
                 _mapController.move(gpsState.currentLocation!, 16.0);
