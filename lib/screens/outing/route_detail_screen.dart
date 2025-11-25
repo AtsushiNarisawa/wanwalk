@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
@@ -39,10 +41,17 @@ class RouteDetailScreen extends ConsumerWidget {
             return const Center(child: Text('ルートが見つかりません'));
           }
           return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(WanMapSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 地図セクション
+                _buildMapSection(route, pinsAsync, isDark),
+                Padding(
+                  padding: const EdgeInsets.all(WanMapSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                 children: [
                   // ルート名
                   Text(
@@ -76,6 +85,8 @@ class RouteDetailScreen extends ConsumerWidget {
                   _buildPinsSection(context, ref, pinsAsync, isDark),
                 ],
               ),
+                ),
+              ],
             ),
           );
         },
@@ -86,6 +97,67 @@ class RouteDetailScreen extends ConsumerWidget {
       ),
     );
   }
+
+  /// 地図セクション
+  Widget _buildMapSection(OfficialRoute route, AsyncValue pinsAsync, bool isDark) {
+    return Container(
+      height: 300,
+      color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+      child: FlutterMap(
+        options: MapOptions(
+          initialCenter: route.startLocation,
+          initialZoom: 14.0,
+        ),
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'com.doghub.wanmap',
+          ),
+          if (route.routeLine != null && route.routeLine!.isNotEmpty)
+            PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: route.routeLine!,
+                  strokeWidth: 4.0,
+                  color: WanMapColors.accent,
+                ),
+              ],
+            ),
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: route.startLocation,
+                width: 40,
+                height: 40,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: const Icon(Icons.flag, color: Colors.white, size: 20),
+                ),
+              ),
+              Marker(
+                point: route.endLocation,
+                width: 40,
+                height: 40,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: const Icon(Icons.sports_score, color: Colors.white, size: 20),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 
   /// 統計情報
   Widget _buildStats(OfficialRoute route, bool isDark) {
