@@ -337,7 +337,7 @@ class RecordsTab extends ConsumerWidget {
                 const SizedBox(width: WanMapSpacing.sm),
                 Expanded(
                   child: Text(
-                    isOuting ? (walk.routeName ?? 'おでかけ散歩') : '日常散歩',
+                    isOuting ? (walk.routeName ?? 'おでかけ散歩') : _formatDateTimeTitle(walk.walkedAt),
                     style: WanMapTypography.bodyLarge.copyWith(
                       color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
@@ -364,15 +364,6 @@ class RecordsTab extends ConsumerWidget {
                 const SizedBox(width: 4),
                 Text(
                   '${(walk.durationSeconds / 60).ceil()} 分',
-                  style: WanMapTypography.bodySmall.copyWith(
-                    color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-                  ),
-                ),
-                const SizedBox(width: WanMapSpacing.md),
-                Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
-                const SizedBox(width: 4),
-                Text(
-                  _formatDate(walk.walkedAt),
                   style: WanMapTypography.bodySmall.copyWith(
                     color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                   ),
@@ -415,6 +406,14 @@ class RecordsTab extends ConsumerWidget {
     } else {
       return '${date.month}/${date.day}';
     }
+  }
+
+  /// 日常散歩のタイトル用：日付と時間をフォーマット
+  /// 例: "11月25日 11:05"
+  String _formatDateTimeTitle(DateTime date) {
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '${date.month}月${date.day}日 $hour:$minute';
   }
 
   Widget _buildEmptyCard(bool isDark, String message) {
