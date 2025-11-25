@@ -10,7 +10,6 @@ DO $$
 DECLARE
   target_email TEXT := 'romeo07302002@gmail.com';
   target_user_id UUID;
-  table_name TEXT;
   row_count INTEGER;
 BEGIN
   -- ユーザーIDを取得
