@@ -198,6 +198,12 @@ class SearchRouteResult {
   });
 
   factory SearchRouteResult.fromMap(Map<String, dynamic> map) {
+    // start_locationからlatとlonを抽出
+    final startLocation = map['start_location'] as Map<String, dynamic>?;
+    final coordinates = startLocation?['coordinates'] as List<dynamic>?;
+    final startLon = coordinates != null ? (coordinates[0] as num).toDouble() : 0.0;
+    final startLat = coordinates != null ? (coordinates[1] as num).toDouble() : 0.0;
+
     return SearchRouteResult(
       routeId: map['route_id'] as String,
       areaId: map['area_id'] as String,
@@ -207,7 +213,7 @@ class SearchRouteResult {
       difficulty: map['difficulty'] as String,
       distanceKm: (map['distance_km'] as num).toDouble(),
       estimatedDurationMinutes: map['estimated_duration_minutes'] as int,
-      elevationGainM: map['elevation_gain_m'] as int?,
+      elevationGainM: (map['elevation_gain_m'] as num?)?.toInt(),
       features: (map['features'] as List<dynamic>?)?.cast<String>() ?? [],
       bestSeasons: (map['best_seasons'] as List<dynamic>?)?.cast<String>() ?? [],
       totalWalks: map['total_walks'] as int,
@@ -217,8 +223,8 @@ class SearchRouteResult {
           : null,
       isFavorited: map['is_favorited'] as bool,
       thumbnailUrl: map['thumbnail_url'] as String?,
-      startLat: (map['start_lat'] as num).toDouble(),
-      startLon: (map['start_lon'] as num).toDouble(),
+      startLat: startLat,
+      startLon: startLon,
     );
   }
 

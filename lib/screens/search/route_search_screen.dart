@@ -4,6 +4,7 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../models/route_search_params.dart';
+import '../outing/route_detail_screen.dart';
 import '../../providers/route_search_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/search/search_route_card.dart';
@@ -232,10 +233,13 @@ class _RouteSearchScreenState extends ConsumerState<RouteSearchScreen> {
                   route: routes[index],
                   onTap: () {
                     // ルート詳細画面へ遷移
-                    Navigator.pushNamed(
+                    Navigator.push(
                       context,
-                      '/route_detail',
-                      arguments: routes[index].routeId,
+                      MaterialPageRoute(
+                        builder: (context) => RouteDetailScreen(
+                          routeId: routes[index].routeId,
+                        ),
+                      ),
                     );
                   },
                 ),
