@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -29,6 +30,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
   bool _isFollowingUser = true;
   final PhotoService _photoService = PhotoService();
   final List<String> _photoUrls = []; // 撮影した写真のURL一覧
+  final List<File> _photoFiles = []; // 散歩中の写真を一時保存（散歩終了時にアップロード）
   String? _currentWalkId; // 現在の散歩ID（保存時に設定）
 
   @override
@@ -144,9 +146,28 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
         // 散歩IDを保存（写真アップロード用）
         _currentWalkId = walkId;
 
-        print('✅ 日常散歩記録保存成功: walkId=$walkId, 写真数=${_photoUrls.length}枚');
+        print('✅ 日常散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
 
-        // 2. プロフィールを自動更新
+        // 2. 散歩中に撮影した写真をアップロード
+        if (_photoFiles.isNotEmpty) {
+          print('📸 写真アップロード開始: ${_photoFiles.length}枚');
+          for (int i = 0; i < _photoFiles.length; i++) {
+            final file = _photoFiles[i];
+            final photoUrl = await _photoService.uploadWalkPhoto(
+              file: file,
+              walkId: walkId,
+              userId: userId,
+              displayOrder: i + 1,
+            );
+            if (photoUrl != null) {
+              print('✅ 写真${i + 1}/${_photoFiles.length}アップロード成功');
+            } else {
+              print('❌ 写真${i + 1}/${_photoFiles.length}アップロード失敗');
+            }
+          }
+        }
+
+        // 3. プロフィールを自動更新
         final profileService = ProfileService();
         await profileService.updateWalkingProfile(
           userId: userId,
@@ -186,86 +207,39 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
   }
 
   /// 写真を撮影（Phase 3新機能）
+  /// 散歩中に撮影した写真はローカルに保存し、散歩終了時にまとめてアップロード
   Future<void> _takePhoto() async {
     try {
       print('📷 写真撮影開始...');
       
-      // カメラで写真を撮影
+      // ギャラリーから写真を選択（iOS Simulatorではカメラが使えないため）
       final file = await _photoService.takePhoto();
       
       if (file == null) {
-        print('❌ 写真撮影がキャンセルされました');
+        print('❌ 写真選択がキャンセルされました');
         return;
       }
 
-      print('✅ 写真撮影成功: ${file.path}');
+      print('✅ 写真選択成功: ${file.path}');
 
-      // ユーザーIDを取得
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('ユーザー情報が取得できませんでした'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        return;
-      }
+      // 写真をローカルリストに追加（散歩終了時にアップロード）
+      setState(() {
+        _photoFiles.add(file);
+      });
 
-      // 一時的なwalkIDを生成（散歩終了時に実際のIDに置き換える）
-      // ※注意: 現在の実装では写真アップロードは散歩終了後に行う方が確実
-      // 散歩中にアップロードする場合、walk_id が確定していないため
-      // 後でwalk_idを更新する処理が必要
-      final tempWalkId = _currentWalkId ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
-      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('写真をアップロード中...'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text('写真を追加しました（${_photoFiles.length}枚）'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
 
-      // 写真をアップロード（walk-photos バケット）
-      final photoUrl = await _photoService.uploadWalkPhoto(
-        file: file,
-        walkId: tempWalkId,
-        userId: userId,
-        displayOrder: _photoUrls.length + 1,
-      );
-
-      if (photoUrl != null) {
-        setState(() {
-          _photoUrls.add(photoUrl);
-        });
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('写真をアップロードしました（${_photoUrls.length}枚）'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-
-        print('✅ 写真アップロード成功: $photoUrl');
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('写真のアップロードに失敗しました'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        print('❌ 写真アップロード失敗');
-      }
+      print('✅ 写真追加成功: ${_photoFiles.length}枚');
     } catch (e) {
-      print('❌ 写真撮影エラー: $e');
+      print('❌ 写真選択エラー: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

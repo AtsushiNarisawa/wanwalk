@@ -42,8 +42,8 @@ class WalkSaveService {
         'route_id': null,
         'start_time': route.startedAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
         'end_time': route.endedAt?.toIso8601String(),
-        'distance_km': route.distance / 1000.0,
-        'duration_minutes': (route.duration / 60).ceil(),
+        'distance_meters': route.distance,
+        'duration_seconds': route.duration,
         'path_geojson': pathGeoJson,
       }).select().single();
 
@@ -94,8 +94,8 @@ class WalkSaveService {
         'route_id': officialRouteId,
         'start_time': route.startedAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
         'end_time': route.endedAt?.toIso8601String(),
-        'distance_km': route.distance / 1000.0,
-        'duration_minutes': (route.duration / 60).ceil(),
+        'distance_meters': route.distance,
+        'duration_seconds': route.duration,
         'path_geojson': pathGeoJson,
       }).select().single();
 
