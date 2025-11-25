@@ -52,10 +52,16 @@ BEGIN
     RAISE NOTICE 'pins: % 件', row_count;
   END IF;
   
-  -- 6. routes (created_by)
+  -- 6. routes (user_id or created_by)
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'routes') THEN
-    SELECT COUNT(*) INTO row_count FROM routes WHERE created_by = target_user_id;
-    RAISE NOTICE 'routes (created_by): % 件', row_count;
+    -- Check if created_by column exists
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'routes' AND column_name = 'created_by') THEN
+      SELECT COUNT(*) INTO row_count FROM routes WHERE created_by = target_user_id;
+      RAISE NOTICE 'routes (created_by): % 件', row_count;
+    ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'routes' AND column_name = 'user_id') THEN
+      SELECT COUNT(*) INTO row_count FROM routes WHERE user_id = target_user_id;
+      RAISE NOTICE 'routes (user_id): % 件', row_count;
+    END IF;
   END IF;
   
   -- 7. user_follows
@@ -86,8 +92,13 @@ BEGIN
   
   -- 11. route_points
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'route_points') THEN
-    SELECT COUNT(*) INTO row_count FROM route_points WHERE created_by = target_user_id;
-    RAISE NOTICE 'route_points (created_by): % 件', row_count;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'route_points' AND column_name = 'created_by') THEN
+      SELECT COUNT(*) INTO row_count FROM route_points WHERE created_by = target_user_id;
+      RAISE NOTICE 'route_points (created_by): % 件', row_count;
+    ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'route_points' AND column_name = 'user_id') THEN
+      SELECT COUNT(*) INTO row_count FROM route_points WHERE user_id = target_user_id;
+      RAISE NOTICE 'route_points (user_id): % 件', row_count;
+    END IF;
   END IF;
   
   RAISE NOTICE '';

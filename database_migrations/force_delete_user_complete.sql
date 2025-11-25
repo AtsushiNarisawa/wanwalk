@@ -71,16 +71,24 @@ BEGIN
   
   -- 9. routes (作成したルート) を削除 (存在する場合)
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'routes') THEN
-    -- ⚠️ 警告: 他のユーザーが使っている可能性があるルートも削除されます
-    -- 削除したくない場合は以下をコメントアウト
-    DELETE FROM routes WHERE created_by = target_user_id;
-    RAISE NOTICE '✓ routes 削除完了';
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'routes' AND column_name = 'created_by') THEN
+      DELETE FROM routes WHERE created_by = target_user_id;
+      RAISE NOTICE '✓ routes (created_by) 削除完了';
+    ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'routes' AND column_name = 'user_id') THEN
+      DELETE FROM routes WHERE user_id = target_user_id;
+      RAISE NOTICE '✓ routes (user_id) 削除完了';
+    END IF;
   END IF;
   
   -- 10. route_points を削除 (存在する場合)
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'route_points') THEN
-    DELETE FROM route_points WHERE created_by = target_user_id;
-    RAISE NOTICE '✓ route_points 削除完了';
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'route_points' AND column_name = 'created_by') THEN
+      DELETE FROM route_points WHERE created_by = target_user_id;
+      RAISE NOTICE '✓ route_points (created_by) 削除完了';
+    ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'route_points' AND column_name = 'user_id') THEN
+      DELETE FROM route_points WHERE user_id = target_user_id;
+      RAISE NOTICE '✓ route_points (user_id) 削除完了';
+    END IF;
   END IF;
   
   -- 11. public.users を削除 (存在する場合)
