@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanmap_colors.dart';
@@ -235,7 +236,9 @@ class SearchRouteCard extends ConsumerWidget {
           // 検索結果を再読み込み
           ref.invalidate(routeSearchResultsProvider);
         } catch (e) {
-          print('Error toggling favorite: $e');
+          if (kDebugMode) {
+            print('Error toggling favorite: $e');
+          }
         }
       },
     );

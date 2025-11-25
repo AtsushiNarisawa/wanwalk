@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -147,7 +148,9 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           return;
         }
 
-        print('✅ 散歩記録保存成功: walkId=$walkId');
+        if (kDebugMode) {
+          print('✅ 散歩記録保存成功: walkId=$walkId');
+        }
 
         // 2. プロフィールを自動更新
         final profileService = ProfileService();

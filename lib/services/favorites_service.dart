@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_statistics.dart';
 
@@ -28,7 +29,9 @@ class FavoritesService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) => FavoriteRoute.fromMap(item as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('Error getting favorite routes: $e');
+      if (kDebugMode) {
+        print('Error getting favorite routes: $e');
+      }
       rethrow;
     }
   }
@@ -54,7 +57,9 @@ class FavoritesService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) => BookmarkedPin.fromMap(item as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('Error getting bookmarked pins: $e');
+      if (kDebugMode) {
+        print('Error getting bookmarked pins: $e');
+      }
       rethrow;
     }
   }
@@ -70,7 +75,9 @@ class FavoritesService {
         'pin_id': pinId,
       });
     } catch (e) {
-      print('Error adding pin bookmark: $e');
+      if (kDebugMode) {
+        print('Error adding pin bookmark: $e');
+      }
       rethrow;
     }
   }
@@ -87,7 +94,9 @@ class FavoritesService {
           .eq('user_id', userId)
           .eq('pin_id', pinId);
     } catch (e) {
-      print('Error removing pin bookmark: $e');
+      if (kDebugMode) {
+        print('Error removing pin bookmark: $e');
+      }
       rethrow;
     }
   }
@@ -120,7 +129,9 @@ class FavoritesService {
 
       return response != null;
     } catch (e) {
-      print('Error checking pin bookmark status: $e');
+      if (kDebugMode) {
+        print('Error checking pin bookmark status: $e');
+      }
       return false;
     }
   }

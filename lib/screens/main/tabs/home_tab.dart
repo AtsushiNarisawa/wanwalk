@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanmap_colors.dart';
@@ -22,11 +23,17 @@ class HomeTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('🟡 HomeTab.build() called');
+    if (kDebugMode) {
+      print('🟡 HomeTab.build() called');
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    print('🟡 About to watch areasProvider in HomeTab...');
+    if (kDebugMode) {
+      print('🟡 About to watch areasProvider in HomeTab...');
+    }
     final areasAsync = ref.watch(areasProvider);
-    print('🟡 HomeTab areasAsync state: ${areasAsync.runtimeType}');
+    if (kDebugMode) {
+      print('🟡 HomeTab areasAsync state: ${areasAsync.runtimeType}');
+    }
 
     return Scaffold(
       backgroundColor: isDark 

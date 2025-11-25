@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 
@@ -48,7 +49,9 @@ class HomeStatsService {
         );
       }).toList();
     } catch (e) {
-      print('Error fetching recommended routes: $e');
+      if (kDebugMode) {
+        print('Error fetching recommended routes: $e');
+      }
       return [];
     }
   }
@@ -93,7 +96,9 @@ class HomeStatsService {
         );
       }).toList();
     } catch (e) {
-      print('Error fetching trending routes: $e');
+      if (kDebugMode) {
+        print('Error fetching trending routes: $e');
+      }
       return [];
     }
   }
@@ -125,7 +130,9 @@ class HomeStatsService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) => RecentMemory.fromJson(item)).toList();
     } catch (e) {
-      print('Error fetching recent memories: $e');
+      if (kDebugMode) {
+        print('Error fetching recent memories: $e');
+      }
       return [];
     }
   }
@@ -147,7 +154,9 @@ class HomeStatsService {
           .map((item) => AreaModel.fromJson(item))
           .toList();
     } catch (e) {
-      print('Error fetching areas: $e');
+      if (kDebugMode) {
+        print('Error fetching areas: $e');
+      }
       return [];
     }
   }
@@ -197,7 +206,9 @@ class HomeStatsService {
         );
       }).toList();
     } catch (e) {
-      print('Error fetching routes by area: $e');
+      if (kDebugMode) {
+        print('Error fetching routes by area: $e');
+      }
       return [];
     }
   }

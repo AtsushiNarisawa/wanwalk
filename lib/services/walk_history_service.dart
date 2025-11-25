@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/walk_history.dart';
 
@@ -34,7 +35,9 @@ class WalkHistoryService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) => OutingWalkHistory.fromJson(item)).toList();
     } catch (e) {
-      print('Error fetching outing walk history: $e');
+      if (kDebugMode) {
+        print('Error fetching outing walk history: $e');
+      }
       return [];
     }
   }
@@ -67,7 +70,9 @@ class WalkHistoryService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) => DailyWalkHistory.fromJson(item)).toList();
     } catch (e) {
-      print('Error fetching daily walk history: $e');
+      if (kDebugMode) {
+        print('Error fetching daily walk history: $e');
+      }
       return [];
     }
   }
@@ -96,7 +101,9 @@ class WalkHistoryService {
       allWalks.sort((a, b) => b.walkedAt.compareTo(a.walkedAt));
       return allWalks.take(limit).toList();
     } catch (e) {
-      print('Error fetching all walk history: $e');
+      if (kDebugMode) {
+        print('Error fetching all walk history: $e');
+      }
       return [];
     }
   }
@@ -129,7 +136,9 @@ class WalkHistoryService {
 
       return walkCount.count ?? 0;
     } catch (e) {
-      print('Error fetching monthly walk count: $e');
+      if (kDebugMode) {
+        print('Error fetching monthly walk count: $e');
+      }
       return 0;
     }
   }
@@ -163,7 +172,9 @@ class WalkHistoryService {
 
       return areaIds.toList();
     } catch (e) {
-      print('Error fetching visited areas: $e');
+      if (kDebugMode) {
+        print('Error fetching visited areas: $e');
+      }
       return [];
     }
   }

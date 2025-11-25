@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,20 +31,30 @@ void main() async {
   try {
     // 環境変数の読み込み
     await dotenv.load(fileName: ".env");
-    print('✅ Environment variables loaded');
+    if (kDebugMode) {
+      print('✅ Environment variables loaded');
+    }
     
     // 環境変数のバリデーション
     Environment.validate();
-    print('✅ Environment variables validated');
+    if (kDebugMode) {
+      print('✅ Environment variables validated');
+    }
     
     // Supabaseの初期化
     await SupabaseConfig.initialize();
-    print('✅ Supabase initialized successfully');
+    if (kDebugMode) {
+      print('✅ Supabase initialized successfully');
+    }
     
     // 通知システムは各画面で必要に応じて初期化
-    print('✅ Notification system ready');
+    if (kDebugMode) {
+      print('✅ Notification system ready');
+    }
   } catch (e) {
-    print('❌ Failed to initialize: $e');
+    if (kDebugMode) {
+      print('❌ Failed to initialize: $e');
+    }
     // エラーが発生しても起動を継続
   }
   

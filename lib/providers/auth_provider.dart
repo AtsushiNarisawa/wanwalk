@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
@@ -42,13 +43,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _authService.authStateChanges.listen((authState) {
       final user = authState.session?.user;
       state = state.copyWith(currentUser: user);
-      print('🔐 Auth state changed: userId=${user?.id ?? "null"}');
+      if (kDebugMode) {
+        print('🔐 Auth state changed: userId=${user?.id ?? "null"}');
+      }
     });
 
     // 現在のユーザーを取得
     final currentUser = Supabase.instance.client.auth.currentUser;
     state = state.copyWith(currentUser: currentUser);
-    print('🔐 Initial auth state: userId=${currentUser?.id ?? "null"}');
+    if (kDebugMode) {
+      print('🔐 Initial auth state: userId=${currentUser?.id ?? "null"}');
+    }
   }
 
   /// サインアップ

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/walk_mode.dart';
@@ -21,7 +22,9 @@ class WalkModeNotifier extends StateNotifier<WalkMode> {
       }
     } catch (e) {
       // エラーが発生してもデフォルト値（daily）を維持
-      print('Failed to load walk mode: $e');
+      if (kDebugMode) {
+        print('Failed to load walk mode: $e');
+      }
     }
   }
 
@@ -32,7 +35,9 @@ class WalkModeNotifier extends StateNotifier<WalkMode> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_storageKey, mode.value);
     } catch (e) {
-      print('Failed to save walk mode: $e');
+      if (kDebugMode) {
+        print('Failed to save walk mode: $e');
+      }
     }
   }
 

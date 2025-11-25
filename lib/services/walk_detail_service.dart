@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/route_pin.dart';
@@ -133,7 +134,9 @@ class WalkDetailService {
         photoUrls: allPhotos,
       );
     } catch (e) {
-      print('Error fetching walk detail: $e');
+      if (kDebugMode) {
+        print('Error fetching walk detail: $e');
+      }
       return null;
     }
   }

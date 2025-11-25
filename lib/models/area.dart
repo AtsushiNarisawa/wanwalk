@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
 /// エリアマスタモデル
@@ -19,13 +20,17 @@ class Area {
 
   /// Supabaseから取得したJSONをAreaオブジェクトに変換
   factory Area.fromJson(Map<String, dynamic> json) {
-    print('🔵 Area.fromJson: $json');
+    if (kDebugMode) {
+      print('🔵 Area.fromJson: $json');
+    }
     
     // RPC関数から直接longitude/latitudeを取得
     final latitude = (json['latitude'] as num?)?.toDouble() ?? 35.6762;
     final longitude = (json['longitude'] as num?)?.toDouble() ?? 139.6503;
     
-    print('📍 Location: lat=$latitude, lon=$longitude');
+    if (kDebugMode) {
+      print('📍 Location: lat=$latitude, lon=$longitude');
+    }
     
     return Area(
       id: json['id'] as String,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_statistics.dart';
@@ -99,7 +100,9 @@ class NotificationStateNotifier extends StateNotifier<List<NotificationModel>> {
         return notification;
       }).toList();
     } catch (e) {
-      print('Error marking notification as read: $e');
+      if (kDebugMode) {
+        print('Error marking notification as read: $e');
+      }
     }
   }
 
@@ -123,7 +126,9 @@ class NotificationStateNotifier extends StateNotifier<List<NotificationModel>> {
         );
       }).toList();
     } catch (e) {
-      print('Error marking all notifications as read: $e');
+      if (kDebugMode) {
+        print('Error marking all notifications as read: $e');
+      }
     }
   }
 
@@ -138,7 +143,9 @@ class NotificationStateNotifier extends StateNotifier<List<NotificationModel>> {
       // 状態を更新
       state = state.where((n) => n.notificationId != notificationId).toList();
     } catch (e) {
-      print('Error deleting notification: $e');
+      if (kDebugMode) {
+        print('Error deleting notification: $e');
+      }
     }
   }
 

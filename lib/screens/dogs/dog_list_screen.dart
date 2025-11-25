@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanmap_colors.dart';
@@ -23,7 +24,9 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
     Future.microtask(() {
       final userId = ref.read(currentUserIdProvider);
       if (userId != null) {
-        print('🐕 DogListScreen: Loading dogs for user $userId');
+        if (kDebugMode) {
+          print('🐕 DogListScreen: Loading dogs for user $userId');
+        }
         ref.read(dogProvider.notifier).loadUserDogs(userId);
       }
     });
@@ -35,7 +38,9 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
     final userId = ref.watch(currentUserIdProvider);
     final dogState = ref.watch(dogProvider);
     
-    print('🐕 DogListScreen build: dogs=${dogState.dogs.length}, loading=${dogState.isLoading}, error=${dogState.errorMessage}');
+    if (kDebugMode) {
+      print('🐕 DogListScreen build: dogs=${dogState.dogs.length}, loading=${dogState.isLoading}, error=${dogState.errorMessage}');
+    }
 
     return Scaffold(
       backgroundColor: isDark

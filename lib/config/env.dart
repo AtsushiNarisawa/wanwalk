@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// 環境変数設定
@@ -42,7 +43,9 @@ class Environment {
       throw Exception('SUPABASE_ANON_KEY環境変数が設定されていません');
     }
     if (thunderforestApiKey.isEmpty || thunderforestApiKey == 'your-api-key-here') {
-      print('⚠️ Warning: THUNDERFOREST_API_KEY環境変数が設定されていません。地図タイルが表示されない可能性があります。');
+      if (kDebugMode) {
+        print('⚠️ Warning: THUNDERFOREST_API_KEY環境変数が設定されていません。地図タイルが表示されない可能性があります。');
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// お気に入り管理サービス
@@ -13,7 +14,9 @@ class FavoriteService {
       });
       return true;
     } catch (e) {
-      print('お気に入り追加エラー: $e');
+      if (kDebugMode) {
+        print('お気に入り追加エラー: $e');
+      }
       return false;
     }
   }
@@ -28,7 +31,9 @@ class FavoriteService {
           .eq('route_id', routeId);
       return true;
     } catch (e) {
-      print('お気に入り削除エラー: $e');
+      if (kDebugMode) {
+        print('お気に入り削除エラー: $e');
+      }
       return false;
     }
   }
@@ -45,7 +50,9 @@ class FavoriteService {
       
       return response != null;
     } catch (e) {
-      print('お気に入り確認エラー: $e');
+      if (kDebugMode) {
+        print('お気に入り確認エラー: $e');
+      }
       return false;
     }
   }
@@ -60,7 +67,9 @@ class FavoriteService {
 
       return (response as List).map((item) => item['route_id'] as String).toList();
     } catch (e) {
-      print('お気に入りリスト取得エラー: $e');
+      if (kDebugMode) {
+        print('お気に入りリスト取得エラー: $e');
+      }
       return [];
     }
   }

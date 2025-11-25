@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -40,7 +41,9 @@ final profileProvider = FutureProvider.family<ProfileData?, String>((ref, userId
     if (response == null) return null;
     return ProfileData.fromJson(response);
   } catch (e) {
-    print('プロフィール取得エラー: $e');
+    if (kDebugMode) {
+      print('プロフィール取得エラー: $e');
+    }
     return null;
   }
 });

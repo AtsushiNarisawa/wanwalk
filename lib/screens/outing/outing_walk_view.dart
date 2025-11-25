@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanmap_colors.dart';
@@ -16,11 +17,17 @@ class OutingWalkView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('🔴 OutingWalkView.build() called');
+    if (kDebugMode) {
+      print('🔴 OutingWalkView.build() called');
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    print('🔴 About to watch areasProvider in OutingWalkView...');
+    if (kDebugMode) {
+      print('🔴 About to watch areasProvider in OutingWalkView...');
+    }
     final areasAsync = ref.watch(areasProvider);
-    print('🔴 OutingWalkView areasAsync state: ${areasAsync.runtimeType}');
+    if (kDebugMode) {
+      print('🔴 OutingWalkView areasAsync state: ${areasAsync.runtimeType}');
+    }
 
     return SingleChildScrollView(
       child: Column(

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/badge.dart';
 
@@ -20,7 +21,9 @@ class BadgeService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) => Badge.fromMap(item as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('Error getting user badges: $e');
+      if (kDebugMode) {
+        print('Error getting user badges: $e');
+      }
       return [];
     }
   }
@@ -44,7 +47,9 @@ class BadgeService {
 
       return newlyUnlockedIds;
     } catch (e) {
-      print('Error checking and unlocking badges: $e');
+      if (kDebugMode) {
+        print('Error checking and unlocking badges: $e');
+      }
       return [];
     }
   }
@@ -57,7 +62,9 @@ class BadgeService {
         params: {'p_user_id': userId},
       );
     } catch (e) {
-      print('Error marking badges as seen: $e');
+      if (kDebugMode) {
+        print('Error marking badges as seen: $e');
+      }
       rethrow;
     }
   }

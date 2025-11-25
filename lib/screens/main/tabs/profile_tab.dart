@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -312,11 +313,15 @@ class ProfileTab extends ConsumerWidget {
             label: '愛犬の管理',
             isDark: isDark,
             onTap: () {
-              print('🐕 ProfileTab: Navigating to DogListScreen');
+              if (kDebugMode) {
+                print('🐕 ProfileTab: Navigating to DogListScreen');
+              }
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  print('🐕 ProfileTab: Building DogListScreen');
+                  if (kDebugMode) {
+                    print('🐕 ProfileTab: Building DogListScreen');
+                  }
                   return const DogListScreen();
                 }),
               );

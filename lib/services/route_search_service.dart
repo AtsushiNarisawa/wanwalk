@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_search_params.dart';
 
@@ -23,7 +24,9 @@ class RouteSearchService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) => SearchRouteResult.fromMap(item as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('Error searching routes: $e');
+      if (kDebugMode) {
+        print('Error searching routes: $e');
+      }
       rethrow;
     }
   }
@@ -39,7 +42,9 @@ class RouteSearchService {
         'route_id': routeId,
       });
     } catch (e) {
-      print('Error adding favorite: $e');
+      if (kDebugMode) {
+        print('Error adding favorite: $e');
+      }
       rethrow;
     }
   }
@@ -56,7 +61,9 @@ class RouteSearchService {
           .eq('user_id', userId)
           .eq('route_id', routeId);
     } catch (e) {
-      print('Error removing favorite: $e');
+      if (kDebugMode) {
+        print('Error removing favorite: $e');
+      }
       rethrow;
     }
   }

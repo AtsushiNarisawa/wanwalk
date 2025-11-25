@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
@@ -254,7 +255,9 @@ class PhotoRouteCard extends StatelessWidget {
           .from('route-photos')
           .getPublicUrl(storagePath);
     } catch (e) {
-      print('画像URL生成エラー: $e');
+      if (kDebugMode) {
+        print('画像URL生成エラー: $e');
+      }
       // エラー時は元のpathを返す（errorBuilderで処理）
       return storagePath;
     }

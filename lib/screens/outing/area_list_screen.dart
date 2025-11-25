@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanmap_colors.dart';
@@ -14,11 +15,17 @@ class AreaListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('🟢 AreaListScreen.build() called');
+    if (kDebugMode) {
+      print('🟢 AreaListScreen.build() called');
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    print('🟢 About to watch areasProvider...');
+    if (kDebugMode) {
+      print('🟢 About to watch areasProvider...');
+    }
     final areasAsync = ref.watch(areasProvider);
-    print('🟢 areasAsync state: ${areasAsync.runtimeType}');
+    if (kDebugMode) {
+      print('🟢 areasAsync state: ${areasAsync.runtimeType}');
+    }
 
     return Scaffold(
       backgroundColor: isDark
@@ -98,7 +105,9 @@ class AreaListScreen extends ConsumerWidget {
               const SizedBox(height: WanMapSpacing.lg),
               ElevatedButton.icon(
                 onPressed: () {
-                  print('🔄 Refresh button pressed - invalidating areasProvider');
+                  if (kDebugMode) {
+                    print('🔄 Refresh button pressed - invalidating areasProvider');
+                  }
                   ref.invalidate(areasProvider);
                 },
                 icon: const Icon(Icons.refresh),
