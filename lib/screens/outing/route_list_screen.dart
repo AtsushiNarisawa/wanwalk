@@ -241,20 +241,20 @@ class _RouteCard extends StatelessWidget {
                   ),
                   const SizedBox(height: WanMapSpacing.md),
                   // 統計情報
-                  Row(
+                  Wrap(
+                    spacing: WanMapSpacing.sm,
+                    runSpacing: WanMapSpacing.sm,
                     children: [
                       _StatChip(
                         icon: Icons.straighten,
                         label: route.formattedDistance,
                         isDark: isDark,
                       ),
-                      const SizedBox(width: WanMapSpacing.sm),
                       _StatChip(
                         icon: Icons.timer,
                         label: route.formattedDuration,
                         isDark: isDark,
                       ),
-                      const SizedBox(width: WanMapSpacing.sm),
                       _StatChip(
                         icon: Icons.push_pin,
                         label: '${route.totalPins}ピン',
