@@ -8,6 +8,8 @@ import '../../../config/wanmap_spacing.dart';
 import '../../../config/env.dart';
 import '../../../providers/gps_provider_riverpod.dart';
 import '../../../providers/official_route_provider.dart';
+import '../../../providers/area_provider.dart';
+import '../../../models/area.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../search/route_search_screen.dart';
@@ -67,11 +69,7 @@ class _MapTabState extends ConsumerState<MapTab> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final gpsState = ref.watch(gpsProviderRiverpod);
-    final nearbyRoutesAsync = ref.watch(nearbyRoutesProvider(NearbyRoutesParams(
-      latitude: _currentLocation?.latitude ?? 35.3192,
-      longitude: _currentLocation?.longitude ?? 139.5503,
-      radiusMeters: 10000,
-    )));
+    final areasAsync = ref.watch(areasProvider);
 
     return Scaffold(
       backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
@@ -137,47 +135,10 @@ class _MapTabState extends ConsumerState<MapTab> {
                     ),
                   ],
                 ),
-              // 周辺ルートのマーカー
-              nearbyRoutesAsync.when(
-                data: (routes) {
-                  if (routes.isEmpty) return const SizedBox.shrink();
-                  return MarkerLayer(
-                    markers: routes.map((route) {
-                      return Marker(
-                        point: route.startLocation,
-                        width: 40,
-                        height: 40,
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => RouteDetailScreen(routeId: route.id),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: WanMapColors.accent,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.route,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  );
+              // 全エリアのルートマーカー
+              areasAsync.when(
+                data: (areas) {
+                  return _buildAllRoutesMarkers(context, ref, areas);
                 },
                 loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
@@ -208,5 +169,67 @@ class _MapTabState extends ConsumerState<MapTab> {
         ],
       ),
     );
+  }
+}
+
+  /// 全エリアのルートマーカーを構築
+  Widget _buildAllRoutesMarkers(BuildContext context, WidgetRef ref, List<Area> areas) {
+    List<Marker> allMarkers = [];
+    
+    // エリアごとの色を定義
+    final areaColors = {
+      '箱根': Colors.orange,
+      '横浜': Colors.blue,
+      '鎌倉': Colors.green,
+    };
+
+    for (final area in areas) {
+      final routesAsync = ref.watch(routesByAreaProvider(area.id));
+      
+      routesAsync.whenData((routes) {
+        for (final route in routes) {
+          final markerColor = areaColors[area.name] ?? WanMapColors.accent;
+          
+          allMarkers.add(
+            Marker(
+              point: route.startLocation,
+              width: 40,
+              height: 40,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => RouteDetailScreen(routeId: route.id),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: markerColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.route,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      });
+    }
+
+    return MarkerLayer(markers: allMarkers);
   }
 }
