@@ -134,28 +134,6 @@ class RouteDetailScreen extends ConsumerWidget {
           MarkerLayer(
             markers: _buildMarkers(route),
           ),
-                  ),
-                  child: const Icon(Icons.flag, color: Colors.white, size: 20),
-                ),
-              ),
-              Marker(
-                alignment: Alignment.center,
-                point: route.endLocation,
-                width: 50,
-                height: 50,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
-                  ),
-                  child: const Icon(Icons.sports_score, color: Colors.white, size: 20),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
