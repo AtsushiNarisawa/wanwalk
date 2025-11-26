@@ -132,17 +132,8 @@ class RouteDetailScreen extends ConsumerWidget {
               ],
             ),
           MarkerLayer(
-            markers: [
-              Marker(
-                alignment: Alignment.center,
-                point: route.startLocation,
-                width: 50,
-                height: 50,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
+            markers: _buildMarkers(route),
+          ),
                   ),
                   child: const Icon(Icons.flag, color: Colors.white, size: 20),
                 ),
@@ -218,6 +209,97 @@ class RouteDetailScreen extends ConsumerWidget {
     if (maxDiff > 0.01) return 14.5; // 約1km
     if (maxDiff > 0.005) return 15.5; // 約500m
     return 16.5; // 500m未満
+  }
+
+
+  /// マーカーを構築（スタート=ゴールの場合は特別表示）
+  List<Marker> _buildMarkers(OfficialRoute route) {
+    final isSameLocation = route.startLocation.latitude == route.endLocation.latitude &&
+                           route.startLocation.longitude == route.endLocation.longitude;
+
+    if (isSameLocation) {
+      // スタート=ゴールの場合：緑と赤の半円マーカー
+      return [
+        Marker(
+          alignment: Alignment.center,
+          point: route.startLocation,
+          width: 40,
+          height: 40,
+          child: Stack(
+            children: [
+              // 左半分：緑（スタート）
+              Positioned(
+                left: 0,
+                child: Container(
+                  width: 20,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      bottomLeft: Radius.circular(20),
+                    ),
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(Icons.flag, color: Colors.white, size: 16),
+                ),
+              ),
+              // 右半分：赤（ゴール）
+              Positioned(
+                right: 0,
+                child: Container(
+                  width: 20,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(Icons.sports_score, color: Colors.white, size: 16),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ];
+    }
+
+    // スタート≠ゴールの場合：別々のマーカー
+    return [
+      // スタートマーカー
+      Marker(
+        alignment: Alignment.center,
+        point: route.startLocation,
+        width: 32,
+        height: 32,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.green,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+          ),
+          child: const Icon(Icons.flag, color: Colors.white, size: 16),
+        ),
+      ),
+      // ゴールマーカー
+      Marker(
+        alignment: Alignment.center,
+        point: route.endLocation,
+        width: 32,
+        height: 32,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+          ),
+          child: const Icon(Icons.sports_score, color: Colors.white, size: 16),
+        ),
+      ),
+    ];
   }
 
 
