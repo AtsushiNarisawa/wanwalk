@@ -1,22 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
-import '../../outing/walking_screen.dart';
-import '../../map/map_screen.dart';
+import '../../../config/env.dart';
+import '../../../providers/gps_provider_riverpod.dart';
+import '../../../providers/official_route_provider.dart';
+import '../../outing/area_list_screen.dart';
+import '../../outing/route_detail_screen.dart';
+import '../../search/route_search_screen.dart';
 
 /// MapTab - おでかけ散歩の中心（公式ルート、エリア、ピン）
 /// 
 /// 構成:
-/// - マップ表示（プレースホルダー）
+/// - リアルタイム地図表示
+/// - 周辺の公式ルートをマーカー表示
+/// - 現在地ボタン
+/// - 検索ボタン
 /// - FAB: おでかけ散歩開始
-class MapTab extends ConsumerWidget {
+class MapTab extends ConsumerStatefulWidget {
   const MapTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MapTab> createState() => _MapTabState();
+}
+
+class _MapTabState extends ConsumerState<MapTab> {
+  final MapController _mapController = MapController();
+  LatLng? _currentLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeLocation();
+  }
+
+  /// 現在地を取得
+  Future<void> _initializeLocation() async {
+    final gpsState = ref.read(gpsProviderRiverpod);
+    if (gpsState.currentLocation != null) {
+      setState(() {
+        _currentLocation = gpsState.currentLocation;
+      });
+      _mapController.move(_currentLocation!, 13.0);
+    }
+  }
+
+  /// 現在地に移動
+  void _moveToCurrentLocation() {
+    final gpsState = ref.read(gpsProviderRiverpod);
+    if (gpsState.currentLocation != null) {
+      _mapController.move(gpsState.currentLocation!, 15.0);
+      setState(() {
+        _currentLocation = gpsState.currentLocation;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('現在地を取得できませんでした')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gpsState = ref.watch(gpsProviderRiverpod);
+    final nearbyRoutesAsync = ref.watch(nearbyRoutesProvider(NearbyRoutesParams(
+      latitude: _currentLocation?.latitude ?? 35.3192,
+      longitude: _currentLocation?.longitude ?? 139.5503,
+      radiusMeters: 10000,
+    )));
 
     return Scaffold(
       backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
@@ -34,18 +89,15 @@ class MapTab extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.my_location),
             tooltip: '現在地',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('現在地機能は準備中です'), duration: Duration(seconds: 2)),
-              );
-            },
+            onPressed: _moveToCurrentLocation,
           ),
           IconButton(
             icon: const Icon(Icons.search),
             tooltip: '検索',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('検索機能は準備中です'), duration: Duration(seconds: 2)),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const RouteSearchScreen()),
               );
             },
           ),
@@ -53,61 +105,84 @@ class MapTab extends ConsumerWidget {
       ),
       body: Stack(
         children: [
-          // マップエリア（プレースホルダー）
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(WanMapSpacing.xxxl),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 300,
-                    decoration: BoxDecoration(
-                      color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: WanMapColors.accent.withOpacity(0.3), width: 2),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.map_outlined, size: 80, color: WanMapColors.accent.withOpacity(0.5)),
-                        const SizedBox(height: WanMapSpacing.lg),
-                        Text(
-                          'マップ機能',
-                          style: WanMapTypography.headlineSmall.copyWith(
-                            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: WanMapSpacing.sm),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.xxxl),
-                          child: Text(
-                            '公式ルート、エリア、ピンを表示\n（Phase 2で実装予定）',
-                            style: WanMapTypography.bodyMedium.copyWith(
-                              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: WanMapSpacing.xl),
-                  OutlinedButton.icon(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MapScreen())),
-                    icon: const Icon(Icons.map),
-                    label: const Text('既存のマップを開く'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: WanMapColors.accent,
-                      side: BorderSide(color: WanMapColors.accent),
-                      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.xl, vertical: WanMapSpacing.md),
-                    ),
-                  ),
-                ],
-              ),
+          // 地図表示
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _currentLocation ?? const LatLng(35.3192, 139.5503),
+              initialZoom: 13.0,
+              minZoom: 5.0,
+              maxZoom: 18.0,
             ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.doghub.wanmap',
+              ),
+              // 現在地マーカー
+              if (_currentLocation != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: _currentLocation!,
+                      width: 40,
+                      height: 40,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.blue, width: 3),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              // 周辺ルートのマーカー
+              nearbyRoutesAsync.when(
+                data: (routes) {
+                  if (routes.isEmpty) return const SizedBox.shrink();
+                  return MarkerLayer(
+                    markers: routes.map((route) {
+                      return Marker(
+                        point: route.startLocation,
+                        width: 40,
+                        height: 40,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RouteDetailScreen(routeId: route.id),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: WanMapColors.accent,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.route,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+            ],
           ),
           
           // FAB: おでかけ散歩開始
@@ -116,9 +191,9 @@ class MapTab extends ConsumerWidget {
             bottom: WanMapSpacing.lg,
             child: FloatingActionButton.extended(
               onPressed: () {
-                // おでかけ散歩開始（公式ルート選択→WalkingScreen）
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('おでかけ散歩機能は準備中です'), duration: Duration(seconds: 2)),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AreaListScreen()),
                 );
               },
               backgroundColor: WanMapColors.accent,
