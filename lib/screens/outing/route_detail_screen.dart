@@ -134,6 +134,9 @@ class RouteDetailScreen extends ConsumerWidget {
           MarkerLayer(
             markers: _buildMarkers(route),
           ),
+        ],
+      ),
+          ),
     );
   }
 
