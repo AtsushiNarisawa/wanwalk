@@ -136,7 +136,6 @@ class RouteDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
-          ),
     );
   }
 
