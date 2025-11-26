@@ -197,8 +197,20 @@ class RouteDetailScreen extends ConsumerWidget {
     print('🎯 Building markers for route: ${route.name}');
     print('🎯 Start: ${route.startLocation}');
     print('🎯 End: ${route.endLocation}');
-    print('🎯 Same location: ${route.startLocation.latitude == route.endLocation.latitude && route.startLocation.longitude == route.endLocation.longitude}');
-    final isSameLocation = route.startLocation.latitude == route.endLocation.latitude &&
+    
+    // route_lineが存在する場合は、その最初と最後の点を使用
+    final actualStart = route.routeLine != null && route.routeLine!.isNotEmpty
+        ? route.routeLine!.first
+        : route.startLocation;
+    final actualEnd = route.routeLine != null && route.routeLine!.isNotEmpty
+        ? route.routeLine!.last
+        : route.endLocation;
+    
+    print('🎯 Actual start (from route line): $actualStart');
+    print('🎯 Actual end (from route line): $actualEnd');
+    
+    final isSameLocation = actualStart.latitude == actualEnd.latitude &&
+                           actualStart.longitude == actualEnd.longitude;
                            route.startLocation.longitude == route.endLocation.longitude;
 
     if (isSameLocation) {
@@ -206,7 +218,7 @@ class RouteDetailScreen extends ConsumerWidget {
       return [
         Marker(
           alignment: Alignment.center,
-          point: route.startLocation,
+          point: actualStart,
           width: 40,
           height: 40,
           child: Stack(
@@ -257,7 +269,7 @@ class RouteDetailScreen extends ConsumerWidget {
       // スタートマーカー
       Marker(
         alignment: Alignment.center,
-        point: route.startLocation,
+        point: actualStart,
         width: 32,
         height: 32,
         child: Container(
@@ -272,7 +284,7 @@ class RouteDetailScreen extends ConsumerWidget {
       // ゴールマーカー
       Marker(
         alignment: Alignment.center,
-        point: route.endLocation,
+        point: actualEnd,
         width: 32,
         height: 32,
         child: Container(
