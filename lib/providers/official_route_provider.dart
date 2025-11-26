@@ -159,3 +159,29 @@ final selectedRouteProvider = Provider<AsyncValue<OfficialRoute?>>((ref) {
   }
   return ref.watch(routeByIdProvider(routeId));
 });
+
+/// 全ての公式ルートを取得するProvider（MAP画面用）
+final allRoutesProvider = FutureProvider<List<OfficialRoute>>((ref) async {
+  if (kDebugMode) {
+    print('🔵 allRoutesProvider: Fetching all routes');
+  }
+  try {
+    final response = await _supabase.rpc('get_all_routes_geojson');
+    
+    final routes = (response as List)
+        .map((json) => OfficialRoute.fromJson(json))
+        .toList();
+    
+    if (kDebugMode) {
+      print('✅ Successfully fetched ${routes.length} routes');
+    }
+    
+    return routes;
+  } catch (e, stack) {
+    if (kDebugMode) {
+      print('❌ Error in allRoutesProvider: $e');
+      print('Stack trace: $stack');
+    }
+    throw Exception('Failed to fetch all routes: $e');
+  }
+});
