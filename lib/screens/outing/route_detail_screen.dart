@@ -103,6 +103,8 @@ class RouteDetailScreen extends ConsumerWidget {
     if (route.routeLine != null) {
       print('🗺️ First point: ${route.routeLine!.first}');
       print('🗺️ Last point: ${route.routeLine!.last}');
+    print('🗺️ Start location: ${route.startLocation}');
+    print('🗺️ End location: ${route.endLocation}');
     }
     return Container(
       height: 300,
@@ -125,7 +127,7 @@ class RouteDetailScreen extends ConsumerWidget {
                 Polyline(
                   points: route.routeLine!,
                   strokeWidth: 4.0,
-                  color: const Color(0xFFFF69B4),
+                  color: WanMapColors.accent,
                 ),
               ],
             ),
@@ -493,7 +495,7 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: const Color(0xFFFF69B4),
+            color: WanMapColors.accent,
             size: 28,
           ),
           const SizedBox(height: WanMapSpacing.xs),
