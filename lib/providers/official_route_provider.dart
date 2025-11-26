@@ -24,7 +24,14 @@ final routesByAreaProvider = FutureProvider.family<List<OfficialRoute>, String>(
 
       if (kDebugMode) {
         print('🔵 RPC Response type: ${response.runtimeType}');
-        print('🔵 RPC Response: $response');
+        print('🔵 RPC Response length: ${(response as List).length}');
+        if ((response as List).isNotEmpty) {
+          final firstRoute = response[0] as Map<String, dynamic>;
+          print('🔵 First route keys: ${firstRoute.keys.toList()}');
+          print('🔵 thumbnail_url: ${firstRoute['thumbnail_url']}');
+          print('🔵 gallery_images: ${firstRoute['gallery_images']}');
+          print('🔵 gallery_images type: ${firstRoute['gallery_images'].runtimeType}');
+        }
       }
 
       final routes = (response as List)
