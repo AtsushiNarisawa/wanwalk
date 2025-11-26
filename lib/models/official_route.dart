@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
 /// 難易度レベル
@@ -83,9 +84,20 @@ class OfficialRoute {
       ),
       totalPins: json['total_pins'] as int? ?? 0,
       thumbnailUrl: json['thumbnail_url'] as String?,
-      galleryImages: json['gallery_images'] != null
-          ? (json['gallery_images'] as List).map((e) => e as String).toList()
-          : null,
+      galleryImages: (() {
+        if (kDebugMode) {
+          print('🖼️ fromJson: gallery_images raw = ${json['gallery_images']}');
+          print('🖼️ fromJson: gallery_images != null = ${json['gallery_images'] != null}');
+        }
+        if (json['gallery_images'] != null) {
+          final images = (json['gallery_images'] as List).map((e) => e as String).toList();
+          if (kDebugMode) {
+            print('🖼️ fromJson: parsed images = $images');
+          }
+          return images;
+        }
+        return null;
+      })(),
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
