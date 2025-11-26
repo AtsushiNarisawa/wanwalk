@@ -196,74 +196,73 @@ class _RouteCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                Expanded(
-                  child: Text(
-                    route.name,
-                    style: WanMapTypography.bodyLarge.copyWith(
-                      color: isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      Expanded(
+                        child: Text(
+                          route.name,
+                          style: WanMapTypography.bodyLarge.copyWith(
+                            color: isDark
+                                ? WanMapColors.textPrimaryDark
+                                : WanMapColors.textPrimaryLight,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: WanMapSpacing.sm),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: WanMapSpacing.sm,
+                          vertical: WanMapSpacing.xs,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getDifficultyColor().withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          route.difficultyLevel.label,
+                          style: WanMapTypography.caption.copyWith(
+                            color: _getDifficultyColor(),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: WanMapSpacing.sm),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: WanMapSpacing.sm,
-                    vertical: WanMapSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getDifficultyColor().withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    route.difficultyLevel.label,
+                  const SizedBox(height: WanMapSpacing.sm),
+                  // 説明
+                  Text(
+                    route.description,
                     style: WanMapTypography.caption.copyWith(
-                      color: _getDifficultyColor(),
-                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? WanMapColors.textSecondaryDark
+                          : WanMapColors.textSecondaryLight,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: WanMapSpacing.sm),
-            // 説明
-            Text(
-              route.description,
-              style: WanMapTypography.caption.copyWith(
-                color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: WanMapSpacing.md),
-            // 統計情報
-            Row(
-              children: [
-                _StatChip(
-                  icon: Icons.straighten,
-                  label: route.formattedDistance,
-                  isDark: isDark,
-                ),
-                const SizedBox(width: WanMapSpacing.sm),
-                _StatChip(
-                  icon: Icons.timer,
-                  label: route.formattedDuration,
-                  isDark: isDark,
-                ),
-                const SizedBox(width: WanMapSpacing.sm),
-                _StatChip(
-                  icon: Icons.push_pin,
-                  label: '${route.totalPins}ピン',
-                  isDark: isDark,
-                ),
-              ],
-            ),
-          ],
-        ),
+                  const SizedBox(height: WanMapSpacing.md),
+                  // 統計情報
+                  Row(
+                    children: [
+                      _StatChip(
+                        icon: Icons.straighten,
+                        label: route.formattedDistance,
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: WanMapSpacing.sm),
+                      _StatChip(
+                        icon: Icons.timer,
+                        label: route.formattedDuration,
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: WanMapSpacing.sm),
+                      _StatChip(
+                        icon: Icons.push_pin,
+                        label: '${route.totalPins}ピン',
+                        isDark: isDark,
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
