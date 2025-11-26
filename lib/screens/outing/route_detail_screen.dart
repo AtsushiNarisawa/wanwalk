@@ -80,12 +80,17 @@ class RouteDetailScreen extends ConsumerWidget {
 
                   const SizedBox(height: WanMapSpacing.xl),
 
+                  // ギャラリーセクション（デバッグ用）
+                  Builder(builder: (context) {
+                    if (kDebugMode) {
+                      print('🖼️ Gallery check: galleryImages = ${route.galleryImages}');
+                      print('🖼️ Gallery check: isNull = ${route.galleryImages == null}');
+                      print('🖼️ Gallery check: isEmpty = ${route.galleryImages?.isEmpty}');
+                    }
+                    return const SizedBox.shrink();
+                  }),
+
                   // ギャラリーセクション
-                  if (kDebugMode) {
-                    print('🖼️ Gallery check: galleryImages = ${route.galleryImages}');
-                    print('🖼️ Gallery check: isNull = ${route.galleryImages == null}');
-                    print('🖼️ Gallery check: isEmpty = ${route.galleryImages?.isEmpty}');
-                  }
                   if (route.galleryImages != null && route.galleryImages!.isNotEmpty)
                     _buildGallerySection(route, isDark),
 
