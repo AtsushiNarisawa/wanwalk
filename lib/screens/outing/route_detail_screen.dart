@@ -77,6 +77,12 @@ class RouteDetailScreen extends ConsumerWidget {
                   // 散歩を開始ボタン
                   _buildStartButton(context, isDark, route),
 
+                  const SizedBox(height: WanMapSpacing.xl),
+
+                  // ギャラリーセクション
+                  if (route.galleryImages != null && route.galleryImages!.isNotEmpty)
+                    _buildGallerySection(route, isDark),
+
                   const SizedBox(height: WanMapSpacing.xxxl),
 
                   // ピンセクション
@@ -644,6 +650,73 @@ class _DifficultyBadge extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// ギャラリーセクション
+  Widget _buildGallerySection(OfficialRoute route, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // セクションタイトル
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+          child: Text(
+            'ルートの写真',
+            style: WanMapTypography.headlineSmall.copyWith(
+              color: isDark
+                  ? WanMapColors.textPrimaryDark
+                  : WanMapColors.textPrimaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(height: WanMapSpacing.md),
+        // ギャラリー画像（横スクロール）
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+            itemCount: route.galleryImages!.length,
+            itemBuilder: (context, index) {
+              final imageUrl = route.galleryImages![index];
+              return Padding(
+                padding: EdgeInsets.only(
+                  right: index < route.galleryImages!.length - 1
+                      ? WanMapSpacing.md
+                      : 0,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    imageUrl,
+                    width: 280,
+                    height: 200,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 280,
+                        height: 200,
+                        color: isDark
+                            ? WanMapColors.backgroundSecondaryDark
+                            : WanMapColors.backgroundSecondaryLight,
+                        child: Icon(
+                          Icons.image_not_supported,
+                          color: isDark
+                              ? WanMapColors.textSecondaryDark
+                              : WanMapColors.textSecondaryLight,
+                          size: 48,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
