@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -80,6 +81,11 @@ class RouteDetailScreen extends ConsumerWidget {
                   const SizedBox(height: WanMapSpacing.xl),
 
                   // ギャラリーセクション
+                  if (kDebugMode) {
+                    print('🖼️ Gallery check: galleryImages = ${route.galleryImages}');
+                    print('🖼️ Gallery check: isNull = ${route.galleryImages == null}');
+                    print('🖼️ Gallery check: isEmpty = ${route.galleryImages?.isEmpty}');
+                  }
                   if (route.galleryImages != null && route.galleryImages!.isNotEmpty)
                     _buildGallerySection(route, isDark),
 
