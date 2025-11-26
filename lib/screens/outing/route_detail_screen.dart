@@ -211,7 +211,6 @@ class RouteDetailScreen extends ConsumerWidget {
     
     final isSameLocation = actualStart.latitude == actualEnd.latitude &&
                            actualStart.longitude == actualEnd.longitude;
-                           route.startLocation.longitude == route.endLocation.longitude;
 
     if (isSameLocation) {
       // スタート=ゴールの場合：緑と赤の半円マーカー
