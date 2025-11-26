@@ -160,7 +160,7 @@ class _RouteCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // サムネイル画像
@@ -169,13 +169,13 @@ class _RouteCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
                   route.thumbnailUrl!,
-                  width: 100,
-                  height: 100,
+                  width: double.infinity,
+                  height: 200,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
-                      width: 100,
-                      height: 100,
+                      width: double.infinity,
+                      height: 200,
                       color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
                       child: Icon(
                         Icons.image_not_supported,
@@ -186,84 +186,77 @@ class _RouteCard extends StatelessWidget {
                 ),
               ),
             if (route.thumbnailUrl != null)
-              const SizedBox(width: WanMapSpacing.md),
-            // ルート情報
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ルート名と難易度バッジ
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          route.name,
-                          style: WanMapTypography.bodyLarge.copyWith(
-                            color: isDark
-                                ? WanMapColors.textPrimaryDark
-                                : WanMapColors.textPrimaryLight,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: WanMapSpacing.sm),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: WanMapSpacing.sm,
-                          vertical: WanMapSpacing.xs,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getDifficultyColor().withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          route.difficultyLevel.label,
-                          style: WanMapTypography.caption.copyWith(
-                            color: _getDifficultyColor(),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: WanMapSpacing.sm),
-                  // 説明
-                  Text(
-                    route.description,
-                    style: WanMapTypography.caption.copyWith(
+              const SizedBox(height: WanMapSpacing.md),
+            // ルート名と難易度バッジ
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    route.name,
+                    style: WanMapTypography.bodyLarge.copyWith(
                       color: isDark
-                          ? WanMapColors.textSecondaryDark
-                          : WanMapColors.textSecondaryLight,
+                          ? WanMapColors.textPrimaryDark
+                          : WanMapColors.textPrimaryLight,
+                      fontWeight: FontWeight.bold,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: WanMapSpacing.md),
-                  // 統計情報
-                  Wrap(
-                    spacing: WanMapSpacing.sm,
-                    runSpacing: WanMapSpacing.sm,
-                    children: [
-                      _StatChip(
-                        icon: Icons.straighten,
-                        label: route.formattedDistance,
-                        isDark: isDark,
-                      ),
-                      _StatChip(
-                        icon: Icons.timer,
-                        label: route.formattedDuration,
-                        isDark: isDark,
-                      ),
-                      _StatChip(
-                        icon: Icons.push_pin,
-                        label: '${route.totalPins}ピン',
-                        isDark: isDark,
-                      ),
-                    ],
+                ),
+                const SizedBox(width: WanMapSpacing.sm),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: WanMapSpacing.sm,
+                    vertical: WanMapSpacing.xs,
                   ),
-                ],
+                  decoration: BoxDecoration(
+                    color: _getDifficultyColor().withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    route.difficultyLevel.label,
+                    style: WanMapTypography.caption.copyWith(
+                      color: _getDifficultyColor(),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: WanMapSpacing.sm),
+            // 説明
+            Text(
+              route.description,
+              style: WanMapTypography.caption.copyWith(
+                color: isDark
+                    ? WanMapColors.textSecondaryDark
+                    : WanMapColors.textSecondaryLight,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: WanMapSpacing.md),
+            // 統計情報（中央揃え）
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _StatChip(
+                  icon: Icons.straighten,
+                  label: route.formattedDistance,
+                  isDark: isDark,
+                ),
+                const SizedBox(width: WanMapSpacing.sm),
+                _StatChip(
+                  icon: Icons.timer,
+                  label: route.formattedDuration,
+                  isDark: isDark,
+                ),
+                const SizedBox(width: WanMapSpacing.sm),
+                _StatChip(
+                  icon: Icons.push_pin,
+                  label: '${route.totalPins}ピン',
+                  isDark: isDark,
+                ),
+              ],
             ),
           ],
         ),
