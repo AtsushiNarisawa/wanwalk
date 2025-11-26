@@ -194,6 +194,10 @@ class RouteDetailScreen extends ConsumerWidget {
 
   /// マーカーを構築（スタート=ゴールの場合は特別表示）
   List<Marker> _buildMarkers(OfficialRoute route) {
+    print('🎯 Building markers for route: ${route.name}');
+    print('🎯 Start: ${route.startLocation}');
+    print('🎯 End: ${route.endLocation}');
+    print('🎯 Same location: ${route.startLocation.latitude == route.endLocation.latitude && route.startLocation.longitude == route.endLocation.longitude}');
     final isSameLocation = route.startLocation.latitude == route.endLocation.latitude &&
                            route.startLocation.longitude == route.endLocation.longitude;
 
@@ -248,6 +252,7 @@ class RouteDetailScreen extends ConsumerWidget {
     }
 
     // スタート≠ゴールの場合：別々のマーカー
+    print('🎯 Creating separate start and goal markers');
     return [
       // スタートマーカー
       Marker(
