@@ -107,7 +107,9 @@ official_routes (公式ルート)
   ├── distance_meters: FLOAT
   ├── estimated_minutes: INT
   ├── difficulty_level: TEXT (easy/moderate/hard)
-  └── total_pins: INT
+  ├── total_pins: INT
+  ├── thumbnail_url: TEXT (検索画面サムネイル)
+  └── gallery_images: TEXT[] (詳細画面ギャラリー)
 ```
 
 #### ユーザー投稿
@@ -344,6 +346,13 @@ supabase_migrations/004_create_rpc_functions.sql
 supabase_migrations/005_insert_initial_data.sql
 supabase_migrations/007_phase5_search_and_social.sql  # Phase 5
 supabase_migrations/008_phase5_badges_system.sql      # Phase 5
+supabase_migrations/010_add_route_images.sql          # ルート画像カラム追加
+supabase_migrations/011_update_search_routes_function.sql  # 検索関数更新
+```
+
+**初期ルート画像データ:**
+```bash
+update_hakone_route_images.sql  # 箱根ルートに画像を追加
 ```
 
 **Phase 5テストデータ（オプション）:**
@@ -351,6 +360,8 @@ supabase_migrations/008_phase5_badges_system.sql      # Phase 5
 supabase_migrations/test_data_phase5.sql
 ```
 ⚠️ **注意**: テストデータスクリプトを実行する前に、実際のユーザーIDに置き換えてください（詳細は `PHASE5_TEST_GUIDE.md` を参照）
+
+📋 **詳細な手順は `SUPABASE_MIGRATION_INSTRUCTIONS.md` を参照してください**
 
 ### 5. ビルドと実行
 
@@ -499,15 +510,17 @@ flutter run --release
 
 ---
 
-**Last Updated**: 2025-11-22 (Phase 5完了)
-**Version**: 1.5.0 (Phase 5: ソーシャル・検索・バッジ)  
+**Last Updated**: 2025-11-26 (ルート検索画像修正)
+**Version**: 1.5.1 (ルート検索: thumbnail_url/gallery_images対応)  
 **Git Commits**: 
 - Phase 1: 7955650
 - Phase 2: 6f50800
 - Phase 4: 散歩履歴・ホーム画面
 - Phase 5: ソーシャル・検索・バッジ機能
+- Bug Fix: c135b8a (ルート検索画像修正)
 
 ## 📚 関連ドキュメント
 
 - [Phase 5 テストガイド](PHASE5_TEST_GUIDE.md) - Phase 5全機能のテスト手順書
 - [マイグレーションガイド](supabase_migrations/) - データベースマイグレーションSQL
+- [Supabase移行手順](SUPABASE_MIGRATION_INSTRUCTIONS.md) - ルート画像対応マイグレーション手順
