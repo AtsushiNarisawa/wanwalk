@@ -14,6 +14,7 @@ import '../../providers/gps_provider_riverpod.dart';
 import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
+import '../../services/badge_service.dart';
 
 /// 日常散歩中画面
 /// - リアルタイムGPS追跡
@@ -213,6 +214,15 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
           distanceMeters: distanceMeters,
           durationMinutes: durationMinutes,
         );
+
+        // 4. バッジ解除チェック
+        final badgeService = BadgeService(Supabase.instance.client);
+        final newBadges = await badgeService.checkAndUnlockBadges(userId: userId);
+        if (newBadges.isNotEmpty && mounted) {
+          if (kDebugMode) {
+            print('🏆 新しいバッジを解除しました: ${newBadges.length}個');
+          }
+        }
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
