@@ -12,7 +12,6 @@ import '../../../providers/area_provider.dart';
 import '../../../models/area.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
-import '../../search/route_search_screen.dart';
 
 /// MapTab - おでかけ散歩の中心（公式ルート、エリア、ピン）
 /// 
@@ -88,16 +87,6 @@ class _MapTabState extends ConsumerState<MapTab> {
             icon: const Icon(Icons.my_location),
             tooltip: '現在地',
             onPressed: _moveToCurrentLocation,
-          ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: '検索',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const RouteSearchScreen()),
-              );
-            },
           ),
         ],
       ),

@@ -6,7 +6,6 @@ import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
 import '../../../providers/area_provider.dart';
 import '../../outing/area_list_screen.dart';
-import '../../search/route_search_screen.dart';
 import '../../daily/daily_walking_screen.dart';
 import '../../history/walk_history_screen.dart';
 import '../../outing/route_detail_screen.dart';
@@ -193,13 +192,6 @@ class HomeTab extends ConsumerWidget {
                 color: Colors.orange,
                 isDark: isDark,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AreaListScreen())),
-              ),
-              _QuickActionCard(
-                icon: Icons.search,
-                label: 'ルート検索',
-                color: Colors.blue,
-                isDark: isDark,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RouteSearchScreen())),
               ),
               _QuickActionCard(
                 icon: Icons.directions_walk,
