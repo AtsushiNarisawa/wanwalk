@@ -9,7 +9,7 @@ final walkHistoryServiceProvider = Provider<WalkHistoryService>((ref) {
 });
 
 /// お出かけ散歩履歴プロバイダー
-final outingWalkHistoryProvider = FutureProvider.family<List<OutingWalkHistory>, OutingHistoryParams>(
+final outingWalkHistoryProvider = FutureProvider.autoDispose.family<List<OutingWalkHistory>, OutingHistoryParams>(
   (ref, params) async {
     final service = ref.read(walkHistoryServiceProvider);
     return await service.getOutingWalkHistory(
@@ -21,7 +21,7 @@ final outingWalkHistoryProvider = FutureProvider.family<List<OutingWalkHistory>,
 );
 
 /// 日常散歩履歴プロバイダー
-final dailyWalkHistoryProvider = FutureProvider.family<List<DailyWalkHistory>, DailyHistoryParams>(
+final dailyWalkHistoryProvider = FutureProvider.autoDispose.family<List<DailyWalkHistory>, DailyHistoryParams>(
   (ref, params) async {
     final service = ref.read(walkHistoryServiceProvider);
     return await service.getDailyWalkHistory(
@@ -33,7 +33,7 @@ final dailyWalkHistoryProvider = FutureProvider.family<List<DailyWalkHistory>, D
 );
 
 /// 全散歩履歴プロバイダー（統合）
-final allWalkHistoryProvider = FutureProvider.family<List<WalkHistoryItem>, AllHistoryParams>(
+final allWalkHistoryProvider = FutureProvider.autoDispose.family<List<WalkHistoryItem>, AllHistoryParams>(
   (ref, params) async {
     final service = ref.read(walkHistoryServiceProvider);
     return await service.getAllWalkHistory(
