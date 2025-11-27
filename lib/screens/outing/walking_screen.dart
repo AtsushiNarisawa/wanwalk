@@ -13,6 +13,8 @@ import '../../models/walk_mode.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
+import '../../services/photo_service.dart';
+import 'dart:io';
 import 'pin_create_screen.dart';
 
 /// 散歩中画面（公式ルートを歩いている時）
@@ -34,6 +36,8 @@ class WalkingScreen extends ConsumerStatefulWidget {
 
 class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   final MapController _mapController = MapController();
+  final PhotoService _photoService = PhotoService();
+  final List<File> _photoFiles = []; // 散歩中の写真を一時保存
   bool _isFollowingUser = true;
   bool _showRouteInfo = true;
 
@@ -149,10 +153,35 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         }
 
         if (kDebugMode) {
-          print('✅ 散歩記録保存成功: walkId=$walkId');
+          print('✅ 散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
         }
 
-        // 2. プロフィールを自動更新
+        // 2. 写真をアップロード
+        if (_photoFiles.isNotEmpty) {
+          if (kDebugMode) {
+            print('📸 写真アップロード開始: ${_photoFiles.length}枚');
+          }
+          for (int i = 0; i < _photoFiles.length; i++) {
+            final file = _photoFiles[i];
+            final photoUrl = await _photoService.uploadWalkPhoto(
+              file: file,
+              walkId: walkId,
+              userId: userId,
+              displayOrder: i + 1,
+            );
+            if (photoUrl != null) {
+              if (kDebugMode) {
+                print('✅ 写真${i + 1}/${_photoFiles.length}アップロード成功');
+              }
+            } else {
+              if (kDebugMode) {
+                print('❌ 写真${i + 1}/${_photoFiles.length}アップロード失敗');
+              }
+            }
+          }
+        }
+
+        // 3. プロフィールを自動更新
         final profileService = ProfileService();
         await profileService.updateWalkingProfile(
           userId: userId,
@@ -163,7 +192,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '散歩記録を保存しました！\n${gpsState.formattedDistance} / ${gpsState.formattedDuration}'
+              '散歩記録を保存しました！${_photoFiles.isNotEmpty ? " (写真${_photoFiles.length}枚)" : ""}\n${gpsState.formattedDistance} / ${gpsState.formattedDuration}'
             ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 3),
@@ -174,6 +203,53 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('記録の保存に失敗しました'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// 写真を撮影
+  Future<void> _takePhoto() async {
+    try {
+      if (kDebugMode) {
+        print('📷 写真撮影開始...');
+      }
+      
+      final file = await _photoService.pickImageFromGallery();
+      
+      if (file == null) {
+        if (kDebugMode) {
+          print('❌ 写真選択がキャンセルされました');
+        }
+        return;
+      }
+
+      if (kDebugMode) {
+        print('✅ 写真選択成功: ${file.path}');
+      }
+
+      setState(() {
+        _photoFiles.add(file);
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('写真を追加しました (${_photoFiles.length}枚)'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ 写真撮影エラー: $e');
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('写真の追加に失敗しました'),
             backgroundColor: Colors.red,
           ),
         );
@@ -505,6 +581,18 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       bottom: _showRouteInfo ? 280 : 120,
       child: Column(
         children: [
+          // 写真撮影ボタン
+          FloatingActionButton(
+            heroTag: "camera_button",
+            onPressed: _takePhoto,
+            backgroundColor: Colors.green,
+            child: Badge(
+              isLabelVisible: _photoFiles.isNotEmpty,
+              label: Text('${_photoFiles.length}'),
+              child: const Icon(Icons.camera_alt, color: Colors.white),
+            ),
+          ),
+          const SizedBox(height: WanMapSpacing.md),
           // ピン投稿ボタン
           FloatingActionButton.extended(
             heroTag: "pin_button",
