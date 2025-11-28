@@ -7,6 +7,7 @@ import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../providers/official_route_provider.dart';
 import '../../providers/route_pin_provider.dart';
+import '../../providers/favorite_provider.dart';
 import '../../models/official_route.dart';
 import 'walking_screen.dart';
 
@@ -25,6 +26,7 @@ class RouteDetailScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final routeAsync = ref.watch(routeByIdProvider(routeId));
     final pinsAsync = ref.watch(pinsByRouteProvider(routeId));
+    final favoriteAsync = ref.watch(routeFavoriteProvider(routeId));
 
     return Scaffold(
       backgroundColor: isDark
@@ -34,6 +36,29 @@ class RouteDetailScreen extends ConsumerWidget {
         title: const Text('ルート詳細'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          // お気に入りボタン
+          favoriteAsync.when(
+            data: (isFavorite) => IconButton(
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red : Colors.grey,
+              ),
+              onPressed: () {
+                ref.read(routeFavoriteProvider(routeId).notifier).toggle();
+              },
+            ),
+            loading: () => const Padding(
+              padding: EdgeInsets.all(16),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+        ],
       ),
       body: routeAsync.when(
         data: (route) {
