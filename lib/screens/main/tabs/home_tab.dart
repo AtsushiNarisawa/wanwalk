@@ -10,6 +10,7 @@ import '../../daily/daily_walking_screen.dart';
 import '../../history/walk_history_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../notifications/notifications_screen.dart';
+import '../../favorites/favorite_routes_screen.dart';
 
 /// HomeTab - おでかけ散歩を優先
 /// 
@@ -199,6 +200,13 @@ class HomeTab extends ConsumerWidget {
                 color: Colors.green,
                 isDark: isDark,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyWalkingScreen())),
+              ),
+              _QuickActionCard(
+                icon: Icons.favorite,
+                label: 'お気に入り',
+                color: Colors.red,
+                isDark: isDark,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoriteRoutesScreen())),
               ),
               _QuickActionCard(
                 icon: Icons.history,
