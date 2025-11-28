@@ -5,6 +5,7 @@ import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
 import '../../../providers/area_provider.dart';
+import '../../../providers/route_provider.dart';
 import '../../outing/area_list_screen.dart';
 import '../../daily/daily_walking_screen.dart';
 import '../../history/walk_history_screen.dart';
@@ -145,22 +146,64 @@ class HomeTab extends ConsumerWidget {
 
   /// 人気の公式ルート
   Widget _buildPopularRoutes(BuildContext context, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '人気の公式ルート',
-            style: WanMapTypography.headlineSmall.copyWith(
-              color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-              fontWeight: FontWeight.bold,
-            ),
+    return Consumer(
+      builder: (context, ref, child) {
+        final popularRoutesAsync = ref.watch(popularRoutesProvider);
+        
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '人気の公式ルート',
+                style: WanMapTypography.headlineSmall.copyWith(
+                  color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: WanMapSpacing.md),
+              popularRoutesAsync.when(
+                data: (routes) {
+                  if (routes.isEmpty) {
+                    return _buildEmptyCard(isDark, '公式ルートがまだありません');
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: routes.length,
+                    itemBuilder: (context, index) {
+                      final route = routes[index];
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: index < routes.length - 1 ? WanMapSpacing.md : 0),
+                        child: _PopularRouteCard(
+                          routeId: route['route_id'],
+                          title: route['title'] ?? '無題のルート',
+                          description: route['description'] ?? '',
+                          area: route['area'] ?? '',
+                          prefecture: route['prefecture'] ?? '',
+                          distance: (route['distance'] as num?)?.toDouble() ?? 0.0,
+                          duration: route['duration'] as int? ?? 0,
+                          likesCount: route['likes_count'] as int? ?? 0,
+                          thumbnailUrl: route['thumbnail_url'],
+                          isDark: isDark,
+                        ),
+                      );
+                    },
+                  );
+                },
+                loading: () => const SizedBox(height: 120, child: Center(child: CircularProgressIndicator())),
+                error: (error, _) {
+                  if (kDebugMode) {
+                    print('❌ 人気ルート読み込みエラー: $error');
+                  }
+                  return _buildEmptyCard(isDark, '人気ルートの読み込みに失敗しました');
+                },
+              ),
+            ],
           ),
-          const SizedBox(height: WanMapSpacing.md),
-          _buildEmptyCard(isDark, '公式ルートは準備中です'),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -331,6 +374,141 @@ class _QuickActionCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _PopularRouteCard extends StatelessWidget {
+  final String routeId;
+  final String title;
+  final String description;
+  final String area;
+  final String prefecture;
+  final double distance;
+  final int duration;
+  final int likesCount;
+  final String? thumbnailUrl;
+  final bool isDark;
+
+  const _PopularRouteCard({
+    required this.routeId,
+    required this.title,
+    required this.description,
+    required this.area,
+    required this.prefecture,
+    required this.distance,
+    required this.duration,
+    required this.likesCount,
+    this.thumbnailUrl,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RouteDetailScreen(routeId: routeId),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(WanMapSpacing.md),
+        decoration: BoxDecoration(
+          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // サムネイル
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: thumbnailUrl != null
+                  ? Image.network(
+                      thumbnailUrl!,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildDefaultThumbnail(),
+                    )
+                  : _buildDefaultThumbnail(),
+            ),
+            const SizedBox(width: WanMapSpacing.md),
+            // ルート情報
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: WanMapTypography.bodyLarge.copyWith(
+                      color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: WanMapSpacing.xs),
+                  Text(
+                    '$area・$prefecture',
+                    style: WanMapTypography.bodySmall.copyWith(
+                      color: WanMapColors.accent,
+                    ),
+                  ),
+                  const SizedBox(height: WanMapSpacing.xs),
+                  Row(
+                    children: [
+                      Icon(Icons.directions_walk, size: 14, color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${(distance / 1000).toStringAsFixed(1)}km',
+                        style: WanMapTypography.bodySmall.copyWith(
+                          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                      const SizedBox(width: WanMapSpacing.sm),
+                      Icon(Icons.favorite, size: 14, color: Colors.red[300]),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$likesCount',
+                        style: WanMapTypography.bodySmall.copyWith(
+                          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultThumbnail() {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: WanMapColors.accent.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(
+        Icons.route,
+        size: 32,
+        color: WanMapColors.accent,
       ),
     );
   }
