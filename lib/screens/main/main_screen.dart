@@ -4,19 +4,19 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import 'tabs/home_tab.dart';
 import 'tabs/map_tab.dart';
-import 'tabs/records_tab.dart';
 import 'tabs/profile_tab.dart';
+import '../daily/daily_walk_landing_screen.dart';
 
-/// MainScreen - 新UI（BottomNavigationBar採用）
+/// MainScreen - ビジュアル重視の新UI（BottomNavigationBar採用）
 /// 
 /// アプリの本来の目的を重視:
 /// PRIMARY: おでかけ散歩 - 公式ルート、エリア、コミュニティ
 /// SECONDARY: 日常の散歩 - プライベート記録
 /// 
 /// 4つのタブ:
-/// 1. ホーム - おでかけ散歩優先（エリア、公式ルート）
-/// 2. マップ - おでかけ散歩中心のマップ機能
-/// 3. 散歩記録 - 日常の散歩+統計+バッジ統合
+/// 1. ホーム - ビジュアル重視（マップ、最新ピン、人気ルート）
+/// 2. ルート - お出かけ散歩のマップ機能
+/// 3. クイック記録 - 日常の散歩を始める・履歴を見る
 /// 4. プロフィール - アカウント管理
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -32,7 +32,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   static const List<Widget> _pages = [
     HomeTab(),
     MapTab(),
-    RecordsTab(),
+    DailyWalkLandingScreen(),
     ProfileTab(),
   ];
 
@@ -79,14 +79,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             label: 'ホーム',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.map_outlined, size: 28),
-            activeIcon: Icon(Icons.map, size: 28),
-            label: 'マップ',
+            icon: Icon(Icons.route_outlined, size: 28),
+            activeIcon: Icon(Icons.route, size: 28),
+            label: 'ルート',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.directions_walk_outlined, size: 28),
-            activeIcon: Icon(Icons.directions_walk, size: 28),
-            label: '散歩記録',
+            icon: Icon(Icons.fiber_manual_record_outlined, size: 28),
+            activeIcon: Icon(Icons.fiber_manual_record, size: 28),
+            label: 'クイック記録',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline, size: 28),
