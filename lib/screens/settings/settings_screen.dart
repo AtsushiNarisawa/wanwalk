@@ -4,6 +4,7 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../providers/theme_provider.dart';
+import 'change_password_screen.dart';
 
 /// 設定画面
 class SettingsScreen extends ConsumerWidget {
@@ -50,8 +51,11 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.lock_outline,
                 title: 'パスワード変更',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('パスワード変更機能は準備中です')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ChangePasswordScreen(),
+                    ),
                   );
                 },
               ),
