@@ -110,7 +110,7 @@ class ProfileTab extends ConsumerWidget {
                 const SizedBox(height: WanMapSpacing.xl),
                 
                 // ソーシャル統計
-                _buildSocialStats(context, isDark, userId),
+                _buildSocialStats(context, isDark, userId, statisticsAsync),
                 
                 const SizedBox(height: WanMapSpacing.xl),
                 
@@ -237,15 +237,16 @@ class ProfileTab extends ConsumerWidget {
   }
 
   /// ソーシャル統計
-  Widget _buildSocialStats(BuildContext context, bool isDark, String userId) {
-    return Row(
-      children: [
-        Expanded(
-          child: _SocialStatCard(
-            icon: Icons.people_outline,
-            label: 'フォロワー',
-            value: '0',
-            isDark: isDark,
+  Widget _buildSocialStats(BuildContext context, bool isDark, String userId, AsyncValue<dynamic> statisticsAsync) {
+    return statisticsAsync.when(
+      data: (stats) => Row(
+        children: [
+          Expanded(
+            child: _SocialStatCard(
+              icon: Icons.people_outline,
+              label: 'フォロワー',
+              value: '${stats.followersCount}',
+              isDark: isDark,
             onTap: () {
               Navigator.push(
                 context,
@@ -256,13 +257,13 @@ class ProfileTab extends ConsumerWidget {
             },
           ),
         ),
-        const SizedBox(width: WanMapSpacing.md),
-        Expanded(
-          child: _SocialStatCard(
-            icon: Icons.person_add_outlined,
-            label: 'フォロー中',
-            value: '0',
-            isDark: isDark,
+          const SizedBox(width: WanMapSpacing.md),
+          Expanded(
+            child: _SocialStatCard(
+              icon: Icons.person_add_outlined,
+              label: 'フォロー中',
+              value: '${stats.followingCount}',
+              isDark: isDark,
             onTap: () {
               Navigator.push(
                 context,
@@ -271,9 +272,12 @@ class ProfileTab extends ConsumerWidget {
                 ),
               );
             },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 
