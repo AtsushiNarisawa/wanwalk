@@ -15,6 +15,7 @@ import '../../daily/daily_walking_screen.dart';
 import '../../history/walk_history_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../notifications/notifications_screen.dart';
+import '../../routes/public_routes_screen.dart';
 
 /// HomeTab - ビジュアル重視のホーム画面
 /// 
@@ -342,10 +343,15 @@ class HomeTab extends ConsumerWidget {
                         const SizedBox(height: WanMapSpacing.md),
                         OutlinedButton.icon(
                           onPressed: () {
-                            // TODO: ルート一覧画面へ遷移
                             if (kDebugMode) {
-                              print('📋 Navigate to all routes screen');
+                              print('📋 Navigate to public routes screen');
                             }
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PublicRoutesScreen(),
+                              ),
+                            );
                           },
                           icon: const Icon(Icons.list),
                           label: Text('一覧を見る（${routes.length}ルート）'),
