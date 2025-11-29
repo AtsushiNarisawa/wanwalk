@@ -285,7 +285,7 @@ class HomeTab extends ConsumerWidget {
     );
   }
 
-  /// 人気の公式ルート
+  /// 人気の公式ルート（3枚 + 一覧ボタン）
   Widget _buildPopularRoutes(BuildContext context, bool isDark) {
     return Consumer(
       builder: (context, ref, child) {
@@ -309,28 +309,55 @@ class HomeTab extends ConsumerWidget {
                   if (routes.isEmpty) {
                     return _buildEmptyCard(isDark, '公式ルートがまだありません');
                   }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: routes.length,
-                    itemBuilder: (context, index) {
-                      final route = routes[index];
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: index < routes.length - 1 ? WanMapSpacing.md : 0),
-                        child: _PopularRouteCard(
-                          routeId: route['route_id'],
-                          title: route['title'] ?? '無題のルート',
-                          description: route['description'] ?? '',
-                          area: route['area'] ?? '',
-                          prefecture: route['prefecture'] ?? '',
-                          distance: (route['distance'] as num?)?.toDouble() ?? 0.0,
-                          duration: route['duration'] as int? ?? 0,
-                          likesCount: route['likes_count'] as int? ?? 0,
-                          thumbnailUrl: route['thumbnail_url'],
-                          isDark: isDark,
+                  
+                  // 最大3件表示
+                  final displayRoutes = routes.take(3).toList();
+                  
+                  return Column(
+                    children: [
+                      // ルートカード（最大3枚）
+                      ...displayRoutes.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final route = entry.value;
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            bottom: index < displayRoutes.length - 1 ? WanMapSpacing.md : 0,
+                          ),
+                          child: _PopularRouteCard(
+                            routeId: route['route_id'],
+                            title: route['route_name'] ?? '無題のルート',
+                            description: route['description'] ?? '',
+                            area: route['area_name'] ?? '',
+                            prefecture: route['prefecture'] ?? '',
+                            distance: (route['distance_meters'] as num?)?.toDouble() ?? 0.0,
+                            duration: route['estimated_minutes'] as int? ?? 0,
+                            totalWalks: route['total_walks'] as int? ?? 0,
+                            thumbnailUrl: route['thumbnail_url'],
+                            isDark: isDark,
+                          ),
+                        );
+                      }),
+                      
+                      // 一覧を見るボタン
+                      if (routes.length > 3) ...[
+                        const SizedBox(height: WanMapSpacing.md),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            // TODO: ルート一覧画面へ遷移
+                            if (kDebugMode) {
+                              print('📋 Navigate to all routes screen');
+                            }
+                          },
+                          icon: const Icon(Icons.list),
+                          label: Text('一覧を見る（${routes.length}ルート）'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: WanMapColors.accent,
+                            side: BorderSide(color: WanMapColors.accent),
+                            minimumSize: const Size(double.infinity, 48),
+                          ),
                         ),
-                      );
-                    },
+                      ],
+                    ],
                   );
                 },
                 loading: () => const SizedBox(height: 120, child: Center(child: CircularProgressIndicator())),
@@ -578,7 +605,7 @@ class _PopularRouteCard extends StatelessWidget {
   final String prefecture;
   final double distance;
   final int duration;
-  final int likesCount;
+  final int totalWalks;
   final String? thumbnailUrl;
   final bool isDark;
 
@@ -590,7 +617,7 @@ class _PopularRouteCard extends StatelessWidget {
     required this.prefecture,
     required this.distance,
     required this.duration,
-    required this.likesCount,
+    required this.totalWalks,
     this.thumbnailUrl,
     required this.isDark,
   });
@@ -669,10 +696,10 @@ class _PopularRouteCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: WanMapSpacing.sm),
-                      Icon(Icons.favorite, size: 14, color: Colors.red[300]),
+                      Icon(Icons.directions_walk, size: 14, color: WanMapColors.accent),
                       const SizedBox(width: 4),
                       Text(
-                        '$likesCount',
+                        '$totalWalks回',
                         style: WanMapTypography.bodySmall.copyWith(
                           color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                         ),
