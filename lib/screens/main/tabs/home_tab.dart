@@ -54,12 +54,29 @@ class HomeTab extends ConsumerWidget {
           children: [
             Icon(Icons.pets, color: WanMapColors.accent, size: 28),
             const SizedBox(width: WanMapSpacing.sm),
-            Text(
-              'WanMap',
-              style: WanMapTypography.headlineMedium.copyWith(
-                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'WanMap',
+                  style: WanMapTypography.headlineMedium.copyWith(
+                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    fontWeight: FontWeight.bold,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(width: WanMapSpacing.xs),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2.0),
+                  child: Text(
+                    'by DogHub 箱根',
+                    style: WanMapTypography.caption.copyWith(
+                      color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
