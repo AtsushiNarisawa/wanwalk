@@ -83,7 +83,7 @@ class HomeTab extends ConsumerWidget {
             // 2. 最新の写真付きピン投稿（横2枚）
             _buildRecentPinPosts(context, isDark),
             
-            const SizedBox(height: WanMapSpacing.xxxl),
+            const SizedBox(height: WanMapSpacing.xl),
             
             // 3. 人気の公式ルート
             _buildPopularRoutes(context, isDark),
@@ -117,7 +117,7 @@ class HomeTab extends ConsumerWidget {
             }
             
             return Container(
-              height: 200,
+              height: 280,
               width: double.infinity,
               child: FlutterMap(
                 options: MapOptions(
@@ -151,12 +151,12 @@ class HomeTab extends ConsumerWidget {
             );
           },
           loading: () => Container(
-            height: 200,
+            height: 280,
             color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
             child: const Center(child: CircularProgressIndicator()),
           ),
           error: (_, __) => Container(
-            height: 200,
+            height: 280,
             color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
             child: const Center(child: Text('マップを読み込めませんでした')),
           ),
