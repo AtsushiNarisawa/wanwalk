@@ -4,8 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../providers/area_provider.dart';
 import '../../../providers/route_provider.dart';
+import '../../../providers/recent_pins_provider.dart';
+import '../../../models/recent_pin_post.dart';
 import '../../outing/area_list_screen.dart';
 import '../../daily/daily_walking_screen.dart';
 import '../../history/walk_history_screen.dart';
@@ -13,12 +17,13 @@ import '../../outing/route_detail_screen.dart';
 import '../../notifications/notifications_screen.dart';
 import '../../favorites/favorite_routes_screen.dart';
 
-/// HomeTab - おでかけ散歩を優先
+/// HomeTab - ビジュアル重視のホーム画面
 /// 
 /// 構成:
-/// 1. おすすめエリア（カルーセル）
-/// 2. 人気の公式ルート
-/// 3. クイックアクション（4つ）
+/// 1. MAP表示（200px、最新ピン投稿中心）
+/// 2. 最新の写真付きピン投稿（横2枚）
+/// 3. 人気の公式ルート
+/// 4. おすすめエリア（3枚 + 一覧を見るボタン）
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
 
@@ -68,20 +73,23 @@ class HomeTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: WanMapSpacing.md),
+            // 1. MAP表示（200px）
+            _buildMapPreview(context, isDark),
             
-            // クイックアクション（最優先で表示）
-            _buildQuickActions(context, isDark),
+            const SizedBox(height: WanMapSpacing.lg),
             
-            const SizedBox(height: WanMapSpacing.xxxl),
-            
-            // おすすめエリア
-            _buildRecommendedAreas(context, isDark, areasAsync),
+            // 2. 最新の写真付きピン投稿（横2枚）
+            _buildRecentPinPosts(context, isDark),
             
             const SizedBox(height: WanMapSpacing.xxxl),
             
-            // 人気の公式ルート
+            // 3. 人気の公式ルート
             _buildPopularRoutes(context, isDark),
+            
+            const SizedBox(height: WanMapSpacing.xxxl),
+            
+            // 4. おすすめエリア（3枚 + 一覧ボタン）
+            _buildRecommendedAreas(context, isDark, areasAsync),
             
             const SizedBox(height: WanMapSpacing.xxxl),
           ],
@@ -90,57 +98,190 @@ class HomeTab extends ConsumerWidget {
     );
   }
 
-  /// おすすめエリア（カルーセル）
-  Widget _buildRecommendedAreas(BuildContext context, bool isDark, AsyncValue<dynamic> areasAsync) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
+  /// MAP表示（200px）
+  Widget _buildMapPreview(BuildContext context, bool isDark) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final recentPinsAsync = ref.watch(recentPinsProvider);
+        
+        // デフォルト中心位置（横浜）
+        LatLng center = const LatLng(35.4437, 139.638);
+        
+        return recentPinsAsync.when(
+          data: (pins) {
+            // 最新のピンがある場合はその位置を中心に
+            if (pins.isNotEmpty) {
+              center = pins.first.location;
+            }
+            
+            return Container(
+              height: 200,
+              width: double.infinity,
+              child: FlutterMap(
+                options: MapOptions(
+                  initialCenter: center,
+                  initialZoom: 13.0,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+                  ),
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: const ['a', 'b', 'c'],
+                  ),
+                  MarkerLayer(
+                    markers: pins.map((pin) {
+                      return Marker(
+                        point: pin.location,
+                        width: 40,
+                        height: 40,
+                        child: Icon(
+                          Icons.location_on,
+                          color: WanMapColors.accent,
+                          size: 40,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            );
+          },
+          loading: () => Container(
+            height: 200,
+            color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+          error: (_, __) => Container(
+            height: 200,
+            color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            child: const Center(child: Text('マップを読み込めませんでした')),
+          ),
+        );
+      },
+    );
+  }
+
+  /// 最新の写真付きピン投稿（横2枚）
+  Widget _buildRecentPinPosts(BuildContext context, bool isDark) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final recentPinsAsync = ref.watch(recentPinsProvider);
+        
+        return Padding(
           padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
-          child: Text(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '最新の写真付きピン投稿',
+                style: WanMapTypography.headlineSmall.copyWith(
+                  color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: WanMapSpacing.md),
+              recentPinsAsync.when(
+                data: (pins) {
+                  if (pins.isEmpty) {
+                    return _buildEmptyCard(isDark, 'まだピン投稿がありません');
+                  }
+                  return Row(
+                    children: pins.take(2).map((pin) {
+                      return Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            right: pins.indexOf(pin) == 0 ? WanMapSpacing.sm : 0,
+                            left: pins.indexOf(pin) == 1 ? WanMapSpacing.sm : 0,
+                          ),
+                          child: _RecentPinCard(
+                            pin: pin,
+                            isDark: isDark,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const SizedBox(
+                  height: 180,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (error, _) {
+                  if (kDebugMode) {
+                    print('❌ 最新ピン投稿読み込みエラー: $error');
+                  }
+                  return _buildEmptyCard(isDark, 'ピン投稿の読み込みに失敗しました');
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// おすすめエリア（3枚 + 一覧を見るボタン）
+  Widget _buildRecommendedAreas(BuildContext context, bool isDark, AsyncValue<dynamic> areasAsync) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
             'おすすめエリア',
             style: WanMapTypography.headlineSmall.copyWith(
               color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-        const SizedBox(height: WanMapSpacing.md),
-        areasAsync.when(
-          data: (areas) {
-            if (areas.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
-                child: _buildEmptyCard(isDark, 'エリアが登録されていません'),
-              );
-            }
-            return SizedBox(
-              height: 140,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
-                itemCount: areas.length,
-                itemBuilder: (context, index) {
-                  final area = areas[index];
-                  return Padding(
-                    padding: EdgeInsets.only(right: index < areas.length - 1 ? WanMapSpacing.md : 0),
+          const SizedBox(height: WanMapSpacing.md),
+          areasAsync.when(
+            data: (areas) {
+              if (areas.isEmpty) {
+                return _buildEmptyCard(isDark, 'エリアが登録されていません');
+              }
+              final displayAreas = areas.take(3).toList();
+              return Column(
+                children: [
+                  ...displayAreas.map((area) => Padding(
+                    padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
                     child: _AreaCard(
                       name: area.name,
                       isDark: isDark,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AreaListScreen())),
+                      isHorizontal: true,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AreaListScreen()),
+                      ),
                     ),
-                  );
-                },
-              ),
-            );
-          },
-          loading: () => const SizedBox(height: 140, child: Center(child: CircularProgressIndicator())),
-          error: (_, __) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
-            child: _buildEmptyCard(isDark, 'エリアの読み込みに失敗しました'),
+                  )),
+                  if (areas.length > 3)
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AreaListScreen()),
+                      ),
+                      icon: const Icon(Icons.list),
+                      label: Text('一覧を見る（${areas.length}エリア）'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: WanMapColors.accent,
+                        side: BorderSide(color: WanMapColors.accent),
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                    ),
+                ],
+              );
+            },
+            loading: () => const SizedBox(
+              height: 140,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (_, __) => _buildEmptyCard(isDark, 'エリアの読み込みに失敗しました'),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -207,63 +348,7 @@ class HomeTab extends ConsumerWidget {
     );
   }
 
-  /// クイックアクション（4つ）
-  Widget _buildQuickActions(BuildContext context, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'クイックアクション',
-            style: WanMapTypography.headlineSmall.copyWith(
-              color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: WanMapSpacing.md),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: WanMapSpacing.md,
-            mainAxisSpacing: WanMapSpacing.md,
-            childAspectRatio: 1.5,
-            children: [
-              _QuickActionCard(
-                icon: Icons.map_outlined,
-                label: 'エリアを探す',
-                color: Colors.orange,
-                isDark: isDark,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AreaListScreen())),
-              ),
-              _QuickActionCard(
-                icon: Icons.directions_walk,
-                label: '日常の散歩',
-                color: Colors.green,
-                isDark: isDark,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyWalkingScreen())),
-              ),
-              _QuickActionCard(
-                icon: Icons.favorite,
-                label: 'お気に入り',
-                color: Colors.red,
-                isDark: isDark,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoriteRoutesScreen())),
-              ),
-              _QuickActionCard(
-                icon: Icons.history,
-                label: '散歩履歴',
-                color: Colors.purple,
-                isDark: isDark,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalkHistoryScreen())),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildEmptyCard(bool isDark, String message) {
     return Container(
@@ -287,16 +372,22 @@ class HomeTab extends ConsumerWidget {
 class _AreaCard extends StatelessWidget {
   final String name;
   final bool isDark;
+  final bool isHorizontal;
   final VoidCallback onTap;
 
-  const _AreaCard({required this.name, required this.isDark, required this.onTap});
+  const _AreaCard({
+    required this.name,
+    required this.isDark,
+    this.isHorizontal = false,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 160,
+        width: isHorizontal ? double.infinity : 160,
         padding: const EdgeInsets.all(WanMapSpacing.lg),
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -306,74 +397,174 @@ class _AreaCard extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: WanMapColors.accent.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(
+              color: WanMapColors.accent.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: isHorizontal
+            ? Row(
+                children: [
+                  const Icon(Icons.location_city, color: Colors.white, size: 40),
+                  const SizedBox(width: WanMapSpacing.md),
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: WanMapTypography.bodyLarge.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.location_city, color: Colors.white, size: 40),
+                  const SizedBox(height: WanMapSpacing.sm),
+                  Text(
+                    name,
+                    style: WanMapTypography.bodyLarge.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _RecentPinCard extends StatelessWidget {
+  final RecentPinPost pin;
+  final bool isDark;
+
+  const _RecentPinCard({
+    required this.pin,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // TODO: ピン詳細画面へ遷移
+        if (kDebugMode) {
+          print('📌 Pin tapped: ${pin.title}');
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.location_city, color: Colors.white, size: 40),
-            const SizedBox(height: WanMapSpacing.sm),
-            Text(
-              name,
-              style: WanMapTypography.bodyLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            // 写真
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              child: pin.photoUrl.isNotEmpty
+                  ? Image.network(
+                      pin.photoUrl,
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildDefaultImage(),
+                    )
+                  : _buildDefaultImage(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(WanMapSpacing.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // タイトル
+                  Text(
+                    pin.title,
+                    style: WanMapTypography.bodyMedium.copyWith(
+                      color: isDark
+                          ? WanMapColors.textPrimaryDark
+                          : WanMapColors.textPrimaryLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  // ユーザー名・エリア
+                  Text(
+                    '${pin.userName} · ${pin.areaName}',
+                    style: WanMapTypography.bodySmall.copyWith(
+                      color: isDark
+                          ? WanMapColors.textSecondaryDark
+                          : WanMapColors.textSecondaryLight,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  // いいね数・相対時間
+                  Row(
+                    children: [
+                      Icon(Icons.favorite, size: 14, color: Colors.red[300]),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${pin.likesCount}',
+                        style: WanMapTypography.bodySmall.copyWith(
+                          color: isDark
+                              ? WanMapColors.textSecondaryDark
+                              : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                      const SizedBox(width: WanMapSpacing.sm),
+                      Text(
+                        pin.relativeTime,
+                        style: WanMapTypography.bodySmall.copyWith(
+                          color: isDark
+                              ? WanMapColors.textSecondaryDark
+                              : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _QuickActionCard({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
-        decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 36),
-            const SizedBox(height: WanMapSpacing.sm),
-            Text(
-              label,
-              style: WanMapTypography.bodyMedium.copyWith(
-                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
+  Widget _buildDefaultImage() {
+    return Container(
+      height: 120,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: WanMapColors.accent.withOpacity(0.2),
+      ),
+      child: Icon(
+        Icons.photo,
+        size: 48,
+        color: WanMapColors.accent,
       ),
     );
   }
