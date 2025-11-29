@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/badge.dart';
+import '../../models/badge.dart' as badge_model;
 import '../../config/wanmap_colors.dart';
 
 /// Badge Card Widget
@@ -10,7 +10,7 @@ import '../../config/wanmap_colors.dart';
 /// - Locked/Unlocked state
 /// - Unlock date (if unlocked)
 class BadgeCard extends StatelessWidget {
-  final Badge badge;
+  final badge_model.Badge badge;
 
   const BadgeCard({
     super.key,

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/route_pin.dart';
+import 'package:latlong2/latlong.dart';
 
 /// お出かけ散歩詳細を取得するサービス
 class WalkDetailService {
@@ -234,4 +235,3 @@ class WalkDetail {
 }
 
 // Import必要なクラス
-import 'package:latlong2/latlong.dart';
