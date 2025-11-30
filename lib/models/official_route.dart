@@ -111,6 +111,7 @@ class OfficialRoute {
     this.totalPins = 0,
     this.thumbnailUrl,
     this.galleryImages,
+    this.petInfo,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),

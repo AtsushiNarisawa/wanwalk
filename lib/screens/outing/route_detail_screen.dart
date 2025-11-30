@@ -85,6 +85,12 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
                   const SizedBox(height: WanMapSpacing.xl),
 
+                  // 愛犬家向け情報
+                  if (route.petInfo != null && route.petInfo!.hasAnyInfo)
+                    _buildPetInfoSection(route.petInfo!, isDark),
+
+                  const SizedBox(height: WanMapSpacing.xl),
+
                   // 散歩を開始ボタン
                   _buildStartButton(context, isDark, route),
 
@@ -444,6 +450,142 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  /// 愛犬家向け情報セクション
+  Widget _buildPetInfoSection(PetInfo petInfo, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '🐕 愛犬家向け情報',
+          style: WanMapTypography.headlineSmall.copyWith(
+            color: isDark
+                ? WanMapColors.textPrimaryDark
+                : WanMapColors.textPrimaryLight,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: WanMapSpacing.sm),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(WanMapSpacing.lg),
+          decoration: BoxDecoration(
+            color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 駐車場
+              if (petInfo.parking != null) ...[
+                _buildPetInfoItem(
+                  icon: Icons.local_parking,
+                  label: '駐車場',
+                  value: petInfo.parking!,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: WanMapSpacing.md),
+              ],
+              // 道の状態
+              if (petInfo.surface != null) ...[
+                _buildPetInfoItem(
+                  icon: Icons.landscape,
+                  label: '道の状態',
+                  value: petInfo.surface!,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: WanMapSpacing.md),
+              ],
+              // 水飲み場
+              if (petInfo.waterStation != null) ...[
+                _buildPetInfoItem(
+                  icon: Icons.water_drop,
+                  label: '水飲み場',
+                  value: petInfo.waterStation!,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: WanMapSpacing.md),
+              ],
+              // トイレ
+              if (petInfo.restroom != null) ...[
+                _buildPetInfoItem(
+                  icon: Icons.wc,
+                  label: 'トイレ',
+                  value: petInfo.restroom!,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: WanMapSpacing.md),
+              ],
+              // ペット施設
+              if (petInfo.petFacilities != null) ...[
+                _buildPetInfoItem(
+                  icon: Icons.store,
+                  label: 'ペット施設',
+                  value: petInfo.petFacilities!,
+                  isDark: isDark,
+                ),
+                const SizedBox(height: WanMapSpacing.md),
+              ],
+              // その他
+              if (petInfo.others != null) ...[
+                _buildPetInfoItem(
+                  icon: Icons.info_outline,
+                  label: 'その他',
+                  value: petInfo.others!,
+                  isDark: isDark,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 愛犬家向け情報の個別アイテム
+  Widget _buildPetInfoItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required bool isDark,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          color: WanMapColors.accent,
+          size: 24,
+        ),
+        const SizedBox(width: WanMapSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: WanMapTypography.bodySmall.copyWith(
+                  color: isDark
+                      ? WanMapColors.textSecondaryDark
+                      : WanMapColors.textSecondaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: WanMapTypography.bodyMedium.copyWith(
+                  color: isDark
+                      ? WanMapColors.textPrimaryDark
+                      : WanMapColors.textPrimaryLight,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
