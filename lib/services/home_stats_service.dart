@@ -148,8 +148,6 @@ class HomeStatsService {
           .eq('is_active', true)
           .order('display_order', ascending: true);
 
-      if (response == null) return [];
-
       return (response as List<dynamic>)
           .map((item) => AreaModel.fromJson(item))
           .toList();

@@ -24,7 +24,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           '設定',
           style: WanMapTypography.heading2,
         ),
@@ -159,11 +159,11 @@ class SettingsScreen extends ConsumerWidget {
     ThemeMode themeMode,
   ) {
     return ListTile(
-      leading: Icon(
+      leading: const Icon(
         Icons.palette_outlined,
         color: WanMapColors.accent,
       ),
-      title: Text(
+      title: const Text(
         'テーマ',
         style: WanMapTypography.body,
       ),
@@ -238,11 +238,11 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildNotificationSettings(BuildContext context, bool isDark) {
     return SwitchListTile(
-      secondary: Icon(
+      secondary: const Icon(
         Icons.notifications_outlined,
         color: WanMapColors.accent,
       ),
-      title: Text(
+      title: const Text(
         '通知',
         style: WanMapTypography.body,
       ),

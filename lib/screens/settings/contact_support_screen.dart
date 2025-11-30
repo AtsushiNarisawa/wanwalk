@@ -66,14 +66,14 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            title: Row(
+            title: const Row(
               children: [
                 Icon(Icons.check_circle, color: Colors.green, size: 28),
-                const SizedBox(width: WanMapSpacing.small),
-                const Text('送信完了'),
+                SizedBox(width: WanMapSpacing.small),
+                Text('送信完了'),
               ],
             ),
-            content: Text(
+            content: const Text(
               'お問い合わせを受け付けました。\n\n通常、2〜3営業日以内にご登録のメールアドレス宛に返信いたします。',
               style: WanMapTypography.body,
             ),
@@ -83,7 +83,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                   Navigator.of(context).pop(); // ダイアログを閉じる
                   Navigator.of(context).pop(); // 画面を閉じる
                 },
-                child: Text(
+                child: const Text(
                   'OK',
                   style: TextStyle(
                     color: WanMapColors.accent,
@@ -123,7 +123,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'お問い合わせ',
           style: WanMapTypography.heading2,
         ),
@@ -170,7 +170,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // カテゴリ選択
-                Text(
+                const Text(
                   'お問い合わせ種類',
                   style: WanMapTypography.heading3,
                 ),
@@ -208,7 +208,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // 件名
-                Text(
+                const Text(
                   '件名',
                   style: WanMapTypography.heading3,
                 ),
@@ -241,7 +241,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // お問い合わせ内容
-                Text(
+                const Text(
                   'お問い合わせ内容',
                   style: WanMapTypography.heading3,
                 ),

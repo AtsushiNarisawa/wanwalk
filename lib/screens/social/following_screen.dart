@@ -66,7 +66,7 @@ class _FollowingScreenState extends ConsumerState<FollowingScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'フォロー中',
           style: WanMapTypography.heading2,
         ),

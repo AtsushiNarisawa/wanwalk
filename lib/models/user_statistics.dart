@@ -151,9 +151,9 @@ class FavoriteRoute {
     final hours = estimatedDurationMinutes ~/ 60;
     final minutes = estimatedDurationMinutes % 60;
     if (hours > 0) {
-      return '${hours}時間${minutes}分';
+      return '$hours時間$minutes分';
     }
-    return '${minutes}分';
+    return '$minutes分';
   }
 }
 

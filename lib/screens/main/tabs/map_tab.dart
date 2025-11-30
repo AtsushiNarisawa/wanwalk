@@ -5,7 +5,6 @@ import 'package:latlong2/latlong.dart';
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
-import '../../../config/env.dart';
 import '../../../providers/gps_provider_riverpod.dart';
 import '../../../providers/official_route_provider.dart';
 import '../../../providers/area_provider.dart';

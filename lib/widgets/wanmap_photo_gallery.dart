@@ -19,13 +19,13 @@ class WanMapPhotoGallery extends StatelessWidget {
   final double aspectRatio;
 
   const WanMapPhotoGallery({
-    Key? key,
+    super.key,
     required this.imageUrls,
     this.layout = WanMapGalleryLayout.grid3,
     this.onImageTap,
     this.spacing = WanMapSpacing.xs,
     this.aspectRatio = 1.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -156,10 +156,10 @@ class WanMapPhotoViewer extends StatefulWidget {
   final int initialIndex;
 
   const WanMapPhotoViewer({
-    Key? key,
+    super.key,
     required this.imageUrls,
     this.initialIndex = 0,
-  }) : super(key: key);
+  });
 
   @override
   State<WanMapPhotoViewer> createState() => _WanMapPhotoViewerState();
@@ -271,12 +271,12 @@ class WanMapPhotoUpload extends StatelessWidget {
   final int maxPhotos;
 
   const WanMapPhotoUpload({
-    Key? key,
+    super.key,
     required this.imageUrls,
     required this.onAddPhoto,
     this.onRemovePhoto,
     this.maxPhotos = 10,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +324,7 @@ class WanMapPhotoUpload extends StatelessWidget {
                 ),
             ],
           );
-        }).toList(),
+        }),
         
         // 追加ボタン
         if (canAddMore)
@@ -345,7 +345,7 @@ class WanMapPhotoUpload extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.add_photo_alternate,
                     size: 32,
                     color: WanMapColors.textSecondaryLight,
@@ -353,7 +353,7 @@ class WanMapPhotoUpload extends StatelessWidget {
                   const SizedBox(height: WanMapSpacing.xxs),
                   Text(
                     '${imageUrls.length}/$maxPhotos',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: WanMapColors.textSecondaryLight,
                     ),

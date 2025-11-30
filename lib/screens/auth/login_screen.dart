@@ -263,7 +263,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Flexible(
+                      const Flexible(
                         child: Text(
                           'アカウントをお持ちでないですか？',
                           overflow: TextOverflow.ellipsis,
@@ -281,8 +281,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             );
                           },
                           style: TextButton.styleFrom(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            minimumSize: Size(0, 0),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            minimumSize: const Size(0, 0),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                           child: const Text(

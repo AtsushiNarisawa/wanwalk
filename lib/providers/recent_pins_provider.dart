@@ -23,14 +23,7 @@ final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
       print('📌 [RecentPinsProvider] Response: ${response.toString()}');
     }
 
-    if (response == null) {
-      if (kDebugMode) {
-        print('⚠️ [RecentPinsProvider] Response is null');
-      }
-      return [];
-    }
-
-    final List<dynamic> data = response is List ? response : [response];
+    final List<dynamic> data = response;
 
     if (kDebugMode) {
       print('📌 [RecentPinsProvider] Fetched ${data.length} recent pins');

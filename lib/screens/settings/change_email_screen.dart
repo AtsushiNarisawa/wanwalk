@@ -78,11 +78,11 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            title: Row(
+            title: const Row(
               children: [
                 Icon(Icons.check_circle, color: Colors.green, size: 28),
-                const SizedBox(width: WanMapSpacing.small),
-                const Text('確認メール送信'),
+                SizedBox(width: WanMapSpacing.small),
+                Text('確認メール送信'),
               ],
             ),
             content: Text(
@@ -95,7 +95,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                   Navigator.of(context).pop(); // ダイアログを閉じる
                   Navigator.of(context).pop(); // 画面を閉じる
                 },
-                child: Text(
+                child: const Text(
                   'OK',
                   style: TextStyle(
                     color: WanMapColors.accent,
@@ -155,7 +155,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'メールアドレス変更',
           style: WanMapTypography.heading2,
         ),
@@ -202,7 +202,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // 現在のメールアドレス表示
-                Text(
+                const Text(
                   '現在のメールアドレス',
                   style: WanMapTypography.heading3,
                 ),
@@ -225,7 +225,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // パスワード確認
-                Text(
+                const Text(
                   'パスワード',
                   style: WanMapTypography.heading3,
                 ),
@@ -268,7 +268,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // 新しいメールアドレス
-                Text(
+                const Text(
                   '新しいメールアドレス',
                   style: WanMapTypography.heading3,
                 ),

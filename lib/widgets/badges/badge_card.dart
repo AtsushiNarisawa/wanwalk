@@ -139,7 +139,7 @@ class BadgeCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
+        const Icon(
           Icons.check_circle,
           size: 14,
           color: WanMapColors.accent,
@@ -187,10 +187,10 @@ class BadgeCard extends StatelessWidget {
       return '${difference.inDays}日前に獲得';
     } else if (difference.inDays < 30) {
       final weeks = (difference.inDays / 7).floor();
-      return '${weeks}週間前に獲得';
+      return '$weeks週間前に獲得';
     } else if (difference.inDays < 365) {
       final months = (difference.inDays / 30).floor();
-      return '${months}ヶ月前に獲得';
+      return '$monthsヶ月前に獲得';
     } else {
       return '${date.year}/${date.month}/${date.day}に獲得';
     }

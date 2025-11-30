@@ -65,7 +65,7 @@ class PeriodStatistics {
     final hours = totalDuration ~/ 3600;
     final minutes = (totalDuration % 3600) ~/ 60;
     if (hours > 0) {
-      return '$hours時間${minutes}分';
+      return '$hours時間$minutes分';
     }
     return '$minutes分';
   }
@@ -311,7 +311,7 @@ class LifetimeStatistics {
     final hours = totalDuration ~/ 3600;
     final minutes = (totalDuration % 3600) ~/ 60;
     if (hours > 0) {
-      return '$hours時間${minutes}分';
+      return '$hours時間$minutes分';
     }
     return '$minutes分';
   }

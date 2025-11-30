@@ -160,8 +160,6 @@ class WalkHistoryService {
           .eq('walk_type', 'outing')
           .not('route_id', 'is', null);
 
-      if (response == null) return [];
-
       final Set<String> areaIds = {};
       for (var item in response) {
         final route = item['routes'];

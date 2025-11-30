@@ -107,7 +107,7 @@ class RouteModel {
   double calculateDistance() {
     if (points.length < 2) return 0.0;
 
-    final Distance calculator = const Distance();
+    const Distance calculator = Distance();
     double totalDistance = 0.0;
 
     for (int i = 0; i < points.length - 1; i++) {
@@ -129,7 +129,7 @@ class RouteModel {
     final minutes = (duration % 3600) ~/ 60;
 
     if (hours > 0) {
-      return '$hours時間${minutes}分';
+      return '$hours時間$minutes分';
     } else {
       return '$minutes分';
     }

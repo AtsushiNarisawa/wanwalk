@@ -66,7 +66,7 @@ class _FollowersScreenState extends ConsumerState<FollowersScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'フォロワー',
           style: WanMapTypography.heading2,
         ),

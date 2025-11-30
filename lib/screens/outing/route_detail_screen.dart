@@ -497,7 +497,7 @@ class RouteDetailScreen extends ConsumerWidget {
                         const SizedBox(height: WanMapSpacing.sm),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.favorite,
                               size: 16,
                               color: Colors.red,

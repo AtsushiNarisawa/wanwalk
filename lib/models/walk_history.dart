@@ -54,13 +54,13 @@ class OutingWalkHistory {
   /// 時間のフォーマット済み文字列
   String get formattedDuration {
     if (durationSeconds < 60) {
-      return '${durationSeconds}秒';
+      return '$durationSeconds秒';
     } else if (durationSeconds < 3600) {
       return '${(durationSeconds / 60).toStringAsFixed(0)}分';
     } else {
       final hours = durationSeconds ~/ 3600;
       final minutes = (durationSeconds % 3600) ~/ 60;
-      return '${hours}時間${minutes}分';
+      return '$hours時間$minutes分';
     }
   }
 
@@ -105,13 +105,13 @@ class DailyWalkHistory {
   /// 時間のフォーマット済み文字列
   String get formattedDuration {
     if (durationSeconds < 60) {
-      return '${durationSeconds}秒';
+      return '$durationSeconds秒';
     } else if (durationSeconds < 3600) {
       return '${(durationSeconds / 60).toStringAsFixed(0)}分';
     } else {
       final hours = durationSeconds ~/ 3600;
       final minutes = (durationSeconds % 3600) ~/ 60;
-      return '${hours}時間${minutes}分';
+      return '$hours時間$minutes分';
     }
   }
 }
@@ -184,13 +184,13 @@ class WalkHistoryItem {
   /// 時間のフォーマット済み文字列
   String get formattedDuration {
     if (durationSeconds < 60) {
-      return '${durationSeconds}秒';
+      return '$durationSeconds秒';
     } else if (durationSeconds < 3600) {
       return '${(durationSeconds / 60).toStringAsFixed(0)}分';
     } else {
       final hours = durationSeconds ~/ 3600;
       final minutes = (durationSeconds % 3600) ~/ 60;
-      return '${hours}時間${minutes}分';
+      return '$hours時間$minutes分';
     }
   }
 

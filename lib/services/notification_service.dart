@@ -146,7 +146,7 @@ class NotificationService {
           callback: (payload) {
             try {
               final notification = NotificationModel.fromMap(
-                payload.newRecord as Map<String, dynamic>,
+                payload.newRecord,
               );
               onNotification(notification);
             } catch (e) {

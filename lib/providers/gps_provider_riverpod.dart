@@ -69,13 +69,13 @@ class GpsState {
   /// 経過時間をフォーマット（分または時間:分）
   String get formattedDuration {
     if (elapsedSeconds < 60) {
-      return '${elapsedSeconds}秒';
+      return '$elapsedSeconds秒';
     } else if (elapsedSeconds < 3600) {
       return '${(elapsedSeconds / 60).toStringAsFixed(0)}分';
     } else {
       final hours = elapsedSeconds ~/ 3600;
       final minutes = (elapsedSeconds % 3600) ~/ 60;
-      return '${hours}時間${minutes}分';
+      return '$hours時間$minutes分';
     }
   }
 }

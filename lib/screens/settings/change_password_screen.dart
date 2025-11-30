@@ -114,7 +114,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'パスワード変更',
           style: WanMapTypography.heading2,
         ),
@@ -161,7 +161,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // 現在のパスワード
-                Text(
+                const Text(
                   '現在のパスワード',
                   style: WanMapTypography.heading3,
                 ),
@@ -204,7 +204,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // 新しいパスワード
-                Text(
+                const Text(
                   '新しいパスワード',
                   style: WanMapTypography.heading3,
                 ),
@@ -253,7 +253,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 const SizedBox(height: WanMapSpacing.large),
 
                 // パスワード確認
-                Text(
+                const Text(
                   'パスワード確認',
                   style: WanMapTypography.heading3,
                 ),

@@ -25,7 +25,7 @@ class DailyWalkLandingScreen extends StatelessWidget {
         elevation: 0,
         title: Row(
           children: [
-            Icon(Icons.directions_walk, color: WanMapColors.accent, size: 28),
+            const Icon(Icons.directions_walk, color: WanMapColors.accent, size: 28),
             const SizedBox(width: WanMapSpacing.sm),
             Text(
               'クイック記録',
@@ -51,7 +51,7 @@ class DailyWalkLandingScreen extends StatelessWidget {
                   color: WanMapColors.accent.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.pets,
                   size: 80,
                   color: WanMapColors.accent,
@@ -121,7 +121,7 @@ class DailyWalkLandingScreen extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: WanMapColors.accent,
                   minimumSize: const Size(double.infinity, 56),
-                  side: BorderSide(color: WanMapColors.accent, width: 2),
+                  side: const BorderSide(color: WanMapColors.accent, width: 2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

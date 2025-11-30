@@ -237,7 +237,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.info_outline,
                   color: WanMapColors.accent,
                   size: 20,

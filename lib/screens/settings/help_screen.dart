@@ -20,7 +20,7 @@ class HelpScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'ヘルプ・サポート',
           style: WanMapTypography.heading2,
         ),
@@ -281,7 +281,7 @@ class HelpScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.pets,
                 color: WanMapColors.accent,
                 size: 32,

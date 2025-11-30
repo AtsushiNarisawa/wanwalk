@@ -16,14 +16,14 @@ class WanMapHeroStat extends StatelessWidget {
   final Color? labelColor;
 
   const WanMapHeroStat({
-    Key? key,
+    super.key,
     required this.value,
     required this.unit,
     required this.label,
     this.valueColor,
     this.unitColor,
     this.labelColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -82,9 +82,9 @@ class WanMapStatsRow extends StatelessWidget {
   final List<WanMapStatItem> stats;
 
   const WanMapStatsRow({
-    Key? key,
+    super.key,
     required this.stats,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -196,14 +196,14 @@ class WanMapProgressStat extends StatelessWidget {
   final double size;
 
   const WanMapProgressStat({
-    Key? key,
+    super.key,
     required this.progress,
     required this.value,
     required this.unit,
     required this.label,
     this.progressColor,
     this.size = 120,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +229,7 @@ class WanMapProgressStat extends StatelessWidget {
               SizedBox(
                 width: size,
                 height: size,
-                child: CircularProgressIndicator(
+                child: const CircularProgressIndicator(
                   value: 1.0,
                   strokeWidth: 8,
                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -308,13 +308,13 @@ class WanMapLinearProgressStat extends StatelessWidget {
   final Color? progressColor;
 
   const WanMapLinearProgressStat({
-    Key? key,
+    super.key,
     required this.progress,
     required this.value,
     required this.unit,
     required this.label,
     this.progressColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -396,13 +396,13 @@ class WanMapComparisonStat extends StatelessWidget {
   final String? comparisonLabel; // "vs 先週" など
 
   const WanMapComparisonStat({
-    Key? key,
+    super.key,
     required this.value,
     required this.unit,
     required this.label,
     this.comparisonValue,
     this.comparisonLabel,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

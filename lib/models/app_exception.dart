@@ -29,15 +29,12 @@ class AppException implements Exception {
 /// ネットワークエラー
 class NetworkException extends AppException {
   NetworkException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalError,
-    StackTrace? stackTrace,
+    super.originalError,
+    super.stackTrace,
   }) : super(
-          message: message,
           code: code ?? 'NETWORK_ERROR',
-          originalError: originalError,
-          stackTrace: stackTrace,
         );
 
   @override
@@ -49,15 +46,12 @@ class NetworkException extends AppException {
 /// 認証エラー
 class AuthException extends AppException {
   AuthException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalError,
-    StackTrace? stackTrace,
+    super.originalError,
+    super.stackTrace,
   }) : super(
-          message: message,
           code: code ?? 'AUTH_ERROR',
-          originalError: originalError,
-          stackTrace: stackTrace,
         );
 
   @override
@@ -69,15 +63,12 @@ class AuthException extends AppException {
 /// データベースエラー
 class DatabaseException extends AppException {
   DatabaseException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalError,
-    StackTrace? stackTrace,
+    super.originalError,
+    super.stackTrace,
   }) : super(
-          message: message,
           code: code ?? 'DATABASE_ERROR',
-          originalError: originalError,
-          stackTrace: stackTrace,
         );
 
   @override
@@ -89,15 +80,12 @@ class DatabaseException extends AppException {
 /// バリデーションエラー
 class ValidationException extends AppException {
   ValidationException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalError,
-    StackTrace? stackTrace,
+    super.originalError,
+    super.stackTrace,
   }) : super(
-          message: message,
           code: code ?? 'VALIDATION_ERROR',
-          originalError: originalError,
-          stackTrace: stackTrace,
         );
 
   @override
@@ -109,15 +97,12 @@ class ValidationException extends AppException {
 /// 権限エラー
 class PermissionException extends AppException {
   PermissionException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalError,
-    StackTrace? stackTrace,
+    super.originalError,
+    super.stackTrace,
   }) : super(
-          message: message,
           code: code ?? 'PERMISSION_ERROR',
-          originalError: originalError,
-          stackTrace: stackTrace,
         );
 
   @override

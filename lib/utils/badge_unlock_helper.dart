@@ -55,23 +55,23 @@ class BadgeUnlockHelper {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(
               Icons.workspace_premium,
               color: WanMapColors.accent,
               size: 28,
             ),
-            const SizedBox(width: 8),
-            const Text('新しいバッジを獲得！'),
+            SizedBox(width: 8),
+            Text('新しいバッジを獲得！'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               '🎉',
-              style: const TextStyle(fontSize: 48),
+              style: TextStyle(fontSize: 48),
             ),
             const SizedBox(height: 16),
             Text(
@@ -118,7 +118,7 @@ class BadgeUnlockHelper {
       SnackBar(
         content: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.workspace_premium,
               color: WanMapColors.accent,
               size: 20,

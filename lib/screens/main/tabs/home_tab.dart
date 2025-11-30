@@ -11,8 +11,6 @@ import '../../../providers/route_provider.dart';
 import '../../../providers/recent_pins_provider.dart';
 import '../../../models/recent_pin_post.dart';
 import '../../outing/area_list_screen.dart';
-import '../../daily/daily_walking_screen.dart';
-import '../../history/walk_history_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../notifications/notifications_screen.dart';
 import '../../routes/public_routes_screen.dart';
@@ -52,7 +50,7 @@ class HomeTab extends ConsumerWidget {
         elevation: 0,
         title: Row(
           children: [
-            Icon(Icons.pets, color: WanMapColors.accent, size: 28),
+            const Icon(Icons.pets, color: WanMapColors.accent, size: 28),
             const SizedBox(width: WanMapSpacing.sm),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -133,7 +131,7 @@ class HomeTab extends ConsumerWidget {
               center = pins.first.location;
             }
             
-            return Container(
+            return SizedBox(
               height: 280,
               width: double.infinity,
               child: FlutterMap(
@@ -155,7 +153,7 @@ class HomeTab extends ConsumerWidget {
                         point: pin.location,
                         width: 40,
                         height: 40,
-                        child: Icon(
+                        child: const Icon(
                           Icons.location_on,
                           color: WanMapColors.accent,
                           size: 40,
@@ -283,14 +281,14 @@ class HomeTab extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
                     child: _FeaturedAreaCard(
-                      area: hakoneArea!,
+                      area: hakoneArea,
                       isDark: isDark,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => RouteListScreen(
                             areaId: hakoneArea!.id,
-                            areaName: hakoneArea!.name,
+                            areaName: hakoneArea.name,
                           ),
                         ),
                       ),
@@ -337,7 +335,7 @@ class HomeTab extends ConsumerWidget {
                     label: Text('一覧を見る（${areas.length}エリア）'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: WanMapColors.accent,
-                      side: BorderSide(color: WanMapColors.accent),
+                      side: const BorderSide(color: WanMapColors.accent),
                       minimumSize: const Size(double.infinity, 48),
                     ),
                   ),
@@ -425,7 +423,7 @@ class HomeTab extends ConsumerWidget {
                           label: Text('一覧を見る（${routes.length}ルート）'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: WanMapColors.accent,
-                            side: BorderSide(color: WanMapColors.accent),
+                            side: const BorderSide(color: WanMapColors.accent),
                             minimumSize: const Size(double.infinity, 48),
                           ),
                         ),
@@ -663,7 +661,7 @@ class _RecentPinCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: WanMapColors.accent.withOpacity(0.2),
       ),
-      child: Icon(
+      child: const Icon(
         Icons.photo,
         size: 48,
         color: WanMapColors.accent,
@@ -771,7 +769,7 @@ class _PopularRouteCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: WanMapSpacing.sm),
-                      Icon(Icons.directions_walk, size: 14, color: WanMapColors.accent),
+                      const Icon(Icons.directions_walk, size: 14, color: WanMapColors.accent),
                       const SizedBox(width: 4),
                       Text(
                         '$totalWalks回',
@@ -798,7 +796,7 @@ class _PopularRouteCard extends StatelessWidget {
         color: WanMapColors.accent.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(
+      child: const Icon(
         Icons.route,
         size: 32,
         color: WanMapColors.accent,
@@ -828,12 +826,12 @@ class _FeaturedAreaCard extends StatelessWidget {
         height: 160,
         padding: const EdgeInsets.all(WanMapSpacing.xl),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFFFF6B35),
-              const Color(0xFFFF8C42),
+              Color(0xFFFF6B35),
+              Color(0xFFFF8C42),
               WanMapColors.accent,
             ],
           ),

@@ -67,7 +67,7 @@ class RouteWalk {
     final minutes = (durationSeconds! % 3600) ~/ 60;
 
     if (hours > 0) {
-      return '$hours時間${minutes}分';
+      return '$hours時間$minutes分';
     } else {
       return '$minutes分';
     }

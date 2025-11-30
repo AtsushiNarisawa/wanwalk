@@ -145,7 +145,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // アイコン
-          Icon(
+          const Icon(
             Icons.lock_reset,
             size: 80,
             color: WanMapColors.accent,
@@ -222,7 +222,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // 成功アイコン
-        Icon(
+        const Icon(
           Icons.check_circle,
           size: 100,
           color: WanMapColors.success,
@@ -258,7 +258,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.info_outline,
                 color: WanMapColors.secondary,
                 size: 20,

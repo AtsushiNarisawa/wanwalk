@@ -23,7 +23,7 @@ class WanMapTextField extends StatelessWidget {
   final FocusNode? focusNode;
 
   const WanMapTextField({
-    Key? key,
+    super.key,
     this.controller,
     this.labelText,
     this.hintText,
@@ -38,7 +38,7 @@ class WanMapTextField extends StatelessWidget {
     this.onChanged,
     this.onTap,
     this.focusNode,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -144,12 +144,12 @@ class WanMapSearchField extends StatelessWidget {
   final VoidCallback? onClear;
 
   const WanMapSearchField({
-    Key? key,
+    super.key,
     this.controller,
     this.hintText,
     this.onChanged,
     this.onClear,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -208,11 +208,11 @@ class WanMapTagInput extends StatefulWidget {
   final String? hintText;
 
   const WanMapTagInput({
-    Key? key,
+    super.key,
     required this.tags,
     required this.onTagsChanged,
     this.hintText,
-  }) : super(key: key);
+  });
 
   @override
   State<WanMapTagInput> createState() => _WanMapTagInputState();
@@ -273,7 +273,7 @@ class _WanMapTagInputState extends State<WanMapTagInput> {
           hintText: widget.hintText ?? 'タグを追加',
           prefixIcon: Icons.label_outline,
           suffixIcon: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.add_circle,
               color: WanMapColors.accent,
             ),

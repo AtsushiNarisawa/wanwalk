@@ -20,14 +20,14 @@ class WanMapCard extends StatelessWidget {
   final EdgeInsets? padding;
 
   const WanMapCard({
-    Key? key,
+    super.key,
     this.child,
     this.onTap,
     this.backgroundColor,
     this.size = WanMapCardSize.medium,
     this.withShadow = true,
     this.padding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,13 +83,13 @@ class WanMapHeroCard extends StatelessWidget {
   final Widget? imageOverlay;
 
   const WanMapHeroCard({
-    Key? key,
+    super.key,
     this.imageUrl,
     required this.child,
     this.onTap,
     this.imageHeight = 200,
     this.imageOverlay,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -152,14 +152,14 @@ class WanMapStatCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const WanMapStatCard({
-    Key? key,
+    super.key,
     required this.value,
     required this.unit,
     required this.label,
     this.icon,
     this.color,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

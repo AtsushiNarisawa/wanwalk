@@ -16,7 +16,7 @@ class WanMapTheme {
       brightness: Brightness.light,
       
       // カラースキーム
-      colorScheme: ColorScheme.light(
+      colorScheme: const ColorScheme.light(
         primary: WanMapColors.primary,
         primaryContainer: WanMapColors.primaryLight,
         secondary: WanMapColors.secondary,
@@ -24,13 +24,11 @@ class WanMapTheme {
         tertiary: WanMapColors.accent,
         tertiaryContainer: WanMapColors.accentLight,
         error: WanMapColors.error,
-        background: WanMapColors.backgroundLight,
         surface: WanMapColors.surfaceLight,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onTertiary: Colors.white,
         onError: Colors.white,
-        onBackground: WanMapColors.textPrimaryLight,
         onSurface: WanMapColors.textPrimaryLight,
       ),
       
@@ -104,7 +102,7 @@ class WanMapTheme {
       ),
       
       // カード
-      cardTheme: CardThemeData(
+      cardTheme: const CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: WanMapSpacing.borderRadiusMD,
@@ -118,7 +116,7 @@ class WanMapTheme {
           backgroundColor: WanMapColors.accent,
           foregroundColor: Colors.white,
           padding: WanMapSpacing.buttonPadding,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: WanMapSpacing.borderRadiusXL,
           ),
           textStyle: WanMapTypography.buttonMedium,
@@ -130,7 +128,7 @@ class WanMapTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: WanMapColors.accent,
           padding: WanMapSpacing.buttonPadding,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: WanMapSpacing.borderRadiusXL,
           ),
           side: const BorderSide(
@@ -160,31 +158,31 @@ class WanMapTheme {
       ),
       
       // Input
-      inputDecorationTheme: InputDecorationTheme(
+      inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: WanMapColors.backgroundLight,
         border: OutlineInputBorder(
           borderRadius: WanMapSpacing.borderRadiusMD,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: WanMapColors.textTertiaryLight,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: WanMapSpacing.borderRadiusMD,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: WanMapColors.textTertiaryLight,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: WanMapSpacing.borderRadiusMD,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: WanMapColors.accent,
             width: 2,
           ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: WanMapSpacing.borderRadiusMD,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: WanMapColors.error,
           ),
         ),
@@ -198,13 +196,13 @@ class WanMapTheme {
         disabledColor: WanMapColors.textTertiaryLight,
         labelStyle: WanMapTypography.labelMedium,
         padding: WanMapSpacing.all(WanMapSpacing.sm),
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: WanMapSpacing.borderRadiusXL,
         ),
       ),
       
       // BottomNavigationBar
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: WanMapColors.surfaceLight,
         selectedItemColor: WanMapColors.accent,
         unselectedItemColor: WanMapColors.textSecondaryLight,
@@ -226,7 +224,7 @@ class WanMapTheme {
       brightness: Brightness.dark,
       
       // カラースキーム
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
         primary: WanMapColors.primaryLight,
         primaryContainer: WanMapColors.primary,
         secondary: WanMapColors.secondary,
@@ -234,13 +232,11 @@ class WanMapTheme {
         tertiary: WanMapColors.accentLight,
         tertiaryContainer: WanMapColors.accent,
         error: WanMapColors.error,
-        background: WanMapColors.backgroundDark,
         surface: WanMapColors.surfaceDark,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onTertiary: Colors.white,
         onError: Colors.white,
-        onBackground: WanMapColors.textPrimaryDark,
         onSurface: WanMapColors.textPrimaryDark,
       ),
       

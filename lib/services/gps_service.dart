@@ -144,7 +144,7 @@ class GpsService {
     }
     
     // テスト用：最低1ポイントあればOK（本番では2ポイント以上推奨）
-    if (_currentRoutePoints.length < 1) {
+    if (_currentRoutePoints.isEmpty) {
       if (kDebugMode) {
         print('❌ ポイントが不足しています（最低1ポイント必要）');
       }

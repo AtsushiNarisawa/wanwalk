@@ -38,8 +38,6 @@ class WalkDetailService {
           .eq('walk_type', 'outing')
           .single();
 
-      if (walkResponse == null) return null;
-
       final route = walkResponse['routes'];
       final areaName = route['area'] as String;
 
@@ -93,28 +91,26 @@ class WalkDetailService {
           .order('created_at', ascending: true);
 
       List<RoutePin> pins = [];
-      if (pinsResponse != null && pinsResponse is List) {
-        pins = (pinsResponse as List<dynamic>).map((pin) {
-          final location = _parsePostGISPoint(pin['location']);
-          final photos = (pin['route_pin_photos'] as List<dynamic>?)
-              ?.map((photo) => photo['photo_url'] as String)
-              .toList() ?? [];
+      pins = (pinsResponse as List<dynamic>).map((pin) {
+        final location = _parsePostGISPoint(pin['location']);
+        final photos = (pin['route_pin_photos'] as List<dynamic>?)
+            ?.map((photo) => photo['photo_url'] as String)
+            .toList() ?? [];
 
-          return RoutePin(
-            id: pin['id'],
-            routeId: route['id'],
-            userId: '', // ユーザーIDは不要
-            location: location,
-            pinType: PinType.fromString(pin['pin_type']),
-            title: pin['title'],
-            comment: pin['comment'],
-            likesCount: pin['likes_count'] ?? 0,
-            photoUrls: photos,
-            createdAt: DateTime.parse(pin['created_at']),
-          );
-        }).toList();
-      }
-
+        return RoutePin(
+          id: pin['id'],
+          routeId: route['id'],
+          userId: '', // ユーザーIDは不要
+          location: location,
+          pinType: PinType.fromString(pin['pin_type']),
+          title: pin['title'],
+          comment: pin['comment'],
+          likesCount: pin['likes_count'] ?? 0,
+          photoUrls: photos,
+          createdAt: DateTime.parse(pin['created_at']),
+        );
+      }).toList();
+    
       // 4. 写真一覧を取得（ピンの写真を統合）
       final allPhotos = <String>[];
       for (var pin in pins) {
@@ -156,7 +152,7 @@ class WalkDetailService {
     }
     
     // パースできない場合はデフォルト値
-    return LatLng(35.6762, 139.6503); // 東京
+    return const LatLng(35.6762, 139.6503); // 東京
   }
 }
 
@@ -200,13 +196,13 @@ class WalkDetail {
   /// 時間のフォーマット
   String get formattedDuration {
     if (durationSeconds < 60) {
-      return '${durationSeconds}秒';
+      return '$durationSeconds秒';
     } else if (durationSeconds < 3600) {
       return '${(durationSeconds / 60).toStringAsFixed(0)}分';
     } else {
       final hours = durationSeconds ~/ 3600;
       final minutes = (durationSeconds % 3600) ~/ 60;
-      return '${hours}時間${minutes}分';
+      return '$hours時間$minutes分';
     }
   }
 

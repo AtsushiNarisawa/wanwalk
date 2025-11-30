@@ -83,7 +83,7 @@ class UserWalkingProfile {
     final minutes = (totalDurationSeconds % 3600) ~/ 60;
 
     if (hours > 0) {
-      return '$hours時間${minutes}分';
+      return '$hours時間$minutes分';
     } else {
       return '$minutes分';
     }

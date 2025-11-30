@@ -129,11 +129,11 @@ class RouteService {
       distance: 3200,
       duration: 3600,
       points: [
-        RoutePoint(latLng: LatLng(35.2042, 139.0244), timestamp: now.subtract(const Duration(days: 2, hours: 3)), sequenceNumber: 0),
-        RoutePoint(latLng: LatLng(35.2048, 139.0250), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 12)), sequenceNumber: 1),
-        RoutePoint(latLng: LatLng(35.2055, 139.0258), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 24)), sequenceNumber: 2),
-        RoutePoint(latLng: LatLng(35.2062, 139.0265), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 36)), sequenceNumber: 3),
-        RoutePoint(latLng: LatLng(35.2070, 139.0272), timestamp: now.subtract(const Duration(days: 2, hours: 2)), sequenceNumber: 4),
+        RoutePoint(latLng: const LatLng(35.2042, 139.0244), timestamp: now.subtract(const Duration(days: 2, hours: 3)), sequenceNumber: 0),
+        RoutePoint(latLng: const LatLng(35.2048, 139.0250), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 12)), sequenceNumber: 1),
+        RoutePoint(latLng: const LatLng(35.2055, 139.0258), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 24)), sequenceNumber: 2),
+        RoutePoint(latLng: const LatLng(35.2062, 139.0265), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 36)), sequenceNumber: 3),
+        RoutePoint(latLng: const LatLng(35.2070, 139.0272), timestamp: now.subtract(const Duration(days: 2, hours: 2)), sequenceNumber: 4),
       ],
     );
     
@@ -146,10 +146,10 @@ class RouteService {
       distance: 1500,
       duration: 1800,
       points: [
-        RoutePoint(latLng: LatLng(35.6762, 139.6503), timestamp: now.subtract(const Duration(days: 1, hours: 5)), sequenceNumber: 0),
-        RoutePoint(latLng: LatLng(35.6765, 139.6510), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 45)), sequenceNumber: 1),
-        RoutePoint(latLng: LatLng(35.6770, 139.6515), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 37)), sequenceNumber: 2),
-        RoutePoint(latLng: LatLng(35.6775, 139.6520), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 30)), sequenceNumber: 3),
+        RoutePoint(latLng: const LatLng(35.6762, 139.6503), timestamp: now.subtract(const Duration(days: 1, hours: 5)), sequenceNumber: 0),
+        RoutePoint(latLng: const LatLng(35.6765, 139.6510), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 45)), sequenceNumber: 1),
+        RoutePoint(latLng: const LatLng(35.6770, 139.6515), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 37)), sequenceNumber: 2),
+        RoutePoint(latLng: const LatLng(35.6775, 139.6520), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 30)), sequenceNumber: 3),
       ],
     );
     
@@ -162,12 +162,12 @@ class RouteService {
       distance: 5800,
       duration: 3600,
       points: [
-        RoutePoint(latLng: LatLng(35.3000, 139.1000), timestamp: now.subtract(const Duration(hours: 2)), sequenceNumber: 0),
-        RoutePoint(latLng: LatLng(35.3010, 139.1010), timestamp: now.subtract(const Duration(hours: 1, minutes: 50)), sequenceNumber: 1),
-        RoutePoint(latLng: LatLng(35.3020, 139.1020), timestamp: now.subtract(const Duration(hours: 1, minutes: 40)), sequenceNumber: 2),
-        RoutePoint(latLng: LatLng(35.3030, 139.1030), timestamp: now.subtract(const Duration(hours: 1, minutes: 30)), sequenceNumber: 3),
-        RoutePoint(latLng: LatLng(35.3040, 139.1040), timestamp: now.subtract(const Duration(hours: 1, minutes: 20)), sequenceNumber: 4),
-        RoutePoint(latLng: LatLng(35.3050, 139.1050), timestamp: now.subtract(const Duration(hours: 1)), sequenceNumber: 5),
+        RoutePoint(latLng: const LatLng(35.3000, 139.1000), timestamp: now.subtract(const Duration(hours: 2)), sequenceNumber: 0),
+        RoutePoint(latLng: const LatLng(35.3010, 139.1010), timestamp: now.subtract(const Duration(hours: 1, minutes: 50)), sequenceNumber: 1),
+        RoutePoint(latLng: const LatLng(35.3020, 139.1020), timestamp: now.subtract(const Duration(hours: 1, minutes: 40)), sequenceNumber: 2),
+        RoutePoint(latLng: const LatLng(35.3030, 139.1030), timestamp: now.subtract(const Duration(hours: 1, minutes: 30)), sequenceNumber: 3),
+        RoutePoint(latLng: const LatLng(35.3040, 139.1040), timestamp: now.subtract(const Duration(hours: 1, minutes: 20)), sequenceNumber: 4),
+        RoutePoint(latLng: const LatLng(35.3050, 139.1050), timestamp: now.subtract(const Duration(hours: 1)), sequenceNumber: 5),
       ],
     );
     
