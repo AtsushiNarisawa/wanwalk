@@ -557,10 +557,16 @@ class _RecentPinCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // TODO: ピン詳細画面へ遷移
+        // ピンが投稿されたルートの詳細画面へ遷移
         if (kDebugMode) {
-          print('📌 Pin tapped: ${pin.title}');
+          print('📌 Pin tapped: ${pin.title} → Navigate to route: ${pin.routeName}');
         }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RouteDetailScreen(routeId: pin.routeId),
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
