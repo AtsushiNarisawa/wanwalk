@@ -75,21 +75,21 @@ class PublicRoutesScreen extends ConsumerWidget {
             ),
           ),
 
-          // マップビュー
-          if (routesWithPoints.isNotEmpty)
-            SliverToBoxAdapter(
-              child: PublicRoutesMapView(
-                routes: routesWithPoints,
-                selectedArea: selectedArea,
-                onRouteTapped: (routeId) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => RouteDetailScreen(routeId: routeId),
-                    ),
-                  );
-                },
-              ),
-            ),
+          // マップビュー（人気ルート一覧ではさまざまなエリアが混在するため非表示）
+          // if (routesWithPoints.isNotEmpty)
+          //   SliverToBoxAdapter(
+          //     child: PublicRoutesMapView(
+          //       routes: routesWithPoints,
+          //       selectedArea: selectedArea,
+          //       onRouteTapped: (routeId) {
+          //         Navigator.of(context).push(
+          //           MaterialPageRoute(
+          //             builder: (_) => RouteDetailScreen(routeId: routeId),
+          //           ),
+          //         );
+          //       },
+          //     ),
+          //   ),
 
           // セクションヘッダー
           SliverToBoxAdapter(
