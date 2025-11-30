@@ -30,6 +30,7 @@ class _MapScreenState extends State<MapScreen> {
   bool _isPaused = false;
   List<LatLng> _routePoints = [];
   DateTime? _pauseStartTime;
+  Duration _totalPauseDuration = Duration.zero;
   List<String> _tempPhotoUrls = []; // 記録中に撮影した写真のURL
 
   @override
