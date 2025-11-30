@@ -31,9 +31,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
   final MapController _mapController = MapController();
   bool _isFollowingUser = true;
   final PhotoService _photoService = PhotoService();
-  final List<String> _photoUrls = []; // 撮影した写真のURL一覧
   final List<File> _photoFiles = []; // 散歩中の写真を一時保存（散歩終了時にアップロード）
-  String? _currentWalkId; // 現在の散歩ID（保存時に設定）
 
   @override
   void initState() {

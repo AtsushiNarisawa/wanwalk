@@ -134,7 +134,7 @@ class WalkHistoryService {
           .lte('start_time', endDate.toIso8601String())
           .count();
 
-      return walkCount.count ?? 0;
+      return walkCount.count;
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching monthly walk count: $e');

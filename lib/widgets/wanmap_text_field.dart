@@ -235,9 +235,6 @@ class _WanMapTagInputState extends State<WanMapTagInput> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -254,7 +254,7 @@ class LocalNotificationService {
   Future<List<ActiveNotification>> getActiveNotifications() async {
     try {
       final List<ActiveNotification> activeNotifications =
-          await _flutterLocalNotificationsPlugin.getActiveNotifications() ?? [];
+          await _flutterLocalNotificationsPlugin.getActiveNotifications();
       debugPrint('Active notifications: ${activeNotifications.length}');
       return activeNotifications;
     } catch (e) {

@@ -67,7 +67,6 @@ class _MapTabState extends ConsumerState<MapTab> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final gpsState = ref.watch(gpsProviderRiverpod);
     final areasAsync = ref.watch(areasProvider);
 
     return Scaffold(

@@ -392,22 +392,6 @@ class RecordsTab extends ConsumerWidget {
     );
   }
 
-  /// 日付フォーマット
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays == 0) {
-      return '今日';
-    } else if (diff.inDays == 1) {
-      return '昨日';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}日前';
-    } else {
-      return '${date.month}/${date.day}';
-    }
-  }
-
   /// 日常散歩のタイトル用：日付と時間をフォーマット
   /// 例: "11月25日 11:05"
   String _formatDateTimeTitle(DateTime date) {
