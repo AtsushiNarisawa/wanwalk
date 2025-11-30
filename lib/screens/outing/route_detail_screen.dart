@@ -10,6 +10,7 @@ import '../../providers/route_pin_provider.dart';
 
 import '../../models/official_route.dart';
 import 'walking_screen.dart';
+import 'pin_detail_screen.dart';
 
 /// ルート詳細画面
 /// 公式ルートの詳細情報とピン一覧を表示
@@ -498,7 +499,13 @@ class RouteDetailScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
                   child: GestureDetector(
                     onTap: () {
-                      // TODO: ピン詳細画面へ遷移（次の修正で実装）
+                      // ピン詳細画面へ遷移
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PinDetailScreen(pin: pin),
+                        ),
+                      );
                     },
                     child: Container(
                       decoration: BoxDecoration(
