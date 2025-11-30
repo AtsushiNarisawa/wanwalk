@@ -179,11 +179,12 @@ final routeProvider = StateNotifierProvider<RouteNotifier, RouteState>((ref) {
 });
 
 /// 人気の公式ルート一覧を取得するProvider（ホーム画面用）
+/// 公式ルート（official_routes）を散歩回数（total_walks）順で取得
 final popularRoutesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
   final supabase = Supabase.instance.client;
   
   try {
-    final response = await supabase.rpc('get_popular_routes', params: {
+    final response = await supabase.rpc('get_popular_official_routes', params: {
       'p_limit': 10,
       'p_offset': 0,
     }) as List<dynamic>;
@@ -191,7 +192,7 @@ final popularRoutesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) as
     return response;
   } catch (e) {
     if (kDebugMode) {
-      print('❌ 人気ルート取得エラー: $e');
+      print('❌ 人気の公式ルート取得エラー: $e');
     }
     return [];
   }
