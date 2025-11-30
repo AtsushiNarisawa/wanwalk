@@ -133,8 +133,37 @@ class RouteDetailScreen extends ConsumerWidget {
                 ),
               ],
             ),
+          // スタート/ゴールマーカー
           MarkerLayer(
             markers: _buildMarkers(route),
+          ),
+          // ピンマーカー
+          pinsAsync.when(
+            data: (pins) {
+              return MarkerLayer(
+                markers: pins.map((pin) {
+                  return Marker(
+                    point: pin.location,
+                    width: 40,
+                    height: 40,
+                    child: Icon(
+                      Icons.location_on,
+                      color: WanMapColors.accent,
+                      size: 40,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
           ),
         ],
       ),
