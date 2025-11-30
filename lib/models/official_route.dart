@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:latlong2/latlong.dart';
 
 /// 愛犬家向け情報
@@ -154,10 +155,25 @@ class OfficialRoute {
 
   /// PostGISのPOINT型をLatLngに変換
   /// 例: "POINT(139.1071 35.2328)" → LatLng(35.2328, 139.1071)
+  /// GeoJSON: {"type":"Point","coordinates":[139.1071,35.2328]} → LatLng(35.2328, 139.1071)
   /// 注意: PostGISは経度,緯度の順番だが、LatLngは緯度,経度の順番
   static LatLng _parsePostGISPoint(dynamic pointData) {
     if (pointData == null) {
       throw ArgumentError('Point data is null');
+    }
+
+    // GeoJSON文字列の場合（ST_AsGeoJSON()の結果）
+    if (pointData is String && pointData.startsWith('{')) {
+      try {
+        final Map<String, dynamic> geoJson = json.decode(pointData);
+        final coords = geoJson['coordinates'] as List;
+        return LatLng(
+          (coords[1] as num).toDouble(), // 緯度
+          (coords[0] as num).toDouble(), // 経度
+        );
+      } catch (e) {
+        throw ArgumentError('Invalid GeoJSON Point format: $pointData, Error: $e');
+      }
     }
 
     // すでにMapの場合（Supabaseが自動変換する場合がある）
@@ -185,8 +201,27 @@ class OfficialRoute {
 
   /// PostGISのLINESTRING型をLatLngリストに変換
   /// 例: "LINESTRING(139.1071 35.2328, 139.1080 35.2335, ...)"
+  /// GeoJSON: {"type":"LineString","coordinates":[[139.1071,35.2328],...]}
   static List<LatLng>? _parsePostGISLineString(dynamic lineData) {
     if (lineData == null) return null;
+
+    // GeoJSON文字列の場合（ST_AsGeoJSON()の結果）
+    if (lineData is String && lineData.startsWith('{')) {
+      try {
+        final Map<String, dynamic> geoJson = json.decode(lineData);
+        final coords = geoJson['coordinates'] as List;
+        return coords.map((coord) {
+          final c = coord as List;
+          return LatLng(
+            (c[1] as num).toDouble(), // 緯度
+            (c[0] as num).toDouble(), // 経度
+          );
+        }).toList();
+      } catch (e) {
+        print('⚠️ Failed to parse GeoJSON LineString: $e');
+        return null;
+      }
+    }
 
     // すでにMapの場合（GeoJSON形式）
     if (lineData is Map) {
