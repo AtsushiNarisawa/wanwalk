@@ -142,7 +142,7 @@ class RouteDetailScreen extends ConsumerWidget {
           pinsAsync.when(
             data: (pins) {
               return MarkerLayer(
-                markers: pins.map((pin) {
+                markers: pins.map<Marker>((pin) {
                   return Marker(
                     point: pin.location,
                     width: 40,
