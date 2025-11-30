@@ -14,7 +14,7 @@ import 'pin_detail_screen.dart';
 
 /// ルート詳細画面
 /// 公式ルートの詳細情報とピン一覧を表示
-class RouteDetailScreen extends ConsumerWidget {
+class RouteDetailScreen extends ConsumerStatefulWidget {
   final String routeId;
 
   const RouteDetailScreen({
@@ -23,10 +23,18 @@ class RouteDetailScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RouteDetailScreen> createState() => _RouteDetailScreenState();
+}
+
+class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
+  // ピンをすべて表示するかどうかの状態
+  bool _showAllPins = false;
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final routeAsync = ref.watch(routeByIdProvider(routeId));
-    final pinsAsync = ref.watch(pinsByRouteProvider(routeId));
+    final routeAsync = ref.watch(routeByIdProvider(widget.routeId));
+    final pinsAsync = ref.watch(pinsByRouteProvider(widget.routeId));
 
     return Scaffold(
       backgroundColor: isDark
@@ -493,8 +501,14 @@ class RouteDetailScreen extends ConsumerWidget {
                 ),
               );
             }
+            // 表示するピンの数を決定
+            final displayPins = _showAllPins ? pins : pins.take(3).toList();
+            final hasMorePins = pins.length > 3;
+            
             return Column(
-              children: pins.map<Widget>((pin) {
+              children: [
+                // ピンカードリスト
+                ...displayPins.map<Widget>((pin) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
                   child: GestureDetector(
@@ -604,6 +618,31 @@ class RouteDetailScreen extends ConsumerWidget {
                   ),
                 );
               }).toList(),
+                
+                // 「もっと見る」/「閉じる」ボタン
+                if (hasMorePins)
+                  Padding(
+                    padding: const EdgeInsets.only(top: WanMapSpacing.md),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _showAllPins = !_showAllPins;
+                        });
+                      },
+                      icon: Icon(_showAllPins ? Icons.expand_less : Icons.expand_more),
+                      label: Text(
+                        _showAllPins 
+                            ? '閉じる' 
+                            : 'もっと見る (残り${pins.length - 3}件)',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: WanMapColors.accent,
+                        side: BorderSide(color: WanMapColors.accent),
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                    ),
+                  ),
+              ],
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
