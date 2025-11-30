@@ -69,12 +69,18 @@ class ProfileTab extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'プロフィール',
-          style: WanMapTypography.headlineMedium.copyWith(
-            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          children: [
+            Icon(Icons.person, color: WanMapColors.accent, size: 28),
+            const SizedBox(width: WanMapSpacing.sm),
+            Text(
+              'プロフィール',
+              style: WanMapTypography.headlineMedium.copyWith(
+                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
