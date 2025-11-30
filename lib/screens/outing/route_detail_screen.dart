@@ -9,7 +9,6 @@ import '../../providers/official_route_provider.dart';
 import '../../providers/route_pin_provider.dart';
 
 import '../../models/official_route.dart';
-import '../../models/pet_info.dart';
 import 'walking_screen.dart';
 import 'pin_detail_screen.dart';
 
