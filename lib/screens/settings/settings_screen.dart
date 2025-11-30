@@ -6,6 +6,7 @@ import '../../config/wanmap_spacing.dart';
 import '../../providers/theme_provider.dart';
 import 'change_password_screen.dart';
 import 'change_email_screen.dart';
+import 'help_screen.dart';
 
 /// 設定画面
 class SettingsScreen extends ConsumerWidget {
@@ -89,8 +90,11 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.help_outline,
                 title: 'ヘルプ・サポート',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('ヘルプ機能は準備中です')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HelpScreen(),
+                    ),
                   );
                 },
               ),
