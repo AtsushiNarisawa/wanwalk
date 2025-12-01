@@ -599,7 +599,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                         backgroundColor: WanMapColors.accent,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                          vertical: WanMapSpacing.lg,
+                          vertical: WanMapSpacing.md,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -608,15 +608,9 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.play_arrow, size: 32),
-                          SizedBox(width: WanMapSpacing.sm),
-                          Text(
-                            'スタート',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          Icon(Icons.play_arrow),
+                          SizedBox(width: WanMapSpacing.xs),
+                          Text('スタート'),
                         ],
                       ),
                     ),
