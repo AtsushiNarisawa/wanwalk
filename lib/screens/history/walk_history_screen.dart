@@ -129,9 +129,9 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
             ),
             unselectedLabelStyle: WanMapTypography.bodyMedium,
             tabs: const [
+              Tab(text: 'すべて'),
               Tab(text: 'お出かけ'),
               Tab(text: '日常'),
-              Tab(text: 'すべて'),
             ],
           ),
           
@@ -140,14 +140,14 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
             child: TabBarView(
               controller: _tabController,
               children: [
+                // すべてタブ
+                _buildAllTab(userId, isDark),
+
                 // お出かけ散歩タブ
                 _buildOutingTab(userId, isDark),
 
                 // 日常散歩タブ
                 _buildDailyTab(userId, isDark),
-
-                // すべてタブ
-                _buildAllTab(userId, isDark),
               ],
             ),
           ),
