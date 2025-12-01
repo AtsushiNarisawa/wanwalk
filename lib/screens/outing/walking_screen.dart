@@ -40,15 +40,16 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   final List<File> _photoFiles = []; // 散歩中の写真を一時保存
   bool _isFollowingUser = true;
   bool _showRouteInfo = true;
+  bool _isRecordingStarted = false; // GPS記録開始フラグ
 
   @override
   void initState() {
     super.initState();
-    _startWalking();
+    _prepareWalking(); // GPS準備のみ（記録は開始しない）
   }
 
-  /// 散歩を開始
-  Future<void> _startWalking() async {
+  /// GPS準備（権限チェックと現在地取得のみ）
+  Future<void> _prepareWalking() async {
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
     
     // GPS権限チェック
@@ -66,6 +67,14 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       return;
     }
 
+    // 現在地を取得（記録は開始しない）
+    await gpsNotifier.getCurrentLocation();
+  }
+
+  /// 散歩を開始（スタートボタン押下時）
+  Future<void> _startWalking() async {
+    final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
+    
     // GPS記録開始
     final success = await gpsNotifier.startRecording();
     if (!success) {
@@ -76,9 +85,13 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
             backgroundColor: Colors.red,
           ),
         );
-        Navigator.of(context).pop();
       }
+      return;
     }
+
+    setState(() {
+      _isRecordingStarted = true;
+    });
   }
 
   /// 散歩を終了
@@ -524,44 +537,69 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
               const SizedBox(height: WanMapSpacing.lg),
 
               // コントロールボタン
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: gpsState.isPaused
-                          ? _resumeRecording
-                          : _pauseRecording,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: gpsState.isPaused
-                            ? Colors.green
-                            : Colors.orange,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: WanMapSpacing.md,
+              _isRecordingStarted
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: gpsState.isPaused
+                                ? _resumeRecording
+                                : _pauseRecording,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: gpsState.isPaused
+                                  ? Colors.green
+                                  : Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: WanMapSpacing.md,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(gpsState.isPaused ? Icons.play_arrow : Icons.pause),
+                                const SizedBox(width: WanMapSpacing.xs),
+                                Text(gpsState.isPaused ? '再開' : '一時停止'),
+                              ],
+                            ),
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        const SizedBox(width: WanMapSpacing.md),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _finishWalking,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: WanMapColors.accent,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: WanMapSpacing.md,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check),
+                                SizedBox(width: WanMapSpacing.xs),
+                                Text('終了'),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(gpsState.isPaused ? Icons.play_arrow : Icons.pause),
-                          const SizedBox(width: WanMapSpacing.xs),
-                          Text(gpsState.isPaused ? '再開' : '一時停止'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: WanMapSpacing.md),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _finishWalking,
+                      ],
+                    )
+                  : ElevatedButton(
+                      onPressed: _startWalking,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: WanMapColors.accent,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                          vertical: WanMapSpacing.md,
+                          vertical: WanMapSpacing.lg,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -570,15 +608,18 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check),
-                          SizedBox(width: WanMapSpacing.xs),
-                          Text('終了'),
+                          Icon(Icons.play_arrow, size: 32),
+                          SizedBox(width: WanMapSpacing.sm),
+                          Text(
+                            'スタート',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
