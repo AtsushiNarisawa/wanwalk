@@ -55,6 +55,102 @@ final monthlyWalkCountProvider = FutureProvider.family<int, MonthlyCountParams>(
   },
 );
 
+/// 期間別統計モデル
+class PeriodStatistics {
+  final int totalWalks;
+  final double totalDistanceKm;
+  final int totalDurationMinutes;
+
+  PeriodStatistics({
+    required this.totalWalks,
+    required this.totalDistanceKm,
+    required this.totalDurationMinutes,
+  });
+
+  String get formattedDistance {
+    if (totalDistanceKm >= 100) {
+      return '${totalDistanceKm.toStringAsFixed(0)} km';
+    } else {
+      return '${totalDistanceKm.toStringAsFixed(1)} km';
+    }
+  }
+
+  String get formattedDuration {
+    final hours = totalDurationMinutes ~/ 60;
+    final minutes = totalDurationMinutes % 60;
+    if (hours > 0) {
+      return '$hours時間$minutes分';
+    }
+    return '$minutes分';
+  }
+}
+
+/// 1週間の統計プロバイダー
+final weeklyStatisticsProvider = FutureProvider.family<PeriodStatistics, String>(
+  (ref, userId) async {
+    final service = ref.read(walkHistoryServiceProvider);
+    final walks = await service.getAllWalkHistory(userId: userId, limit: 1000);
+    
+    // 過去7日間の散歩をフィルタリング
+    final now = DateTime.now();
+    final weekAgo = now.subtract(const Duration(days: 7));
+    
+    final weeklyWalks = walks.where((walk) {
+      return walk.walkedAt.isAfter(weekAgo);
+    }).toList();
+    
+    // 統計計算
+    final totalWalks = weeklyWalks.length;
+    final totalDistanceKm = weeklyWalks.fold<double>(
+      0.0,
+      (sum, walk) => sum + (walk.distanceMeters / 1000),
+    );
+    final totalDurationMinutes = weeklyWalks.fold<int>(
+      0,
+      (sum, walk) => sum + (walk.durationSeconds ~/ 60),
+    );
+    
+    return PeriodStatistics(
+      totalWalks: totalWalks,
+      totalDistanceKm: totalDistanceKm,
+      totalDurationMinutes: totalDurationMinutes,
+    );
+  },
+);
+
+/// 1ヶ月の統計プロバイダー
+final monthlyStatisticsProvider = FutureProvider.family<PeriodStatistics, String>(
+  (ref, userId) async {
+    final service = ref.read(walkHistoryServiceProvider);
+    final walks = await service.getAllWalkHistory(userId: userId, limit: 1000);
+    
+    // 過去30日間の散歩をフィルタリング
+    final now = DateTime.now();
+    final monthAgo = now.subtract(const Duration(days: 30));
+    
+    final monthlyWalks = walks.where((walk) {
+      return walk.walkedAt.isAfter(monthAgo);
+    }).toList();
+    
+    // 統計計算
+    final totalWalks = monthlyWalks.length;
+    final totalDistanceKm = monthlyWalks.fold<double>(
+      0.0,
+      (sum, walk) => sum + (walk.distanceMeters / 1000),
+    );
+    final totalDurationMinutes = monthlyWalks.fold<int>(
+      0,
+      (sum, walk) => sum + (walk.durationSeconds ~/ 60),
+    );
+    
+    return PeriodStatistics(
+      totalWalks: totalWalks,
+      totalDistanceKm: totalDistanceKm,
+      totalDurationMinutes: totalDurationMinutes,
+    );
+  },
+);
+
 /// 訪問済みエリアプロバイダー
 final visitedAreasProvider = FutureProvider.family<List<String>, String>(
   (ref, userId) async {

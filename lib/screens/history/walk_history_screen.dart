@@ -4,6 +4,7 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../providers/walk_history_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/history/outing_walk_history_card.dart';
 import '../../widgets/history/daily_walk_history_card.dart';
 import '../../models/walk_history.dart';
@@ -69,7 +70,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final userId = ref.watch(currentUserProvider);
+    final userId = ref.watch(currentUserIdProvider);
 
     if (userId == null) {
       return Scaffold(
@@ -109,35 +110,47 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
               ? WanMapColors.textPrimaryDark
               : WanMapColors.textPrimaryLight,
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: WanMapColors.accent,
-          labelColor: WanMapColors.accent,
-          unselectedLabelColor: isDark
-              ? WanMapColors.textSecondaryDark
-              : WanMapColors.textSecondaryLight,
-          labelStyle: WanMapTypography.bodyMedium.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-          unselectedLabelStyle: WanMapTypography.bodyMedium,
-          tabs: const [
-            Tab(text: 'お出かけ'),
-            Tab(text: '日常'),
-            Tab(text: 'すべて'),
-          ],
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          // お出かけ散歩タブ
-          _buildOutingTab(userId, isDark),
+          // サマリーエリア
+          _buildSummarySection(userId, isDark),
+          
+          // タブバー
+          TabBar(
+            controller: _tabController,
+            indicatorColor: WanMapColors.accent,
+            labelColor: WanMapColors.accent,
+            unselectedLabelColor: isDark
+                ? WanMapColors.textSecondaryDark
+                : WanMapColors.textSecondaryLight,
+            labelStyle: WanMapTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            unselectedLabelStyle: WanMapTypography.bodyMedium,
+            tabs: const [
+              Tab(text: 'お出かけ'),
+              Tab(text: '日常'),
+              Tab(text: 'すべて'),
+            ],
+          ),
+          
+          // タブコンテンツ
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // お出かけ散歩タブ
+                _buildOutingTab(userId, isDark),
 
-          // 日常散歩タブ
-          _buildDailyTab(userId, isDark),
+                // 日常散歩タブ
+                _buildDailyTab(userId, isDark),
 
-          // すべてタブ
-          _buildAllTab(userId, isDark),
+                // すべてタブ
+                _buildAllTab(userId, isDark),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -468,6 +481,63 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
     );
   }
 
+  /// サマリーセクション
+  Widget _buildSummarySection(String userId, bool isDark) {
+    final weeklyStatsAsync = ref.watch(weeklyStatisticsProvider(userId));
+    final monthlyStatsAsync = ref.watch(monthlyStatisticsProvider(userId));
+
+    return Container(
+      padding: const EdgeInsets.all(WanMapSpacing.lg),
+      decoration: BoxDecoration(
+        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 1週間の統計
+          Expanded(
+            child: weeklyStatsAsync.when(
+              data: (stats) => _SummaryCard(
+                icon: Icons.calendar_today,
+                title: '1週間',
+                walksCount: stats.totalWalks,
+                distance: stats.formattedDistance,
+                duration: stats.formattedDuration,
+                color: Colors.blue,
+                isDark: isDark,
+              ),
+              loading: () => _SummaryCardLoading(isDark: isDark),
+              error: (_, __) => _SummaryCardError(isDark: isDark),
+            ),
+          ),
+          const SizedBox(width: WanMapSpacing.md),
+          // 1ヶ月の統計
+          Expanded(
+            child: monthlyStatsAsync.when(
+              data: (stats) => _SummaryCard(
+                icon: Icons.calendar_month,
+                title: '1ヶ月',
+                walksCount: stats.totalWalks,
+                distance: stats.formattedDistance,
+                duration: stats.formattedDuration,
+                color: Colors.green,
+                isDark: isDark,
+              ),
+              loading: () => _SummaryCardLoading(isDark: isDark),
+              error: (_, __) => _SummaryCardError(isDark: isDark),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 日常散歩詳細モーダル
   void _showDailyWalkDetail(
     BuildContext context,
@@ -617,6 +687,137 @@ class _DetailRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// サマリーカード
+class _SummaryCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final int walksCount;
+  final String distance;
+  final String duration;
+  final Color color;
+  final bool isDark;
+
+  const _SummaryCard({
+    required this.icon,
+    required this.title,
+    required this.walksCount,
+    required this.distance,
+    required this.duration,
+    required this.color,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(WanMapSpacing.md),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20, color: color),
+              const SizedBox(width: WanMapSpacing.xs),
+              Text(
+                title,
+                style: WanMapTypography.bodyMedium.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: WanMapSpacing.sm),
+          Text(
+            '$walksCount回',
+            style: WanMapTypography.headlineMedium.copyWith(
+              color: isDark
+                  ? WanMapColors.textPrimaryDark
+                  : WanMapColors.textPrimaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: WanMapSpacing.xs),
+          Text(
+            distance,
+            style: WanMapTypography.bodySmall.copyWith(
+              color: isDark
+                  ? WanMapColors.textSecondaryDark
+                  : WanMapColors.textSecondaryLight,
+            ),
+          ),
+          Text(
+            duration,
+            style: WanMapTypography.bodySmall.copyWith(
+              color: isDark
+                  ? WanMapColors.textSecondaryDark
+                  : WanMapColors.textSecondaryLight,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// サマリーカードローディング
+class _SummaryCardLoading extends StatelessWidget {
+  final bool isDark;
+
+  const _SummaryCardLoading({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(WanMapSpacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Center(
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
+  }
+}
+
+/// サマリーカードエラー
+class _SummaryCardError extends StatelessWidget {
+  final bool isDark;
+
+  const _SummaryCardError({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(WanMapSpacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.error_outline,
+          size: 24,
+          color: Colors.red.withOpacity(0.5),
+        ),
+      ),
     );
   }
 }
