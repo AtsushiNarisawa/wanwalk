@@ -50,6 +50,10 @@ class WanMapColors {
   static const Color textSecondaryDark = Color(0xFFA0AEC0);
   static const Color textTertiaryDark = Color(0xFF718096);
   
+  /// ボーダーカラー
+  static const Color borderLight = Color(0xFFE2E8F0);
+  static const Color borderDark = Color(0xFF4A5568);
+  
   // ==================================================
   // ステータスカラー
   // ==================================================
