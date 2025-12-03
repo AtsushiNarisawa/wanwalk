@@ -189,7 +189,6 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
             },
           ),
         ],
-        ),
       ),
     );
   }
