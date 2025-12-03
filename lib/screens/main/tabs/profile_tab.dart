@@ -14,7 +14,7 @@ import '../../legal/terms_of_service_screen.dart';
 import '../../legal/privacy_policy_screen.dart';
 import '../../social/followers_screen.dart';
 import '../../social/following_screen.dart';
-import '../../routes/favorites_screen.dart';
+
 import '../../profile/profile_edit_screen.dart';
 import '../../dogs/dog_list_screen.dart';
 import '../../settings/settings_screen.dart';
@@ -69,12 +69,18 @@ class ProfileTab extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'プロフィール',
-          style: WanMapTypography.headlineMedium.copyWith(
-            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          children: [
+            Icon(Icons.person, color: WanMapColors.accent, size: 28),
+            const SizedBox(width: WanMapSpacing.sm),
+            Text(
+              'プロフィール',
+              style: WanMapTypography.headlineMedium.copyWith(
+                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -87,8 +93,9 @@ class ProfileTab extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('設定画面は準備中です')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
               );
             },
           ),
@@ -110,7 +117,7 @@ class ProfileTab extends ConsumerWidget {
                 const SizedBox(height: WanMapSpacing.xl),
                 
                 // ソーシャル統計
-                _buildSocialStats(context, isDark, userId),
+                _buildSocialStats(context, isDark, userId, statisticsAsync),
                 
                 const SizedBox(height: WanMapSpacing.xl),
                 
@@ -237,15 +244,16 @@ class ProfileTab extends ConsumerWidget {
   }
 
   /// ソーシャル統計
-  Widget _buildSocialStats(BuildContext context, bool isDark, String userId) {
-    return Row(
-      children: [
-        Expanded(
-          child: _SocialStatCard(
-            icon: Icons.people_outline,
-            label: 'フォロワー',
-            value: '0',
-            isDark: isDark,
+  Widget _buildSocialStats(BuildContext context, bool isDark, String userId, AsyncValue<dynamic> statisticsAsync) {
+    return statisticsAsync.when(
+      data: (stats) => Row(
+        children: [
+          Expanded(
+            child: _SocialStatCard(
+              icon: Icons.people_outline,
+              label: 'フォロワー',
+              value: '${stats.followersCount}',
+              isDark: isDark,
             onTap: () {
               Navigator.push(
                 context,
@@ -256,13 +264,13 @@ class ProfileTab extends ConsumerWidget {
             },
           ),
         ),
-        const SizedBox(width: WanMapSpacing.md),
-        Expanded(
-          child: _SocialStatCard(
-            icon: Icons.person_add_outlined,
-            label: 'フォロー中',
-            value: '0',
-            isDark: isDark,
+          const SizedBox(width: WanMapSpacing.md),
+          Expanded(
+            child: _SocialStatCard(
+              icon: Icons.person_add_outlined,
+              label: 'フォロー中',
+              value: '${stats.followingCount}',
+              isDark: isDark,
             onTap: () {
               Navigator.push(
                 context,
@@ -271,9 +279,12 @@ class ProfileTab extends ConsumerWidget {
                 ),
               );
             },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 
@@ -327,18 +338,7 @@ class ProfileTab extends ConsumerWidget {
               );
             },
           ),
-          const Divider(height: 1),
-          _MenuItem(
-            icon: Icons.favorite_outline,
-            label: 'お気に入り',
-            isDark: isDark,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
-              );
-            },
-          ),
+
           const Divider(height: 1),
           _MenuItem(
             icon: Icons.notifications_outlined,

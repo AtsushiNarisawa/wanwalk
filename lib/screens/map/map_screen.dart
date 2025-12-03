@@ -31,7 +31,7 @@ class _MapScreenState extends State<MapScreen> {
   List<LatLng> _routePoints = [];
   DateTime? _pauseStartTime;
   Duration _totalPauseDuration = Duration.zero;
-  List<String> _tempPhotoUrls = []; // 記録中に撮影した写真のURL
+  final List<String> _tempPhotoUrls = []; // 記録中に撮影した写真のURL
 
   @override
   void initState() {
@@ -269,7 +269,7 @@ class _MapScreenState extends State<MapScreen> {
           final isDark = Theme.of(context).brightness == Brightness.dark;
           
           return Dialog(
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: WanMapSpacing.borderRadiusXL,
             ),
             insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -289,7 +289,7 @@ class _MapScreenState extends State<MapScreen> {
                             color: WanMapColors.accent.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.save,
                             color: WanMapColors.accent,
                             size: 28,
@@ -373,7 +373,7 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                           Switch(
                             value: isPublic,
-                            activeColor: WanMapColors.secondary,
+                            activeThumbColor: WanMapColors.secondary,
                             onChanged: (value) {
                               setState(() => isPublic = value);
                             },
@@ -435,8 +435,8 @@ class _MapScreenState extends State<MapScreen> {
                               
                               if (title.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text('ルート名を入力してください'),
+                                  const SnackBar(
+                                    content: Text('ルート名を入力してください'),
                                     backgroundColor: WanMapColors.error,
                                   ),
                                 );
@@ -603,7 +603,7 @@ class _MapScreenState extends State<MapScreen> {
     if (_isLoading) {
       return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: WanMapColors.primaryGradient,
           ),
           child: const Center(
@@ -743,7 +743,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
               child: IconButton(
                 iconSize: 28,
-                icon: Icon(
+                icon: const Icon(
                   Icons.my_location,
                   color: WanMapColors.accent,
                 ),
@@ -805,7 +805,7 @@ class _MapScreenState extends State<MapScreen> {
                 Container(
                   width: 10,
                   height: 10,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: WanMapColors.error,
                     shape: BoxShape.circle,
                   ),

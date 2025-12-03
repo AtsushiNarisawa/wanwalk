@@ -49,7 +49,7 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           '愛犬の管理',
           style: WanMapTypography.heading2,
         ),
@@ -189,7 +189,7 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
                         ? NetworkImage(dog.photoUrl!)
                         : null,
                     child: dog.photoUrl == null
-                        ? Icon(
+                        ? const Icon(
                             Icons.pets,
                             size: 40,
                             color: WanMapColors.accent,

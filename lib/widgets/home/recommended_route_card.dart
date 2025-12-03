@@ -64,7 +64,7 @@ class RecommendedRouteCard extends StatelessWidget {
                   if (route.areaName != null)
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.location_on,
                           size: 16,
                           color: WanMapColors.accent,

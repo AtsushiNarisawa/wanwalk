@@ -251,7 +251,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'プロフィール編集',
           style: WanMapTypography.heading2,
         ),
@@ -270,7 +270,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           else
             TextButton(
               onPressed: _saveProfile,
-              child: Text(
+              child: const Text(
                 '保存',
                 style: TextStyle(
                   color: WanMapColors.accent,
@@ -308,7 +308,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                                     : CircleAvatar(
                                         radius: 60,
                                         backgroundColor: WanMapColors.accent.withOpacity(0.2),
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.person,
                                           size: 60,
                                           color: WanMapColors.accent,
@@ -321,7 +321,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                                 onTap: _isUploadingAvatar ? null : _changeAvatar,
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: WanMapColors.accent,
                                     shape: BoxShape.circle,
                                   ),
@@ -339,7 +339,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       const SizedBox(height: WanMapSpacing.large),
                       
                       // 名前入力
-                      Text(
+                      const Text(
                         '名前',
                         style: WanMapTypography.heading3,
                       ),
@@ -372,7 +372,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       const SizedBox(height: WanMapSpacing.large),
                       
                       // 自己紹介入力
-                      Text(
+                      const Text(
                         '自己紹介',
                         style: WanMapTypography.heading3,
                       ),

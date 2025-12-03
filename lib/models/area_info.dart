@@ -34,10 +34,10 @@ class AreaInfo {
       name: '箱根',
       displayName: '箱根',
       prefecture: '神奈川県',
-      center: LatLng(35.25, 139.05),
+      center: const LatLng(35.25, 139.05),
       bounds: LatLngBounds(
-        LatLng(35.15, 138.95),   // 南西（小田原市を含むよう拡大）
-        LatLng(35.35, 139.15),   // 北東（箱根全域をカバー）
+        const LatLng(35.15, 138.95),   // 南西（小田原市を含むよう拡大）
+        const LatLng(35.35, 139.15),   // 北東（箱根全域をカバー）
       ),
       description: '箱根・小田原エリアの散歩コース',
       emoji: '🏔️',
@@ -49,10 +49,10 @@ class AreaInfo {
       name: '伊豆',
       displayName: '伊豆',
       prefecture: '静岡県',
-      center: LatLng(34.95, 139.0),
+      center: const LatLng(34.95, 139.0),
       bounds: LatLngBounds(
-        LatLng(34.8, 138.8),   // 南西
-        LatLng(35.1, 139.2),   // 北東
+        const LatLng(34.8, 138.8),   // 南西
+        const LatLng(35.1, 139.2),   // 北東
       ),
       description: '伊豆半島の海岸線と温泉街',
       emoji: '🏖️',
@@ -64,10 +64,10 @@ class AreaInfo {
       name: '那須',
       displayName: '那須',
       prefecture: '栃木県',
-      center: LatLng(37.1, 140.0),
+      center: const LatLng(37.1, 140.0),
       bounds: LatLngBounds(
-        LatLng(37.0, 139.9),   // 南西
-        LatLng(37.2, 140.1),   // 北東
+        const LatLng(37.0, 139.9),   // 南西
+        const LatLng(37.2, 140.1),   // 北東
       ),
       description: '那須高原のリゾート地域',
       emoji: '♨️',
@@ -79,10 +79,10 @@ class AreaInfo {
       name: '軽井沢',
       displayName: '軽井沢',
       prefecture: '長野県',
-      center: LatLng(36.4, 138.6),
+      center: const LatLng(36.4, 138.6),
       bounds: LatLngBounds(
-        LatLng(36.3, 138.5),   // 南西
-        LatLng(36.5, 138.7),   // 北東
+        const LatLng(36.3, 138.5),   // 南西
+        const LatLng(36.5, 138.7),   // 北東
       ),
       description: '軽井沢の避暑地と森林散歩',
       emoji: '🌲',
@@ -94,10 +94,10 @@ class AreaInfo {
       name: '富士山周辺',
       displayName: '富士',
       prefecture: '山梨県',
-      center: LatLng(35.4, 138.75),
+      center: const LatLng(35.4, 138.75),
       bounds: LatLngBounds(
-        LatLng(35.3, 138.6),   // 南西
-        LatLng(35.5, 138.9),   // 北東
+        const LatLng(35.3, 138.6),   // 南西
+        const LatLng(35.5, 138.9),   // 北東
       ),
       description: '富士五湖と富士山麓エリア',
       emoji: '🗻',
@@ -109,10 +109,10 @@ class AreaInfo {
       name: '鎌倉',
       displayName: '鎌倉',
       prefecture: '神奈川県',
-      center: LatLng(35.35, 139.55),
+      center: const LatLng(35.35, 139.55),
       bounds: LatLngBounds(
-        LatLng(35.3, 139.5),   // 南西
-        LatLng(35.4, 139.6),   // 北東
+        const LatLng(35.3, 139.5),   // 南西
+        const LatLng(35.4, 139.6),   // 北東
       ),
       description: '古都鎌倉の歴史散歩コース',
       emoji: '🏯',

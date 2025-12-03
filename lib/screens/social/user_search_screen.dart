@@ -170,7 +170,7 @@ class _UserListTile extends ConsumerWidget {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: isFollowing
-                ? Theme.of(context).colorScheme.surfaceVariant
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
                 : Theme.of(context).colorScheme.primary,
             foregroundColor: isFollowing
                 ? Theme.of(context).colorScheme.onSurfaceVariant

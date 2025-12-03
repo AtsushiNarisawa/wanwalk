@@ -129,11 +129,11 @@ class RouteService {
       distance: 3200,
       duration: 3600,
       points: [
-        RoutePoint(latLng: LatLng(35.2042, 139.0244), timestamp: now.subtract(const Duration(days: 2, hours: 3)), sequenceNumber: 0),
-        RoutePoint(latLng: LatLng(35.2048, 139.0250), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 12)), sequenceNumber: 1),
-        RoutePoint(latLng: LatLng(35.2055, 139.0258), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 24)), sequenceNumber: 2),
-        RoutePoint(latLng: LatLng(35.2062, 139.0265), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 36)), sequenceNumber: 3),
-        RoutePoint(latLng: LatLng(35.2070, 139.0272), timestamp: now.subtract(const Duration(days: 2, hours: 2)), sequenceNumber: 4),
+        RoutePoint(latLng: const LatLng(35.2042, 139.0244), timestamp: now.subtract(const Duration(days: 2, hours: 3)), sequenceNumber: 0),
+        RoutePoint(latLng: const LatLng(35.2048, 139.0250), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 12)), sequenceNumber: 1),
+        RoutePoint(latLng: const LatLng(35.2055, 139.0258), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 24)), sequenceNumber: 2),
+        RoutePoint(latLng: const LatLng(35.2062, 139.0265), timestamp: now.subtract(const Duration(days: 2, hours: 3, minutes: 36)), sequenceNumber: 3),
+        RoutePoint(latLng: const LatLng(35.2070, 139.0272), timestamp: now.subtract(const Duration(days: 2, hours: 2)), sequenceNumber: 4),
       ],
     );
     
@@ -146,10 +146,10 @@ class RouteService {
       distance: 1500,
       duration: 1800,
       points: [
-        RoutePoint(latLng: LatLng(35.6762, 139.6503), timestamp: now.subtract(const Duration(days: 1, hours: 5)), sequenceNumber: 0),
-        RoutePoint(latLng: LatLng(35.6765, 139.6510), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 45)), sequenceNumber: 1),
-        RoutePoint(latLng: LatLng(35.6770, 139.6515), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 37)), sequenceNumber: 2),
-        RoutePoint(latLng: LatLng(35.6775, 139.6520), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 30)), sequenceNumber: 3),
+        RoutePoint(latLng: const LatLng(35.6762, 139.6503), timestamp: now.subtract(const Duration(days: 1, hours: 5)), sequenceNumber: 0),
+        RoutePoint(latLng: const LatLng(35.6765, 139.6510), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 45)), sequenceNumber: 1),
+        RoutePoint(latLng: const LatLng(35.6770, 139.6515), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 37)), sequenceNumber: 2),
+        RoutePoint(latLng: const LatLng(35.6775, 139.6520), timestamp: now.subtract(const Duration(days: 1, hours: 4, minutes: 30)), sequenceNumber: 3),
       ],
     );
     
@@ -162,12 +162,12 @@ class RouteService {
       distance: 5800,
       duration: 3600,
       points: [
-        RoutePoint(latLng: LatLng(35.3000, 139.1000), timestamp: now.subtract(const Duration(hours: 2)), sequenceNumber: 0),
-        RoutePoint(latLng: LatLng(35.3010, 139.1010), timestamp: now.subtract(const Duration(hours: 1, minutes: 50)), sequenceNumber: 1),
-        RoutePoint(latLng: LatLng(35.3020, 139.1020), timestamp: now.subtract(const Duration(hours: 1, minutes: 40)), sequenceNumber: 2),
-        RoutePoint(latLng: LatLng(35.3030, 139.1030), timestamp: now.subtract(const Duration(hours: 1, minutes: 30)), sequenceNumber: 3),
-        RoutePoint(latLng: LatLng(35.3040, 139.1040), timestamp: now.subtract(const Duration(hours: 1, minutes: 20)), sequenceNumber: 4),
-        RoutePoint(latLng: LatLng(35.3050, 139.1050), timestamp: now.subtract(const Duration(hours: 1)), sequenceNumber: 5),
+        RoutePoint(latLng: const LatLng(35.3000, 139.1000), timestamp: now.subtract(const Duration(hours: 2)), sequenceNumber: 0),
+        RoutePoint(latLng: const LatLng(35.3010, 139.1010), timestamp: now.subtract(const Duration(hours: 1, minutes: 50)), sequenceNumber: 1),
+        RoutePoint(latLng: const LatLng(35.3020, 139.1020), timestamp: now.subtract(const Duration(hours: 1, minutes: 40)), sequenceNumber: 2),
+        RoutePoint(latLng: const LatLng(35.3030, 139.1030), timestamp: now.subtract(const Duration(hours: 1, minutes: 30)), sequenceNumber: 3),
+        RoutePoint(latLng: const LatLng(35.3040, 139.1040), timestamp: now.subtract(const Duration(hours: 1, minutes: 20)), sequenceNumber: 4),
+        RoutePoint(latLng: const LatLng(35.3050, 139.1050), timestamp: now.subtract(const Duration(hours: 1)), sequenceNumber: 5),
       ],
     );
     
@@ -295,6 +295,66 @@ class RouteService {
     return (response as List)
         .map((json) => RouteModel.fromJson(json))
         .toList();
+  }
+
+  /// 公式ルートを検索・ソート・フィルタして取得（official_routes用）
+  Future<List<dynamic>> searchOfficialRoutes({
+    String? searchQuery,
+    String? areaId,
+    String sortBy = 'popularity', // popularity, distance_asc, distance_desc, newest, duration_asc, duration_desc
+    int limit = 100,
+  }) async {
+    try {
+      // データベースの実際のカラム名を使用
+      dynamic query = _supabase
+          .from('official_routes')
+          .select();
+
+      // エリアフィルタ
+      if (areaId != null && areaId.isNotEmpty) {
+        query = query.eq('area_id', areaId);
+      }
+
+      // 検索クエリ（ルート名・説明文）
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        query = query.or('name.ilike.%$searchQuery%,description.ilike.%$searchQuery%');
+      }
+
+      // ソート処理
+      switch (sortBy) {
+        case 'distance_asc':
+          query = query.order('distance_meters', ascending: true);
+          break;
+        case 'distance_desc':
+          query = query.order('distance_meters', ascending: false);
+          break;
+        case 'newest':
+          query = query.order('created_at', ascending: false);
+          break;
+        case 'duration_asc':
+          query = query.order('estimated_minutes', ascending: true);
+          break;
+        case 'duration_desc':
+          query = query.order('estimated_minutes', ascending: false);
+          break;
+        case 'popularity':
+        default:
+          query = query.order('total_walks', ascending: false);
+          break;
+      }
+
+      query = query.limit(limit);
+
+      final response = await query;
+      
+      return response as List;
+    } catch (e) {
+      if (kDebugMode) {
+        print('公式ルート検索エラー: $e');
+        print('エラー詳細: ${e.runtimeType}');
+      }
+      rethrow;
+    }
   }
 
 }

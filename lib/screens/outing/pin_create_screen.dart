@@ -32,7 +32,7 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
   final _commentController = TextEditingController();
   
   PinType _selectedType = PinType.scenery;
-  List<XFile> _selectedImages = [];
+  final List<XFile> _selectedImages = [];
   bool _isSubmitting = false;
 
   final ImagePicker _imagePicker = ImagePicker();
@@ -537,7 +537,7 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.location_on,
             color: WanMapColors.accent,
             size: 24,

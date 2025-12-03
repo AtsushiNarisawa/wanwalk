@@ -303,7 +303,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
           else
             TextButton(
               onPressed: _saveDog,
-              child: Text(
+              child: const Text(
                 '保存',
                 style: TextStyle(
                   color: WanMapColors.accent,
@@ -333,7 +333,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                           backgroundColor: WanMapColors.accent.withOpacity(0.2),
                           backgroundImage: _getAvatarImage(),
                           child: _getAvatarImage() == null
-                              ? Icon(
+                              ? const Icon(
                                   Icons.pets,
                                   size: 60,
                                   color: WanMapColors.accent,
@@ -355,7 +355,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                           bottom: 0,
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: WanMapColors.accent,
                               shape: BoxShape.circle,
                             ),
@@ -373,7 +373,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                 const SizedBox(height: WanMapSpacing.large),
                 
                 // 名前入力
-                Text('名前', style: WanMapTypography.heading3),
+                const Text('名前', style: WanMapTypography.heading3),
                 const SizedBox(height: WanMapSpacing.small),
                 TextFormField(
                   controller: _nameController,
@@ -396,7 +396,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                 const SizedBox(height: WanMapSpacing.medium),
                 
                 // 犬種入力
-                Text('犬種', style: WanMapTypography.heading3),
+                const Text('犬種', style: WanMapTypography.heading3),
                 const SizedBox(height: WanMapSpacing.small),
                 TextFormField(
                   controller: _breedController,
@@ -413,7 +413,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                 const SizedBox(height: WanMapSpacing.medium),
                 
                 // サイズ選択
-                Text('サイズ', style: WanMapTypography.heading3),
+                const Text('サイズ', style: WanMapTypography.heading3),
                 const SizedBox(height: WanMapSpacing.small),
                 Wrap(
                   spacing: 8,
@@ -440,7 +440,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                 const SizedBox(height: WanMapSpacing.medium),
                 
                 // 誕生日選択
-                Text('誕生日', style: WanMapTypography.heading3),
+                const Text('誕生日', style: WanMapTypography.heading3),
                 const SizedBox(height: WanMapSpacing.small),
                 InkWell(
                   onTap: _selectBirthDate,
@@ -452,7 +452,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.calendar_today,
                           color: WanMapColors.accent,
                         ),
@@ -470,7 +470,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                 const SizedBox(height: WanMapSpacing.medium),
                 
                 // 体重入力
-                Text('体重（kg）', style: WanMapTypography.heading3),
+                const Text('体重（kg）', style: WanMapTypography.heading3),
                 const SizedBox(height: WanMapSpacing.small),
                 TextFormField(
                   controller: _weightController,

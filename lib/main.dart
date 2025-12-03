@@ -2,14 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
 import 'config/wanmap_theme.dart';
 import 'config/wanmap_colors.dart';
 import 'config/env.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main/main_screen.dart';
-import 'services/notification_service.dart';
 
 void main() async {
   // Flutterバインディングの初期化
@@ -152,7 +150,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: WanMapColors.primaryGradient,
         ),
         child: FadeTransition(
@@ -176,7 +174,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                     ],
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.pets,
                     size: 70,
                     color: WanMapColors.accent,

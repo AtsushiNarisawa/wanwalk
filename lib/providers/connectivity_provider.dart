@@ -1,16 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wanmap_v2/services/connectivity_service.dart';
-// import 'package:wanmap_v2/services/sync_service.dart';
-import 'package:wanmap_v2/services/local_database_service.dart';
 
 /// 接続状態プロバイダー
-final connectivityServiceProvider = Provider((ref) => ConnectivityService());
-
-/// オンライン状態プロバイダー
-final isOnlineProvider = StreamProvider<bool>((ref) {
-  final service = ref.watch(connectivityServiceProvider);
-  return service.connectivityStream;
-});
+/// オンライン状態プロバイダー（一時的に無効化 - ConnectivityService削除済み）
+// final isOnlineProvider = StreamProvider<bool>((ref) {
+//   return service.connectivityStream;
+// });
 
 /// 同期サービスプロバイダー（一時的に無効化）
 // final syncServiceProvider = Provider((ref) => SyncService());
@@ -18,18 +12,13 @@ final isOnlineProvider = StreamProvider<bool>((ref) {
 /// 同期状態プロバイダー
 final isSyncingProvider = StateProvider<bool>((ref) => false);
 
-/// 未同期ルート数プロバイダー
-final pendingRoutesCountProvider = FutureProvider<int>((ref) async {
-  final localDb = LocalDatabaseService();
-  if (!localDb.isInitialized) return 0;
-  return await localDb.getPendingRoutesCount();
-});
+// 未同期ルート数プロバイダー（削除済み - Isar依存のため）
 
 /// 手動同期アクション（一時的に無効化）
 class SyncActions {
-  final Ref _ref;
+  // final Ref _ref; // 未使用のため削除
 
-  SyncActions(this._ref);
+  SyncActions(Ref ref);
 
   // TODO: SyncService 実装後に有効化
   // Future<SyncResult> sync() async {

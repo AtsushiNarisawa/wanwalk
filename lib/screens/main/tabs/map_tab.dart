@@ -5,7 +5,6 @@ import 'package:latlong2/latlong.dart';
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
-import '../../../config/env.dart';
 import '../../../providers/gps_provider_riverpod.dart';
 import '../../../providers/official_route_provider.dart';
 import '../../../providers/area_provider.dart';
@@ -67,7 +66,6 @@ class _MapTabState extends ConsumerState<MapTab> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final gpsState = ref.watch(gpsProviderRiverpod);
     final areasAsync = ref.watch(areasProvider);
 
     return Scaffold(
@@ -75,12 +73,18 @@ class _MapTabState extends ConsumerState<MapTab> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'マップ',
-          style: WanMapTypography.headlineMedium.copyWith(
-            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          children: [
+            Icon(Icons.explore, color: WanMapColors.accent, size: 28),
+            const SizedBox(width: WanMapSpacing.sm),
+            Text(
+              'マップ',
+              style: WanMapTypography.headlineMedium.copyWith(
+                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(

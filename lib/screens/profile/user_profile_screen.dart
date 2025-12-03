@@ -95,7 +95,7 @@ class UserProfileScreen extends ConsumerWidget {
           CircleAvatar(
             radius: 50,
             backgroundColor: WanMapColors.accent.withOpacity(0.2),
-            child: Icon(
+            child: const Icon(
               Icons.person,
               size: 50,
               color: WanMapColors.accent,
@@ -104,7 +104,7 @@ class UserProfileScreen extends ConsumerWidget {
           const SizedBox(height: WanMapSpacing.medium),
           
           // ユーザー名
-          Text(
+          const Text(
             'ユーザー名', // TODO: 実際のユーザー名を表示
             style: WanMapTypography.heading2,
           ),
@@ -244,7 +244,7 @@ class UserProfileScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             '散歩統計',
             style: WanMapTypography.heading3,
           ),
@@ -336,7 +336,7 @@ class UserProfileScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Text(
+              const Text(
                 '最近のアクティビティ',
                 style: WanMapTypography.heading3,
               ),

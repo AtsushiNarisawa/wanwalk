@@ -4,6 +4,9 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../providers/theme_provider.dart';
+import 'change_password_screen.dart';
+import 'change_email_screen.dart';
+import 'help_screen.dart';
 
 /// 設定画面
 class SettingsScreen extends ConsumerWidget {
@@ -21,7 +24,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           '設定',
           style: WanMapTypography.heading2,
         ),
@@ -50,8 +53,11 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.lock_outline,
                 title: 'パスワード変更',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('パスワード変更機能は準備中です')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ChangePasswordScreen(),
+                    ),
                   );
                 },
               ),
@@ -62,8 +68,11 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.email_outlined,
                 title: 'メールアドレス変更',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('メールアドレス変更機能は準備中です')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ChangeEmailScreen(),
+                    ),
                   );
                 },
               ),
@@ -81,8 +90,11 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.help_outline,
                 title: 'ヘルプ・サポート',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('ヘルプ機能は準備中です')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HelpScreen(),
+                    ),
                   );
                 },
               ),
@@ -147,11 +159,11 @@ class SettingsScreen extends ConsumerWidget {
     ThemeMode themeMode,
   ) {
     return ListTile(
-      leading: Icon(
+      leading: const Icon(
         Icons.palette_outlined,
         color: WanMapColors.accent,
       ),
-      title: Text(
+      title: const Text(
         'テーマ',
         style: WanMapTypography.body,
       ),
@@ -226,11 +238,11 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildNotificationSettings(BuildContext context, bool isDark) {
     return SwitchListTile(
-      secondary: Icon(
+      secondary: const Icon(
         Icons.notifications_outlined,
         color: WanMapColors.accent,
       ),
-      title: Text(
+      title: const Text(
         '通知',
         style: WanMapTypography.body,
       ),

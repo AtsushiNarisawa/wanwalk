@@ -86,7 +86,7 @@ class NotificationItem extends StatelessWidget {
                           Container(
                             width: 8,
                             height: 8,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: WanMapColors.accent,
                               shape: BoxShape.circle,
                             ),

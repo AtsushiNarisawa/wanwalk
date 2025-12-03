@@ -108,8 +108,6 @@ class SocialService {
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
 
-      if (response == null) return [];
-
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) {
         final followerData = item['follower'] as Map<String, dynamic>;
@@ -136,8 +134,6 @@ class SocialService {
           .eq('follower_id', userId)
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
-
-      if (response == null) return [];
 
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) {

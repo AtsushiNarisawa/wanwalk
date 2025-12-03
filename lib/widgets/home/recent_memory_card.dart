@@ -171,7 +171,7 @@ class RecentMemoryCard extends StatelessWidget {
     } else if (difference == 1) {
       return '昨日';
     } else if (difference < 7) {
-      return '${difference}日前';
+      return '$difference日前';
     } else {
       return DateFormat('M/d').format(date);
     }

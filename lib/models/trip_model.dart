@@ -92,7 +92,7 @@ class TripModel {
   String get statsSummary {
     final days = durationDays;
     final routes = routeCount ?? 0;
-    return '$days日間・${routes}ルート';
+    return '$days日間・$routesルート';
   }
 
   /// コピーを作成（一部フィールドを更新）

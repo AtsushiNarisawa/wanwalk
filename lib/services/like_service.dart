@@ -1,5 +1,4 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:wanmap_v2/models/like_model.dart';
 
 class LikeService {
   final _supabase = Supabase.instance.client;

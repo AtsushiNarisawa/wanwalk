@@ -38,7 +38,7 @@ class UserListItem extends ConsumerWidget {
             CircleAvatar(
               radius: 24,
               backgroundColor: WanMapColors.accent.withOpacity(0.2),
-              child: Icon(
+              child: const Icon(
                 Icons.person,
                 color: WanMapColors.accent,
               ),

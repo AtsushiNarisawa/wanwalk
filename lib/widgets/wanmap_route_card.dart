@@ -23,7 +23,7 @@ class WanMapRouteCard extends StatelessWidget {
   final VoidCallback? onLike;
 
   const WanMapRouteCard({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     required this.distance,
@@ -36,7 +36,7 @@ class WanMapRouteCard extends StatelessWidget {
     this.isLiked = false,
     this.onTap,
     this.onLike,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +249,7 @@ class WanMapRouteCard extends StatelessWidget {
         // 時間
         _StatItem(
           icon: Icons.access_time,
-          value: '${duration}分',
+          value: '$duration分',
           color: secondaryTextColor,
         ),
         
@@ -309,11 +309,10 @@ class _StatItem extends StatelessWidget {
   final Color color;
 
   const _StatItem({
-    Key? key,
     required this.icon,
     required this.value,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -342,13 +341,13 @@ class WanMapRouteCardCompact extends StatelessWidget {
   final VoidCallback? onTap;
 
   const WanMapRouteCardCompact({
-    Key? key,
+    super.key,
     required this.title,
     required this.distance,
     required this.duration,
     this.thumbnailUrl,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -441,7 +440,7 @@ class WanMapRouteCardCompact extends StatelessWidget {
                       ),
                       const SizedBox(width: WanMapSpacing.xxs),
                       Text(
-                        '${duration}分',
+                        '$duration分',
                         style: WanMapTypography.labelSmall.copyWith(
                           color: secondaryTextColor,
                         ),

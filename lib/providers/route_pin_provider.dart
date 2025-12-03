@@ -11,17 +11,38 @@ final _supabase = Supabase.instance.client;
 final pinsByRouteProvider = FutureProvider.family<List<RoutePin>, String>(
   (ref, routeId) async {
     try {
-      // route_pinsテーブルからピンを取得
+      // route_pinsテーブルからピンを取得（locationフィールドは除外）
       final pinsResponse = await _supabase
           .from('route_pins')
-          .select()
+          .select('id, route_id, user_id, pin_type, title, comment, likes_count, created_at')
           .eq('route_id', routeId)
           .order('created_at', ascending: false);
 
-      final pins = (pinsResponse as List).map((json) {
-        // 写真URLを別途取得（JOINしていない場合）
-        return RoutePin.fromJson(json);
-      }).toList();
+      final pins = <RoutePin>[];
+      
+      for (var json in (pinsResponse as List)) {
+        try {
+          // 位置情報を手動で取得（WKB形式を回避）
+          final pinId = json['id'];
+          final locationQuery = await _supabase.rpc(
+            'get_pin_location',
+            params: {'pin_id': pinId}
+          );
+          
+          // locationQueryからlat/lonを取得してjsonに追加
+          if (locationQuery != null && locationQuery is List && locationQuery.isNotEmpty) {
+            final locationData = locationQuery[0];
+            json['pin_lat'] = locationData['latitude'];
+            json['pin_lon'] = locationData['longitude'];
+          }
+          
+          pins.add(RoutePin.fromJson(json));
+        } catch (e) {
+          if (kDebugMode) {
+            print('Failed to parse pin: $e');
+          }
+        }
+      }
 
       // 各ピンの写真URLを取得
       for (var pin in pins) {
@@ -123,6 +144,21 @@ class CreatePinUseCase {
         'title': title,
         'comment': comment,
       }).select().single();
+      
+      // 位置情報を手動で取得（WKB形式を回避）
+      final pinId = pinResponse['id'];
+      final locationQuery = await _supabase.rpc(
+        'get_pin_location',
+        params: {'pin_id': pinId}
+      );
+      
+      // locationQueryからlat/lonを取得してpinResponseに追加
+      // RPC関数はTABLEを返すため、結果は配列形式
+      if (locationQuery != null && locationQuery is List && locationQuery.isNotEmpty) {
+        final locationData = locationQuery[0];  // 最初の行を取得
+        pinResponse['pin_lat'] = locationData['latitude'];
+        pinResponse['pin_lon'] = locationData['longitude'];
+      }
 
       if (kDebugMode) {
         print('✅ ピンレコード作成成功: ${pinResponse['id']}');

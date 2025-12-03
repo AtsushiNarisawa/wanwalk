@@ -58,16 +58,32 @@ class RoutePin {
   /// Supabaseから取得したJSONをRoutePinオブジェクトに変換
   factory RoutePin.fromJson(Map<String, dynamic> json) {
     // location: PostGISのPOINT型をパース
-    final locationData = json['location'];
     LatLng location;
+    
+    // まずpin_lat/pin_lonをチェック（手動追加された場合）
+    if (json['pin_lat'] != null && json['pin_lon'] != null) {
+      location = LatLng(
+        (json['pin_lat'] as num).toDouble(),
+        (json['pin_lon'] as num).toDouble(),
+      );
+    } else {
+      final locationData = json['location'];
 
-    if (locationData is Map) {
+      if (locationData is Map) {
       final coords = locationData['coordinates'] as List;
       location = LatLng(
         (coords[1] as num).toDouble(), // 緯度
         (coords[0] as num).toDouble(), // 経度
       );
-    } else if (locationData is String) {
+      } else if (locationData is String) {
+      // WKB形式（16進数バイナリ）はスキップして、座標を直接取得できない場合はnullを返す
+      // Supabaseの.select()でGeoJSON形式を要求するように修正が必要
+      if (locationData.startsWith('0101000020')) {
+        // WKB形式の場合はエラーをスローせず、デフォルト位置を使用
+        // TODO: Supabaseクエリで ST_AsGeoJSON(location) を使用して回避
+        throw ArgumentError('WKB format not supported. Use ST_AsGeoJSON in Supabase query: $locationData');
+      }
+      
       // WKT形式: "POINT(139.1071 35.2328)"
       final coordsMatch = RegExp(r'POINT\(([0-9.\-]+)\s+([0-9.\-]+)\)').firstMatch(locationData);
       if (coordsMatch != null) {
@@ -77,8 +93,9 @@ class RoutePin {
       } else {
         throw ArgumentError('Invalid PostGIS Point format: $locationData');
       }
-    } else {
-      throw ArgumentError('Invalid location data type: ${locationData.runtimeType}');
+      } else {
+        throw ArgumentError('Invalid location data type: ${locationData.runtimeType}');
+      }
     }
 
     // photo_urlsは別テーブル（route_pin_photos）から取得される場合がある

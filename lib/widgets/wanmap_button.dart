@@ -29,7 +29,7 @@ class WanMapButton extends StatelessWidget {
   final bool loading;
 
   const WanMapButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onPressed,
     this.size = WanMapButtonSize.medium,
@@ -37,7 +37,7 @@ class WanMapButton extends StatelessWidget {
     this.icon,
     this.fullWidth = false,
     this.loading = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -174,13 +174,13 @@ class WanMapFAB extends StatelessWidget {
   final String? tooltip;
 
   const WanMapFAB({
-    Key? key,
+    super.key,
     required this.icon,
     this.onPressed,
     this.backgroundColor,
     this.foregroundColor,
     this.tooltip,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

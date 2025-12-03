@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 class Area {
   final String id;
   final String name;
+  final String prefecture;
   final String description;
   final LatLng centerLocation;
   final DateTime createdAt;
@@ -13,6 +14,7 @@ class Area {
   Area({
     required this.id,
     required this.name,
+    required this.prefecture,
     required this.description,
     required this.centerLocation,
     DateTime? createdAt,
@@ -35,6 +37,7 @@ class Area {
     return Area(
       id: json['id'] as String,
       name: json['name'] as String,
+      prefecture: json['prefecture'] as String? ?? '',
       description: json['description'] as String? ?? '',
       centerLocation: LatLng(latitude, longitude),
       createdAt: json['created_at'] != null
@@ -48,6 +51,7 @@ class Area {
     return {
       'id': id,
       'name': name,
+      'prefecture': prefecture,
       'description': description,
       'center_latitude': centerLocation.latitude,
       'center_longitude': centerLocation.longitude,
@@ -58,6 +62,7 @@ class Area {
   Area copyWith({
     String? id,
     String? name,
+    String? prefecture,
     String? description,
     LatLng? centerLocation,
     DateTime? createdAt,
@@ -65,6 +70,7 @@ class Area {
     return Area(
       id: id ?? this.id,
       name: name ?? this.name,
+      prefecture: prefecture ?? this.prefecture,
       description: description ?? this.description,
       centerLocation: centerLocation ?? this.centerLocation,
       createdAt: createdAt ?? this.createdAt,

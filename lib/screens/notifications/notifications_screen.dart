@@ -69,7 +69,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       appBar: AppBar(
         backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           '通知',
           style: WanMapTypography.heading2,
         ),

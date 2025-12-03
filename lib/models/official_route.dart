@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
 
 /// 難易度レベル
@@ -38,7 +40,9 @@ class OfficialRoute {
   final double distanceMeters;
   final int estimatedMinutes;
   final DifficultyLevel difficultyLevel;
+  final double? elevationGainMeters; // 標高差（メートル）
   final int totalPins; // このルートに投稿されたピンの総数
+  final int totalWalks; // このルートを歩いた回数
   final String? thumbnailUrl; // ルート一覧用のサムネイル画像
   final List<String>? galleryImages; // ルート詳細用のギャラリー画像（3枚）
   final DateTime createdAt;
@@ -55,7 +59,9 @@ class OfficialRoute {
     required this.distanceMeters,
     required this.estimatedMinutes,
     required this.difficultyLevel,
+    this.elevationGainMeters,
     this.totalPins = 0,
+    this.totalWalks = 0,
     this.thumbnailUrl,
     this.galleryImages,
     DateTime? createdAt,
@@ -81,7 +87,11 @@ class OfficialRoute {
       difficultyLevel: DifficultyLevel.fromString(
         json['difficulty_level'] as String? ?? 'easy',
       ),
+      elevationGainMeters: json['elevation_gain_meters'] != null
+          ? (json['elevation_gain_meters'] as num).toDouble()
+          : null,
       totalPins: json['total_pins'] as int? ?? 0,
+      totalWalks: json['total_walks'] as int? ?? 0,
       thumbnailUrl: json['thumbnail_url'] as String?,
       galleryImages: json['gallery_images'] != null
           ? (json['gallery_images'] as List).map((e) => e as String).toList()
@@ -97,13 +107,15 @@ class OfficialRoute {
 
   /// PostGISのPOINT型をLatLngに変換
   /// 例: "POINT(139.1071 35.2328)" → LatLng(35.2328, 139.1071)
+  /// WKB形式（16進数バイナリ）: "0101000020E6100000..." → LatLng
+  /// GeoJSON形式: {"type":"Point","coordinates":[139.0272,35.1993]}
   /// 注意: PostGISは経度,緯度の順番だが、LatLngは緯度,経度の順番
   static LatLng _parsePostGISPoint(dynamic pointData) {
     if (pointData == null) {
       throw ArgumentError('Point data is null');
     }
 
-    // すでにMapの場合（Supabaseが自動変換する場合がある）
+    // すでにMapの場合（GeoJSON形式）
     if (pointData is Map) {
       final coords = pointData['coordinates'] as List;
       return LatLng(
@@ -112,9 +124,28 @@ class OfficialRoute {
       );
     }
 
-    // WKT文字列の場合
+    // 文字列の場合
     if (pointData is String) {
-      // "POINT(139.1071 35.2328)" から座標を抽出
+      // WKB形式（16進数バイナリ）の場合
+      if (pointData.startsWith('01') && pointData.length > 20) {
+        return _parseWKBPoint(pointData);
+      }
+      
+      // GeoJSON文字列の場合（JSON文字列として渡される場合）
+      if (pointData.contains('"type"') && pointData.contains('"coordinates"')) {
+        try {
+          final Map<String, dynamic> geoJson = json.decode(pointData);
+          final coords = geoJson['coordinates'] as List;
+          return LatLng(
+            (coords[1] as num).toDouble(), // 緯度
+            (coords[0] as num).toDouble(), // 経度
+          );
+        } catch (e) {
+          print('❌ Failed to parse GeoJSON string: $e');
+        }
+      }
+      
+      // WKT形式の場合: "POINT(139.1071 35.2328)"
       final coordsMatch = RegExp(r'POINT\(([0-9.\-]+)\s+([0-9.\-]+)\)').firstMatch(pointData);
       if (coordsMatch != null) {
         final lon = double.parse(coordsMatch.group(1)!);
@@ -126,8 +157,51 @@ class OfficialRoute {
     throw ArgumentError('Invalid PostGIS Point format: $pointData');
   }
 
+  /// WKB形式（Well-Known Binary）のPOINTをパース
+  /// フォーマット: 0101000020E6100000 + 16バイト（経度8バイト+緯度8バイト）
+  static LatLng _parseWKBPoint(String wkbHex) {
+    try {
+      // WKBヘッダーをスキップ（最初の20文字 = 10バイト）
+      // フォーマット: バイトオーダー(1) + 型(4) + SRID(4) = 9バイト → 18文字
+      // 実際には20文字スキップで座標データ開始
+      final coordsHex = wkbHex.substring(18);
+      
+      // 経度（最初の8バイト = 16文字）
+      final lonHex = coordsHex.substring(0, 16);
+      // 緯度（次の8バイト = 16文字）
+      final latHex = coordsHex.substring(16, 32);
+      
+      // リトルエンディアンのdouble値に変換
+      final lon = _hexToDouble(lonHex);
+      final lat = _hexToDouble(latHex);
+      
+      return LatLng(lat, lon);
+    } catch (e) {
+      throw ArgumentError('Failed to parse WKB Point: $wkbHex, error: $e');
+    }
+  }
+
+  /// 16進数文字列をdoubleに変換（リトルエンディアン）
+  static double _hexToDouble(String hex) {
+    // 2文字ずつ（1バイト）に分割してリトルエンディアンで並び替え
+    final bytes = <int>[];
+    for (int i = hex.length - 2; i >= 0; i -= 2) {
+      bytes.add(int.parse(hex.substring(i, i + 2), radix: 16));
+    }
+    
+    // バイト列をdoubleに変換
+    final buffer = bytes.sublist(0, 8);
+    final byteData = ByteData(8);
+    for (int i = 0; i < 8; i++) {
+      byteData.setUint8(i, buffer[i]);
+    }
+    return byteData.getFloat64(0, Endian.little);
+  }
+
   /// PostGISのLINESTRING型をLatLngリストに変換
   /// 例: "LINESTRING(139.1071 35.2328, 139.1080 35.2335, ...)"
+  /// WKB形式: "0102000020E6100000..." → List<LatLng>
+  /// GeoJSON形式: {"type":"LineString","coordinates":[[139.1071,35.2328],...]}
   static List<LatLng>? _parsePostGISLineString(dynamic lineData) {
     if (lineData == null) return null;
 
@@ -143,8 +217,32 @@ class OfficialRoute {
       }).toList();
     }
 
-    // WKT文字列の場合
+    // 文字列の場合
     if (lineData is String) {
+      // WKB形式（16進数バイナリ）の場合
+      if (lineData.startsWith('01') && lineData.length > 20) {
+        return _parseWKBLineString(lineData);
+      }
+      
+      // GeoJSON文字列の場合
+      if (lineData.contains('"type"') && lineData.contains('"coordinates"')) {
+        try {
+          final Map<String, dynamic> geoJson = json.decode(lineData);
+          final coords = geoJson['coordinates'] as List;
+          return coords.map((coord) {
+            final c = coord as List;
+            return LatLng(
+              (c[1] as num).toDouble(), // 緯度
+              (c[0] as num).toDouble(), // 経度
+            );
+          }).toList();
+        } catch (e) {
+          print('❌ Failed to parse GeoJSON LineString: $e');
+          return null;
+        }
+      }
+      
+      // WKT形式の場合: "LINESTRING(139.1071 35.2328, ...)"
       final coordsMatch = RegExp(r'LINESTRING\(([^)]+)\)').firstMatch(lineData);
       if (coordsMatch != null) {
         final coordsStr = coordsMatch.group(1)!;
@@ -159,6 +257,53 @@ class OfficialRoute {
     }
 
     return null;
+  }
+
+  /// WKB形式（Well-Known Binary）のLINESTRINGをパース
+  /// フォーマット: バイトオーダー(1) + 型(4) + SRID(4) + ポイント数(4) + 座標データ
+  static List<LatLng> _parseWKBLineString(String wkbHex) {
+    try {
+      // バイトオーダー(2) + 型(8) + SRID(8) = 18文字
+      // ポイント数は18文字目から8文字（4バイト）
+      final numPointsHex = wkbHex.substring(18, 26);
+      final numPoints = _hexToInt32(numPointsHex);
+      
+      // 座標データは26文字目から開始
+      // 各ポイントは16バイト（32文字）= 経度8バイト + 緯度8バイト
+      final points = <LatLng>[];
+      for (int i = 0; i < numPoints; i++) {
+        final offset = 26 + (i * 32);
+        if (offset + 32 > wkbHex.length) {
+          print('❌ WKB LineString: データ不足（offset=$offset, length=${wkbHex.length}）');
+          break;
+        }
+        
+        final lonHex = wkbHex.substring(offset, offset + 16);
+        final latHex = wkbHex.substring(offset + 16, offset + 32);
+        
+        final lon = _hexToDouble(lonHex);
+        final lat = _hexToDouble(latHex);
+        points.add(LatLng(lat, lon));
+      }
+      
+      return points;
+    } catch (e) {
+      print('❌ Failed to parse WKB LineString: $e');
+      return [];
+    }
+  }
+
+  /// 16進数文字列を32bit整数に変換（リトルエンディアン）
+  /// 例: "05000000" → 5
+  static int _hexToInt32(String hex) {
+    // リトルエンディアン: 下位バイトから順に並ぶ
+    // "05000000" = 05 00 00 00 (bytes) → 0x00000005 = 5
+    final byteData = ByteData(4);
+    for (int i = 0; i < 4; i++) {
+      final byteHex = hex.substring(i * 2, i * 2 + 2);
+      byteData.setUint8(i, int.parse(byteHex, radix: 16));
+    }
+    return byteData.getInt32(0, Endian.little);
   }
 
   /// OfficialRouteオブジェクトをJSON形式に変換
@@ -227,7 +372,9 @@ class OfficialRoute {
     double? distanceMeters,
     int? estimatedMinutes,
     DifficultyLevel? difficultyLevel,
+    double? elevationGainMeters,
     int? totalPins,
+    int? totalWalks,
     String? thumbnailUrl,
     List<String>? galleryImages,
     DateTime? createdAt,
@@ -244,7 +391,9 @@ class OfficialRoute {
       distanceMeters: distanceMeters ?? this.distanceMeters,
       estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
       difficultyLevel: difficultyLevel ?? this.difficultyLevel,
+      elevationGainMeters: elevationGainMeters ?? this.elevationGainMeters,
       totalPins: totalPins ?? this.totalPins,
+      totalWalks: totalWalks ?? this.totalWalks,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       galleryImages: galleryImages ?? this.galleryImages,
       createdAt: createdAt ?? this.createdAt,

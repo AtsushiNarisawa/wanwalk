@@ -134,7 +134,7 @@ class WalkHistoryService {
           .lte('start_time', endDate.toIso8601String())
           .count();
 
-      return walkCount.count ?? 0;
+      return walkCount.count;
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching monthly walk count: $e');
@@ -159,8 +159,6 @@ class WalkHistoryService {
           .eq('user_id', userId)
           .eq('walk_type', 'outing')
           .not('route_id', 'is', null);
-
-      if (response == null) return [];
 
       final Set<String> areaIds = {};
       for (var item in response) {
