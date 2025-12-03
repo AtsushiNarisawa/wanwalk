@@ -115,10 +115,6 @@ class OfficialRoute {
       throw ArgumentError('Point data is null');
     }
 
-    // デバッグログ追加
-    print('🔍 pointData type: ${pointData.runtimeType}');
-    print('🔍 pointData value: $pointData');
-
     // すでにMapの場合（GeoJSON形式）
     if (pointData is Map) {
       final coords = pointData['coordinates'] as List;
