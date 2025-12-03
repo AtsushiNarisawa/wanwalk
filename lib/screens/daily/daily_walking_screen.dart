@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:io';
+import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -34,12 +36,41 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
   final List<File> _photoFiles = []; // 散歩中の写真を一時保存（散歩終了時にアップロード）
   String? _currentWalkId; // 現在の散歩ID（保存時に設定）
   bool _isReady = false; // GPS準備完了フラグ
+  double _currentZoom = 15.0; // 現在のズームレベル
+  bool _autoZoomTriggered = false; // 自動ズーム遷移が実行されたか
+  Timer? _autoZoomTimer; // 自動ズーム用タイマー
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _prepareWalking();
+    });
+    _startAutoZoomTransition(); // 2秒後に自動ズーム遷移
+  }
+
+  @override
+  void dispose() {
+    _autoZoomTimer?.cancel();
+    super.dispose();
+  }
+
+  /// 2秒後に自動ズーム遷移（15.0 → 17.0）
+  void _startAutoZoomTransition() {
+    _autoZoomTimer = Timer(const Duration(seconds: 2), () {
+      if (!_autoZoomTriggered && mounted) {
+        setState(() {
+          _currentZoom = 17.0;
+          _autoZoomTriggered = true;
+        });
+        final gpsState = ref.read(gpsProviderRiverpod);
+        if (gpsState.currentLocation != null) {
+          _mapController.move(gpsState.currentLocation!, _currentZoom);
+        }
+        if (kDebugMode) {
+          print('🔍 日常散歩: 自動ズーム遷移 15.0 → 17.0');
+        }
+      }
     });
   }
 
@@ -359,9 +390,10 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       mapController: _mapController,
       options: MapOptions(
         initialCenter: center,
-        initialZoom: 16.0,
+        initialZoom: _currentZoom,
         onPositionChanged: (position, hasGesture) {
-          if (hasGesture) {
+          // ドラッグ操作のみ追従を解除（ズームボタンでは解除しない）
+          if (hasGesture && position.zoom == _currentZoom) {
             setState(() {
               _isFollowingUser = false;
             });
@@ -585,25 +617,97 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     );
   }
 
-  /// フローティングボタン
+  /// ズームイン
+  void _zoomIn() {
+    if (_currentZoom < 18.0) {
+      setState(() {
+        _currentZoom = (_currentZoom + 0.5).clamp(14.0, 18.0);
+        _autoZoomTriggered = true; // ユーザー操作で自動遷移をキャンセル
+      });
+      final gpsState = ref.read(gpsProviderRiverpod);
+      final center = gpsState.currentLocation ?? const LatLng(35.6762, 139.6503);
+      _mapController.move(center, _currentZoom);
+      HapticFeedback.lightImpact();
+      _showZoomLevel();
+    }
+  }
+
+  /// ズームアウト
+  void _zoomOut() {
+    if (_currentZoom > 14.0) {
+      setState(() {
+        _currentZoom = (_currentZoom - 0.5).clamp(14.0, 18.0);
+        _autoZoomTriggered = true; // ユーザー操作で自動遷移をキャンセル
+      });
+      final gpsState = ref.read(gpsProviderRiverpod);
+      final center = gpsState.currentLocation ?? const LatLng(35.6762, 139.6503);
+      _mapController.move(center, _currentZoom);
+      HapticFeedback.lightImpact();
+      _showZoomLevel();
+    }
+  }
+
+  /// ズームレベルを一時的に表示
+  void _showZoomLevel() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'ズーム: ${_currentZoom.toStringAsFixed(1)}',
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        duration: const Duration(milliseconds: 800),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 400, left: 100, right: 100),
+        backgroundColor: Colors.black87,
+      ),
+    );
+  }
+
+  /// フローティングボタン（ズーム + 現在地追従）
   Widget _buildFloatingButton(GpsState gpsState) {
     return Positioned(
       right: WanMapSpacing.lg,
       bottom: gpsState.isRecording ? 280 : 120,
-      child: FloatingActionButton(
-        onPressed: () {
-          if (gpsState.currentLocation != null) {
-            _mapController.move(gpsState.currentLocation!, 16.0);
-            setState(() {
-              _isFollowingUser = true;
-            });
-          }
-        },
-        backgroundColor: Colors.white,
-        child: Icon(
-          _isFollowingUser ? Icons.my_location : Icons.location_searching,
-          color: WanMapColors.accent,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ズームインボタン
+          FloatingActionButton(
+            heroTag: 'zoom_in',
+            mini: true,
+            onPressed: _zoomIn,
+            backgroundColor: Colors.white,
+            child: const Icon(Icons.add, color: Colors.black87),
+          ),
+          const SizedBox(height: 8),
+          // ズームアウトボタン
+          FloatingActionButton(
+            heroTag: 'zoom_out',
+            mini: true,
+            onPressed: _zoomOut,
+            backgroundColor: Colors.white,
+            child: const Icon(Icons.remove, color: Colors.black87),
+          ),
+          const SizedBox(height: 8),
+          // 現在地追従ボタン
+          FloatingActionButton(
+            heroTag: 'my_location',
+            onPressed: () {
+              if (gpsState.currentLocation != null) {
+                _mapController.move(gpsState.currentLocation!, _currentZoom);
+                setState(() {
+                  _isFollowingUser = true;
+                });
+              }
+            },
+            backgroundColor: Colors.white,
+            child: Icon(
+              _isFollowingUser ? Icons.my_location : Icons.location_searching,
+              color: WanMapColors.accent,
+            ),
+          ),
+        ],
       ),
     );
   }
