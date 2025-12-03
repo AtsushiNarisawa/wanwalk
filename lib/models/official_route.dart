@@ -225,21 +225,26 @@ class OfficialRoute {
   }
 
   /// WKB形式（Well-Known Binary）のLINESTRINGをパース
+  /// フォーマット: バイトオーダー(1) + 型(4) + SRID(4) + ポイント数(4) + 座標データ
   static List<LatLng> _parseWKBLineString(String wkbHex) {
     try {
-      // WKBヘッダーをスキップ（バイトオーダー + 型 + SRID = 18文字）
-      final dataHex = wkbHex.substring(18);
-      
-      // ポイント数（最初の4バイト = 8文字）
-      final numPointsHex = dataHex.substring(0, 8);
+      // バイトオーダー(2) + 型(8) + SRID(8) = 18文字
+      // ポイント数は18文字目から8文字（4バイト）
+      final numPointsHex = wkbHex.substring(18, 26);
       final numPoints = _hexToInt32(numPointsHex);
       
-      // 各ポイントをパース（1ポイント = 16バイト = 32文字）
+      // 座標データは26文字目から開始
+      // 各ポイントは16バイト（32文字）= 経度8バイト + 緯度8バイト
       final points = <LatLng>[];
       for (int i = 0; i < numPoints; i++) {
-        final offset = 8 + (i * 32);
-        final lonHex = dataHex.substring(offset, offset + 16);
-        final latHex = dataHex.substring(offset + 16, offset + 32);
+        final offset = 26 + (i * 32);
+        if (offset + 32 > wkbHex.length) {
+          print('❌ WKB LineString: データ不足（offset=$offset, length=${wkbHex.length}）');
+          break;
+        }
+        
+        final lonHex = wkbHex.substring(offset, offset + 16);
+        final latHex = wkbHex.substring(offset + 16, offset + 32);
         
         final lon = _hexToDouble(lonHex);
         final lat = _hexToDouble(latHex);
