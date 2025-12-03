@@ -306,7 +306,7 @@ class RouteService {
   }) async {
     try {
       // データベースの実際のカラム名を使用
-      var query = _supabase
+      dynamic query = _supabase
           .from('official_routes')
           .select();
 
