@@ -51,6 +51,12 @@
 	<string>散歩ルートをバックグラウンドでも記録するために位置情報を使用します</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>散歩ルートを常に記録するために位置情報を使用します</string>
+	<key>NSCameraUsageDescription</key>
+	<string>散歩中の写真を撮影するためにカメラを使用します</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>散歩の写真を選択・保存するためにフォトライブラリを使用します</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>散歩の写真を保存するためにフォトライブラリへの追加権限が必要です</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
