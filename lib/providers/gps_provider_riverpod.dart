@@ -225,6 +225,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
   void cancelRecording() {
     _gpsService.dispose();
     state = state.copyWith(
+      isInitialized: false, // リセット
       isRecording: false,
       isPaused: false,
       currentRoutePoints: [],
