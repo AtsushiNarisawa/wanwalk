@@ -63,7 +63,13 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
           // フィルタ・ソートバー
           _buildFilterSortBar(context, isDark, prefecturesAsync, selectedPrefecture, sortOption),
           const SizedBox(height: WanMapSpacing.md),
-          // エリア一覧
+          // 件数表示（固定）
+          areasAsync.when(
+            data: (areas) => _buildAreaCountHeader(isDark, areas.length),
+            loading: () => const SizedBox(),
+            error: (_, __) => const SizedBox(),
+          ),
+          // エリアカード一覧（スクロール可能）
           Expanded(
             child: areasAsync.when(
               data: (areas) {
@@ -76,27 +82,12 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
                   },
                   child: ListView.builder(
                     padding: const EdgeInsets.all(WanMapSpacing.lg),
-                    itemCount: areas.length + 1, // +1 for header
+                    itemCount: areas.length,
                     itemBuilder: (context, index) {
-                      if (index == 0) {
-                        // ヘッダー（件数表示）
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
-                          child: Text(
-                            '${areas.length}件のエリア',
-                            style: WanMapTypography.bodyMedium.copyWith(
-                              color: isDark
-                                  ? WanMapColors.textSecondaryDark
-                                  : WanMapColors.textSecondaryLight,
-                            ),
-                          ),
-                        );
-                      }
-
-                      final area = areas[index - 1];
+                      final area = areas[index];
                       return Padding(
                         padding: EdgeInsets.only(
-                          bottom: index < areas.length ? WanMapSpacing.md : 0,
+                          bottom: index < areas.length - 1 ? WanMapSpacing.md : 0,
                         ),
                         child: _AreaCard(
                           areaData: area,
@@ -241,6 +232,24 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  /// 件数表示ヘッダー（固定）
+  Widget _buildAreaCountHeader(bool isDark, int count) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: WanMapSpacing.lg,
+        vertical: WanMapSpacing.sm,
+      ),
+      child: Text(
+        '${count}件のエリア',
+        style: WanMapTypography.bodyMedium.copyWith(
+          color: isDark
+              ? WanMapColors.textSecondaryDark
+              : WanMapColors.textSecondaryLight,
+        ),
       ),
     );
   }
