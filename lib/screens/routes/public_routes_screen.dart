@@ -203,14 +203,17 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
       onRefresh: () async {
         ref.invalidate(officialRoutesProvider);
       },
-      child: ListView.builder(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
-        itemCount: routes.length + 1, // +1 for header
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            // ヘッダー（件数表示）
-            return Padding(
-              padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+      child: CustomScrollView(
+        slivers: [
+          // 固定ヘッダー（件数表示）
+          SliverToBoxAdapter(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: WanMapSpacing.md,
+                vertical: WanMapSpacing.sm,
+              ),
+              color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
               child: Text(
                 '${routes.length}件のルート',
                 style: TextStyle(
@@ -219,23 +222,33 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
                   color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                 ),
               ),
-            );
-          }
-
-          final route = routes[index - 1];
-          return _OfficialRouteCard(
-            route: route,
-            isDark: isDark,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => RouteDetailScreen(routeId: route.id),
-                ),
-              );
-            },
-          );
-        },
+            ),
+          ),
+          // スクロール可能なルート一覧
+          SliverPadding(
+            padding: const EdgeInsets.all(WanMapSpacing.md),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final route = routes[index];
+                  return _OfficialRouteCard(
+                    route: route,
+                    isDark: isDark,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RouteDetailScreen(routeId: route.id),
+                        ),
+                      );
+                    },
+                  );
+                },
+                childCount: routes.length,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -337,6 +350,7 @@ class _OfficialRouteCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: WanMapSpacing.md),
+        height: 140, // カード高さを固定
         decoration: BoxDecoration(
           color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
           borderRadius: BorderRadius.circular(16),
@@ -360,7 +374,7 @@ class _OfficialRouteCard extends StatelessWidget {
                   ? Image.network(
                       route.thumbnailUrl!,
                       width: 120,
-                      height: 120,
+                      height: 140, // カード高さに合わせる
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _buildDefaultThumbnail(),
                     )
@@ -372,28 +386,33 @@ class _OfficialRouteCard extends StatelessWidget {
                 padding: const EdgeInsets.all(WanMapSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      route.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          route.name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: WanMapSpacing.xs),
+                        Text(
+                          route.description,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: WanMapSpacing.xs),
-                    Text(
-                      route.description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: WanMapSpacing.sm),
                     Wrap(
                       spacing: WanMapSpacing.xs,
                       runSpacing: WanMapSpacing.xs,
@@ -401,11 +420,6 @@ class _OfficialRouteCard extends StatelessWidget {
                         _buildInfoChip(
                           Icons.straighten,
                           route.formattedDistance,
-                          isDark,
-                        ),
-                        _buildInfoChip(
-                          Icons.schedule,
-                          route.formattedDuration,
                           isDark,
                         ),
                         _buildDifficultyChip(route.difficultyLevel, isDark),
@@ -424,7 +438,7 @@ class _OfficialRouteCard extends StatelessWidget {
   Widget _buildDefaultThumbnail() {
     return Container(
       width: 120,
-      height: 120,
+      height: 140, // カード高さに合わせる
       color: WanMapColors.accent.withOpacity(0.2),
       child: Icon(
         Icons.route,
