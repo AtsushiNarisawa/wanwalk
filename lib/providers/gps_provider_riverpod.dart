@@ -8,6 +8,7 @@ import 'walk_mode_provider.dart';
 
 /// GPS記録の状態
 class GpsState {
+  final bool isInitialized; // 記録を開始したかどうか（スタートボタンを押したか）
   final bool isRecording;
   final bool isPaused;
   final LatLng? currentLocation;
@@ -19,6 +20,7 @@ class GpsState {
   final int elapsedSeconds; // 経過時間（秒）
 
   GpsState({
+    this.isInitialized = false,
     this.isRecording = false,
     this.isPaused = false,
     this.currentLocation,
@@ -31,6 +33,7 @@ class GpsState {
   });
 
   GpsState copyWith({
+    bool? isInitialized,
     bool? isRecording,
     bool? isPaused,
     LatLng? currentLocation,
@@ -42,6 +45,7 @@ class GpsState {
     int? elapsedSeconds,
   }) {
     return GpsState(
+      isInitialized: isInitialized ?? this.isInitialized,
       isRecording: isRecording ?? this.isRecording,
       isPaused: isPaused ?? this.isPaused,
       currentLocation: currentLocation ?? this.currentLocation,
@@ -130,6 +134,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
       if (success) {
         final now = DateTime.now();
         state = state.copyWith(
+          isInitialized: true, // スタートボタンを押した
           isRecording: true,
           isPaused: false,
           currentRoutePoints: [],
@@ -198,6 +203,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
 
     if (route != null) {
       state = state.copyWith(
+        isInitialized: false, // リセット
         isRecording: false,
         isPaused: false,
         currentRoutePoints: [],
