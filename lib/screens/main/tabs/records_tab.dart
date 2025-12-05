@@ -197,7 +197,7 @@ class RecordsTab extends ConsumerWidget {
           crossAxisCount: 2,
           crossAxisSpacing: WanMapSpacing.md,
           mainAxisSpacing: WanMapSpacing.md,
-          childAspectRatio: 1.3,
+          childAspectRatio: 1.6,
           children: [
             _StatCard(icon: Icons.star, label: 'レベル', value: 'Lv.${stats.userLevel}', color: Colors.amber, isDark: isDark),
             _StatCard(icon: Icons.route, label: '総距離', value: stats.formattedTotalDistance, color: Colors.blue, isDark: isDark),
