@@ -2,6 +2,59 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
 
+/// ペット情報（愛犬家向け情報）
+class PetInfo {
+  final String? parking;        // 駐車場情報
+  final String? surface;         // 道の状態
+  final String? restroom;        // トイレ
+  final String? waterStation;    // 水飲み場
+  final String? petFacilities;   // ペット施設
+  final String? others;          // その他
+
+  const PetInfo({
+    this.parking,
+    this.surface,
+    this.restroom,
+    this.waterStation,
+    this.petFacilities,
+    this.others,
+  });
+
+  /// JSONからPetInfoを生成
+  factory PetInfo.fromJson(Map<String, dynamic> json) {
+    return PetInfo(
+      parking: json['parking'] as String?,
+      surface: json['surface'] as String?,
+      restroom: json['restroom'] as String?,
+      waterStation: json['water_station'] as String?,
+      petFacilities: json['pet_facilities'] as String?,
+      others: json['others'] as String?,
+    );
+  }
+
+  /// PetInfoをJSONに変換
+  Map<String, dynamic> toJson() {
+    return {
+      'parking': parking,
+      'surface': surface,
+      'restroom': restroom,
+      'water_station': waterStation,
+      'pet_facilities': petFacilities,
+      'others': others,
+    };
+  }
+
+  /// いずれかの情報が存在するか
+  bool get hasAnyInfo {
+    return parking != null ||
+        surface != null ||
+        restroom != null ||
+        waterStation != null ||
+        petFacilities != null ||
+        others != null;
+  }
+}
+
 /// 難易度レベル
 enum DifficultyLevel {
   easy('easy', '初級', '平坦で歩きやすい'),
@@ -45,6 +98,7 @@ class OfficialRoute {
   final int totalWalks; // このルートを歩いた回数
   final String? thumbnailUrl; // ルート一覧用のサムネイル画像
   final List<String>? galleryImages; // ルート詳細用のギャラリー画像（3枚）
+  final PetInfo? petInfo; // 愛犬家向け情報
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -64,6 +118,7 @@ class OfficialRoute {
     this.totalWalks = 0,
     this.thumbnailUrl,
     this.galleryImages,
+    this.petInfo,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -95,6 +150,9 @@ class OfficialRoute {
       thumbnailUrl: json['thumbnail_url'] as String?,
       galleryImages: json['gallery_images'] != null
           ? (json['gallery_images'] as List).map((e) => e as String).toList()
+          : null,
+      petInfo: json['pet_info'] != null
+          ? PetInfo.fromJson(json['pet_info'] as Map<String, dynamic>)
           : null,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
