@@ -197,7 +197,7 @@ class RecordsTab extends ConsumerWidget {
           crossAxisCount: 2,
           crossAxisSpacing: WanMapSpacing.md,
           mainAxisSpacing: WanMapSpacing.md,
-          childAspectRatio: 1.6,
+          childAspectRatio: 1.0,
           children: [
             _StatCard(icon: Icons.star, label: 'レベル', value: 'Lv.${stats.userLevel}', color: Colors.amber, isDark: isDark),
             _StatCard(icon: Icons.route, label: '総距離', value: stats.formattedTotalDistance, color: Colors.blue, isDark: isDark),
@@ -431,7 +431,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanMapSpacing.sm),
       decoration: BoxDecoration(
         color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
         borderRadius: BorderRadius.circular(16),
@@ -440,11 +440,11 @@ class _StatCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: WanMapSpacing.sm),
-          Text(value, style: WanMapTypography.headlineSmall.copyWith(color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight, fontWeight: FontWeight.bold)),
+          Icon(icon, color: color, size: 28),
           const SizedBox(height: WanMapSpacing.xs),
-          Text(label, style: WanMapTypography.caption.copyWith(color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight)),
+          Text(value, style: WanMapTypography.titleMedium.copyWith(color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight, fontWeight: FontWeight.bold)),
+          const SizedBox(height: WanMapSpacing.xxs),
+          Text(label, style: WanMapTypography.labelSmall.copyWith(color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight)),
         ],
       ),
     );
