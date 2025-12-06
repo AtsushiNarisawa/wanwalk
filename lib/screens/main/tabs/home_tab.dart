@@ -11,6 +11,7 @@ import '../../../providers/route_provider.dart';
 import '../../../providers/official_route_provider.dart';
 import '../../../providers/official_routes_screen_provider.dart';
 import '../../../providers/recent_pins_provider.dart';
+import '../../../providers/pin_like_provider.dart';
 import '../../../models/recent_pin_post.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
@@ -696,7 +697,7 @@ class _AreaCard extends StatelessWidget {
   }
 }
 
-class _RecentPinCard extends StatelessWidget {
+class _RecentPinCard extends ConsumerStatefulWidget {
   final RecentPinPost pin;
   final bool isDark;
 
@@ -706,23 +707,44 @@ class _RecentPinCard extends StatelessWidget {
   });
 
   @override
+  ConsumerState<_RecentPinCard> createState() => _RecentPinCardState();
+}
+
+class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
+  @override
+  void initState() {
+    super.initState();
+    // いいね状態を初期化
+    Future.microtask(() {
+      ref.read(pinLikeActionsProvider).initializePinLikeState(
+        widget.pin.pinId,
+        widget.pin.likesCount,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isLiked = ref.watch(pinLikedStateProvider(widget.pin.pinId));
+    final likeCount = ref.watch(pinLikeCountProvider(widget.pin.pinId));
+    final actions = ref.read(pinLikeActionsProvider);
+
     return GestureDetector(
       onTap: () {
         // ピンが投稿されたルートの詳細画面へ遷移
         if (kDebugMode) {
-          print('📌 Pin tapped: ${pin.title} → Navigate to route: ${pin.routeName}');
+          print('📌 Pin tapped: ${widget.pin.title} → Navigate to route: ${widget.pin.routeName}');
         }
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => RouteDetailScreen(routeId: pin.routeId),
+            builder: (_) => RouteDetailScreen(routeId: widget.pin.routeId),
           ),
         );
       },
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: widget.isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -738,9 +760,9 @@ class _RecentPinCard extends StatelessWidget {
             // 写真
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              child: pin.photoUrl.isNotEmpty
+              child: widget.pin.photoUrl.isNotEmpty
                   ? Image.network(
-                      pin.photoUrl,
+                      widget.pin.photoUrl,
                       height: 120,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -755,9 +777,9 @@ class _RecentPinCard extends StatelessWidget {
                 children: [
                   // タイトル
                   Text(
-                    pin.title,
+                    widget.pin.title,
                     style: WanMapTypography.bodyMedium.copyWith(
-                      color: isDark
+                      color: widget.isDark
                           ? WanMapColors.textPrimaryDark
                           : WanMapColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
@@ -768,9 +790,9 @@ class _RecentPinCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   // ユーザー名・エリア
                   Text(
-                    '${pin.userName} · ${pin.areaName}',
+                    '${widget.pin.userName} · ${widget.pin.areaName}',
                     style: WanMapTypography.bodySmall.copyWith(
-                      color: isDark
+                      color: widget.isDark
                           ? WanMapColors.textSecondaryDark
                           : WanMapColors.textSecondaryLight,
                     ),
@@ -778,24 +800,43 @@ class _RecentPinCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  // いいね数・相対時間
+                  // いいねボタン・相対時間
                   Row(
                     children: [
-                      Icon(Icons.favorite, size: 14, color: Colors.red[300]),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${pin.likesCount}',
-                        style: WanMapTypography.bodySmall.copyWith(
-                          color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                      GestureDetector(
+                        onTap: () async {
+                          final success = await actions.toggleLike(widget.pin.pinId);
+                          if (!success && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('いいねの更新に失敗しました')),
+                            );
+                          }
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              size: 16,
+                              color: isLiked ? Colors.red : (widget.isDark ? Colors.grey[400] : Colors.grey[600]),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$likeCount',
+                              style: WanMapTypography.bodySmall.copyWith(
+                                color: widget.isDark
+                                    ? WanMapColors.textSecondaryDark
+                                    : WanMapColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: WanMapSpacing.sm),
                       Text(
-                        pin.relativeTime,
+                        widget.pin.relativeTime,
                         style: WanMapTypography.bodySmall.copyWith(
-                          color: isDark
+                          color: widget.isDark
                               ? WanMapColors.textSecondaryDark
                               : WanMapColors.textSecondaryLight,
                         ),

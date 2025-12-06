@@ -8,6 +8,7 @@ import '../../config/wanmap_spacing.dart';
 import '../../providers/official_route_provider.dart';
 import '../../providers/route_pin_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
+import '../../providers/pin_like_provider.dart';
 
 import '../../models/official_route.dart';
 import '../../models/walk_mode.dart';
@@ -765,15 +766,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                                   // いいね数・相対時間
                                   Row(
                                     children: [
-                                      Icon(Icons.favorite, size: 14, color: Colors.red[300]),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${pin.likesCount}',
-                                        style: WanMapTypography.caption.copyWith(
-                                          color: isDark
-                                              ? WanMapColors.textSecondaryDark
-                                              : WanMapColors.textSecondaryLight,
-                                        ),
+                                      _PinLikeButton(
+                                        pinId: pin.id,
+                                        initialLikesCount: pin.likesCount,
+                                        isDark: isDark,
                                       ),
                                       const SizedBox(width: WanMapSpacing.sm),
                                       Text(
@@ -1026,6 +1022,73 @@ class _DifficultyBadge extends StatelessWidget {
             '(${level.description})',
             style: WanMapTypography.caption.copyWith(
               color: _getColor(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// ピンいいねボタン - 楽観的UI更新対応
+class _PinLikeButton extends ConsumerStatefulWidget {
+  final String pinId;
+  final int initialLikesCount;
+  final bool isDark;
+
+  const _PinLikeButton({
+    required this.pinId,
+    required this.initialLikesCount,
+    required this.isDark,
+  });
+
+  @override
+  ConsumerState<_PinLikeButton> createState() => _PinLikeButtonState();
+}
+
+class _PinLikeButtonState extends ConsumerState<_PinLikeButton> {
+  @override
+  void initState() {
+    super.initState();
+    // いいね状態を初期化
+    Future.microtask(() {
+      ref.read(pinLikeActionsProvider).initializePinLikeState(
+        widget.pinId,
+        widget.initialLikesCount,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isLiked = ref.watch(pinLikedStateProvider(widget.pinId));
+    final likeCount = ref.watch(pinLikeCountProvider(widget.pinId));
+    final actions = ref.read(pinLikeActionsProvider);
+
+    return GestureDetector(
+      onTap: () async {
+        final success = await actions.toggleLike(widget.pinId);
+        if (!success && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('いいねの更新に失敗しました')),
+          );
+        }
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isLiked ? Icons.favorite : Icons.favorite_border,
+            size: 16,
+            color: isLiked ? Colors.red : (widget.isDark ? Colors.grey[400] : Colors.grey[600]),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '$likeCount',
+            style: WanMapTypography.caption.copyWith(
+              color: widget.isDark
+                  ? WanMapColors.textSecondaryDark
+                  : WanMapColors.textSecondaryLight,
             ),
           ),
         ],
