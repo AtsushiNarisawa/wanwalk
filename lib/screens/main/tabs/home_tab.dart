@@ -345,18 +345,13 @@ class HomeTab extends ConsumerWidget {
                   if (pins.isEmpty) {
                     return _buildEmptyCard(isDark, 'まだピン投稿がありません');
                   }
-                  return Row(
-                    children: pins.take(2).map((pin) {
-                      return Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            right: pins.indexOf(pin) == 0 ? WanMapSpacing.sm : 0,
-                            left: pins.indexOf(pin) == 1 ? WanMapSpacing.sm : 0,
-                          ),
-                          child: _RecentPinCard(
-                            pin: pin,
-                            isDark: isDark,
-                          ),
+                  return Column(
+                    children: pins.take(3).map((pin) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+                        child: _RecentPinCard(
+                          pin: pin,
+                          isDark: isDark,
                         ),
                       );
                     }).toList(),
