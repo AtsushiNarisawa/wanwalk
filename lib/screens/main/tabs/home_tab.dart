@@ -754,64 +754,66 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
           ),
         );
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: widget.isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 写真
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              child: widget.pin.photoUrl.isNotEmpty
-                  ? Image.network(
-                      widget.pin.photoUrl,
-                      height: 120,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _buildDefaultImage(),
-                    )
-                  : _buildDefaultImage(),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(WanMapSpacing.sm),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // タイトル
-                  Text(
-                    widget.pin.title,
-                    style: WanMapTypography.bodyMedium.copyWith(
-                      color: widget.isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  // ユーザー名・エリア
-                  Text(
-                    '${widget.pin.userName} · ${widget.pin.areaName}',
-                    style: WanMapTypography.bodySmall.copyWith(
-                      color: widget.isDark
-                          ? WanMapColors.textSecondaryDark
-                          : WanMapColors.textSecondaryLight,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: widget.isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // サムネイル画像（固定サイズ120x120）
+              SizedBox(
+                width: 120,
+                height: 120,
+                child: widget.pin.photoUrl.isNotEmpty
+                    ? Image.network(
+                        widget.pin.photoUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _buildDefaultImage(),
+                      )
+                    : _buildDefaultImage(),
+              ),
+              // テキスト情報
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(WanMapSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // タイトル
+                      Text(
+                        widget.pin.title,
+                        style: WanMapTypography.bodyMedium.copyWith(
+                          color: widget.isDark
+                              ? WanMapColors.textPrimaryDark
+                              : WanMapColors.textPrimaryLight,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: WanMapSpacing.xs),
+                      // ユーザー名・エリア
+                      Text(
+                        '${widget.pin.userName} · ${widget.pin.areaName}',
+                        style: WanMapTypography.bodySmall.copyWith(
+                          color: widget.isDark
+                              ? WanMapColors.textSecondaryDark
+                              : WanMapColors.textSecondaryLight,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: WanMapSpacing.sm),
                   // いいねボタン・コメントボタン・ブックマークボタン・相対時間
                   Row(
                     children: [
@@ -901,10 +903,12 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                       ),
                     ],
                   ),
-                ],
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -912,8 +916,8 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
 
   Widget _buildDefaultImage() {
     return Container(
+      width: 120,
       height: 120,
-      width: double.infinity,
       decoration: BoxDecoration(
         color: WanMapColors.accent.withOpacity(0.2),
       ),
