@@ -97,13 +97,13 @@ class HomeTab extends ConsumerWidget {
             
             const SizedBox(height: WanMapSpacing.lg),
             
-            // 2. 最新の写真付きピン投稿（横2枚）
-            _buildRecentPinPosts(context, isDark),
+            // 2. 人気の公式ルート
+            _buildPopularRoutes(context, isDark),
             
             const SizedBox(height: WanMapSpacing.xl),
             
-            // 3. 人気の公式ルート
-            _buildPopularRoutes(context, isDark),
+            // 3. 最新の写真付きピン投稿（横2枚）
+            _buildRecentPinPosts(context, isDark),
             
             const SizedBox(height: WanMapSpacing.xxxl),
             
@@ -117,20 +117,27 @@ class HomeTab extends ConsumerWidget {
     );
   }
 
-  /// MAP表示（200px）
+  /// MAP表示（人気の公式ルート1位を表示）
   Widget _buildMapPreview(BuildContext context, bool isDark) {
     return Consumer(
       builder: (context, ref, child) {
-        final recentPinsAsync = ref.watch(recentPinsProvider);
+        final popularRoutesAsync = ref.watch(popularRoutesProvider);
         
         // デフォルト中心位置（横浜）
         LatLng center = const LatLng(35.4437, 139.638);
         
-        return recentPinsAsync.when(
-          data: (pins) {
-            // 最新のピンがある場合はその位置を中心に
-            if (pins.isNotEmpty) {
-              center = pins.first.location;
+        return popularRoutesAsync.when(
+          data: (routes) {
+            // 人気の公式ルート1位がある場合はその位置を中心に
+            if (routes.isNotEmpty) {
+              final topRoute = routes.first;
+              // ルートの開始位置を使用
+              if (topRoute['start_lat'] != null && topRoute['start_lon'] != null) {
+                center = LatLng(
+                  (topRoute['start_lat'] as num).toDouble(),
+                  (topRoute['start_lon'] as num).toDouble(),
+                );
+              }
             }
             
             return SizedBox(
@@ -148,20 +155,25 @@ class HomeTab extends ConsumerWidget {
                   TileLayer(
                     urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   ),
-                  MarkerLayer(
-                    markers: pins.map((pin) {
-                      return Marker(
-                        point: pin.location,
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.location_on,
-                          color: WanMapColors.accent,
-                          size: 40,
+                  // 人気ルート1位のマーカーを表示
+                  if (routes.isNotEmpty && routes.first['start_lat'] != null && routes.first['start_lon'] != null)
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: LatLng(
+                            (routes.first['start_lat'] as num).toDouble(),
+                            (routes.first['start_lon'] as num).toDouble(),
+                          ),
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.star,
+                            color: WanMapColors.accent,
+                            size: 40,
+                          ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ],
+                    ),
                 ],
               ),
             );
