@@ -12,6 +12,7 @@ import '../../../providers/official_route_provider.dart';
 import '../../../providers/official_routes_screen_provider.dart';
 import '../../../providers/recent_pins_provider.dart';
 import '../../../providers/pin_like_provider.dart';
+import '../../../providers/pin_bookmark_provider.dart';
 import '../../../models/recent_pin_post.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
@@ -714,11 +715,14 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
   @override
   void initState() {
     super.initState();
-    // いいね状態を初期化
+    // いいね・ブックマーク状態を初期化
     Future.microtask(() {
       ref.read(pinLikeActionsProvider).initializePinLikeState(
         widget.pin.pinId,
         widget.pin.likesCount,
+      );
+      ref.read(pinBookmarkActionsProvider).initializePinBookmarkState(
+        widget.pin.pinId,
       );
     });
   }
@@ -727,7 +731,9 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
   Widget build(BuildContext context) {
     final isLiked = ref.watch(pinLikedStateProvider(widget.pin.pinId));
     final likeCount = ref.watch(pinLikeCountProvider(widget.pin.pinId));
-    final actions = ref.read(pinLikeActionsProvider);
+    final likeActions = ref.read(pinLikeActionsProvider);
+    final isBookmarked = ref.watch(pinBookmarkedStateProvider(widget.pin.pinId));
+    final bookmarkActions = ref.read(pinBookmarkActionsProvider);
 
     return GestureDetector(
       onTap: () {
@@ -800,12 +806,12 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  // いいねボタン・相対時間
+                  // いいねボタン・ブックマークボタン・相対時間
                   Row(
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          final success = await actions.toggleLike(widget.pin.pinId);
+                          final success = await likeActions.toggleLike(widget.pin.pinId);
                           if (!success && context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('いいねの更新に失敗しました')),
@@ -830,6 +836,24 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      const SizedBox(width: WanMapSpacing.sm),
+                      GestureDetector(
+                        onTap: () async {
+                          final success = await bookmarkActions.toggleBookmark(widget.pin.pinId);
+                          if (!success && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('ブックマークの更新に失敗しました')),
+                            );
+                          }
+                        },
+                        child: Icon(
+                          isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                          size: 16,
+                          color: isBookmarked 
+                              ? WanMapColors.accent 
+                              : (widget.isDark ? Colors.grey[400] : Colors.grey[600]),
                         ),
                       ),
                       const SizedBox(width: WanMapSpacing.sm),

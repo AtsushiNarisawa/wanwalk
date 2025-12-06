@@ -9,6 +9,7 @@ import '../../providers/official_route_provider.dart';
 import '../../providers/route_pin_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/pin_like_provider.dart';
+import '../../providers/pin_bookmark_provider.dart';
 
 import '../../models/official_route.dart';
 import '../../models/walk_mode.dart';
@@ -763,12 +764,17 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: WanMapSpacing.sm),
-                                  // いいね数・相対時間
+                                  // いいね・ブックマーク・相対時間
                                   Row(
                                     children: [
                                       _PinLikeButton(
                                         pinId: pin.id,
                                         initialLikesCount: pin.likesCount,
+                                        isDark: isDark,
+                                      ),
+                                      const SizedBox(width: WanMapSpacing.sm),
+                                      _PinBookmarkButton(
+                                        pinId: pin.id,
                                         isDark: isDark,
                                       ),
                                       const SizedBox(width: WanMapSpacing.sm),
@@ -1092,6 +1098,57 @@ class _PinLikeButtonState extends ConsumerState<_PinLikeButton> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// ピンブックマークボタン - 楽観的UI更新対応
+class _PinBookmarkButton extends ConsumerStatefulWidget {
+  final String pinId;
+  final bool isDark;
+
+  const _PinBookmarkButton({
+    required this.pinId,
+    required this.isDark,
+  });
+
+  @override
+  ConsumerState<_PinBookmarkButton> createState() => _PinBookmarkButtonState();
+}
+
+class _PinBookmarkButtonState extends ConsumerState<_PinBookmarkButton> {
+  @override
+  void initState() {
+    super.initState();
+    // ブックマーク状態を初期化
+    Future.microtask(() {
+      ref.read(pinBookmarkActionsProvider).initializePinBookmarkState(
+        widget.pinId,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isBookmarked = ref.watch(pinBookmarkedStateProvider(widget.pinId));
+    final actions = ref.read(pinBookmarkActionsProvider);
+
+    return GestureDetector(
+      onTap: () async {
+        final success = await actions.toggleBookmark(widget.pinId);
+        if (!success && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('ブックマークの更新に失敗しました')),
+          );
+        }
+      },
+      child: Icon(
+        isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+        size: 16,
+        color: isBookmarked 
+            ? WanMapColors.accent 
+            : (widget.isDark ? Colors.grey[400] : Colors.grey[600]),
       ),
     );
   }
