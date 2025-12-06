@@ -13,6 +13,7 @@ class RecentPinPost {
   final String title;
   final String comment;
   final int likesCount;
+  final int commentsCount;
   final String photoUrl; // 最初の1枚の写真URL
   final String userId;
   final String userName;
@@ -31,6 +32,7 @@ class RecentPinPost {
     required this.title,
     required this.comment,
     required this.likesCount,
+    required this.commentsCount,
     required this.photoUrl,
     required this.userId,
     required this.userName,
@@ -52,6 +54,7 @@ class RecentPinPost {
       title: json['title'] as String,
       comment: json['comment'] as String? ?? '',
       likesCount: json['likes_count'] as int? ?? 0,
+      commentsCount: json['comments_count'] as int? ?? 0,
       photoUrl: json['photo_url'] as String? ?? '',
       userId: json['user_id'] as String,
       userName: json['user_name'] as String? ?? 'Unknown User',

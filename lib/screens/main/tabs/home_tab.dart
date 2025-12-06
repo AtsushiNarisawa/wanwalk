@@ -13,6 +13,7 @@ import '../../../providers/official_routes_screen_provider.dart';
 import '../../../providers/recent_pins_provider.dart';
 import '../../../providers/pin_like_provider.dart';
 import '../../../providers/pin_bookmark_provider.dart';
+import '../../../providers/pin_comment_provider.dart';
 import '../../../models/recent_pin_post.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
@@ -715,7 +716,7 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
   @override
   void initState() {
     super.initState();
-    // いいね・ブックマーク状態を初期化
+    // いいね・ブックマーク・コメント状態を初期化
     Future.microtask(() {
       ref.read(pinLikeActionsProvider).initializePinLikeState(
         widget.pin.pinId,
@@ -723,6 +724,10 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
       );
       ref.read(pinBookmarkActionsProvider).initializePinBookmarkState(
         widget.pin.pinId,
+      );
+      ref.read(pinCommentActionsProvider).initializeCommentCount(
+        widget.pin.pinId,
+        widget.pin.commentsCount,
       );
     });
   }
@@ -734,6 +739,7 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
     final likeActions = ref.read(pinLikeActionsProvider);
     final isBookmarked = ref.watch(pinBookmarkedStateProvider(widget.pin.pinId));
     final bookmarkActions = ref.read(pinBookmarkActionsProvider);
+    final commentCount = ref.watch(pinCommentCountProvider(widget.pin.pinId));
 
     return GestureDetector(
       onTap: () {
@@ -806,7 +812,7 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  // いいねボタン・ブックマークボタン・相対時間
+                  // いいねボタン・コメントボタン・ブックマークボタン・相対時間
                   Row(
                     children: [
                       GestureDetector(
@@ -829,6 +835,34 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                             const SizedBox(width: 4),
                             Text(
                               '$likeCount',
+                              style: WanMapTypography.bodySmall.copyWith(
+                                color: widget.isDark
+                                    ? WanMapColors.textSecondaryDark
+                                    : WanMapColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: WanMapSpacing.sm),
+                      GestureDetector(
+                        onTap: () {
+                          // TODO: コメント画面への遷移を実装
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('コメント機能は次のステップで実装します')),
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.chat_bubble_outline,
+                              size: 16,
+                              color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$commentCount',
                               style: WanMapTypography.bodySmall.copyWith(
                                 color: widget.isDark
                                     ? WanMapColors.textSecondaryDark

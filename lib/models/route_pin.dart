@@ -40,6 +40,7 @@ class RoutePin {
   final String comment; // コメント
   final List<String> photoUrls; // 写真URL（最大5枚）
   final int likesCount; // いいね数
+  final int commentsCount; // コメント数
   final DateTime createdAt;
 
   RoutePin({
@@ -52,6 +53,7 @@ class RoutePin {
     required this.comment,
     this.photoUrls = const [],
     this.likesCount = 0,
+    this.commentsCount = 0,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -117,6 +119,7 @@ class RoutePin {
       comment: json['comment'] as String? ?? '',
       photoUrls: photoUrls,
       likesCount: json['likes_count'] as int? ?? 0,
+      commentsCount: json['comments_count'] as int? ?? 0,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),

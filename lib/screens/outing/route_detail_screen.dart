@@ -10,6 +10,7 @@ import '../../providers/route_pin_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/pin_like_provider.dart';
 import '../../providers/pin_bookmark_provider.dart';
+import '../../providers/pin_comment_provider.dart';
 
 import '../../models/official_route.dart';
 import '../../models/walk_mode.dart';
@@ -764,12 +765,18 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: WanMapSpacing.sm),
-                                  // いいね・ブックマーク・相対時間
+                                  // いいね・コメント・ブックマーク・相対時間
                                   Row(
                                     children: [
                                       _PinLikeButton(
                                         pinId: pin.id,
                                         initialLikesCount: pin.likesCount,
+                                        isDark: isDark,
+                                      ),
+                                      const SizedBox(width: WanMapSpacing.sm),
+                                      _PinCommentButton(
+                                        pinId: pin.id,
+                                        initialCommentsCount: pin.commentsCount,
                                         isDark: isDark,
                                       ),
                                       const SizedBox(width: WanMapSpacing.sm),
@@ -1149,6 +1156,69 @@ class _PinBookmarkButtonState extends ConsumerState<_PinBookmarkButton> {
         color: isBookmarked 
             ? WanMapColors.accent 
             : (widget.isDark ? Colors.grey[400] : Colors.grey[600]),
+      ),
+    );
+  }
+}
+
+/// ピンコメントボタン - 楽観的UI更新対応
+class _PinCommentButton extends ConsumerStatefulWidget {
+  final String pinId;
+  final int initialCommentsCount;
+  final bool isDark;
+
+  const _PinCommentButton({
+    required this.pinId,
+    required this.initialCommentsCount,
+    required this.isDark,
+  });
+
+  @override
+  ConsumerState<_PinCommentButton> createState() => _PinCommentButtonState();
+}
+
+class _PinCommentButtonState extends ConsumerState<_PinCommentButton> {
+  @override
+  void initState() {
+    super.initState();
+    // コメント数を初期化
+    Future.microtask(() {
+      ref.read(pinCommentActionsProvider).initializeCommentCount(
+        widget.pinId,
+        widget.initialCommentsCount,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final commentCount = ref.watch(pinCommentCountProvider(widget.pinId));
+
+    return GestureDetector(
+      onTap: () {
+        // TODO: コメント画面への遷移を実装
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('コメント機能は次のステップで実装します')),
+        );
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 16,
+            color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '$commentCount',
+            style: WanMapTypography.caption.copyWith(
+              color: widget.isDark
+                  ? WanMapColors.textSecondaryDark
+                  : WanMapColors.textSecondaryLight,
+            ),
+          ),
+        ],
       ),
     );
   }
