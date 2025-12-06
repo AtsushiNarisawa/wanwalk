@@ -156,7 +156,7 @@ class HomeTab extends ConsumerWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => RouteDetailScreen(route: route),
+                                      builder: (_) => RouteDetailScreen(routeId: route.id),
                                     ),
                                   );
                                 }
