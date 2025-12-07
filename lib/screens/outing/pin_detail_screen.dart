@@ -335,6 +335,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
               itemBuilder: (context, index) {
                 final comment = comments[index];
                 final isOwnComment = currentUser?.id == comment.userId;
+                final isPinOwner = currentUser?.id == widget.pin.userId;
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: WanMapSpacing.md),
@@ -366,16 +367,45 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: Text(
-                                    comment.userName,
-                                    style: WanMapTypography.bodyMedium.copyWith(
-                                      color: isDark
-                                          ? WanMapColors.textPrimaryDark
-                                          : WanMapColors.textPrimaryLight,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          comment.userName,
+                                          style: WanMapTypography.bodyMedium.copyWith(
+                                            color: isDark
+                                                ? WanMapColors.textPrimaryDark
+                                                : WanMapColors.textPrimaryLight,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      // ピン投稿者バッジ
+                                      if (comment.userId == widget.pin.userId) ...[
+                                        const SizedBox(width: 4),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: WanMapColors.accent.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            '投稿者',
+                                            style: WanMapTypography.caption.copyWith(
+                                              color: WanMapColors.accent,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(width: WanMapSpacing.xs),
@@ -423,17 +453,18 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                               ),
                             ),
                             const SizedBox(height: WanMapSpacing.xs),
-                            // 返信ボタン
-                            GestureDetector(
-                              onTap: () => _startReply(comment.userId, comment.userName),
-                              child: Text(
-                                '返信する',
-                                style: WanMapTypography.caption.copyWith(
-                                  color: WanMapColors.accent,
-                                  fontWeight: FontWeight.bold,
+                            // 返信ボタン（ピン投稿者のみ表示）
+                            if (isPinOwner && !isOwnComment)
+                              GestureDetector(
+                                onTap: () => _startReply(comment.userId, comment.userName),
+                                child: Text(
+                                  '返信する',
+                                  style: WanMapTypography.caption.copyWith(
+                                    color: WanMapColors.accent,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
