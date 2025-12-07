@@ -341,3 +341,99 @@ git pull origin main
 次のステップは、Macでの動作確認とテストです。
 
 お疲れ様でした！ 🎊
+
+---
+
+### Step 4: ピン投稿者のみ返信制限 + 投稿者バッジ ✅
+**実装日:** 自動実装完了
+
+#### 実装内容:
+
+**1. 返信ボタンの表示制限**
+```dart
+final isPinOwner = currentUser?.id == widget.pin.userId;
+
+// 返信ボタン（ピン投稿者のみ表示）
+if (isPinOwner && !isOwnComment)
+  GestureDetector(
+    onTap: () => _startReply(comment.userId, comment.userName),
+    child: Text('返信する'),
+  ),
+```
+
+**表示条件:**
+- ✅ ピン投稿者である（`isPinOwner`）
+- ✅ 自分のコメントではない（`!isOwnComment`）
+
+**2. 投稿者バッジの追加**
+```dart
+// ピン投稿者バッジ
+if (comment.userId == widget.pin.userId) {
+  Container(
+    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(
+      color: WanMapColors.accent.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Text('投稿者'),
+  ),
+}
+```
+
+**Git:**
+- Commit: `5362434` - feat: ピン投稿者のみ返信可能に制限 + 投稿者バッジ追加
+
+#### UI仕様:
+
+**投稿者バッジ表示:**
+- 位置: ユーザー名の右側
+- デザイン: アクセントカラー背景、角丸、小さいフォント
+- 表示条件: `comment.userId == widget.pin.userId`
+
+**返信ボタン表示:**
+- ピン投稿者のみ表示
+- 自分のコメントには表示しない
+- ダークモード対応
+
+---
+
+## 🎯 Phase 3.5 最終仕様
+
+### 実装された全機能:
+1. ✅ コメント一覧表示
+2. ✅ コメント投稿・削除
+3. ✅ 返信機能（「返信する」ボタン）
+4. ✅ **ピン投稿者のみ返信可能** ← ✨ Step 4
+5. ✅ **投稿者バッジ表示** ← ✨ Step 4
+6. ✅ 返信先表示（「→ ユーザー名」）
+7. ✅ 返信インジケーター
+8. ✅ 返信キャンセル
+9. ✅ ダークモード完全対応
+
+### Anglersアプリとの一致点:
+- ✅ ピン投稿者のみコメントに返信可能
+- ✅ 投稿者が視覚的に識別可能
+- ✅ 「→ ユーザー名」形式の返信表示
+- ✅ 返信インジケーター表示
+
+---
+
+## 📊 更新されたコミット履歴
+
+```
+5362434 - feat: ピン投稿者のみ返信可能に制限 + 投稿者バッジ追加
+ad926cc - docs: Phase 3.5完全実装サマリを追加
+55c7064 - feat: Phase 3.5 Step 3 - コメント返信機能の完全実装
+7327971 - fix: PinDetailScreen createState()の戻り値に()を追加
+2658c4b - feat: Phase 3.5 Step 1 - ピン詳細画面にコメント一覧表示機能を追加
+```
+
+---
+
+## 🎉 Phase 3.5 完全実装完了！
+
+**Anglersアプリと同様のコメント返信機能が完全に実装されました！**
+
+次のステップは、Macでの動作確認とテストです。
+
+**お疲れ様でした！** 🎊✨
