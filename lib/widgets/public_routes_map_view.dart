@@ -25,16 +25,9 @@ class _PublicRoutesMapViewState extends State<PublicRoutesMapView> {
   final MapController _mapController = MapController();
   bool _isExpanded = true;
 
-  // ルートごとの色
+  // ルートの色（全て統一）
   static const List<Color> routeColors = [
-    Colors.blue,
-    Colors.green,
-    Colors.red,
     Colors.orange,
-    Colors.purple,
-    Colors.teal,
-    Colors.pink,
-    Colors.indigo,
   ];
 
   @override
