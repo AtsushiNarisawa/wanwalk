@@ -184,7 +184,7 @@ final popularRoutesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) as
   final supabase = Supabase.instance.client;
   
   try {
-    final response = await supabase.rpc('get_popular_official_routes', params: {
+    final response = await supabase.rpc('get_monthly_popular_official_routes', params: {
       'p_limit': 10,
       'p_offset': 0,
     }) as List<dynamic>;

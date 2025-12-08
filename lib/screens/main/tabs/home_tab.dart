@@ -29,7 +29,7 @@ import '../../../widgets/shimmer/wanmap_shimmer.dart';
 /// 構成:
 /// 1. MAP表示（200px、最新ピン投稿中心）
 /// 2. 最新の写真付きピン投稿（横2枚）
-/// 3. 人気の公式ルート
+/// 3. 今月の人気ルート
 /// 4. おすすめエリア（3枚 + 一覧を見るボタン）
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
@@ -102,7 +102,7 @@ class HomeTab extends ConsumerWidget {
             
             const SizedBox(height: WanMapSpacing.lg),
             
-            // 2. 人気の公式ルート
+            // 2. 今月の人気ルート
             _buildPopularRoutes(context, isDark),
             
             const SizedBox(height: WanMapSpacing.xl),
@@ -122,7 +122,7 @@ class HomeTab extends ConsumerWidget {
     );
   }
 
-  /// MAP表示（人気の公式ルート1位を表示）
+  /// MAP表示（今月の人気ルート1位を表示）
   Widget _buildMapPreview(BuildContext context, bool isDark) {
     return Consumer(
       builder: (context, ref, child) {
@@ -134,7 +134,7 @@ class HomeTab extends ConsumerWidget {
         
         return popularRoutesAsync.when(
           data: (routes) {
-            // 人気の公式ルート1位のIDを取得
+            // 今月の人気ルート1位のIDを取得
             if (routes.isNotEmpty) {
               topRouteId = routes.first['route_id'] as String?;
             }
@@ -493,7 +493,7 @@ class HomeTab extends ConsumerWidget {
   }
 
 
-  /// 人気の公式ルート（3枚 + 一覧ボタン）
+  /// 今月の人気ルート（3枚 + 一覧ボタン）
   Widget _buildPopularRoutes(BuildContext context, bool isDark) {
     return Consumer(
       builder: (context, ref, child) {
@@ -507,7 +507,7 @@ class HomeTab extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '人気の公式ルート',
+                '今月の人気ルート',
                 style: WanMapTypography.headlineSmall.copyWith(
                   color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                   fontWeight: FontWeight.bold,
@@ -547,7 +547,7 @@ class HomeTab extends ConsumerWidget {
                             prefecture: route['prefecture'] ?? '',
                             distance: (route['distance_meters'] as num?)?.toDouble() ?? 0.0,
                             duration: route['estimated_minutes'] as int? ?? 0,
-                            totalWalks: route['total_walks'] as int? ?? 0,
+                            totalWalks: route['monthly_walks'] as int? ?? 0,
                             thumbnailUrl: route['thumbnail_url'],
                             isDark: isDark,
                           ),
