@@ -95,98 +95,143 @@ class _MapTabState extends ConsumerState<MapTab> {
           ),
         ],
       ),
-      body: Stack(
+      body: Column(
         children: [
-          // 地図表示
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _currentLocation ?? const LatLng(35.3192, 139.5503),
-              initialZoom: 13.0,
-              minZoom: 5.0,
-              maxZoom: 18.0,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.doghub.wanmap',
-              ),
-              // 現在地マーカー
-              if (_currentLocation != null)
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: _currentLocation!,
-                      width: 40,
-                      height: 40,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.3),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.blue, width: 3),
-                        ),
+          // 地図表示（画面の約2/3）
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Stack(
+              children: [
+                FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter: _currentLocation ?? const LatLng(35.3192, 139.5503),
+                    initialZoom: 13.0,
+                    minZoom: 5.0,
+                    maxZoom: 18.0,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.doghub.wanmap',
+                    ),
+                    // 現在地マーカー
+                    if (_currentLocation != null)
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: _currentLocation!,
+                            width: 40,
+                            height: 40,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.3),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.blue, width: 3),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                    // 全エリアのルートマーカー
+                    areasAsync.when(
+                      data: (areas) {
+                        return _buildAllRoutesMarkers(context, ref, areas);
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
                     ),
                   ],
                 ),
-              // 全エリアのルートマーカー
-              areasAsync.when(
-                data: (areas) {
-                  return _buildAllRoutesMarkers(context, ref, areas);
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
-            ],
+              ],
+            ),
           ),
           
-          // ボタングループ
-          Positioned(
-            right: WanMapSpacing.lg,
-            bottom: WanMapSpacing.lg,
+          // カード領域（画面の約1/3）
+          Expanded(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                // お散歩ボタン（日常散歩）
-                FloatingActionButton.extended(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const DailyWalkingScreen()),
-                    );
-                  },
-                  backgroundColor: WanMapColors.accent,
-                  elevation: 8,
-                  heroTag: 'daily_walk_button',
-                  icon: const Icon(Icons.pets, size: 28, color: Colors.white),
-                  label: Text(
-                    'お散歩',
-                    style: WanMapTypography.bodyLarge.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                // ボタングループ（カード上部に配置）
+                Container(
+                  padding: EdgeInsets.all(WanMapSpacing.md),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // お散歩ボタン（日常散歩）
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const DailyWalkingScreen()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: WanMapColors.accent,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                              vertical: WanMapSpacing.md,
+                              horizontal: WanMapSpacing.sm,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(WanMapSpacing.md),
+                            ),
+                            elevation: 4,
+                          ),
+                          icon: const Icon(Icons.pets, size: 24),
+                          label: Text(
+                            'お散歩',
+                            style: WanMapTypography.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(width: WanMapSpacing.md),
+                      
+                      // お出かけ散歩ボタン（既存）
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const AreaListScreen()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: WanMapColors.accent,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                              vertical: WanMapSpacing.md,
+                              horizontal: WanMapSpacing.sm,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(WanMapSpacing.md),
+                            ),
+                            elevation: 4,
+                          ),
+                          icon: const Icon(Icons.explore, size: 24),
+                          label: Text(
+                            'おでかけ散歩',
+                            style: WanMapTypography.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 
-                const SizedBox(height: WanMapSpacing.md),
-                
-                // お出かけ散歩ボタン（既存）
-                FloatingActionButton.extended(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AreaListScreen()),
-                    );
-                  },
-                  backgroundColor: WanMapColors.accent,
-                  elevation: 8,
-                  heroTag: 'outing_walk_button',
-                  icon: const Icon(Icons.explore, size: 28, color: Colors.white),
-                  label: Text(
-                    'おでかけ散歩',
-                    style: WanMapTypography.bodyLarge.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                // おすすめルートカード領域（Phase 2で実装）
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      '近くのおすすめルートを表示します',
+                      style: WanMapTypography.bodyMedium.copyWith(
+                        color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                      ),
                     ),
                   ),
                 ),
