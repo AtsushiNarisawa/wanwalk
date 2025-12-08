@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:math' show asin, cos, pi, sin, sqrt;
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
 import '../../../providers/gps_provider_riverpod.dart';
 import '../../../providers/official_route_provider.dart';
+import '../../../providers/official_routes_screen_provider.dart';
 import '../../../providers/area_provider.dart';
 import '../../../models/area.dart';
+import '../../../models/official_route.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../daily/daily_walking_screen.dart';
@@ -224,15 +227,69 @@ class _MapTabState extends ConsumerState<MapTab> {
                   ),
                 ),
                 
-                // おすすめルートカード領域（Phase 2で実装）
+                // おすすめルートカード領域
                 Expanded(
-                  child: Center(
-                    child: Text(
-                      '近くのおすすめルートを表示します',
-                      style: WanMapTypography.bodyMedium.copyWith(
-                        color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-                      ),
-                    ),
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      final gpsState = ref.watch(gpsProviderRiverpod);
+                      final routesAsync = ref.watch(officialRoutesProvider);
+
+                      // 現在地が取得できていない場合
+                      if (gpsState.currentLocation == null) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_searching,
+                                size: 48,
+                                color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                              ),
+                              const SizedBox(height: WanMapSpacing.md),
+                              Text(
+                                '現在地を取得中...',
+                                style: WanMapTypography.bodyMedium.copyWith(
+                                  color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      // ルートデータを取得
+                      return routesAsync.when(
+                        data: (allRoutes) {
+                          final recommendedRoutes = _getRecommendedRoutes(
+                            gpsState.currentLocation!,
+                            allRoutes,
+                          );
+                          return _buildRecommendedRouteCards(recommendedRoutes);
+                        },
+                        loading: () => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        error: (error, stack) => Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 48,
+                                color: Colors.red,
+                              ),
+                              const SizedBox(height: WanMapSpacing.md),
+                              Text(
+                                'ルートの取得に失敗しました',
+                                style: WanMapTypography.bodyMedium.copyWith(
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -302,5 +359,203 @@ class _MapTabState extends ConsumerState<MapTab> {
     }
 
     return MarkerLayer(markers: allMarkers);
+  }
+
+  /// 現在地から近いおすすめルートを取得（20km以内、上位3件）
+  List<Map<String, dynamic>> _getRecommendedRoutes(
+    LatLng currentLocation,
+    List<OfficialRoute> allRoutes,
+  ) {
+    final List<Map<String, dynamic>> nearbyRoutes = [];
+
+    for (final route in allRoutes) {
+      final distance = _calculateDistance(
+        currentLocation,
+        route.startLocation,
+      );
+
+      if (distance <= 20.0) {
+        // 20km以内
+        nearbyRoutes.add({
+          'route': route,
+          'distance': distance,
+        });
+      }
+    }
+
+    // 距離でソート → 上位3件取得
+    nearbyRoutes.sort((a, b) => (a['distance'] as double).compareTo(b['distance'] as double));
+    return nearbyRoutes.take(3).toList();
+  }
+
+  /// Haversine公式で2地点間の距離を計算（km単位）
+  double _calculateDistance(LatLng point1, LatLng point2) {
+    const R = 6371.0; // 地球の半径（km）
+    final lat1 = point1.latitude * pi / 180;
+    final lat2 = point2.latitude * pi / 180;
+    final dLat = (point2.latitude - point1.latitude) * pi / 180;
+    final dLon = (point2.longitude - point1.longitude) * pi / 180;
+
+    final a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
+    final c = 2 * asin(sqrt(a));
+
+    return R * c;
+  }
+
+  /// エリアIDから日本語名を取得（ハードコーディング）
+  String _getAreaName(String areaId) {
+    const areaNames = {
+      'hakone': '箱根',
+      'yokohama': '横浜',
+      'kamakura': '鎌倉',
+    };
+    return areaNames[areaId] ?? areaId;
+  }
+
+  /// エリア名から色を取得
+  Color _getAreaColor(String areaName) {
+    const areaColors = {
+      '箱根': Colors.orange,
+      '横浜': Colors.blue,
+      '鎌倉': Colors.green,
+    };
+    return areaColors[areaName] ?? WanMapColors.accent;
+  }
+
+  /// おすすめルートカードを構築
+  Widget _buildRecommendedRouteCards(List<Map<String, dynamic>> routes) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (routes.isEmpty) {
+      return Center(
+        child: Text(
+          '現在地から20km以内におすすめルートがありません',
+          style: WanMapTypography.bodyMedium.copyWith(
+            color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(
+        horizontal: WanMapSpacing.md,
+        vertical: WanMapSpacing.sm,
+      ),
+      itemCount: routes.length,
+      itemBuilder: (context, index) {
+        final routeData = routes[index];
+        final route = routeData['route'] as OfficialRoute;
+        final distance = routeData['distance'] as double;
+        final areaName = _getAreaName(route.areaId);
+
+        return Card(
+          elevation: 2,
+          margin: EdgeInsets.only(bottom: WanMapSpacing.md),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(WanMapSpacing.md),
+          ),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => RouteDetailScreen(routeId: route.id),
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(WanMapSpacing.md),
+            child: Padding(
+              padding: EdgeInsets.all(WanMapSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      // エリアバッジ
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: WanMapSpacing.sm,
+                          vertical: WanMapSpacing.xs,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getAreaColor(areaName),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          areaName,
+                          style: WanMapTypography.bodySmall.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: WanMapSpacing.sm),
+                      // ルート名
+                      Expanded(
+                        child: Text(
+                          route.name,
+                          style: WanMapTypography.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: WanMapSpacing.sm),
+                  // ルート情報
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.straighten,
+                        size: 16,
+                        color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        route.formattedDistance,
+                        style: WanMapTypography.bodySmall.copyWith(
+                          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                      const SizedBox(width: WanMapSpacing.md),
+                      Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '約${route.estimatedMinutes}分',
+                        style: WanMapTypography.bodySmall.copyWith(
+                          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(
+                        Icons.location_on,
+                        size: 16,
+                        color: WanMapColors.accent,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '現在地から ${distance.toStringAsFixed(1)} km',
+                        style: WanMapTypography.bodySmall.copyWith(
+                          color: WanMapColors.accent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
