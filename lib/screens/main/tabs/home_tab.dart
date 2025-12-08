@@ -170,11 +170,11 @@ class HomeTab extends ConsumerWidget {
                               horizontal: WanMapSpacing.md,
                               vertical: WanMapSpacing.sm,
                             ),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.orange.shade400,
-                                  Colors.deepOrange.shade600,
+                                  WanMapColors.primary,
+                                  WanMapColors.primaryDark,
                                 ],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
@@ -1091,15 +1091,15 @@ class _FeaturedAreaCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFFFF6B35),
-              Color(0xFFFF8C42),
+              WanMapColors.primary,
+              WanMapColors.primaryLight,
               WanMapColors.accent,
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF6B35).withOpacity(0.4),
+              color: WanMapColors.primary.withOpacity(0.3),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
