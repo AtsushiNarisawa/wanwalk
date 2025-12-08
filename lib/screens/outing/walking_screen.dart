@@ -15,6 +15,7 @@ import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
 import '../../services/badge_service.dart';
+import '../../widgets/zoom_control_widget.dart';
 import 'dart:io';
 import 'pin_create_screen.dart';
 
@@ -621,57 +622,72 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
 
   /// フローティングボタン
   Widget _buildFloatingButtons(GpsState gpsState) {
-    return Positioned(
-      right: WanMapSpacing.lg,
-      bottom: _showRouteInfo ? 280 : 120,
-      child: Column(
-        children: [
-          // 写真撮影ボタン
-          FloatingActionButton(
-            heroTag: "camera_button",
-            onPressed: _takePhoto,
-            backgroundColor: Colors.green,
-            child: Badge(
-              isLabelVisible: _photoFiles.isNotEmpty,
-              label: Text('${_photoFiles.length}'),
-              child: const Icon(Icons.camera_alt, color: Colors.white),
-            ),
+    return Stack(
+      children: [
+        // ズームコントロール（左下）
+        Positioned(
+          left: WanMapSpacing.lg,
+          bottom: _showRouteInfo ? 280 : 120,
+          child: ZoomControlWidget(
+            mapController: _mapController,
+            minZoom: 10.0,
+            maxZoom: 18.0,
           ),
-          const SizedBox(height: WanMapSpacing.md),
-          // ピン投稿ボタン
-          FloatingActionButton.extended(
-            heroTag: "pin_button",
-            onPressed: gpsState.currentLocation != null ? _createPin : null,
-            backgroundColor: WanMapColors.accent,
-            icon: const Icon(Icons.push_pin, color: Colors.white),
-            label: Text(
-              'ピン投稿',
-              style: WanMapTypography.bodyMedium.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+        ),
+        // 既存のボタン群（右下）
+        Positioned(
+          right: WanMapSpacing.lg,
+          bottom: _showRouteInfo ? 280 : 120,
+          child: Column(
+            children: [
+              // 写真撮影ボタン
+              FloatingActionButton(
+                heroTag: "camera_button",
+                onPressed: _takePhoto,
+                backgroundColor: Colors.green,
+                child: Badge(
+                  isLabelVisible: _photoFiles.isNotEmpty,
+                  label: Text('${_photoFiles.length}'),
+                  child: const Icon(Icons.camera_alt, color: Colors.white),
+                ),
               ),
-            ),
+              const SizedBox(height: WanMapSpacing.md),
+              // ピン投稿ボタン
+              FloatingActionButton.extended(
+                heroTag: "pin_button",
+                onPressed: gpsState.currentLocation != null ? _createPin : null,
+                backgroundColor: WanMapColors.accent,
+                icon: const Icon(Icons.push_pin, color: Colors.white),
+                label: Text(
+                  'ピン投稿',
+                  style: WanMapTypography.bodyMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: WanMapSpacing.md),
+              // 現在位置追従ボタン
+              FloatingActionButton(
+                heroTag: "location_button",
+                onPressed: () {
+                  if (gpsState.currentLocation != null) {
+                    _mapController.move(gpsState.currentLocation!, 16.0);
+                    setState(() {
+                      _isFollowingUser = true;
+                    });
+                  }
+                },
+                backgroundColor: Colors.white,
+                child: Icon(
+                  _isFollowingUser ? Icons.my_location : Icons.location_searching,
+                  color: WanMapColors.accent,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: WanMapSpacing.md),
-          // 現在位置追従ボタン
-          FloatingActionButton(
-            heroTag: "location_button",
-            onPressed: () {
-              if (gpsState.currentLocation != null) {
-                _mapController.move(gpsState.currentLocation!, 16.0);
-                setState(() {
-                  _isFollowingUser = true;
-                });
-              }
-            },
-            backgroundColor: Colors.white,
-            child: Icon(
-              _isFollowingUser ? Icons.my_location : Icons.location_searching,
-              color: WanMapColors.accent,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

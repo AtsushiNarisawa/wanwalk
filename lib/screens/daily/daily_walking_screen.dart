@@ -15,6 +15,7 @@ import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
 import '../../services/badge_service.dart';
+import '../../widgets/zoom_control_widget.dart';
 
 /// 日常散歩中画面
 /// - リアルタイムGPS追跡
@@ -594,24 +595,39 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
   /// フローティングボタン
   Widget _buildFloatingButton(GpsState gpsState) {
-    return Positioned(
-      right: WanMapSpacing.lg,
-      bottom: 280,
-      child: FloatingActionButton(
-        onPressed: () {
-          if (gpsState.currentLocation != null) {
-            _mapController.move(gpsState.currentLocation!, 16.0);
-            setState(() {
-              _isFollowingUser = true;
-            });
-          }
-        },
-        backgroundColor: Colors.white,
-        child: Icon(
-          _isFollowingUser ? Icons.my_location : Icons.location_searching,
-          color: WanMapColors.accent,
+    return Stack(
+      children: [
+        // ズームコントロール（左下）
+        Positioned(
+          left: WanMapSpacing.lg,
+          bottom: 280,
+          child: ZoomControlWidget(
+            mapController: _mapController,
+            minZoom: 10.0,
+            maxZoom: 18.0,
+          ),
         ),
-      ),
+        // 現在地ボタン（右下）
+        Positioned(
+          right: WanMapSpacing.lg,
+          bottom: 280,
+          child: FloatingActionButton(
+            onPressed: () {
+              if (gpsState.currentLocation != null) {
+                _mapController.move(gpsState.currentLocation!, 16.0);
+                setState(() {
+                  _isFollowingUser = true;
+                });
+              }
+            },
+            backgroundColor: Colors.white,
+            child: Icon(
+              _isFollowingUser ? Icons.my_location : Icons.location_searching,
+              color: WanMapColors.accent,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

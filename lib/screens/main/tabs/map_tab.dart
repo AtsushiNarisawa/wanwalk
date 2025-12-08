@@ -12,6 +12,7 @@ import '../../../providers/official_routes_screen_provider.dart';
 import '../../../providers/area_provider.dart';
 import '../../../models/area.dart';
 import '../../../models/official_route.dart';
+import '../../../widgets/zoom_control_widget.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../daily/daily_walking_screen.dart';
@@ -145,6 +146,16 @@ class _MapTabState extends ConsumerState<MapTab> {
                       error: (_, __) => const SizedBox.shrink(),
                     ),
                   ],
+                ),
+                // ズームコントロール（右下）
+                Positioned(
+                  right: WanMapSpacing.lg,
+                  bottom: WanMapSpacing.lg,
+                  child: ZoomControlWidget(
+                    mapController: _mapController,
+                    minZoom: 5.0,
+                    maxZoom: 18.0,
+                  ),
                 ),
               ],
             ),
