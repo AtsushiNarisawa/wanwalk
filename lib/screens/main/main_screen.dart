@@ -17,7 +17,7 @@ import 'tabs/profile_tab.dart';
 /// 4つのタブ:
 /// 1. ホーム - おでかけ散歩優先（エリア、公式ルート）
 /// 2. マップ - おでかけ散歩中心のマップ機能
-/// 3. 散歩記録 - 日常の散歩+統計+バッジ統合
+/// 3. ライブラリ - 日常の散歩+統計+バッジ統合
 /// 4. プロフィール - アカウント管理
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -94,7 +94,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.directions_walk_outlined, size: 28),
             activeIcon: Icon(Icons.directions_walk, size: 28),
-            label: '散歩記録',
+            label: 'ライブラリ',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline, size: 28),

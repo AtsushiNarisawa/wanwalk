@@ -30,7 +30,7 @@ class RecordsTab extends ConsumerWidget {
 
     if (userId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('散歩記録')),
+        appBar: AppBar(title: const Text('ライブラリ')),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +53,7 @@ class RecordsTab extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          '散歩記録',
+          'ライブラリ',
           style: WanMapTypography.headlineMedium.copyWith(
             color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
