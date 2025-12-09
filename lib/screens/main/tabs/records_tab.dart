@@ -186,7 +186,7 @@ class RecordsTab extends ConsumerWidget {
             _StatCard(icon: Icons.star, label: 'レベル', value: 'Lv.${stats.userLevel}', color: Colors.amber, isDark: isDark),
             _StatCard(icon: Icons.route, label: '総距離', value: stats.formattedTotalDistance, color: Colors.blue, isDark: isDark),
             _StatCard(icon: Icons.directions_walk, label: '総散歩', value: '${stats.totalWalks}回', color: Colors.green, isDark: isDark),
-            _StatCard(icon: Icons.explore, label: 'エリア', value: '${stats.areasVisited}箇所', color: WanMapColors.routeOrange, isDark: isDark),
+            _StatCard(icon: Icons.explore, label: 'エリア', value: '${stats.areasVisited}箇所', color: WanMapColors.accent, isDark: isDark),
           ],
         ),
       ],
@@ -322,7 +322,7 @@ class RecordsTab extends ConsumerWidget {
               children: [
                 Icon(
                   isOuting ? Icons.explore : Icons.directions_walk,
-                  color: isOuting ? WanMapColors.routeOrange : WanMapColors.accent,
+                  color: WanMapColors.accent,
                   size: 24,
                 ),
                 const SizedBox(width: WanMapSpacing.sm),
