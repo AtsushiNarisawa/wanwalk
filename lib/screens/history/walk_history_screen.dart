@@ -591,7 +591,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
               _DetailRow(
                 icon: Icons.calendar_today,
                 label: '日時',
-                value: history.walkedAt.toString(),
+                value: DateFormat('yyyy年MM月dd日 HH:mm').format(history.walkedAt),
                 isDark: isDark,
               ),
               const SizedBox(height: WanMapSpacing.sm),
@@ -677,13 +677,17 @@ class _DetailRow extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        Text(
-          value,
-          style: WanMapTypography.bodyLarge.copyWith(
-            color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
+        Flexible(
+          child: Text(
+            value,
+            style: WanMapTypography.bodyLarge.copyWith(
+              color: isDark
+                  ? WanMapColors.textPrimaryDark
+                  : WanMapColors.textPrimaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
