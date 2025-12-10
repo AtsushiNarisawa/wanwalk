@@ -244,13 +244,13 @@ class _RecordsTabState extends ConsumerState<RecordsTab> with SingleTickerProvid
     final userId = ref.watch(currentUserIdProvider);
     if (userId == null) return const SizedBox.shrink();
 
-    final outingAsync = ref.watch(outingWalkHistoryProvider(userId));
-    final dailyAsync = ref.watch(dailyWalkHistoryProvider(userId));
+    final outingAsync = ref.watch(outingWalkHistoryProvider(OutingHistoryParams(userId: userId)));
+    final dailyAsync = ref.watch(dailyWalkHistoryProvider(DailyHistoryParams(userId: userId)));
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(outingWalkHistoryProvider(userId));
-        ref.invalidate(dailyWalkHistoryProvider(userId));
+        ref.invalidate(outingWalkHistoryProvider(OutingHistoryParams(userId: userId)));
+        ref.invalidate(dailyWalkHistoryProvider(DailyHistoryParams(userId: userId)));
       },
       child: outingAsync.when(
         data: (outingWalks) => dailyAsync.when(
@@ -258,12 +258,15 @@ class _RecordsTabState extends ConsumerState<RecordsTab> with SingleTickerProvid
             // フィルタリング
             List<WalkHistoryItem> walks = [];
             if (filterType == null) {
-              // 全て
-              walks = [...outingWalks, ...dailyWalks];
+              // 全て：両方の型を統合
+              walks = [
+                ...outingWalks.map((w) => WalkHistoryItem.fromOuting(w)),
+                ...dailyWalks.map((w) => WalkHistoryItem.fromDaily(w)),
+              ];
             } else if (filterType == WalkHistoryType.outing) {
-              walks = outingWalks;
+              walks = outingWalks.map((w) => WalkHistoryItem.fromOuting(w)).toList();
             } else {
-              walks = dailyWalks;
+              walks = dailyWalks.map((w) => WalkHistoryItem.fromDaily(w)).toList();
             }
 
             // 日時でソート
@@ -284,11 +287,25 @@ class _RecordsTabState extends ConsumerState<RecordsTab> with SingleTickerProvid
                     walk: walk,
                     isDark: isDark,
                     onTap: () {
-                      if (walk is OutingWalkHistory) {
+                      if (walk.type == WalkHistoryType.outing) {
+                        // お出かけ散歩詳細画面へ
+                        // WalkHistoryItemからOutingWalkHistoryを再構成
+                        final outingHistory = OutingWalkHistory(
+                          walkId: walk.walkId,
+                          routeId: walk.routeId ?? '',
+                          routeName: walk.routeName ?? '',
+                          areaName: walk.areaName ?? '',
+                          walkedAt: walk.walkedAt,
+                          distanceMeters: walk.distanceMeters,
+                          durationSeconds: walk.durationSeconds,
+                          photoCount: walk.photoCount ?? 0,
+                          pinCount: walk.pinCount ?? 0,
+                          photoUrls: walk.photoUrls ?? [],
+                        );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => OutingWalkDetailScreen(history: walk),
+                            builder: (_) => OutingWalkDetailScreen(history: outingHistory),
                           ),
                         );
                       } else {
@@ -449,7 +466,7 @@ class _WalkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isOuting = walk.type == WalkHistoryType.outing;
-    final outingWalk = isOuting ? walk as OutingWalkHistory : null;
+    // WalkHistoryItemからoutingデータを直接使用
 
     return GestureDetector(
       onTap: onTap,
@@ -469,20 +486,20 @@ class _WalkCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 写真（お出かけ散歩のみ）
-            if (isOuting && outingWalk?.photoUrls != null && outingWalk!.photoUrls.isNotEmpty)
+            if (isOuting && walk.photoUrls != null && walk.photoUrls!.isNotEmpty)
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 child: SizedBox(
                   height: 200,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: outingWalk.photoUrls.length > 3 ? 3 : outingWalk.photoUrls.length,
+                    itemCount: walk.photoUrls!.length > 3 ? 3 : walk.photoUrls!.length,
                     itemBuilder: (context, index) {
                       return Container(
                         width: 200,
                         margin: const EdgeInsets.only(right: WanMapSpacing.xs),
                         child: Image.network(
-                          outingWalk.photoUrls[index],
+                          walk.photoUrls![index],
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Container(
                             color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
@@ -512,7 +529,7 @@ class _WalkCard extends StatelessWidget {
                       const SizedBox(width: WanMapSpacing.sm),
                       Expanded(
                         child: Text(
-                          isOuting ? (outingWalk?.routeName ?? 'お出かけ散歩') : _formatDateTimeTitle(walk.walkedAt),
+                          isOuting ? (walk.routeName ?? 'お出かけ散歩') : _formatDateTimeTitle(walk.walkedAt),
                           style: WanMapTypography.bodyLarge.copyWith(
                             color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                             fontWeight: FontWeight.bold,
@@ -526,11 +543,11 @@ class _WalkCard extends StatelessWidget {
                   // サブ情報
                   Row(
                     children: [
-                      if (isOuting && outingWalk != null) ...[
+                      if (isOuting && walk.areaName != null) ...[
                         Icon(Icons.location_on, size: 14, color: WanMapColors.accent),
                         const SizedBox(width: WanMapSpacing.xs),
                         Text(
-                          outingWalk.areaName,
+                          walk.areaName!,
                           style: WanMapTypography.bodySmall.copyWith(
                             color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                           ),
@@ -567,11 +584,11 @@ class _WalkCard extends StatelessWidget {
                         label: walk.formattedDuration,
                         isDark: isDark,
                       ),
-                      if (isOuting && outingWalk != null) ...[
+                      if (isOuting && walk.pinCount != null && walk.pinCount! > 0) ...[
                         const SizedBox(width: WanMapSpacing.sm),
                         _StatChip(
                           icon: Icons.push_pin,
-                          label: '${outingWalk.pinCount}個',
+                          label: '${walk.pinCount}個',
                           isDark: isDark,
                         ),
                       ],
