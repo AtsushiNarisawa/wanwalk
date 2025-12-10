@@ -26,6 +26,7 @@ class BadgeListScreen extends ConsumerWidget {
       );
     }
     
+    final badgesAsync = ref.watch(userBadgesProvider(userId));
     final badgeStatsAsync = ref.watch(badgeStatisticsProvider(userId));
 
     return Scaffold(
@@ -33,16 +34,12 @@ class BadgeListScreen extends ConsumerWidget {
         title: const Text('バッジコレクション'),
         backgroundColor: WanMapColors.primary,
       ),
-      body: badgeStatsAsync.when(
-        data: (badgeStats) {
-          if (badgeStats == null) {
-            return const Center(
-              child: Text('バッジデータを取得できませんでした'),
-            );
-          }
-
-          final earnedBadges = badgeStats.badges.where((b) => b.isEarned).toList();
-          final lockedBadges = badgeStats.badges.where((b) => !b.isEarned).toList();
+      body: badgesAsync.when(
+        data: (badges) {
+          return badgeStatsAsync.when(
+            data: (badgeStats) {
+              final earnedBadges = badges.where((b) => b.isUnlocked).toList();
+              final lockedBadges = badges.where((b) => !b.isUnlocked).toList();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(WanMapSpacing.md),
@@ -62,19 +59,19 @@ class BadgeListScreen extends ConsumerWidget {
                       _buildStatItem(
                         icon: Icons.emoji_events,
                         label: '獲得済み',
-                        value: '${badgeStats.earnedCount}個',
+                        value: '${badgeStats.unlockedBadges}個',
                         color: Colors.amber,
                       ),
                       _buildStatItem(
                         icon: Icons.lock,
                         label: '未獲得',
-                        value: '${badgeStats.totalBadges - badgeStats.earnedCount}個',
+                        value: '${badgeStats.totalBadges - badgeStats.unlockedBadges}個',
                         color: Colors.grey,
                       ),
                       _buildStatItem(
                         icon: Icons.trending_up,
                         label: '達成率',
-                        value: '${((badgeStats.earnedCount / badgeStats.totalBadges) * 100).toStringAsFixed(0)}%',
+                        value: badgeStats.unlockProgressPercentage,
                         color: WanMapColors.accent,
                       ),
                     ],
@@ -131,6 +128,26 @@ class BadgeListScreen extends ConsumerWidget {
               ],
             ),
           );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: WanMapSpacing.md),
+                  Text('統計エラー: $error'),
+                  const SizedBox(height: WanMapSpacing.md),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref.invalidate(badgeStatisticsProvider(userId));
+                    },
+                    child: const Text('再読み込み'),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
@@ -139,10 +156,11 @@ class BadgeListScreen extends ConsumerWidget {
             children: [
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: WanMapSpacing.md),
-              Text('エラー: $error'),
+              Text('バッジ取得エラー: $error'),
               const SizedBox(height: WanMapSpacing.md),
               ElevatedButton(
                 onPressed: () {
+                  ref.invalidate(userBadgesProvider(userId));
                   ref.invalidate(badgeStatisticsProvider(userId));
                 },
                 child: const Text('再読み込み'),
