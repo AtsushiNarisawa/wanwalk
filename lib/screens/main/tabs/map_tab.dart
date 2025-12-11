@@ -35,22 +35,12 @@ class MapTab extends ConsumerStatefulWidget {
 class _MapTabState extends ConsumerState<MapTab> {
   final MapController _mapController = MapController();
   LatLng? _currentLocation;
+  bool _isFirstLoad = true; // 初回ロードフラグ
 
   @override
   void initState() {
     super.initState();
-    _initializeLocation();
-  }
-
-  /// 現在地を取得
-  Future<void> _initializeLocation() async {
-    final gpsState = ref.read(gpsProviderRiverpod);
-    if (gpsState.currentLocation != null) {
-      setState(() {
-        _currentLocation = gpsState.currentLocation;
-      });
-      _mapController.move(_currentLocation!, 13.0);
-    }
+    // GPS情報は build メソッド内で ref.watch() で監視
   }
 
   /// 現在地に移動
@@ -72,6 +62,22 @@ class _MapTabState extends ConsumerState<MapTab> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final areasAsync = ref.watch(areasProvider);
+    
+    // GPS情報を監視して現在地を更新
+    final gpsState = ref.watch(gpsProviderRiverpod);
+    if (gpsState.currentLocation != null && _currentLocation != gpsState.currentLocation) {
+      // 現在地が初めて取得された、または更新された場合
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _currentLocation = gpsState.currentLocation;
+        });
+        // 初回のみマップを現在地に移動
+        if (_isFirstLoad && _currentLocation != null) {
+          _mapController.move(_currentLocation!, 13.0);
+          _isFirstLoad = false;
+        }
+      });
+    }
 
     return Scaffold(
       backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
