@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="WanMap Test">
+  <wpt lat="35.2468" lon="139.0379">
+    <name>DogHub箱根仙石原</name>
+    <desc>DogHub周辺</desc>
+  </wpt>
+  <wpt lat="35.2034" lon="139.0315">
+    <name>芦ノ湖元箱根港</name>
+    <desc>芦ノ湖畔ロングウォーク</desc>
+  </wpt>
+  <wpt lat="35.2327" lon="139.1044">
+    <name>箱根湯本駅</name>
+    <desc>箱根旧街道</desc>
+  </wpt>
+  <trk>
+    <name>箱根エリア周遊</name>
+    <trkseg>
+      <trkpt lat="35.2468" lon="139.0379">
+        <time>2024-01-01T09:00:00Z</time>
+      </trkpt>
+      <trkpt lat="35.2400" lon="139.0350">
+        <time>2024-01-01T09:10:00Z</time>
+      </trkpt>
+      <trkpt lat="35.2300" lon="139.0300">
+        <time>2024-01-01T09:20:00Z</time>
+      </trkpt>
+      <trkpt lat="35.2200" lon="139.0280">
+        <time>2024-01-01T09:30:00Z</time>
+      </trkpt>
+      <trkpt lat="35.2034" lon="139.0315">
+        <time>2024-01-01T09:40:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
