@@ -74,12 +74,18 @@ class _RecordsTabState extends ConsumerState<RecordsTab> with SingleTickerProvid
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'ライブラリ',
-          style: WanMapTypography.headlineMedium.copyWith(
-            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          children: [
+            const Icon(Icons.collections, color: WanMapColors.accent, size: 28),
+            const SizedBox(width: 8),
+            Text(
+              'ライブラリ',
+              style: WanMapTypography.headlineMedium.copyWith(
+                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         // コンパクトヘッダー
         bottom: PreferredSize(
