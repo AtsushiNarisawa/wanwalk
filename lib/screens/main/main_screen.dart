@@ -92,8 +92,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             label: 'マップ',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.directions_walk_outlined, size: 28),
-            activeIcon: Icon(Icons.directions_walk, size: 28),
+            icon: Icon(Icons.collections_outlined, size: 28),
+            activeIcon: Icon(Icons.collections, size: 28),
             label: 'ライブラリ',
           ),
           BottomNavigationBarItem(
