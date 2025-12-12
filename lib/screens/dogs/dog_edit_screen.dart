@@ -259,7 +259,10 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('愛犬の削除'),
-        content: Text('${widget.dog!.name}を削除してもよろしいですか？'),
+        content: Text(
+          '${widget.dog!.name}を削除してもよろしいですか？\n\nこの操作は取り消すことができません。',
+          style: const TextStyle(height: 1.5),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -267,8 +270,11 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('削除'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('削除する'),
           ),
         ],
       ),
@@ -312,7 +318,8 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
         actions: [
           if (isEditMode)
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              icon: const Icon(Icons.delete_outline, color: Colors.red, size: 26),
+              tooltip: '愛犬を削除',
               onPressed: _deleteDog,
             ),
           if (_isSaving)
