@@ -78,13 +78,42 @@ final pinsByRouteProvider = FutureProvider.family<List<RoutePin>, String>(
 final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
   (ref, pinId) async {
     try {
+      // route_pinsテーブルからピンを取得（locationフィールドは除外）
       final response = await _supabase
           .from('route_pins')
-          .select()
+          .select('id, route_id, user_id, pin_type, title, comment, likes_count, created_at')
           .eq('id', pinId)
           .maybeSingle();
 
-      if (response == null) return null;
+      if (response == null) {
+        if (kDebugMode) {
+          print('❌ Pin not found: $pinId');
+        }
+        return null;
+      }
+
+      // 位置情報を手動で取得（WKB形式を回避）
+      try {
+        final locationQuery = await _supabase.rpc(
+          'get_pin_location',
+          params: {'pin_id': pinId}
+        );
+        
+        // locationQueryからlat/lonを取得してresponseに追加
+        if (locationQuery != null && locationQuery is List && locationQuery.isNotEmpty) {
+          final locationData = locationQuery[0];
+          response['pin_lat'] = locationData['latitude'];
+          response['pin_lon'] = locationData['longitude'];
+        } else {
+          if (kDebugMode) {
+            print('⚠️ Location not found for pin $pinId');
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ Failed to fetch location for pin $pinId: $e');
+        }
+      }
 
       final pin = RoutePin.fromJson(response);
 
@@ -100,14 +129,21 @@ final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
             .map((photo) => photo['photo_url'] as String)
             .toList();
 
+        if (kDebugMode) {
+          print('✅ Pin loaded successfully: ${pin.title} (${photoUrls.length} photos)');
+        }
+
         return pin.copyWith(photoUrls: photoUrls);
       } catch (e) {
         if (kDebugMode) {
-          print('Failed to fetch photos for pin $pinId: $e');
+          print('⚠️ Failed to fetch photos for pin $pinId: $e');
         }
         return pin;
       }
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Failed to fetch pin $pinId: $e');
+      }
       throw Exception('Failed to fetch pin: $e');
     }
   },
