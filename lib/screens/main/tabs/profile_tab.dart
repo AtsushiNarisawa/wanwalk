@@ -249,7 +249,7 @@ class ProfileTab extends ConsumerWidget {
             )
           else
             SizedBox(
-              height: 240,
+              height: 280,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.md),
@@ -487,6 +487,7 @@ class _DogCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(WanMapSpacing.md),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // 犬の写真
@@ -514,7 +515,7 @@ class _DogCard extends StatelessWidget {
                           child: const Icon(Icons.pets, size: 48, color: Colors.grey),
                         ),
                 ),
-                const SizedBox(height: WanMapSpacing.sm),
+                const SizedBox(height: WanMapSpacing.xs),
                 
                 // 名前
                 Text(
