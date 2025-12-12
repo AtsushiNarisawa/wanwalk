@@ -497,9 +497,59 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                   },
                 ),
                 
-                // 予防接種情報（編集モードのみ）
+                // 予防接種情報セクション（編集モードのみ）
                 if (isEditMode && widget.dog != null) ...[
-                  const SizedBox(height: WanMapSpacing.large),
+                  const SizedBox(height: WanMapSpacing.xl),
+                  
+                  // セクション区切り
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: WanMapSpacing.md),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: isDark ? WanMapColors.borderDark : WanMapColors.borderLight,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.medical_services,
+                          color: WanMapColors.primary,
+                          size: 28,
+                        ),
+                        const SizedBox(width: WanMapSpacing.sm),
+                        Text(
+                          '予防接種情報',
+                          style: WanMapTypography.headlineMedium.copyWith(
+                            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: WanMapSpacing.sm,
+                            vertical: WanMapSpacing.xxs,
+                          ),
+                          decoration: BoxDecoration(
+                            color: WanMapColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '散歩時に必須',
+                            style: WanMapTypography.bodySmall.copyWith(
+                              color: WanMapColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: WanMapSpacing.md),
                   VaccinationInfoWidget(
                     dog: widget.dog!,
                     userId: widget.userId,
