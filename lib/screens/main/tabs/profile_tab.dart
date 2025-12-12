@@ -227,52 +227,6 @@ class ProfileTab extends ConsumerWidget {
       ),
     );
   }
-
-  /// ソーシャル統計
-  Widget _buildSocialStats(BuildContext context, bool isDark, String userId, AsyncValue<dynamic> statisticsAsync) {
-    return statisticsAsync.when(
-      data: (stats) => Row(
-        children: [
-          Expanded(
-            child: _SocialStatCard(
-              icon: Icons.people_outline,
-              label: 'フォロワー',
-              value: '${stats.followersCount}',
-              isDark: isDark,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => FollowersScreen(userId: userId),
-                ),
-              );
-            },
-          ),
-        ),
-          const SizedBox(width: WanMapSpacing.md),
-          Expanded(
-            child: _SocialStatCard(
-              icon: Icons.person_add_outlined,
-              label: 'フォロー中',
-              value: '${stats.followingCount}',
-              isDark: isDark,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => FollowingScreen(userId: userId),
-                ),
-              );
-            },
-            ),
-          ),
-        ],
-      ),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const SizedBox.shrink(),
-    );
-  }
-
   /// メニューリスト
   Widget _buildMenuList(
     BuildContext context,
@@ -426,64 +380,6 @@ class ProfileTab extends ConsumerWidget {
         }
       }
     }
-  }
-}
-
-class _SocialStatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _SocialStatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
-        decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 32, color: WanMapColors.accent),
-            const SizedBox(height: WanMapSpacing.sm),
-            Text(
-              value,
-              style: WanMapTypography.headlineMedium.copyWith(
-                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: WanMapSpacing.xs),
-            Text(
-              label,
-              style: WanMapTypography.caption.copyWith(
-                color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
