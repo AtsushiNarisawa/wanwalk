@@ -138,7 +138,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     User? currentUser,
   ) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.xl),
+      padding: const EdgeInsets.all(WanMapSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -148,7 +148,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
             WanMapColors.accent.withOpacity(0.8),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: WanMapColors.accent.withOpacity(0.3),
@@ -157,45 +157,50 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         children: [
-          // アバター
+          // アバター（左側）
           CircleAvatar(
-            radius: 50,
+            radius: 40,
             backgroundColor: Colors.white,
             backgroundImage: profile?.avatarUrl != null
                 ? NetworkImage(profile!.avatarUrl!)
                 : null,
             child: profile?.avatarUrl == null
-                ? const Icon(Icons.person, size: 60, color: WanMapColors.accent)
+                ? const Icon(Icons.person, size: 48, color: WanMapColors.accent)
                 : null,
           ),
           
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(width: WanMapSpacing.md),
           
-          // 表示名
-          Text(
-            profile?.displayName ?? 'ユーザー名未設定',
-            style: WanMapTypography.headlineMedium.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+          // ユーザー情報（右側）
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 表示名
+                Text(
+                  profile?.displayName ?? 'ユーザー名未設定',
+                  style: WanMapTypography.headlineSmall.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                
+                const SizedBox(height: WanMapSpacing.xs),
+                
+                // メールアドレス
+                if (currentUser?.email != null)
+                  Text(
+                    currentUser!.email!,
+                    style: WanMapTypography.bodyMedium.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
             ),
-            textAlign: TextAlign.center,
           ),
-          
-          const SizedBox(height: WanMapSpacing.xs),
-          
-          // メールアドレス
-          if (currentUser?.email != null)
-            Text(
-              currentUser!.email!,
-              style: WanMapTypography.bodySmall.copyWith(
-                color: Colors.white.withOpacity(0.9),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          
-
         ],
       ),
     );
