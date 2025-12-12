@@ -243,14 +243,14 @@ class _VaccinationInfoWidgetState extends ConsumerState<VaccinationInfoWidget> {
           // 接種証明書の画像と編集ボタン
           Stack(
             children: [
-              // 写真
+              // 写真（接種日ブロックと同じ幅）
               GestureDetector(
                 onTap: photoUrl != null && photoUrl.isNotEmpty 
                     ? () => _showFullScreenImage(photoUrl) 
                     : null,
                 child: Container(
-                  width: 160,
-                  height: 100,
+                  width: double.infinity,
+                  height: 150,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(8),
@@ -264,7 +264,7 @@ class _VaccinationInfoWidgetState extends ConsumerState<VaccinationInfoWidget> {
                   child: photoUrl == null || photoUrl.isEmpty
                       ? Icon(
                           Icons.image,
-                          size: 40,
+                          size: 48,
                           color: Colors.grey[600],
                         )
                       : null,
