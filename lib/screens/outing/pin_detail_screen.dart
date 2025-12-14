@@ -988,9 +988,11 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                       ElevatedButton.icon(
                         onPressed: () async {
                           // ユーザーの既存レビューを取得
-                          final existingReview = userReviewAsync != null
-                              ? await userReviewAsync.future
-                              : null;
+                          SpotReviewModel? existingReview;
+                          if (userReviewAsync != null) {
+                            final asyncValue = userReviewAsync;
+                            existingReview = asyncValue.value;
+                          }
                           
                           if (!context.mounted) return;
                           
@@ -1051,9 +1053,11 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () async {
                       // ユーザーの既存レビューを取得
-                      final existingReview = userReviewAsync != null
-                          ? await userReviewAsync.future
-                          : null;
+                      SpotReviewModel? existingReview;
+                      if (userReviewAsync != null) {
+                        final asyncValue = userReviewAsync;
+                        existingReview = asyncValue.value;
+                      }
                       
                       if (!context.mounted) return;
                       
