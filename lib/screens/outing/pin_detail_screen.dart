@@ -857,6 +857,288 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
       ),
     );
   }
+
+  /// スポット評価・レビューセクション
+  Widget _buildReviewsSection(String spotId, bool isDark) {
+    // 平均評価を取得
+    final averageRatingAsync = ref.watch(spotAverageRatingProvider(spotId));
+    // レビュー数を取得
+    final reviewCountAsync = ref.watch(spotReviewCountProvider(spotId));
+    // レビュー一覧を取得
+    final reviewsAsync = ref.watch(spotReviewsProvider(spotId));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // セクションヘッダー（星評価＋レビュー数）
+        Row(
+          children: [
+            const Icon(
+              Icons.star,
+              size: 20,
+              color: Colors.amber,
+            ),
+            const SizedBox(width: WanMapSpacing.xs),
+            Text(
+              'スポット評価',
+              style: WanMapTypography.headlineSmall.copyWith(
+                color: isDark
+                    ? WanMapColors.textPrimaryDark
+                    : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            // 平均評価表示
+            averageRatingAsync.when(
+              data: (avg) {
+                if (avg == null) return const SizedBox.shrink();
+                return Row(
+                  children: [
+                    Text(
+                      avg.toStringAsFixed(1),
+                      style: WanMapTypography.headlineSmall.copyWith(
+                        color: Colors.amber,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: WanMapSpacing.xs),
+                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                  ],
+                );
+              },
+              loading: () => const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          ],
+        ),
+        const SizedBox(height: WanMapSpacing.sm),
+
+        // レビュー数表示
+        reviewCountAsync.when(
+          data: (count) {
+            if (count == 0) {
+              return Text(
+                'まだレビューがありません',
+                style: WanMapTypography.bodySmall.copyWith(
+                  color: isDark
+                      ? WanMapColors.textSecondaryDark
+                      : WanMapColors.textSecondaryLight,
+                ),
+              );
+            }
+            return Text(
+              '$count件のレビュー',
+              style: WanMapTypography.bodySmall.copyWith(
+                color: isDark
+                    ? WanMapColors.textSecondaryDark
+                    : WanMapColors.textSecondaryLight,
+              ),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        ),
+
+        const SizedBox(height: WanMapSpacing.md),
+
+        // レビュー一覧
+        reviewsAsync.when(
+          data: (reviews) {
+            if (reviews.isEmpty) {
+              return Container(
+                padding: const EdgeInsets.all(WanMapSpacing.lg),
+                decoration: BoxDecoration(
+                  color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.rate_review_outlined,
+                        size: 48,
+                        color: isDark
+                            ? WanMapColors.textSecondaryDark
+                            : WanMapColors.textSecondaryLight,
+                      ),
+                      const SizedBox(height: WanMapSpacing.sm),
+                      Text(
+                        'このスポットの最初のレビューを投稿しませんか？',
+                        style: WanMapTypography.bodyMedium.copyWith(
+                          color: isDark
+                              ? WanMapColors.textSecondaryDark
+                              : WanMapColors.textSecondaryLight,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            // レビューカードを表示（最大3件）
+            return Column(
+              children: reviews
+                  .take(3)
+                  .map((review) => _buildReviewCard(review, isDark))
+                  .toList(),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Container(
+            padding: const EdgeInsets.all(WanMapSpacing.md),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              'レビューの読み込みに失敗しました',
+              style: WanMapTypography.bodySmall.copyWith(color: Colors.red),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// レビューカード
+  Widget _buildReviewCard(SpotReviewModel review, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanMapSpacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? WanMapColors.borderDark : WanMapColors.borderLight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ヘッダー：星評価＋日時
+          Row(
+            children: [
+              // 星評価
+              Row(
+                children: List.generate(5, (index) {
+                  return Icon(
+                    index < review.rating ? Icons.star : Icons.star_border,
+                    size: 16,
+                    color: Colors.amber,
+                  );
+                }),
+              ),
+              const Spacer(),
+              // 相対時間
+              Text(
+                review.relativeTime,
+                style: WanMapTypography.bodySmall.copyWith(
+                  color: isDark
+                      ? WanMapColors.textSecondaryDark
+                      : WanMapColors.textSecondaryLight,
+                ),
+              ),
+            ],
+          ),
+
+          if (review.reviewText != null && review.reviewText!.isNotEmpty) ...[
+            const SizedBox(height: WanMapSpacing.sm),
+            // レビューテキスト
+            Text(
+              review.reviewText!,
+              style: WanMapTypography.bodyMedium.copyWith(
+                color: isDark
+                    ? WanMapColors.textPrimaryDark
+                    : WanMapColors.textPrimaryLight,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+
+          // 設備情報アイコン
+          if (review.hasAnyFacilities) ...[
+            const SizedBox(height: WanMapSpacing.sm),
+            Wrap(
+              spacing: WanMapSpacing.xs,
+              runSpacing: WanMapSpacing.xs,
+              children: [
+                if (review.hasWaterFountain)
+                  _buildFacilityChip('水飲み場', Icons.water_drop, isDark),
+                if (review.hasDogRun)
+                  _buildFacilityChip('ドッグラン', Icons.pets, isDark),
+                if (review.hasShade)
+                  _buildFacilityChip('日陰', Icons.wb_sunny, isDark),
+                if (review.hasToilet)
+                  _buildFacilityChip('トイレ', Icons.wc, isDark),
+                if (review.hasParking)
+                  _buildFacilityChip('駐車場', Icons.local_parking, isDark),
+              ],
+            ),
+          ],
+
+          // 写真プレビュー（あれば）
+          if (review.photoCount > 0) ...[
+            const SizedBox(height: WanMapSpacing.sm),
+            Row(
+              children: [
+                Icon(
+                  Icons.photo_library,
+                  size: 16,
+                  color: isDark
+                      ? WanMapColors.textSecondaryDark
+                      : WanMapColors.textSecondaryLight,
+                ),
+                const SizedBox(width: WanMapSpacing.xs),
+                Text(
+                  '${review.photoCount}枚の写真',
+                  style: WanMapTypography.bodySmall.copyWith(
+                    color: isDark
+                        ? WanMapColors.textSecondaryDark
+                        : WanMapColors.textSecondaryLight,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// 設備情報チップ
+  Widget _buildFacilityChip(String label, IconData icon, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: WanMapSpacing.sm,
+        vertical: WanMapSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: WanMapColors.accent.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: WanMapColors.accent),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: WanMapTypography.bodySmall.copyWith(
+              color: WanMapColors.accent,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// 統計カード
