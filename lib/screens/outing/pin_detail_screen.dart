@@ -316,40 +316,66 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
     bool isDark,
     RoutePin pin,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // セクションヘッダー
-        Row(
-          children: [
-            Icon(
-              Icons.chat_bubble_outline,
-              size: 20,
-              color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
-            ),
-            const SizedBox(width: WanMapSpacing.xs),
-            Text(
-              'みんなのコメント',
-              style: WanMapTypography.headlineSmall.copyWith(
-                color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
-                fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.all(WanMapSpacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // セクションヘッダー
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: WanMapColors.accent.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.forum_rounded,
+                  size: 20,
+                  color: WanMapColors.accent,
+                ),
               ),
-            ),
-            const SizedBox(width: WanMapSpacing.xs),
-            Text(
-              '($commentCount)',
-              style: WanMapTypography.bodyMedium.copyWith(
-                color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+              const SizedBox(width: WanMapSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'みんなの感想・質問',
+                      style: WanMapTypography.headlineSmall.copyWith(
+                        color: isDark
+                            ? WanMapColors.textPrimaryDark
+                            : WanMapColors.textPrimaryLight,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'このピンについての感想や質問を投稿できます',
+                      style: WanMapTypography.bodySmall.copyWith(
+                        color: isDark
+                            ? WanMapColors.textSecondaryDark
+                            : WanMapColors.textSecondaryLight,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+              Text(
+                '($commentCount)',
+                style: WanMapTypography.bodyMedium.copyWith(
+                  color: isDark
+                      ? WanMapColors.textSecondaryDark
+                      : WanMapColors.textSecondaryLight,
+                ),
+              ),
+            ],
+          ),
 
         const SizedBox(height: WanMapSpacing.md),
 
@@ -566,7 +592,8 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             ),
           ),
         ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -876,81 +903,116 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
         ? ref.watch(userSpotReviewProvider((userId: userId, spotId: spotId)))
         : null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // セクションヘッダー（星評価＋レビュー数）
-        Row(
-          children: [
-            const Icon(
-              Icons.star,
-              size: 20,
-              color: Colors.amber,
-            ),
-            const SizedBox(width: WanMapSpacing.xs),
-            Text(
-              'スポット評価',
-              style: WanMapTypography.headlineSmall.copyWith(
-                color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
-                fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.all(WanMapSpacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // セクションヘッダー
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.star_rounded,
+                  size: 20,
+                  color: Colors.amber,
+                ),
               ),
-            ),
-            const Spacer(),
-            // 平均評価表示
-            averageRatingAsync.when(
-              data: (avg) {
-                if (avg == null) return const SizedBox.shrink();
-                return Row(
+              const SizedBox(width: WanMapSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      avg.toStringAsFixed(1),
+                      'このスポットの評価',
                       style: WanMapTypography.headlineSmall.copyWith(
-                        color: Colors.amber,
+                        color: isDark
+                            ? WanMapColors.textPrimaryDark
+                            : WanMapColors.textPrimaryLight,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: WanMapSpacing.xs),
-                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                    const SizedBox(height: 2),
+                    Text(
+                      '設備や雰囲気についての評価です',
+                      style: WanMapTypography.bodySmall.copyWith(
+                        color: isDark
+                            ? WanMapColors.textSecondaryDark
+                            : WanMapColors.textSecondaryLight,
+                      ),
+                    ),
                   ],
-                );
-              },
-              loading: () => const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2)),
-              error: (_, __) => const SizedBox.shrink(),
-            ),
-          ],
-        ),
-        const SizedBox(height: WanMapSpacing.sm),
-
-        // レビュー数表示
-        reviewCountAsync.when(
-          data: (count) {
-            if (count == 0) {
-              return Text(
-                'まだレビューがありません',
-                style: WanMapTypography.bodySmall.copyWith(
-                  color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
                 ),
-              );
-            }
-            return Text(
-              '$count件のレビュー',
-              style: WanMapTypography.bodySmall.copyWith(
-                color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
               ),
-            );
-          },
-          loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
-        ),
+            ],
+          ),
+          
+          const SizedBox(height: WanMapSpacing.md),
+          
+          // 平均評価＋レビュー数表示
+          Row(
+            children: [
+              // 平均評価
+              averageRatingAsync.when(
+                data: (avg) {
+                  if (avg == null) {
+                    return Text(
+                      '評価なし',
+                      style: WanMapTypography.bodyMedium.copyWith(
+                        color: isDark
+                            ? WanMapColors.textSecondaryDark
+                            : WanMapColors.textSecondaryLight,
+                      ),
+                    );
+                  }
+                  return Row(
+                    children: [
+                      Text(
+                        avg.toStringAsFixed(1),
+                        style: WanMapTypography.headlineMedium.copyWith(
+                          color: Colors.amber,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.star_rounded, color: Colors.amber, size: 24),
+                    ],
+                  );
+                },
+                loading: () => const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2)),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+              const SizedBox(width: WanMapSpacing.sm),
+              // レビュー数
+
+              reviewCountAsync.when(
+                data: (count) {
+                  return Text(
+                    '($count件のレビュー)',
+                    style: WanMapTypography.bodyMedium.copyWith(
+                      color: isDark
+                          ? WanMapColors.textSecondaryDark
+                          : WanMapColors.textSecondaryLight,
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+            ],
+          ),
 
         const SizedBox(height: WanMapSpacing.md),
 
@@ -1110,7 +1172,8 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             ),
           ),
         ),
-      ],
+        ],
+      ),
     );
   }
 
