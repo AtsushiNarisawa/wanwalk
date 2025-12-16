@@ -53,7 +53,7 @@ class HakoneSubAreaScreen extends ConsumerWidget {
                   const SizedBox(width: WanMapSpacing.sm),
                   Expanded(
                     child: Text(
-                      '箱根は5つのエリアに分かれています。\nDogHubへのアクセス情報も確認できます。',
+                      '箱根は5つのエリアに分かれています。\nそれぞれのエリアの特色をご覧ください。',
                       style: WanMapTypography.bodySmall.copyWith(
                         color: isDark
                             ? WanMapColors.textPrimaryDark

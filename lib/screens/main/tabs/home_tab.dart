@@ -479,7 +479,7 @@ class HomeTab extends ConsumerWidget {
                   id: 'hakone_group',
                   name: '箱根',
                   prefecture: '神奈川県',
-                  description: 'DogHub所在地。5つのエリアから愛犬と楽しめる散歩コースが豊富です。',
+                  description: '神奈川県の人気観光地。温泉、美術館、芦ノ湖など多彩なスポットがあり、愛犬と楽しめる散歩コースが豊富です。',
                   centerLocation: hakoneSubAreas.first.centerLocation,
                   createdAt: DateTime.now(),
                 );

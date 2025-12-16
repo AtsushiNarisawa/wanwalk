@@ -4,6 +4,7 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../providers/official_route_provider.dart';
+import '../../providers/area_provider.dart';
 import '../../models/official_route.dart';
 import 'route_detail_screen.dart';
 
@@ -23,6 +24,9 @@ class RouteListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final routesAsync = ref.watch(routesByAreaProvider(areaId));
+    final areaAsync = ref.watch(areaByIdProvider(areaId));
+    // 箱根サブエリアかどうかを判定
+    final isHakoneSubArea = areaName.startsWith('箱根・');
 
     return Scaffold(
       backgroundColor: isDark
@@ -40,12 +44,31 @@ class RouteListScreen extends ConsumerWidget {
           }
           return ListView.builder(
             padding: const EdgeInsets.all(WanMapSpacing.lg),
-            itemCount: routes.length,
+            itemCount: routes.length + (isHakoneSubArea ? 1 : 0),
             itemBuilder: (context, index) {
-              final route = routes[index];
+              // 箱根サブエリアの場合、最初に交通情報カードを表示
+              if (isHakoneSubArea && index == 0) {
+                return areaAsync.when(
+                  data: (area) {
+                    if (area == null || area.description.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+                      child: _buildTransportInfoCard(isDark, area.description),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                );
+              }
+              
+              // ルートカード表示（箱根の場合はindex-1）
+              final routeIndex = isHakoneSubArea ? index - 1 : index;
+              final route = routes[routeIndex];
               return Padding(
                 padding: EdgeInsets.only(
-                  bottom: index < routes.length - 1 ? WanMapSpacing.md : 0,
+                  bottom: routeIndex < routes.length - 1 ? WanMapSpacing.md : 0,
                 ),
                 child: _RouteCard(
                   route: route,
@@ -89,6 +112,63 @@ class RouteListScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// 交通情報カード
+  Widget _buildTransportInfoCard(bool isDark, String description) {
+    return Container(
+      padding: const EdgeInsets.all(WanMapSpacing.md),
+      decoration: BoxDecoration(
+        color: WanMapColors.accent.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: WanMapColors.accent.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: WanMapColors.accent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.directions_car,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: WanMapSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '交通アクセス',
+                  style: WanMapTypography.titleMedium.copyWith(
+                    color: WanMapColors.accent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: WanMapSpacing.xs),
+                Text(
+                  description,
+                  style: WanMapTypography.bodySmall.copyWith(
+                    color: isDark
+                        ? WanMapColors.textPrimaryDark
+                        : WanMapColors.textPrimaryLight,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
