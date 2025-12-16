@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
@@ -584,6 +585,9 @@ class HomeTab extends ConsumerWidget {
                       minimumSize: const Size(double.infinity, 48),
                     ),
                   ),
+                  const SizedBox(height: WanMapSpacing.lg),
+                  // バナー
+                  _buildPromotionalBanner(context, isDark),
                 ],
               );
             },
@@ -1497,6 +1501,83 @@ class _PopularRouteCard extends StatelessWidget {
       ),
     );
   }
+
+  /// プロモーションバナー
+  Widget _buildPromotionalBanner(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onTap: () async {
+        final url = Uri.parse('https://map-hakone.staynavi.direct/');
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              WanMapColors.primary,
+              WanMapColors.primary.withOpacity(0.8),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: WanMapColors.primary.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.campaign,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: WanMapSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '箱根エリアマップ',
+                    style: WanMapTypography.titleLarge.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '箱根の観光情報をチェック',
+                    style: WanMapTypography.bodySmall.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// 特集エリアカード（箱根専用・大きく表示）
@@ -1517,8 +1598,8 @@ class _FeaturedAreaCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 160,
-        padding: const EdgeInsets.all(WanMapSpacing.xl),
+        height: 120,
+        padding: const EdgeInsets.all(WanMapSpacing.lg),
         decoration: BoxDecoration(
           color: WanMapColors.accent,
           borderRadius: BorderRadius.circular(16),
@@ -1536,7 +1617,7 @@ class _FeaturedAreaCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.pets, color: Colors.white, size: 48),
+                const Icon(Icons.pets, color: Colors.white, size: 36),
                 const SizedBox(width: WanMapSpacing.md),
                 Expanded(
                   child: Column(
@@ -1547,20 +1628,20 @@ class _FeaturedAreaCard extends StatelessWidget {
                         style: WanMapTypography.headlineMedium.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 28,
+                          fontSize: 24,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         area.prefecture,
-                        style: WanMapTypography.bodyLarge.copyWith(
+                        style: WanMapTypography.bodyMedium.copyWith(
                           color: Colors.white.withOpacity(0.9),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 24),
+                const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
               ],
             ),
           ],
