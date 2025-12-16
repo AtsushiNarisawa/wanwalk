@@ -57,6 +57,17 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    
+    // アプリ起動時に現在地を取得
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeLocation();
+    });
+  }
+  
+  /// 現在地を初期化
+  Future<void> _initializeLocation() async {
+    final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
+    await gpsNotifier.getCurrentLocation();
   }
 
   @override

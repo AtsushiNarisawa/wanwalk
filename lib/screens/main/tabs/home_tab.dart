@@ -1595,34 +1595,49 @@ class _PopularRouteCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   // 距離・所要時間・今月の散歩数
-                  Row(
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 4,
                     children: [
-                      Icon(Icons.straighten, size: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${(distance / 1000).toStringAsFixed(1)}km',
-                        style: WanMapTypography.bodySmall.copyWith(
-                          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.straighten, size: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${(distance / 1000).toStringAsFixed(1)}km',
+                            style: WanMapTypography.bodySmall.copyWith(
+                              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Icon(Icons.schedule, size: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${duration}分',
-                        style: WanMapTypography.bodySmall.copyWith(
-                          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.schedule, size: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${duration}分',
+                            style: WanMapTypography.bodySmall.copyWith(
+                              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Icon(Icons.pets, size: 14, color: WanMapColors.accent),
-                      const SizedBox(width: 4),
-                      Text(
-                        '$totalWalks回',
-                        style: WanMapTypography.bodySmall.copyWith(
-                          color: WanMapColors.accent,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.pets, size: 14, color: WanMapColors.accent),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$totalWalks回',
+                            style: WanMapTypography.bodySmall.copyWith(
+                              color: WanMapColors.accent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
