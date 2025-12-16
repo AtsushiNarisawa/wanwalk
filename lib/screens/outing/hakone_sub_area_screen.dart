@@ -180,7 +180,7 @@ class _HakoneSubAreaCard extends StatelessWidget {
                     children: [
                       Text(
                         subAreaName,
-                        style: WanMapTypography.h3.copyWith(
+                        style: WanMapTypography.titleLarge.copyWith(
                           color: isDark
                               ? WanMapColors.textPrimaryDark
                               : WanMapColors.textPrimaryLight,
