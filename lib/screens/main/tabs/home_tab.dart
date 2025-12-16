@@ -21,6 +21,7 @@ import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../outing/pin_comment_screen.dart';
+import '../../outing/hakone_sub_area_screen.dart';
 
 import '../../routes/public_routes_screen.dart';
 import '../../outing/route_list_screen.dart';
@@ -465,19 +466,34 @@ class HomeTab extends ConsumerWidget {
                 return _buildEmptyCard(isDark, 'エリアが登録されていません');
               }
               
-              // 箱根を最優先、その他はそのまま
+              // 箱根エリアを優先表示（箱根・で始まるエリアを除外）
+              final hakoneSubAreas = areas.where((area) => area.name.startsWith('箱根・')).toList();
+              final nonHakoneAreas = areas.where((area) => !area.name.startsWith('箱根・')).toList();
+              
+              // 箱根親エリアを作成（サブエリアが複数ある場合）
               Area? hakoneArea;
-              try {
-                hakoneArea = areas.firstWhere((area) => area.name == '箱根');
-              } catch (e) {
-                hakoneArea = areas.isNotEmpty ? areas.first : null;
+              if (hakoneSubAreas.length > 1) {
+                // 箱根グループエリアを作成（表示用ダミー）
+                hakoneArea = Area(
+                  id: 'hakone_group',
+                  name: '箱根',
+                  prefecture: '神奈川県',
+                  description: 'DogHub所在地。5つのエリアから愛犬と楽しめる散歩コースが豊富です。',
+                  centerLocation: hakoneSubAreas.first.centerLocation,
+                  createdAt: DateTime.now(),
+                );
+              } else if (hakoneSubAreas.isNotEmpty) {
+                hakoneArea = hakoneSubAreas.first;
+              } else {
+                hakoneArea = nonHakoneAreas.isNotEmpty ? nonHakoneAreas.first : null;
               }
               
               if (hakoneArea == null) {
                 return _buildEmptyCard(isDark, 'エリアが登録されていません');
               }
               
-              final otherAreas = areas.where((area) => area.name != '箱根').take(2).toList();
+              // 箱根以外のエリアから2件取得
+              final otherAreas = nonHakoneAreas.take(2).toList();
               
               return Column(
                 children: [
@@ -487,15 +503,39 @@ class HomeTab extends ConsumerWidget {
                     child: _FeaturedAreaCard(
                       area: hakoneArea,
                       isDark: isDark,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => RouteListScreen(
-                            areaId: hakoneArea!.id,
-                            areaName: hakoneArea.name,
-                          ),
-                        ),
-                      ),
+                      onTap: () {
+                        // 箱根グループの場合はサブエリア選択画面へ
+                        if (hakoneArea!.id == 'hakone_group') {
+                          // hakoneSubAreasをMap形式に変換
+                          final subAreasData = hakoneSubAreas.map((area) => {
+                            'id': area.id,
+                            'name': area.name,
+                            'prefecture': area.prefecture,
+                            'description': area.description,
+                            'route_count': 0, // ルート数は後で取得可能
+                          }).toList();
+                          
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HakoneSubAreaScreen(
+                                subAreas: subAreasData,
+                              ),
+                            ),
+                          );
+                        } else {
+                          // 通常のエリアはルート一覧へ
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => RouteListScreen(
+                                areaId: hakoneArea!.id,
+                                areaName: hakoneArea.name,
+                              ),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
                   // その他2エリア（横2列）
