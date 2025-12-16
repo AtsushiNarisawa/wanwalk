@@ -980,67 +980,58 @@ class HomeTab extends ConsumerWidget {
       },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        height: 160,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              WanMapColors.primary,
-              WanMapColors.primary.withOpacity(0.8),
-            ],
-          ),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: WanMapColors.primary.withOpacity(0.3),
-              blurRadius: 8,
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.campaign,
-                color: Colors.white,
-                size: 32,
-              ),
-            ),
-            const SizedBox(width: WanMapSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '箱根エリアマップ',
-                    style: WanMapTypography.titleLarge.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset(
+            'assets/images/hakone_banner.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // フォールバック: グラデーション背景
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      WanMapColors.primary,
+                      WanMapColors.primary.withOpacity(0.8),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '箱根の観光情報をチェック',
-                    style: WanMapTypography.bodySmall.copyWith(
-                      color: Colors.white.withOpacity(0.9),
-                    ),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.map,
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '箱根観光デジタルマップ',
+                        style: WanMapTypography.titleLarge.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.white,
-              size: 20,
-            ),
-          ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
