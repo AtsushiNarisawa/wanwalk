@@ -467,8 +467,9 @@ class HomeTab extends ConsumerWidget {
               }
               
               // 箱根エリアを優先表示（箱根・で始まるエリアを除外）
-              final hakoneSubAreas = areas.where((area) => area.name.startsWith('箱根・')).toList();
-              final nonHakoneAreas = areas.where((area) => !area.name.startsWith('箱根・')).toList();
+              final areaList = areas as List<Area>;
+              final hakoneSubAreas = areaList.where((area) => area.name.startsWith('箱根・')).toList();
+              final nonHakoneAreas = areaList.where((area) => !area.name.startsWith('箱根・')).toList();
               
               // 箱根親エリアを作成（サブエリアが複数ある場合）
               Area? hakoneArea;
