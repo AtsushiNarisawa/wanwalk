@@ -969,6 +969,83 @@ class HomeTab extends ConsumerWidget {
     );
   }
 
+  /// プロモーションバナー
+  Widget _buildPromotionalBanner(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onTap: () async {
+        final url = Uri.parse('https://map-hakone.staynavi.direct/');
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              WanMapColors.primary,
+              WanMapColors.primary.withOpacity(0.8),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: WanMapColors.primary.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.campaign,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: WanMapSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '箱根エリアマップ',
+                    style: WanMapTypography.titleLarge.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '箱根の観光情報をチェック',
+                    style: WanMapTypography.bodySmall.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyCard(bool isDark, String message) {
     return Container(
       padding: const EdgeInsets.all(WanMapSpacing.xl),
@@ -1495,83 +1572,6 @@ class _PopularRouteCard extends StatelessWidget {
               Icons.arrow_forward_ios,
               size: 16,
               color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// プロモーションバナー
-  Widget _buildPromotionalBanner(BuildContext context, bool isDark) {
-    return GestureDetector(
-      onTap: () async {
-        final url = Uri.parse('https://map-hakone.staynavi.direct/');
-        if (await canLaunchUrl(url)) {
-          await launchUrl(url, mode: LaunchMode.externalApplication);
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              WanMapColors.primary,
-              WanMapColors.primary.withOpacity(0.8),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: WanMapColors.primary.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.campaign,
-                color: Colors.white,
-                size: 32,
-              ),
-            ),
-            const SizedBox(width: WanMapSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '箱根エリアマップ',
-                    style: WanMapTypography.titleLarge.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '箱根の観光情報をチェック',
-                    style: WanMapTypography.bodySmall.copyWith(
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.white,
-              size: 20,
             ),
           ],
         ),
