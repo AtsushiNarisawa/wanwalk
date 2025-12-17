@@ -111,7 +111,7 @@ class RoutePin {
 
     return RoutePin(
       id: json['id'] as String,
-      routeId: json['route_id'] as String,
+      routeId: json['route_id'] as String? ?? '', // nullの場合は空文字列
       userId: json['user_id'] as String,
       location: location,
       pinType: PinType.fromString(json['pin_type'] as String? ?? 'other'),
