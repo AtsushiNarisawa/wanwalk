@@ -185,7 +185,8 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
           _buildTopBar(isDark),
 
           // 最寄りルート1件カード（地図上に浮かぶ）
-          _buildClosestRouteCard(isDark),
+          // コメントアウト: 地図が見づらくなるため非表示
+          // _buildClosestRouteCard(isDark),
 
           // Bottom Sheet: 近くのおすすめルート
           _buildBottomSheet(isDark),
