@@ -21,9 +21,25 @@ BEGIN
       'area_id', r.area_id,
       'name', r.name,
       'description', COALESCE(r.description, ''),
-      'start_location', r.start_location,
-      'end_location', r.end_location,
-      'route_line', r.route_line,
+      'start_location', json_build_object(
+        'type', 'Point',
+        'coordinates', ARRAY[ST_X(r.start_location::geometry), ST_Y(r.start_location::geometry)]
+      ),
+      'end_location', json_build_object(
+        'type', 'Point',
+        'coordinates', ARRAY[ST_X(r.end_location::geometry), ST_Y(r.end_location::geometry)]
+      ),
+      'route_line', CASE 
+        WHEN r.route_line IS NOT NULL THEN
+          json_build_object(
+            'type', 'LineString',
+            'coordinates', (
+              SELECT json_agg(json_build_array(ST_X(geom), ST_Y(geom)))
+              FROM ST_DumpPoints(r.route_line::geometry) AS dp(path, geom)
+            )
+          )
+        ELSE NULL
+      END,
       'distance_meters', r.distance_meters,
       'estimated_minutes', r.estimated_minutes,
       'difficulty_level', COALESCE(r.difficulty_level, 'easy'),
