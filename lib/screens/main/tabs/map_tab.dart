@@ -625,45 +625,47 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
 
   /// 0件の場合のUI
   Widget _buildEmptyState(bool isDark) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(WanMapSpacing.lg),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.explore_off,
-              size: 64,
-              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-            ),
-            const SizedBox(height: WanMapSpacing.md),
-            Text(
-              '現在地から20km以内に\nおすすめルートがありません',
-              textAlign: TextAlign.center,
-              style: WanMapTypography.bodyMedium.copyWith(
+    return SingleChildScrollView(
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.all(WanMapSpacing.lg),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.explore_off,
+                size: 64,
                 color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
               ),
-            ),
-            const SizedBox(height: WanMapSpacing.lg),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AreaListScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: WanMapColors.accent,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(
-                  horizontal: WanMapSpacing.lg,
-                  vertical: WanMapSpacing.md,
+              const SizedBox(height: WanMapSpacing.md),
+              Text(
+                '現在地から50km以内に\nおすすめルートがありません',
+                textAlign: TextAlign.center,
+                style: WanMapTypography.bodyMedium.copyWith(
+                  color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                 ),
               ),
-              icon: const Icon(Icons.list),
-              label: const Text('エリア一覧を見る'),
-            ),
-          ],
+              const SizedBox(height: WanMapSpacing.lg),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AreaListScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: WanMapColors.accent,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: WanMapSpacing.lg,
+                    vertical: WanMapSpacing.md,
+                  ),
+                ),
+                icon: const Icon(Icons.list),
+                label: const Text('エリア一覧を見る'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -847,7 +849,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
         route.startLocation,
       );
 
-      if (distance <= 20.0) {
+      if (distance <= 50.0) {
         nearbyRoutes.add({
           'route': route,
           'distance': distance,
