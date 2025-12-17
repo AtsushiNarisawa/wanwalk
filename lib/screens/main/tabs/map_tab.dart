@@ -48,7 +48,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   
   // 検索・フィルター
   final TextEditingController _searchController = TextEditingController();
-  String _searchMode = 'name'; // 'name' or 'area'
   String _searchKeyword = ''; // 検索キーワード
 
   @override
@@ -233,7 +232,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: _searchMode == 'name' ? 'ルート名で検索' : '地域名で検索',
+                    hintText: 'ルート名で検索',
                     hintStyle: WanMapTypography.bodyMedium.copyWith(
                       color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                     ),
@@ -253,41 +252,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                     });
                   },
                 ),
-              ),
-              // 検索モード切替ボタン
-              PopupMenuButton<String>(
-                icon: Icon(
-                  _searchMode == 'name' ? Icons.text_fields : Icons.location_city,
-                  color: WanMapColors.accent,
-                ),
-                onSelected: (value) {
-                  setState(() {
-                    _searchMode = value;
-                    _searchController.clear();
-                  });
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'name',
-                    child: Row(
-                      children: [
-                        Icon(Icons.text_fields, size: 20),
-                        SizedBox(width: 8),
-                        Text('名前から検索'),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'area',
-                    child: Row(
-                      children: [
-                        Icon(Icons.location_city, size: 20),
-                        SizedBox(width: 8),
-                        Text('地域から検索'),
-                      ],
-                    ),
-                  ),
-                ],
               ),
               // エリア一覧ボタン
               IconButton(
@@ -909,7 +873,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     return nearbyRoutes;
   }
 
-  /// 検索キーワードでルートをフィルタリング
+  /// 検索キーワードでルートをフィルタリング（ルート名のみ）
   List<Map<String, dynamic>> _filterRoutesBySearch(List<Map<String, dynamic>> routes) {
     if (_searchKeyword.isEmpty) {
       return routes;
@@ -919,15 +883,8 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     
     return routes.where((routeData) {
       final route = routeData['route'] as OfficialRoute;
-      
-      if (_searchMode == 'name') {
-        // ルート名で検索
-        return route.name.toLowerCase().contains(keyword);
-      } else {
-        // エリア名で検索（現在はOfficialRouteにエリア名がないため、ルート名で代用）
-        // TODO: エリア情報を追加する場合はここを修正
-        return route.name.toLowerCase().contains(keyword);
-      }
+      // ルート名で部分一致検索（大文字小文字を区別しない）
+      return route.name.toLowerCase().contains(keyword);
     }).toList();
   }
 
