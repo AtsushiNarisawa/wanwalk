@@ -359,7 +359,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 isDark: isDark,
               ),
             ),
-            const SizedBox(width: WanMapSpacing.md),
+            const SizedBox(width: WanMapSpacing.sm),
             Expanded(
               child: _StatCard(
                 icon: Icons.timer,
@@ -370,7 +370,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             ),
           ],
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanMapSpacing.sm),
         // 2行目: ピン数・総散歩回数
         Row(
           children: [
@@ -382,7 +382,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 isDark: isDark,
               ),
             ),
-            const SizedBox(width: WanMapSpacing.md),
+            const SizedBox(width: WanMapSpacing.sm),
             Expanded(
               child: _StatCard(
                 icon: Icons.directions_walk,
@@ -956,7 +956,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
         color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
         borderRadius: BorderRadius.circular(12),
@@ -966,9 +966,9 @@ class _StatCard extends StatelessWidget {
           Icon(
             icon,
             color: WanMapColors.accent,
-            size: 28,
+            size: 22,
           ),
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: 3.0),
           Text(
             label,
             style: WanMapTypography.caption.copyWith(
@@ -977,7 +977,7 @@ class _StatCard extends StatelessWidget {
                   : WanMapColors.textSecondaryLight,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: 3.0),
           Text(
             value,
             style: WanMapTypography.bodyLarge.copyWith(
