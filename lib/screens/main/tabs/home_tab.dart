@@ -1436,8 +1436,7 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                 ],
               ),
             ),
-            ],
-          ),
+          ],
         ),
       ),
     );
