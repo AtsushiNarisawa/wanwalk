@@ -1245,7 +1245,7 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
         );
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
             color: widget.isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
@@ -1259,10 +1259,10 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
           ),
           child: Row(
             children: [
-              // サムネイル画像（固定サイズ110x110）
+              // サムネイル画像（固定サイズ90x90）
               SizedBox(
-                width: 110,
-                height: 110,
+                width: 90,
+                height: 90,
                 child: widget.pin.photoUrl.isNotEmpty
                     ? Image.network(
                         widget.pin.photoUrl,
@@ -1274,7 +1274,7 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
               // テキスト情報
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
