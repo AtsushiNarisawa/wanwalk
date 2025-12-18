@@ -6,7 +6,7 @@ import '../../../config/wanmap_typography.dart';
 /// 散歩タイプ選択ボトムシート
 /// 
 /// MAP タブのFABから呼び出され、以下の3つの散歩タイプを選択できる:
-/// 1. お出かけ散歩（公式コースを歩く）
+/// 1. お出かけ散歩（公式ルートを歩く）
 /// 2. 日常散歩（自由に歩く）
 /// 3. ピン投稿のみ（散歩記録なし）
 class WalkTypeBottomSheet extends StatelessWidget {
@@ -71,7 +71,7 @@ class WalkTypeBottomSheet extends StatelessWidget {
           _WalkTypeCard(
             icon: Icons.route,
             title: 'お出かけ散歩',
-            description: '公式コースを歩く',
+            description: '公式ルートを歩く',
             color: WanMapColors.accent,
             onTap: () => Navigator.pop(context, 'outing'),
           ),

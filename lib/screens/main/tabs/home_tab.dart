@@ -33,7 +33,7 @@ import '../../../widgets/shimmer/wanmap_shimmer.dart';
 /// 
 /// 構成:
 /// 1. おすすめエリア（3枚 + 一覧を見るボタン）
-/// 2. 今月の人気コース
+/// 2. 今月の人気ルート
 /// 3. 最新のピン投稿（横2枚）
 /// 4. 高評価スポット（評価4以上）
 class HomeTab extends ConsumerWidget {
@@ -103,7 +103,7 @@ class HomeTab extends ConsumerWidget {
             
             const SizedBox(height: WanMapSpacing.xl),
             
-            // 2. 今月の人気コース
+            // 2. 今月の人気ルート
             _buildPopularRoutes(context, isDark),
             
             const SizedBox(height: WanMapSpacing.xl),
@@ -480,7 +480,7 @@ class HomeTab extends ConsumerWidget {
                   id: 'hakone_group',
                   name: '箱根',
                   prefecture: '神奈川県',
-                  description: '神奈川県の人気観光地。温泉、美術館、芦ノ湖など多彩なスポットがあり、愛犬と楽しめる散歩コースが豊富です。',
+                  description: '神奈川県の人気観光地。温泉、美術館、芦ノ湖など多彩なスポットがあり、愛犬と楽しめる散歩ルートが豊富です。',
                   centerLocation: hakoneSubAreas.first.centerLocation,
                   createdAt: DateTime.now(),
                 );
@@ -637,7 +637,7 @@ class HomeTab extends ConsumerWidget {
                   ),
                   const SizedBox(width: WanMapSpacing.sm),
                   Text(
-                    '今月の人気コース',
+                    '今月の人気ルート',
                     style: WanMapTypography.headlineMedium.copyWith(
                       color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
@@ -650,7 +650,7 @@ class HomeTab extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
               child: Text(
-                'みんなが歩いている散歩コース',
+                'みんなが歩いているルート',
                 style: WanMapTypography.bodyMedium.copyWith(
                   color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                 ),

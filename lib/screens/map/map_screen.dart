@@ -315,7 +315,7 @@ class _MapScreenState extends State<MapScreen> {
                     WanMapTextField(
                       controller: titleController,
                       labelText: 'ルート名',
-                      hintText: '朝の散歩、公園コースなど',
+                      hintText: '朝の散歩、公園ルートなど',
                       prefixIcon: Icons.edit,
                     ),
                     

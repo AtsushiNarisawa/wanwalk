@@ -95,7 +95,7 @@ class DailyWalkView extends ConsumerWidget {
           ),
           const SizedBox(height: WanMapSpacing.md),
           Text(
-            'いつもの散歩コースを記録しよう',
+            'いつものルートを記録しよう',
             style: WanMapTypography.bodyLarge.copyWith(
               color: Colors.white.withOpacity(0.9),
             ),

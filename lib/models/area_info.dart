@@ -39,7 +39,7 @@ class AreaInfo {
         const LatLng(35.15, 138.95),   // 南西（小田原市を含むよう拡大）
         const LatLng(35.35, 139.15),   // 北東（箱根全域をカバー）
       ),
-      description: '箱根・小田原エリアの散歩コース',
+      description: '箱根・小田原エリアの散歩ルート',
       emoji: '🏔️',
     ),
 
@@ -114,7 +114,7 @@ class AreaInfo {
         const LatLng(35.3, 139.5),   // 南西
         const LatLng(35.4, 139.6),   // 北東
       ),
-      description: '古都鎌倉の歴史散歩コース',
+      description: '古都鎌倉の歴史散歩ルート',
       emoji: '🏯',
     ),
   ];
