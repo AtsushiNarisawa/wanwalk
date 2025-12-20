@@ -55,28 +55,58 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
   try {
     final supabase = SupabaseConfig.client;
     
-    // 1. エリア一覧と公式ルート数を取得
-    var query = supabase.rpc(
-      'get_areas_with_route_count',
-      params: {
-        'search_query': searchQuery.isEmpty ? null : searchQuery,
-        'prefecture_filter': selectedPrefecture,
-        'sort_by': sortOption.value,
-      },
-    );
-
-    final response = await query;
-    final areas = (response as List).cast<Map<String, dynamic>>();
+    // 1. エリア一覧を取得
+    var areasQuery = supabase.from('areas').select();
     
-    print('🔍 RPC応答データ件数: ${areas.length}');
-    for (final area in areas) {
+    // 検索フィルタ
+    if (searchQuery.isNotEmpty) {
+      areasQuery = areasQuery.or('name.ilike.%$searchQuery%,description.ilike.%$searchQuery%');
+    }
+    
+    // 都道府県フィルタ
+    if (selectedPrefecture != null) {
+      areasQuery = areasQuery.eq('prefecture', selectedPrefecture);
+    }
+    
+    final areasResponse = await areasQuery;
+    final areasList = (areasResponse as List).cast<Map<String, dynamic>>();
+    
+    // 2. 各エリアのルート数を取得
+    final areasWithCount = <Map<String, dynamic>>[];
+    for (final area in areasList) {
+      final routeCountResponse = await supabase
+          .from('official_routes')
+          .select('id', const FetchOptions(count: CountOption.exact))
+          .eq('area_id', area['id']);
+      
+      final routeCount = routeCountResponse.count ?? 0;
+      
+      areasWithCount.add({
+        ...area,
+        'route_count': routeCount,
+      });
+      
       if (area['name'].toString().contains('箱根')) {
-        print('📊 ${area['name']}: route_count=${area['route_count']} (type: ${area['route_count'].runtimeType})');
+        print('📊 ${area['name']}: route_count=$routeCount');
       }
     }
     
-    // 2. 箱根エリアをグループ化
-    return _groupHakoneAreas(areas);
+    // 3. ソート
+    areasWithCount.sort((a, b) {
+      switch (sortOption) {
+        case AreaSortOption.routeCount:
+          return (b['route_count'] as int).compareTo(a['route_count'] as int);
+        case AreaSortOption.nameAsc:
+          return (a['name'] as String).compareTo(b['name'] as String);
+        case AreaSortOption.newest:
+          return DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at']));
+      }
+    });
+    
+    print('🔍 エリア取得完了: ${areasWithCount.length}件');
+    
+    // 4. 箱根エリアをグループ化
+    return _groupHakoneAreas(areasWithCount);
   } catch (e) {
     print('❌ エリア一覧取得エラー: $e');
     rethrow;
