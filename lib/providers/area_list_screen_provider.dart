@@ -77,10 +77,11 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
     for (final area in areasList) {
       final routeCountResponse = await supabase
           .from('official_routes')
-          .select('*', const FetchOptions(count: CountOption.exact, head: true))
-          .eq('area_id', area['id']);
+          .select('id')
+          .eq('area_id', area['id'])
+          .count(CountOption.exact);
       
-      final routeCount = routeCountResponse.count ?? 0;
+      final routeCount = routeCountResponse.count;
       
       areasWithCount.add({
         ...area,
