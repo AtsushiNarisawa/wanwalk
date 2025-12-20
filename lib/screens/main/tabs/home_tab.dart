@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
@@ -505,17 +506,30 @@ class HomeTab extends ConsumerWidget {
                     child: _FeaturedAreaCard(
                       area: hakoneArea,
                       isDark: isDark,
-                      onTap: () {
+                      onTap: () async {
                         // 箱根グループの場合はサブエリア選択画面へ
                         if (hakoneArea!.id == 'hakone_group') {
-                          // hakoneSubAreasをMap形式に変換
-                          final subAreasData = hakoneSubAreas.map((area) => {
-                            'id': area.id,
-                            'name': area.name,
-                            'prefecture': area.prefecture,
-                            'description': area.description,
-                            'route_count': 0, // ルート数は後で取得可能
-                          }).toList();
+                          final supabase = Supabase.instance.client;
+                          
+                          // 各サブエリアのルート数を取得
+                          final subAreasData = <Map<String, dynamic>>[];
+                          for (final area in hakoneSubAreas) {
+                            final routeCountResponse = await supabase
+                                .from('official_routes')
+                                .select('id')
+                                .eq('area_id', area.id)
+                                .count(CountOption.exact);
+                            
+                            final routeCount = routeCountResponse.count ?? 0;
+                            
+                            subAreasData.add({
+                              'id': area.id,
+                              'name': area.name,
+                              'prefecture': area.prefecture,
+                              'description': area.description,
+                              'route_count': routeCount,
+                            });
+                          }
                           
                           Navigator.push(
                             context,
