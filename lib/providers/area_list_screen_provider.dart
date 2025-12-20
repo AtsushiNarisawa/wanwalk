@@ -68,6 +68,13 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
     final response = await query;
     final areas = (response as List).cast<Map<String, dynamic>>();
     
+    print('🔍 RPC応答データ件数: ${areas.length}');
+    for (final area in areas) {
+      if (area['name'].toString().contains('箱根')) {
+        print('📊 ${area['name']}: route_count=${area['route_count']} (type: ${area['route_count'].runtimeType})');
+      }
+    }
+    
     // 2. 箱根エリアをグループ化
     return _groupHakoneAreas(areas);
   } catch (e) {
