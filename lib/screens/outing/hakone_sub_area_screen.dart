@@ -43,154 +43,68 @@ class HakoneSubAreaScreen extends ConsumerWidget {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Container(
+                child: Image.network(
+                  'https://www.genspark.ai/api/files/s/VZcMQMoo?token=Z0FBQUFBQnBSZk02bDhMN1dlSlNlMUdvSUNTYjhsVGYtSWxudHY2Wml1RDVubldUd1ZPaEF5QWZpUzRpTVJzWXpUVzBxaHR0am5SVkxPZmxHRXRlSWtXR0dXeXN2VGZoelV0SUNmQm1OTlNrLW8tOXpzTDlpbmJxTU5ZVll1bEM4UktqSVNVaGdoa2ppdDNjdFNHdUtnOE9uWmJoaFdpTGIwUkgyZmNoVjdQZ2g0VmdYVmxNSXV4TmRhR0hGR0dYVERYM2NYcVBMZWZGdWJxeUNrN0p5Z0lMakg3YkE0a1VRY0lvbmE0YTlvS051dWpuNWhsT3hDV1JIbXBBUmQzSTc0RU5hd1VMaFVqcVRKLU1YamtGT3dqSmRvRC1FZ0Ezcnc9PQ',
                   width: double.infinity,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        const Color(0xFF8B7355), // 茶色（ススキの色）
-                        const Color(0xFFD4AF37), // ゴールド（ススキの輝き）
-                        const Color(0xFF6B8E23), // オリーブグリーン（草原）
-                      ],
-                    ),
-                  ),
-                  child: Stack(
-                    children: [
-                      // 背景パターン（ススキのイメージ）
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.3),
-                                Colors.black.withOpacity(0.1),
-                              ],
-                            ),
-                          ),
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      height: 180,
+                      color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
                         ),
                       ),
-                      // メインコンテンツ
-                      Padding(
-                        padding: const EdgeInsets.all(20),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF8B7355),
+                            Color(0xFFD4AF37),
+                            Color(0xFF6B8E23),
+                          ],
+                        ),
+                      ),
+                      child: Center(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // 上部：位置情報
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.location_on,
-                                        size: 16,
-                                        color: Color(0xFF8B7355),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '箱根',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0xFF8B7355),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            Icon(
+                              Icons.pets,
+                              size: 48,
+                              color: Colors.white,
                             ),
-                            const Spacer(),
-                            // メインタイトル
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.pets,
-                                  size: 40,
-                                  color: Colors.white,
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 4,
-                                      color: Colors.black.withOpacity(0.5),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'DogHub',
-                                        style: TextStyle(
-                                          fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          letterSpacing: 1.2,
-                                          shadows: [
-                                            Shadow(
-                                              blurRadius: 8,
-                                              color: Colors.black.withOpacity(0.5),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        'ペットホテル&カフェ',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                          shadows: [
-                                            Shadow(
-                                              blurRadius: 4,
-                                              color: Colors.black.withOpacity(0.5),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            // サブタイトル
+                            const SizedBox(height: WanMapSpacing.sm),
                             Text(
-                              '愛犬と入れる場所と入れない場所を繋ぐHUB',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.white.withOpacity(0.95),
-                                fontWeight: FontWeight.w500,
-                                shadows: [
-                                  Shadow(
-                                    blurRadius: 4,
-                                    color: Colors.black.withOpacity(0.5),
-                                  ),
-                                ],
+                              'DogHub ペットホテル&カフェ',
+                              style: WanMapTypography.titleMedium.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: WanMapSpacing.xs),
+                            Text(
+                              '📍箱根',
+                              style: WanMapTypography.bodyMedium.copyWith(
+                                color: Colors.white,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
