@@ -43,45 +43,63 @@ class HakoneSubAreaScreen extends ConsumerWidget {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  'https://www.genspark.ai/api/files/s/WnnUL0wc',
+                child: Container(
                   width: double.infinity,
-                  fit: BoxFit.contain,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-                      ),
-                      child: Center(
+                  height: 180,
+                  decoration: BoxDecoration(
+                    color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                  ),
+                  child: Image.network(
+                    'https://www.genspark.ai/api/files/s/WnnUL0wc',
+                    width: double.infinity,
+                    height: 180,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
                         child: CircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes != null
                               ? loadingProgress.cumulativeBytesLoaded /
                                   loadingProgress.expectedTotalBytes!
                               : null,
                         ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'DogHub ペットホテル&カフェ 📍箱根',
-                          style: WanMapTypography.titleMedium.copyWith(
-                            color: isDark
-                                ? WanMapColors.textPrimaryDark
-                                : WanMapColors.textPrimaryLight,
-                          ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.pets,
+                              size: 48,
+                              color: isDark
+                                  ? WanMapColors.textSecondaryDark
+                                  : WanMapColors.textSecondaryLight,
+                            ),
+                            const SizedBox(height: WanMapSpacing.sm),
+                            Text(
+                              'DogHub ペットホテル&カフェ',
+                              style: WanMapTypography.titleMedium.copyWith(
+                                color: isDark
+                                    ? WanMapColors.textPrimaryDark
+                                    : WanMapColors.textPrimaryLight,
+                              ),
+                            ),
+                            const SizedBox(height: WanMapSpacing.xs),
+                            Text(
+                              '📍箱根',
+                              style: WanMapTypography.bodyMedium.copyWith(
+                                color: isDark
+                                    ? WanMapColors.textSecondaryDark
+                                    : WanMapColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
