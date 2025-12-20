@@ -84,11 +84,15 @@ List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
   for (final area in areas) {
     final name = area['name'] as String;
     if (name.startsWith('箱根・')) {
+      print('🔍 箱根エリア検出: $name, route_count: ${area['route_count']}');
       hakoneAreas.add(area);
     } else {
       otherAreas.add(area);
     }
   }
+  
+  print('📊 箱根エリア合計: ${hakoneAreas.length}件');
+  print('📊 箱根エリア合計: ${hakoneAreas.length}件');
   
   // 箱根エリアが複数ある場合のみグループ化
   if (hakoneAreas.length > 1) {
@@ -97,6 +101,8 @@ List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
       0,
       (sum, area) => sum + ((area['route_count'] as int?) ?? 0),
     );
+    
+    print('📊 箱根グループ合計ルート数: $totalRoutes');
     
     // 箱根親エリアを作成
     final hakoneParent = {
@@ -108,6 +114,8 @@ List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
       'is_hakone_group': true, // 箱根グループフラグ
       'sub_areas': hakoneAreas, // サブエリア一覧
     };
+    
+    print('✅ 箱根グループ作成完了: sub_areas=${hakoneAreas.length}件');
     
     // 箱根親エリアを先頭に、その後に他のエリア
     return [hakoneParent, ...otherAreas];
