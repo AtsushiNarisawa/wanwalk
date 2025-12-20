@@ -591,6 +591,136 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
     );
   }
 
+  /// 月別にグループ化
+  Map<String, List<WalkHistoryItem>> _groupWalksByMonth(List<WalkHistoryItem> walks) {
+    final grouped = <String, List<WalkHistoryItem>>{};
+    
+    for (final walk in walks) {
+      final yearMonth = '${walk.walkedAt.year}年${walk.walkedAt.month}月';
+      grouped.putIfAbsent(yearMonth, () => []);
+      grouped[yearMonth]!.add(walk);
+    }
+    
+    return grouped;
+  }
+
+  /// 月ヘッダーを構築
+  Widget _buildMonthHeader(String yearMonth, List<WalkHistoryItem> walks, bool isDark) {
+    // 月の統計を計算
+    final totalDistance = walks.fold<double>(
+      0,
+      (sum, walk) => sum + walk.distanceMeters,
+    );
+    final formattedDistance = totalDistance < 1000
+        ? '${totalDistance.toStringAsFixed(0)}m'
+        : '${(totalDistance / 1000).toStringAsFixed(1)}km';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: WanMapSpacing.md, top: WanMapSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: WanMapSpacing.md,
+        vertical: WanMapSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            WanMapColors.accent.withOpacity(0.15),
+            WanMapColors.accent.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: WanMapColors.accent.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: WanMapColors.accent.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.calendar_month,
+              size: 18,
+              color: WanMapColors.accent,
+            ),
+          ),
+          const SizedBox(width: WanMapSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  yearMonth,
+                  style: WanMapTypography.bodyLarge.copyWith(
+                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${walks.length}回・$formattedDistance',
+                  style: WanMapTypography.bodySmall.copyWith(
+                    color: WanMapColors.accent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// リストの総アイテム数を計算（ヘッダー + 散歩カード）
+  int _calculateTotalItems(Map<String, List<WalkHistoryItem>> groupedWalks) {
+    int count = 0;
+    for (final entry in groupedWalks.entries) {
+      count += 1; // ヘッダー
+      count += entry.value.length; // 散歩カード
+    }
+    return count;
+  }
+
+  /// インデックスに対応するアイテムを取得
+  Map<String, dynamic> _getItemAtIndex(Map<String, List<WalkHistoryItem>> groupedWalks, int index) {
+    int currentIndex = 0;
+    
+    for (final entry in groupedWalks.entries) {
+      // ヘッダー
+      if (currentIndex == index) {
+        return {
+          'type': 'header',
+          'data': {
+            'yearMonth': entry.key,
+            'walks': entry.value,
+          },
+        };
+      }
+      currentIndex++;
+      
+      // 散歩カード
+      for (final walk in entry.value) {
+        if (currentIndex == index) {
+          return {
+            'type': 'walk',
+            'data': walk,
+          };
+        }
+        currentIndex++;
+      }
+    }
+    
+    // フォールバック（ここには来ないはず）
+    return {'type': 'walk', 'data': groupedWalks.values.first.first};
+  }
+
 
 }
 
@@ -779,136 +909,6 @@ class _WalkCard extends StatelessWidget {
     } else {
       return '${date.month}/${date.day}';
     }
-  }
-
-  /// 月別にグループ化
-  Map<String, List<WalkHistoryItem>> _groupWalksByMonth(List<WalkHistoryItem> walks) {
-    final grouped = <String, List<WalkHistoryItem>>{};
-    
-    for (final walk in walks) {
-      final yearMonth = '${walk.walkedAt.year}年${walk.walkedAt.month}月';
-      grouped.putIfAbsent(yearMonth, () => []);
-      grouped[yearMonth]!.add(walk);
-    }
-    
-    return grouped;
-  }
-
-  /// 月ヘッダーを構築
-  Widget _buildMonthHeader(String yearMonth, List<WalkHistoryItem> walks, bool isDark) {
-    // 月の統計を計算
-    final totalDistance = walks.fold<double>(
-      0,
-      (sum, walk) => sum + walk.distanceMeters,
-    );
-    final formattedDistance = totalDistance < 1000
-        ? '${totalDistance.toStringAsFixed(0)}m'
-        : '${(totalDistance / 1000).toStringAsFixed(1)}km';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: WanMapSpacing.md, top: WanMapSpacing.sm),
-      padding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.md,
-        vertical: WanMapSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            WanMapColors.accent.withOpacity(0.15),
-            WanMapColors.accent.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: WanMapColors.accent.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: WanMapColors.accent.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.calendar_month,
-              size: 18,
-              color: WanMapColors.accent,
-            ),
-          ),
-          const SizedBox(width: WanMapSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  yearMonth,
-                  style: WanMapTypography.bodyLarge.copyWith(
-                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${walks.length}回・$formattedDistance',
-                  style: WanMapTypography.bodySmall.copyWith(
-                    color: WanMapColors.accent,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// リストの総アイテム数を計算（ヘッダー + 散歩カード）
-  int _calculateTotalItems(Map<String, List<WalkHistoryItem>> groupedWalks) {
-    int count = 0;
-    for (final entry in groupedWalks.entries) {
-      count += 1; // ヘッダー
-      count += entry.value.length; // 散歩カード
-    }
-    return count;
-  }
-
-  /// インデックスに対応するアイテムを取得
-  Map<String, dynamic> _getItemAtIndex(Map<String, List<WalkHistoryItem>> groupedWalks, int index) {
-    int currentIndex = 0;
-    
-    for (final entry in groupedWalks.entries) {
-      // ヘッダー
-      if (currentIndex == index) {
-        return {
-          'type': 'header',
-          'data': {
-            'yearMonth': entry.key,
-            'walks': entry.value,
-          },
-        };
-      }
-      currentIndex++;
-      
-      // 散歩カード
-      for (final walk in entry.value) {
-        if (currentIndex == index) {
-          return {
-            'type': 'walk',
-            'data': walk,
-          };
-        }
-        currentIndex++;
-      }
-    }
-    
-    // フォールバック（ここには来ないはず）
-    return {'type': 'walk', 'data': groupedWalks.values.first.first};
   }
 }
 
