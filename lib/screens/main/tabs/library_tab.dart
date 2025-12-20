@@ -136,38 +136,121 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
     );
   }
 
-  /// 今月の散歩回数（控えめ）
+  /// 今月の散歩回数（実データ）
   Widget _buildMonthlyWalkCount(dynamic stats, bool isDark) {
-    // TODO: 今月の散歩回数を取得（仮データ）
-    final monthlyWalkCount = 5; // 仮値
-    
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg, vertical: WanMapSpacing.sm),
-      decoration: BoxDecoration(
-        color: WanMapColors.accent.withOpacity(0.05),
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? WanMapColors.borderDark : WanMapColors.borderLight,
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.photo_camera,
-            size: 16,
-            color: WanMapColors.accent,
-          ),
-          const SizedBox(width: WanMapSpacing.sm),
-          Text(
-            '今月の散歩: $monthlyWalkCount回',
-            style: WanMapTypography.bodySmall.copyWith(
-              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+    final userId = ref.watch(currentUserIdProvider);
+    if (userId == null) return const SizedBox.shrink();
+
+    final outingAsync = ref.watch(outingWalkHistoryProvider(OutingHistoryParams(userId: userId)));
+    final dailyAsync = ref.watch(dailyWalkHistoryProvider(DailyHistoryParams(userId: userId)));
+
+    return outingAsync.when(
+      data: (outingWalks) => dailyAsync.when(
+        data: (dailyWalks) {
+          // 今月の散歩を集計
+          final now = DateTime.now();
+          final thisMonthOuting = outingWalks.where((w) => 
+            w.walkedAt.year == now.year && w.walkedAt.month == now.month
+          ).length;
+          final thisMonthDaily = dailyWalks.where((w) => 
+            w.walkedAt.year == now.year && w.walkedAt.month == now.month
+          ).length;
+          final monthlyWalkCount = thisMonthOuting + thisMonthDaily;
+
+          // 今月の総距離を計算
+          final thisMonthDistance = outingWalks
+              .where((w) => w.walkedAt.year == now.year && w.walkedAt.month == now.month)
+              .fold<double>(0, (sum, w) => sum + w.distanceMeters) +
+            dailyWalks
+              .where((w) => w.walkedAt.year == now.year && w.walkedAt.month == now.month)
+              .fold<double>(0, (sum, w) => sum + w.distanceMeters);
+          
+          final formattedDistance = thisMonthDistance < 1000
+              ? '${thisMonthDistance.toStringAsFixed(0)}m'
+              : '${(thisMonthDistance / 1000).toStringAsFixed(1)}km';
+
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg, vertical: WanMapSpacing.md),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  WanMapColors.accent.withOpacity(0.1),
+                  WanMapColors.accent.withOpacity(0.05),
+                ],
+              ),
+              border: Border(
+                bottom: BorderSide(
+                  color: isDark ? WanMapColors.borderDark : WanMapColors.borderLight,
+                  width: 0.5,
+                ),
+              ),
             ),
-          ),
-        ],
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: WanMapColors.accent.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.calendar_today,
+                    size: 20,
+                    color: WanMapColors.accent,
+                  ),
+                ),
+                const SizedBox(width: WanMapSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '今月の記録',
+                        style: WanMapTypography.caption.copyWith(
+                          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(
+                            '$monthlyWalkCount回',
+                            style: WanMapTypography.titleMedium.copyWith(
+                              color: WanMapColors.accent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: WanMapSpacing.sm),
+                          Text(
+                            '・',
+                            style: WanMapTypography.bodyMedium.copyWith(
+                              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                            ),
+                          ),
+                          const SizedBox(width: WanMapSpacing.xs),
+                          Text(
+                            formattedDistance,
+                            style: WanMapTypography.bodyMedium.copyWith(
+                              color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        loading: () => const SizedBox(height: 60),
+        error: (_, __) => const SizedBox.shrink(),
       ),
+      loading: () => const SizedBox(height: 60),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 
@@ -520,24 +603,15 @@ class _WalkCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 child: SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: walk.photoUrls!.length > 3 ? 3 : walk.photoUrls!.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        width: 200,
-                        margin: const EdgeInsets.only(right: WanMapSpacing.xs),
-                        child: Image.network(
-                          walk.photoUrls![index],
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
-                            child: const Icon(Icons.broken_image, size: 48),
-                          ),
-                        ),
-                      );
-                    },
+                  height: 220, // 200 → 220に拡大
+                  width: double.infinity,
+                  child: Image.network(
+                    walk.photoUrls!.first, // 最初の写真を全幅表示
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+                      child: const Icon(Icons.broken_image, size: 48),
+                    ),
                   ),
                 ),
               ),
@@ -551,10 +625,10 @@ class _WalkCard extends StatelessWidget {
                   // タイトル
                   Row(
                     children: [
-                      Icon(
-                        isOuting ? Icons.explore : Icons.directions_walk,
-                        color: WanMapColors.accent,
-                        size: 24,
+                      // 絵文字アイコン
+                      Text(
+                        _getWalkEmoji(walk, isOuting),
+                        style: const TextStyle(fontSize: 24),
                       ),
                       const SizedBox(width: WanMapSpacing.sm),
                       Expanded(
@@ -641,6 +715,24 @@ class _WalkCard extends StatelessWidget {
       return '午後の散歩';
     } else {
       return '夕方の散歩';
+    }
+  }
+
+  String _getWalkEmoji(WalkHistoryItem walk, bool isOuting) {
+    if (isOuting) {
+      // エリア名から絵文字を推測
+      final areaName = walk.areaName ?? '';
+      if (areaName.contains('箱根')) return '🏔️';
+      if (areaName.contains('鎌倉')) return '🏯';
+      if (areaName.contains('横浜')) return '🏙️';
+      if (areaName.contains('湖') || areaName.contains('海')) return '🌊';
+      return '🗺️'; // デフォルト
+    } else {
+      // 時間帯から絵文字を選択
+      final hour = walk.walkedAt.hour;
+      if (hour < 12) return '🌅'; // 朝
+      if (hour < 17) return '☀️'; // 午後
+      return '🌆'; // 夕方
     }
   }
 
@@ -737,24 +829,15 @@ class _PinHistoryCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 child: SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: pin.photoUrls.length > 3 ? 3 : pin.photoUrls.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        width: 200,
-                        margin: const EdgeInsets.only(right: WanMapSpacing.xs),
-                        child: Image.network(
-                          pin.photoUrls[index],
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
-                            child: const Icon(Icons.broken_image, size: 48),
-                          ),
-                        ),
-                      );
-                    },
+                  height: 220, // 200 → 220に拡大
+                  width: double.infinity,
+                  child: Image.network(
+                    pin.photoUrls.first, // 最初の写真を全幅表示
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+                      child: const Icon(Icons.broken_image, size: 48),
+                    ),
                   ),
                 ),
               ),
