@@ -81,7 +81,9 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
           .eq('area_id', area['id'])
           .count(CountOption.exact);
       
-      final routeCount = routeCountResponse.count;
+      final routeCount = routeCountResponse.count ?? 0;
+      
+      print('🔍 ${area['name']}: area_id=${area['id']}, route_count=$routeCount');
       
       areasWithCount.add({
         ...area,
