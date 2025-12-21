@@ -39,9 +39,9 @@ class HelpScreen extends ConsumerWidget {
             _buildFAQItem(
               context,
               isDark,
-              question: 'WanMapとは何ですか？',
+              question: 'WanWalkとは何ですか？',
               answer:
-                  'WanMapは、愛犬との散歩ルートを記録・共有できるアプリです。他のユーザーのおすすめルートを見つけたり、散歩中の写真を投稿したりできます。',
+                  'WanWalkは、愛犬との散歩ルートを記録・共有できるアプリです。他のユーザーのおすすめルートを見つけたり、散歩中の写真を投稿したりできます。',
             ),
             const Divider(height: 1),
             _buildFAQItem(
@@ -288,7 +288,7 @@ class HelpScreen extends ConsumerWidget {
               ),
               const SizedBox(width: WanMapSpacing.small),
               Text(
-                'WanMap',
+                'WanWalk',
                 style: WanMapTypography.headlineLarge.copyWith(
                   color: WanMapColors.accent,
                   fontWeight: FontWeight.bold,

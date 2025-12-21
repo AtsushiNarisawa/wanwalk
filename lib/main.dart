@@ -63,19 +63,19 @@ void main() async {
   // アプリを起動（Riverpod対応）
   runApp(
     const ProviderScope(
-      child: WanMapApp(),
+      child: WanWalkApp(),
     ),
   );
 }
 
-/// WanMapアプリのメインウィジェット
-class WanMapApp extends StatelessWidget {
-  const WanMapApp({super.key});
+/// WanWalkアプリのメインウィジェット
+class WanWalkApp extends StatelessWidget {
+  const WanWalkApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WanMap',
+      title: 'WanWalk',
       debugShowCheckedModeBanner: false,
       theme: WanMapTheme.lightTheme,
       darkTheme: WanMapTheme.darkTheme,
@@ -188,7 +188,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 
                 // アプリ名
                 const Text(
-                  'WanMap',
+                  'WanWalk',
                   style: TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.w800,

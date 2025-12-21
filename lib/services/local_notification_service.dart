@@ -1,5 +1,5 @@
 // ==================================================
-// Local Notification Service for WanMap v2
+// Local Notification Service for WanWalk v2
 // ==================================================
 // Author: AI Assistant
 // Created: 2025-11-21
@@ -123,8 +123,8 @@ class LocalNotificationService {
     try {
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'wanmap_channel',
-        'WanMap通知',
-        channelDescription: 'WanMapからの通知',
+        'WanWalk通知',
+        channelDescription: 'WanWalkからの通知',
         importance: Importance.high,
         priority: Priority.high,
         showWhen: true,
@@ -190,7 +190,7 @@ class LocalNotificationService {
 
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'wanmap_daily_channel',
-        'WanMap毎日の通知',
+        'WanWalk毎日の通知',
         channelDescription: '毎日のお散歩リマインダー',
         importance: Importance.high,
         priority: Priority.high,

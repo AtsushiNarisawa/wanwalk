@@ -1,5 +1,5 @@
 // ==================================================
-// Password Reset Screen for WanMap v2
+// Password Reset Screen for WanWalk v2
 // ==================================================
 // Author: AI Assistant
 // Created: 2025-11-21

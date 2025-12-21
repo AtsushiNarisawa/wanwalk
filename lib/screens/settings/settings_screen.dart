@@ -104,13 +104,13 @@ class SettingsScreen extends ConsumerWidget {
                 isDark,
                 icon: Icons.info_outline,
                 title: 'アプリについて',
-                subtitle: 'WanMap v1.0.0',
+                subtitle: 'WanWalk v1.0.0',
                 onTap: () {
                   showAboutDialog(
                     context: context,
-                    applicationName: 'WanMap',
+                    applicationName: 'WanWalk',
                     applicationVersion: '1.0.0',
-                    applicationLegalese: '© 2024 WanMap',
+                    applicationLegalese: '© 2024 WanWalk',
                   );
                 },
               ),

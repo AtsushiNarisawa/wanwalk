@@ -1,5 +1,5 @@
 // ==================================================
-// Notification Models for WanMap v2
+// Notification Models for WanWalk v2
 // ==================================================
 // Author: AI Assistant
 // Created: 2024-11-17

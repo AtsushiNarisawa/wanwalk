@@ -1,5 +1,5 @@
 // ==================================================
-// Statistics Service for WanMap v2
+// Statistics Service for WanWalk v2
 // ==================================================
 // Author: AI Assistant
 // Created: 2024-11-17

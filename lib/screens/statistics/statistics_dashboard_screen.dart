@@ -1,5 +1,5 @@
 // ==================================================
-// Statistics Dashboard Screen for WanMap v2
+// Statistics Dashboard Screen for WanWalk v2
 // ==================================================
 // Author: AI Assistant
 // Created: 2025-01-17

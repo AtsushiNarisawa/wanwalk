@@ -1,5 +1,5 @@
 // ==================================================
-// Terms of Service Screen for WanMap v2
+// Terms of Service Screen for WanWalk v2
 // ==================================================
 // Author: AI Assistant
 // Created: 2025-11-21
@@ -30,7 +30,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             children: [
               // タイトル
               Text(
-                'WanMap 利用規約',
+                'WanWalk 利用規約',
                 style: WanMapTypography.headlineLarge.copyWith(
                   color: WanMapColors.textPrimaryLight,
                 ),
@@ -48,7 +48,7 @@ class TermsOfServiceScreen extends StatelessWidget {
 
               _buildSection(
                 '第1条（適用）',
-                '本規約は、WanMap（以下「本サービス」といいます。）の利用に関する条件を、本サービスを利用するお客様（以下「ユーザー」といいます。）と当社との間で定めるものです。ユーザーは、本規約に同意した上で、本サービスを利用するものとします。',
+                '本規約は、WanWalk（以下「本サービス」といいます。）の利用に関する条件を、本サービスを利用するお客様（以下「ユーザー」といいます。）と当社との間で定めるものです。ユーザーは、本規約に同意した上で、本サービスを利用するものとします。',
               ),
 
               _buildSection(

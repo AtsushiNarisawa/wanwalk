@@ -114,7 +114,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                   // タイトル
                   const Text(
-                    'WanMap',
+                    'WanWalk',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 32,

@@ -1,5 +1,5 @@
 // ==================================================
-// Privacy Policy Screen for WanMap v2
+// Privacy Policy Screen for WanWalk v2
 // ==================================================
 // Author: AI Assistant
 // Created: 2025-11-21
