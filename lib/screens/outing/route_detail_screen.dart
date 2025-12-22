@@ -38,6 +38,15 @@ class RouteDetailScreen extends ConsumerStatefulWidget {
 class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
   // ピンをすべて表示するかどうかの状態
   bool _showAllPins = false;
+  
+  // MapController：地図の中心とズームを動的に制御
+  final MapController _mapController = MapController();
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +163,17 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     final spots = spotsAsync.maybeWhen(
       data: (data) {
         print('✅ Spots data available: ${data.length} spots');
+        
+        // スポットデータ取得後、地図の中心とズームを調整
+        if (data.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final center = _calculateCenter(route);
+            final zoom = _calculateZoom(route);
+            print('🗺️ Adjusting map: center=$center, zoom=$zoom');
+            _mapController.move(center, zoom);
+          });
+        }
+        
         return data;
       },
       orElse: () {
@@ -174,7 +194,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       height: 300,
       color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
       child: FlutterMap(
-        key: ValueKey('map_${route.id}_spots_${spots.length}'), // スポット数変化時に再レンダリング
+        mapController: _mapController,
         options: MapOptions(
           initialCenter: _calculateCenter(route),
           initialZoom: _calculateZoom(route),
