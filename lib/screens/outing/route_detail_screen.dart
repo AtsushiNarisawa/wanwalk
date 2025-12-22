@@ -738,34 +738,41 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        spot.facilityType!,
-                        style: WanMapTypography.caption.copyWith(
-                          color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                      Expanded(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              spot.facilityType!,
+                              style: WanMapTypography.caption.copyWith(
+                                color: isDark
+                                    ? WanMapColors.textSecondaryDark
+                                    : WanMapColors.textSecondaryLight,
+                              ),
+                            ),
+                            if (spot.petFriendly == true)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '🐕 ペット同伴OK',
+                                  style: WanMapTypography.caption.copyWith(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      if (spot.petFriendly == true) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '🐕 ペット同伴OK',
-                            style: WanMapTypography.caption.copyWith(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ],
@@ -773,6 +780,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 if (spot.openingHours != null) ...[
                   const SizedBox(height: 4),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
                         Icons.access_time,
@@ -780,12 +788,14 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        spot.openingHours!,
-                        style: WanMapTypography.caption.copyWith(
-                          color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                      Expanded(
+                        child: Text(
+                          spot.openingHours!,
+                          style: WanMapTypography.caption.copyWith(
+                            color: isDark
+                                ? WanMapColors.textSecondaryDark
+                                : WanMapColors.textSecondaryLight,
+                          ),
                         ),
                       ),
                     ],
