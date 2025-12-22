@@ -139,8 +139,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
   /// 地図セクション
   Widget _buildMapSection(OfficialRoute route, AsyncValue pinsAsync, bool isDark) {
-    if (route.routeLine != null) {
-    }
+    final spotsAsync = ref.watch(routeSpotsProvider(route.id));
+    
     return Container(
       height: 300,
       color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
@@ -166,9 +166,28 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 ),
               ],
             ),
-          // スタート/ゴールマーカー
-          MarkerLayer(
-            markers: _buildMarkers(route),
+          // ルートスポットマーカー
+          spotsAsync.when(
+            data: (spots) {
+              return MarkerLayer(
+                markers: spots.map<Marker>((spot) {
+                  return Marker(
+                    point: spot.location,
+                    width: 32,
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: _buildSpotMapIcon(spot.spotType, isDark),
+                  );
+                }).toList(),
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+          // スタート/ゴールマーカー（スポットがない場合のフォールバック）
+          spotsAsync.maybeWhen(
+            data: (spots) => spots.isEmpty ? MarkerLayer(markers: _buildMarkers(route)) : const SizedBox.shrink(),
+            orElse: () => MarkerLayer(markers: _buildMarkers(route)),
           ),
           // ピンマーカー
           pinsAsync.when(
@@ -817,6 +836,53 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         border: Border.all(color: color, width: 2),
       ),
       child: Icon(icon, color: color, size: 20),
+    );
+  }
+
+  /// マップ用のスポットアイコン（より小さくシンプルに）
+  Widget _buildSpotMapIcon(RouteSpotType spotType, bool isDark) {
+    IconData icon;
+    Color color;
+
+    switch (spotType) {
+      case RouteSpotType.start:
+        icon = Icons.flag;
+        color = Colors.green;
+        break;
+      case RouteSpotType.landscape:
+        icon = Icons.landscape;
+        color = Colors.blue;
+        break;
+      case RouteSpotType.photoSpot:
+        icon = Icons.camera_alt;
+        color = Colors.purple;
+        break;
+      case RouteSpotType.facility:
+        icon = Icons.store;
+        color = Colors.orange;
+        break;
+      case RouteSpotType.end:
+        icon = Icons.sports_score;
+        color = Colors.red;
+        break;
+    }
+
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: Colors.white, size: 16),
     );
   }
 
