@@ -43,68 +43,15 @@ class HakoneSubAreaScreen extends ConsumerWidget {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  'assets/images/doghub_banner.jpg',
+                child: Container(
                   width: double.infinity,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      height: 180,
-                      color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 180,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF8B7355),
-                            Color(0xFFD4AF37),
-                            Color(0xFF6B8E23),
-                          ],
-                        ),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.pets,
-                              size: 48,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(height: WanMapSpacing.sm),
-                            Text(
-                              'DogHub ペットホテル&カフェ',
-                              style: WanMapTypography.titleMedium.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: WanMapSpacing.xs),
-                            Text(
-                              '📍箱根',
-                              style: WanMapTypography.bodyMedium.copyWith(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                  height: 180,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/doghub_banner.jpg'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
             ),
