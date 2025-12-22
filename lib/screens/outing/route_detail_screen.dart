@@ -153,7 +153,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         return data;
       },
       orElse: () {
-        print('⚠️ Spots data not available, using empty list');
+        print('⚠️ Spots data not available (state: ${spotsAsync.runtimeType}), using empty list');
         return <RouteSpot>[];
       },
     );
@@ -164,11 +164,13 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
     
     print('🎯 Final spots count for rendering: ${spots.length}');
+    print('🎯 Will show: ${spots.isEmpty ? "fallback start/goal markers" : "spot markers"}');
     
     return Container(
       height: 300,
       color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
       child: FlutterMap(
+        key: ValueKey('map_${route.id}_spots_${spots.length}'), // スポット数変化時に再レンダリング
         options: MapOptions(
           initialCenter: _calculateCenter(route),
           initialZoom: _calculateZoom(route),
