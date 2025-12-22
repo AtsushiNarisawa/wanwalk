@@ -156,6 +156,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     if (route.routeLine != null && route.routeLine!.isNotEmpty) {
       print('🛣️ First point: ${route.routeLine!.first}');
       print('🛣️ Last point: ${route.routeLine!.last}');
+      print('🛣️ All routeLine points:');
+      for (var i = 0; i < route.routeLine!.length; i++) {
+        print('  Point $i: ${route.routeLine![i]}');
+      }
     }
     print('📍 spotsAsync state: ${spotsAsync.toString()}');
     
@@ -301,33 +305,41 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     
     // スポットがある場合は、スポットの中心を計算
     if (spots.isNotEmpty) {
+      print('📍 _calculateCenter: Using ${spots.length} spots');
       double latSum = 0;
       double lonSum = 0;
       for (var spot in spots) {
         latSum += spot.location.latitude;
         lonSum += spot.location.longitude;
       }
-      return LatLng(
+      final center = LatLng(
         latSum / spots.length,
         lonSum / spots.length,
       );
+      print('📍 _calculateCenter result (spots): $center');
+      return center;
     }
     
     // スポットがなく、ルートラインがある場合
     if (route.routeLine != null && route.routeLine!.isNotEmpty) {
+      print('📍 _calculateCenter: Using routeLine (${route.routeLine!.length} points)');
       double latSum = 0;
       double lonSum = 0;
       for (var point in route.routeLine!) {
         latSum += point.latitude;
         lonSum += point.longitude;
       }
-      return LatLng(
+      final center = LatLng(
         latSum / route.routeLine!.length,
         lonSum / route.routeLine!.length,
       );
+      print('📍 _calculateCenter result (routeLine): $center');
+      return center;
     }
     
     // デフォルトはスタート地点
+    print('📍 _calculateCenter: Using startLocation (fallback)');
+    print('📍 _calculateCenter result (startLocation): ${route.startLocation}');
     return route.startLocation;
   }
 
