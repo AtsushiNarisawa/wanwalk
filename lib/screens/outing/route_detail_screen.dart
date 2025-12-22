@@ -683,32 +683,6 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                     }).toList(),
                   ),
                 ],
-                // 季節情報
-                if (spot.seasonalNotes != null && spot.seasonalNotes!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.green.withOpacity(0.2)
-                          : Colors.green.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: spot.seasonalNotes!.entries.map((entry) {
-                        return Text(
-                          '${_getSeasonEmoji(entry.key)} ${entry.value}',
-                          style: WanMapTypography.caption.copyWith(
-                            color: isDark
-                                ? WanMapColors.textPrimaryDark
-                                : WanMapColors.textPrimaryLight,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ],
                 // 参考情報（Tips）
                 if (spot.tips != null) ...[
                   const SizedBox(height: 8),
@@ -844,27 +818,6 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       ),
       child: Icon(icon, color: color, size: 20),
     );
-  }
-
-  /// 季節に応じた絵文字を返す
-  String _getSeasonEmoji(String season) {
-    switch (season) {
-      case 'spring':
-      case '春':
-        return '🌸';
-      case 'summer':
-      case '夏':
-        return '☀️';
-      case 'autumn':
-      case 'fall':
-      case '秋':
-        return '🍁';
-      case 'winter':
-      case '冬':
-        return '❄️';
-      default:
-        return '🗓️';
-    }
   }
 
   /// 愛犬家向け情報セクション
