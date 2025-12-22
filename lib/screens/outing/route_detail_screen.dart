@@ -206,12 +206,16 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 }
                 return MarkerLayer(
                   markers: spots.map<Marker>((spot) {
+                    // スタート/ゴールは大きく、中間スポットは少し小さく
+                    final isStartOrEnd = spot.spotType == RouteSpotType.start || spot.spotType == RouteSpotType.end;
+                    final markerSize = isStartOrEnd ? 60.0 : 50.0;
+                    
                     return Marker(
                       point: spot.location,
-                      width: 50,
-                      height: 50,
+                      width: markerSize,
+                      height: markerSize,
                       alignment: Alignment.center,
-                      child: _buildSpotMapIcon(spot.spotType, isDark),
+                      child: _buildSpotMapIcon(spot.spotType, isDark, isStartOrEnd),
                     );
                   }).toList(),
                 );
@@ -319,7 +323,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       final latDiff = maxLat - minLat;
       final lonDiff = maxLon - minLon;
       final maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
-      final adjustedDiff = maxDiff * 1.2;
+      // マージンを40%に拡大（全スポットが余裕を持って表示）
+      final adjustedDiff = maxDiff * 1.4;
       
       if (adjustedDiff > 0.1) return 11.0;
       if (adjustedDiff > 0.05) return 12.0;
@@ -347,7 +352,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       final latDiff = maxLat - minLat;
       final lonDiff = maxLon - minLon;
       final maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
-      final adjustedDiff = maxDiff * 1.2;
+      // マージンを40%に拡大（全スポットが余裕を持って表示）
+      final adjustedDiff = maxDiff * 1.4;
       
       if (adjustedDiff > 0.1) return 11.0;
       if (adjustedDiff > 0.05) return 12.0;
@@ -939,8 +945,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  /// マップ用のスポットアイコン（より小さくシンプルに）
-  Widget _buildSpotMapIcon(RouteSpotType spotType, bool isDark) {
+  /// マップ用のスポットアイコン（スタート/ゴールは特に強調）
+  Widget _buildSpotMapIcon(RouteSpotType spotType, bool isDark, bool isStartOrEnd) {
     IconData icon;
     Color color;
 
@@ -967,22 +973,27 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         break;
     }
 
+    // スタート/ゴールは大きく、ボーダーと影を強調
+    final containerSize = isStartOrEnd ? 60.0 : 50.0;
+    final iconSize = isStartOrEnd ? 28.0 : 24.0;
+    final borderWidth = isStartOrEnd ? 4.0 : 3.0;
+
     return Container(
-      width: 50,
-      height: 50,
+      width: containerSize,
+      height: containerSize,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 3),
+        border: Border.all(color: Colors.white, width: borderWidth),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.6),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
-      child: Icon(icon, color: Colors.white, size: 24),
+      child: Icon(icon, color: Colors.white, size: iconSize),
     );
   }
 
