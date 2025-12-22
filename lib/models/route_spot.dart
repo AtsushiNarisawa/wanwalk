@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
 
 /// ルートスポットのタイプ
@@ -111,6 +112,9 @@ class RouteSpot {
   }
 
   /// PostGISのPOINT型をLatLngに変換
+  /// 例: "POINT(139.1071 35.2328)" → LatLng(35.2328, 139.1071)
+  /// WKB形式（16進数バイナリ）: "0101000020E6100000..." → LatLng
+  /// GeoJSON形式: {"type":"Point","coordinates":[139.0272,35.1993]}
   /// 注意: PostGISは経度,緯度の順番だが、LatLngは緯度,経度の順番
   static LatLng _parsePostGISPoint(dynamic pointData) {
     if (pointData == null) {
@@ -128,6 +132,11 @@ class RouteSpot {
 
     // 文字列の場合
     if (pointData is String) {
+      // WKB形式（16進数バイナリ）の場合
+      if (pointData.startsWith('01') && pointData.length > 20) {
+        return _parseWKBPoint(pointData);
+      }
+      
       // GeoJSON文字列の場合
       if (pointData.contains('"type"') && pointData.contains('"coordinates"')) {
         try {
@@ -152,6 +161,47 @@ class RouteSpot {
     }
 
     throw ArgumentError('Invalid PostGIS Point format: $pointData');
+  }
+
+  /// WKB形式（Well-Known Binary）のPOINTをパース
+  /// フォーマット: 0101000020E6100000 + 16バイト（経度8バイト+緯度8バイト）
+  static LatLng _parseWKBPoint(String wkbHex) {
+    try {
+      // WKBヘッダーをスキップ（最初の20文字 = 10バイト）
+      // フォーマット: バイトオーダー(1) + 型(4) + SRID(4) = 9バイト → 18文字
+      // 実際には20文字スキップで座標データ開始
+      final coordsHex = wkbHex.substring(18);
+      
+      // 経度（最初の8バイト = 16文字）
+      final lonHex = coordsHex.substring(0, 16);
+      // 緯度（次の8バイト = 16文字）
+      final latHex = coordsHex.substring(16, 32);
+      
+      // リトルエンディアンのdouble値に変換
+      final lon = _hexToDouble(lonHex);
+      final lat = _hexToDouble(latHex);
+      
+      return LatLng(lat, lon);
+    } catch (e) {
+      throw ArgumentError('Failed to parse WKB Point: $wkbHex, error: $e');
+    }
+  }
+
+  /// 16進数文字列をdoubleに変換（リトルエンディアン）
+  static double _hexToDouble(String hex) {
+    // 2文字ずつ（1バイト）に分割してリトルエンディアンで並び替え
+    final bytes = <int>[];
+    for (int i = hex.length - 2; i >= 0; i -= 2) {
+      bytes.add(int.parse(hex.substring(i, i + 2), radix: 16));
+    }
+    
+    // バイト列をdoubleに変換
+    final buffer = bytes.sublist(0, 8);
+    final byteData = ByteData(8);
+    for (int i = 0; i < 8; i++) {
+      byteData.setUint8(i, buffer[i]);
+    }
+    return byteData.getFloat64(0, Endian.little);
   }
 
   /// RouteSpotオブジェクトをJSON形式に変換
