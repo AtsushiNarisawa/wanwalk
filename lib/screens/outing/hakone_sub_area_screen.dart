@@ -43,8 +43,8 @@ class HakoneSubAreaScreen extends ConsumerWidget {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  'https://www.genspark.ai/api/files/s/VZcMQMoo',
+                child: Image.asset(
+                  'assets/images/hakone_banner_new.jpg',
                   width: double.infinity,
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
