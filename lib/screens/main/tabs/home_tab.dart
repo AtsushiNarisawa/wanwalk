@@ -76,17 +76,6 @@ class HomeTab extends ConsumerWidget {
                     height: 1.0,
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.xs),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 2.0),
-                  child: Text(
-                    'by DogHub 箱根',
-                    style: WanMapTypography.caption.copyWith(
-                      color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-                      height: 1.0,
-                    ),
-                  ),
-                ),
               ],
             ),
           ],
