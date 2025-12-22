@@ -189,17 +189,11 @@ class RouteSpot {
 
   /// 16進数文字列をdoubleに変換（リトルエンディアン）
   static double _hexToDouble(String hex) {
-    // 2文字ずつ（1バイト）に分割してリトルエンディアンで並び替え
-    final bytes = <int>[];
-    for (int i = hex.length - 2; i >= 0; i -= 2) {
-      bytes.add(int.parse(hex.substring(i, i + 2), radix: 16));
-    }
-    
-    // バイト列をdoubleに変換
-    final buffer = bytes.sublist(0, 8);
+    // 16進数文字列を2文字ずつバイトに変換（リトルエンディアン順）
     final byteData = ByteData(8);
     for (int i = 0; i < 8; i++) {
-      byteData.setUint8(i, buffer[i]);
+      final byteHex = hex.substring(i * 2, i * 2 + 2);
+      byteData.setUint8(i, int.parse(byteHex, radix: 16));
     }
     return byteData.getFloat64(0, Endian.little);
   }

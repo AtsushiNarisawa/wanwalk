@@ -363,25 +363,20 @@ class RouteService {
     try {
       final response = await _supabase
           .from('route_spots')
-          .select('''
-            *,
-            location_wkt:ST_AsText(location)
-          ''')
+          .select()
           .eq('route_id', routeId)
           .order('spot_order', ascending: true);
 
       if (kDebugMode) {
         print('✅ ルートスポット取得成功 (route_id: $routeId): ${response.length}件');
+        if (response.isNotEmpty) {
+          print('   📍 最初のスポット location形式: ${response[0]['location'].runtimeType}');
+          print('   📍 location値: ${response[0]['location']}');
+        }
       }
 
       return (response as List)
-          .map((json) {
-            // location_wktがある場合はそれを使用、なければlocationを使用
-            final locationData = json['location_wkt'] ?? json['location'];
-            final modifiedJson = Map<String, dynamic>.from(json);
-            modifiedJson['location'] = locationData;
-            return RouteSpot.fromJson(modifiedJson);
-          })
+          .map((json) => RouteSpot.fromJson(json))
           .toList();
     } catch (e) {
       if (kDebugMode) {
