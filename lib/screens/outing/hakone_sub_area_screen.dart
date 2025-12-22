@@ -46,8 +46,8 @@ class HakoneSubAreaScreen extends ConsumerWidget {
                 child: Image.asset(
                   'assets/images/doghub_banner.jpg',
                   width: double.infinity,
-                  height: 160,
-                  fit: BoxFit.contain,
+                  height: 140,
+                  fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     print('❌ Banner image error: $error');
                     print('❌ Stack trace: $stackTrace');
