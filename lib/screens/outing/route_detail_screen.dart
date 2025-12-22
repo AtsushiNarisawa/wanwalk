@@ -807,23 +807,23 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     switch (spotType) {
       case RouteSpotType.start:
         icon = Icons.flag;
-        color = Colors.green;
+        color = const Color(0xFF4CAF50); // 緑（スタート）
         break;
       case RouteSpotType.landscape:
         icon = Icons.landscape;
-        color = Colors.blue;
+        color = WanMapColors.accent; // アクセントカラー（景観）
         break;
       case RouteSpotType.photoSpot:
         icon = Icons.camera_alt;
-        color = Colors.purple;
+        color = WanMapColors.accent; // アクセントカラー（フォト）
         break;
       case RouteSpotType.facility:
         icon = Icons.store;
-        color = Colors.orange;
+        color = WanMapColors.accent; // アクセントカラー（施設）
         break;
       case RouteSpotType.end:
         icon = Icons.sports_score;
-        color = Colors.red;
+        color = const Color(0xFFF44336); // 赤（ゴール）
         break;
     }
 
@@ -847,23 +847,23 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     switch (spotType) {
       case RouteSpotType.start:
         icon = Icons.flag;
-        color = Colors.green;
+        color = const Color(0xFF4CAF50); // 緑（スタート）
         break;
       case RouteSpotType.landscape:
         icon = Icons.landscape;
-        color = Colors.blue;
+        color = WanMapColors.accent; // アクセントカラー（景観）
         break;
       case RouteSpotType.photoSpot:
         icon = Icons.camera_alt;
-        color = Colors.purple;
+        color = WanMapColors.accent; // アクセントカラー（フォト）
         break;
       case RouteSpotType.facility:
         icon = Icons.store;
-        color = Colors.orange;
+        color = WanMapColors.accent; // アクセントカラー（施設）
         break;
       case RouteSpotType.end:
         icon = Icons.sports_score;
-        color = Colors.red;
+        color = const Color(0xFFF44336); // 赤（ゴール）
         break;
     }
 
