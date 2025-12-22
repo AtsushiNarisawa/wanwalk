@@ -143,6 +143,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     
     // デバッグログ追加
     print('🗺️ _buildMapSection called for route: ${route.id}');
+    print('🛣️ route.routeLine: ${route.routeLine?.length ?? 0} points');
     print('📍 spotsAsync state: ${spotsAsync.toString()}');
     
     // スポットデータとピンデータを取得
@@ -195,6 +196,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             Builder(
               builder: (context) {
                 print('🎨 Building MarkerLayer with ${spots.length} spot markers');
+                print('🎨 First spot location: ${spots.first.location}');
+                print('🎨 Map center: ${_calculateCenter(route)}');
+                print('🎨 Map zoom: ${_calculateZoom(route)}');
                 for (var spot in spots) {
                   print('  📌 Spot: ${spot.name} at (${spot.location.latitude}, ${spot.location.longitude})');
                 }
@@ -248,59 +252,112 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       ),
     );
   }
-  /// ルートの中心点を計算
+  /// ルートの中心点を計算（スポット情報も考慮）
   LatLng _calculateCenter(OfficialRoute route) {
-    if (route.routeLine == null || route.routeLine!.isEmpty) {
-      return route.startLocation;
-    }
-    double latSum = 0;
-    double lonSum = 0;
-    for (var point in route.routeLine!) {
-      latSum += point.latitude;
-      lonSum += point.longitude;
-    }
-    return LatLng(
-      latSum / route.routeLine!.length,
-      lonSum / route.routeLine!.length,
+    final spotsAsync = ref.watch(routeSpotsProvider(route.id));
+    final spots = spotsAsync.maybeWhen(
+      data: (data) => data,
+      orElse: () => <RouteSpot>[],
     );
+    
+    // スポットがある場合は、スポットの中心を計算
+    if (spots.isNotEmpty) {
+      double latSum = 0;
+      double lonSum = 0;
+      for (var spot in spots) {
+        latSum += spot.location.latitude;
+        lonSum += spot.location.longitude;
+      }
+      return LatLng(
+        latSum / spots.length,
+        lonSum / spots.length,
+      );
+    }
+    
+    // スポットがなく、ルートラインがある場合
+    if (route.routeLine != null && route.routeLine!.isNotEmpty) {
+      double latSum = 0;
+      double lonSum = 0;
+      for (var point in route.routeLine!) {
+        latSum += point.latitude;
+        lonSum += point.longitude;
+      }
+      return LatLng(
+        latSum / route.routeLine!.length,
+        lonSum / route.routeLine!.length,
+      );
+    }
+    
+    // デフォルトはスタート地点
+    return route.startLocation;
   }
 
-  /// ルートの距離に基づいてズームレベルを計算
-  /// ルートの境界に基づいて適切なズームレベルを計算
+  /// ルートの境界に基づいて適切なズームレベルを計算（スポット情報も考慮）
   double _calculateZoom(OfficialRoute route) {
-    if (route.routeLine == null || route.routeLine!.isEmpty) {
-      return 15.0;
+    final spotsAsync = ref.watch(routeSpotsProvider(route.id));
+    final spots = spotsAsync.maybeWhen(
+      data: (data) => data,
+      orElse: () => <RouteSpot>[],
+    );
+    
+    // スポットがある場合は、スポットの範囲を基に計算
+    if (spots.isNotEmpty) {
+      double minLat = spots.first.location.latitude;
+      double maxLat = spots.first.location.latitude;
+      double minLon = spots.first.location.longitude;
+      double maxLon = spots.first.location.longitude;
+      
+      for (var spot in spots) {
+        if (spot.location.latitude < minLat) minLat = spot.location.latitude;
+        if (spot.location.latitude > maxLat) maxLat = spot.location.latitude;
+        if (spot.location.longitude < minLon) minLon = spot.location.longitude;
+        if (spot.location.longitude > maxLon) maxLon = spot.location.longitude;
+      }
+      
+      final latDiff = maxLat - minLat;
+      final lonDiff = maxLon - minLon;
+      final maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
+      final adjustedDiff = maxDiff * 1.2;
+      
+      if (adjustedDiff > 0.1) return 11.0;
+      if (adjustedDiff > 0.05) return 12.0;
+      if (adjustedDiff > 0.03) return 13.0;
+      if (adjustedDiff > 0.02) return 13.5;
+      if (adjustedDiff > 0.01) return 14.5;
+      if (adjustedDiff > 0.005) return 15.5;
+      return 16.0;
     }
     
-    // ルートの緯度経度の範囲を計算
-    double minLat = route.routeLine!.first.latitude;
-    double maxLat = route.routeLine!.first.latitude;
-    double minLon = route.routeLine!.first.longitude;
-    double maxLon = route.routeLine!.first.longitude;
-    
-    for (var point in route.routeLine!) {
-      if (point.latitude < minLat) minLat = point.latitude;
-      if (point.latitude > maxLat) maxLat = point.latitude;
-      if (point.longitude < minLon) minLon = point.longitude;
-      if (point.longitude > maxLon) maxLon = point.longitude;
+    // スポットがなく、ルートラインがある場合
+    if (route.routeLine != null && route.routeLine!.isNotEmpty) {
+      double minLat = route.routeLine!.first.latitude;
+      double maxLat = route.routeLine!.first.latitude;
+      double minLon = route.routeLine!.first.longitude;
+      double maxLon = route.routeLine!.first.longitude;
+      
+      for (var point in route.routeLine!) {
+        if (point.latitude < minLat) minLat = point.latitude;
+        if (point.latitude > maxLat) maxLat = point.latitude;
+        if (point.longitude < minLon) minLon = point.longitude;
+        if (point.longitude > maxLon) maxLon = point.longitude;
+      }
+      
+      final latDiff = maxLat - minLat;
+      final lonDiff = maxLon - minLon;
+      final maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
+      final adjustedDiff = maxDiff * 1.2;
+      
+      if (adjustedDiff > 0.1) return 11.0;
+      if (adjustedDiff > 0.05) return 12.0;
+      if (adjustedDiff > 0.03) return 13.0;
+      if (adjustedDiff > 0.02) return 13.5;
+      if (adjustedDiff > 0.01) return 14.5;
+      if (adjustedDiff > 0.005) return 15.5;
+      return 16.0;
     }
     
-    // 緯度経度の差分（度）
-    final latDiff = maxLat - minLat;
-    final lonDiff = maxLon - minLon;
-    final maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
-    
-    // 差分に基づいてズームレベルを計算（マージン20%追加で全体が見えるように）
-    final adjustedDiff = maxDiff * 1.2;
-    
-    // 差分に基づいてズームレベルを計算（経験則）
-    if (adjustedDiff > 0.1) return 11.0;  // 約10km以上
-    if (adjustedDiff > 0.05) return 12.0; // 約5km
-    if (adjustedDiff > 0.03) return 13.0; // 約3km
-    if (adjustedDiff > 0.02) return 13.5; // 約2km
-    if (adjustedDiff > 0.01) return 14.5; // 約1km
-    if (adjustedDiff > 0.005) return 15.5; // 約500m
-    return 16.0; // 500m未満
+    // デフォルト
+    return 15.0;
   }
   /// マーカーを構築（スタート=ゴールの場合は特別表示）
   List<Marker> _buildMarkers(OfficialRoute route) {
