@@ -11,8 +11,10 @@ import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/pin_like_provider.dart';
 import '../../providers/pin_bookmark_provider.dart';
 import '../../providers/pin_comment_provider.dart';
+import '../../providers/route_spots_provider.dart';
 
 import '../../models/official_route.dart';
+import '../../models/route_spot.dart';
 import '../../models/walk_mode.dart';
 import 'walking_screen.dart';
 import 'pin_detail_screen.dart';
@@ -93,6 +95,11 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
                   // 説明
                   _buildDescription(route, isDark),
+
+                  const SizedBox(height: WanMapSpacing.xl),
+
+                  // ルートタイムライン（スポット情報）
+                  _buildRouteTimelineSection(route.id, isDark),
 
                   const SizedBox(height: WanMapSpacing.xl),
 
@@ -506,6 +513,357 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           duration: const Duration(seconds: 3),
         ),
       );
+    }
+  }
+
+  /// ルートタイムラインセクション（スポット情報）
+  Widget _buildRouteTimelineSection(String routeId, bool isDark) {
+    final spotsAsync = ref.watch(routeSpotsProvider(routeId));
+
+    return spotsAsync.when(
+      data: (spots) {
+        if (spots.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '🗺️ ルートタイムライン',
+              style: WanMapTypography.headlineSmall.copyWith(
+                color: isDark
+                    ? WanMapColors.textPrimaryDark
+                    : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: WanMapSpacing.sm),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(WanMapSpacing.lg),
+              decoration: BoxDecoration(
+                color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: spots.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final spot = entry.value;
+                  final isLast = index == spots.length - 1;
+
+                  return _buildSpotCard(spot, isLast, isDark);
+                }).toList(),
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(WanMapSpacing.lg),
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (error, stack) {
+        print('❌ スポット情報取得エラー: $error');
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  /// スポットカードの構築
+  Widget _buildSpotCard(RouteSpot spot, bool isLast, bool isDark) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // タイムライン表示（縦線とアイコン）
+        Column(
+          children: [
+            _buildSpotIcon(spot.spotType, isDark),
+            if (!isLast)
+              Container(
+                width: 2,
+                height: 60,
+                color: isDark ? Colors.grey[700] : Colors.grey[300],
+              ),
+          ],
+        ),
+        const SizedBox(width: WanMapSpacing.md),
+        // スポット情報
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // スポット名とタイプ
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        spot.name,
+                        style: WanMapTypography.bodyLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? WanMapColors.textPrimaryDark
+                              : WanMapColors.textPrimaryLight,
+                        ),
+                      ),
+                    ),
+                    if (spot.isOptional)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: WanMapColors.accent.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '立ち寄り任意',
+                          style: WanMapTypography.caption.copyWith(
+                            color: WanMapColors.accent,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                // 距離と時間
+                Text(
+                  'スタートから ${spot.formattedDistance} • ${spot.formattedTime}',
+                  style: WanMapTypography.bodySmall.copyWith(
+                    color: isDark
+                        ? WanMapColors.textSecondaryDark
+                        : WanMapColors.textSecondaryLight,
+                  ),
+                ),
+                // 説明
+                if (spot.description != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    spot.description!,
+                    style: WanMapTypography.bodyMedium.copyWith(
+                      color: isDark
+                          ? WanMapColors.textPrimaryDark
+                          : WanMapColors.textPrimaryLight,
+                    ),
+                  ),
+                ],
+                // アクティビティ提案
+                if (spot.activitySuggestions != null &&
+                    spot.activitySuggestions!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: spot.activitySuggestions!.map((activity) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.blue.withOpacity(0.2)
+                              : Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          activity,
+                          style: WanMapTypography.caption.copyWith(
+                            color: Colors.blue,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+                // 季節情報
+                if (spot.seasonalNotes != null && spot.seasonalNotes!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.green.withOpacity(0.2)
+                          : Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: spot.seasonalNotes!.entries.map((entry) {
+                        return Text(
+                          '${_getSeasonEmoji(entry.key)} ${entry.value}',
+                          style: WanMapTypography.caption.copyWith(
+                            color: isDark
+                                ? WanMapColors.textPrimaryDark
+                                : WanMapColors.textPrimaryLight,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+                // 参考情報（Tips）
+                if (spot.tips != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.lightbulb_outline,
+                        size: 16,
+                        color: Colors.orange,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          spot.tips!,
+                          style: WanMapTypography.caption.copyWith(
+                            color: isDark
+                                ? WanMapColors.textSecondaryDark
+                                : WanMapColors.textSecondaryLight,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                // 施設情報（施設タイプの場合）
+                if (spot.facilityType != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.store,
+                        size: 16,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        spot.facilityType!,
+                        style: WanMapTypography.caption.copyWith(
+                          color: isDark
+                              ? WanMapColors.textSecondaryDark
+                              : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                      if (spot.petFriendly == true) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '🐕 ペット同伴OK',
+                            style: WanMapTypography.caption.copyWith(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+                // 営業時間
+                if (spot.openingHours != null) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        spot.openingHours!,
+                        style: WanMapTypography.caption.copyWith(
+                          color: isDark
+                              ? WanMapColors.textSecondaryDark
+                              : WanMapColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// スポットタイプに応じたアイコン
+  Widget _buildSpotIcon(RouteSpotType spotType, bool isDark) {
+    IconData icon;
+    Color color;
+
+    switch (spotType) {
+      case RouteSpotType.start:
+        icon = Icons.flag;
+        color = Colors.green;
+        break;
+      case RouteSpotType.landscape:
+        icon = Icons.landscape;
+        color = Colors.blue;
+        break;
+      case RouteSpotType.photoSpot:
+        icon = Icons.camera_alt;
+        color = Colors.purple;
+        break;
+      case RouteSpotType.facility:
+        icon = Icons.store;
+        color = Colors.orange;
+        break;
+      case RouteSpotType.end:
+        icon = Icons.sports_score;
+        color = Colors.red;
+        break;
+    }
+
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        shape: BoxShape.circle,
+        border: Border.all(color: color, width: 2),
+      ),
+      child: Icon(icon, color: color, size: 20),
+    );
+  }
+
+  /// 季節に応じた絵文字を返す
+  String _getSeasonEmoji(String season) {
+    switch (season) {
+      case 'spring':
+      case '春':
+        return '🌸';
+      case 'summer':
+      case '夏':
+        return '☀️';
+      case 'autumn':
+      case 'fall':
+      case '秋':
+        return '🍁';
+      case 'winter':
+      case '冬':
+        return '❄️';
+      default:
+        return '🗓️';
     }
   }
 

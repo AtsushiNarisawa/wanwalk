@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/route_model.dart';
+import '../models/route_spot.dart';
 
 class RouteService {
   final _supabase = Supabase.instance.client;
@@ -354,6 +355,30 @@ class RouteService {
         print('エラー詳細: ${e.runtimeType}');
       }
       rethrow;
+    }
+  }
+
+  /// 特定ルートのスポット情報を取得
+  Future<List<RouteSpot>> fetchRouteSpots(String routeId) async {
+    try {
+      final response = await _supabase
+          .from('route_spots')
+          .select()
+          .eq('route_id', routeId)
+          .order('spot_order', ascending: true);
+
+      if (kDebugMode) {
+        print('✅ ルートスポット取得成功 (route_id: $routeId): ${response.length}件');
+      }
+
+      return (response as List)
+          .map((json) => RouteSpot.fromJson(json))
+          .toList();
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ ルートスポット取得エラー (route_id: $routeId): $e');
+      }
+      return [];
     }
   }
 
