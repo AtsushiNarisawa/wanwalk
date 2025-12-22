@@ -43,15 +43,63 @@ class HakoneSubAreaScreen extends ConsumerWidget {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Container(
+                child: Image.asset(
+                  'assets/images/doghub_banner.jpg',
                   width: double.infinity,
                   height: 180,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/doghub_banner.jpg'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('❌ Banner image error: $error');
+                    print('❌ Stack trace: $stackTrace');
+                    return Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF8B7355),
+                            Color(0xFFD4AF37),
+                            Color(0xFF6B8E23),
+                          ],
+                        ),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 48,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(height: WanMapSpacing.sm),
+                            Text(
+                              'DogHub ペットホテル&カフェ',
+                              style: WanMapTypography.titleMedium.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: WanMapSpacing.xs),
+                            Text(
+                              '📍箱根',
+                              style: WanMapTypography.bodyMedium.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: WanMapSpacing.xs),
+                            Text(
+                              '画像読み込みエラー',
+                              style: WanMapTypography.bodySmall.copyWith(
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
