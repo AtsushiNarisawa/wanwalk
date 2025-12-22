@@ -49,3 +49,15 @@ final officialRoutesProvider = FutureProvider.autoDispose<List<OfficialRoute>>((
     }
   }).toList();
 });
+
+/// 全公式ルート数を取得するProvider（TOPページ用、フィルタなし）
+final totalOfficialRoutesCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final routeService = RouteService();
+  final routes = await routeService.searchOfficialRoutes(
+    searchQuery: null,
+    areaId: null,
+    sortBy: 'popularity',
+    limit: 100,
+  );
+  return routes.length;
+});

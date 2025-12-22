@@ -626,8 +626,8 @@ class HomeTab extends ConsumerWidget {
     return Consumer(
       builder: (context, ref, child) {
         final popularRoutesAsync = ref.watch(popularRoutesProvider);
-        // 全ルート数を取得
-        final allRoutesAsync = ref.watch(officialRoutesProvider);
+        // 全ルート数を取得（フィルタなし）
+        final totalRoutesCountAsync = ref.watch(totalOfficialRoutesCountProvider);
         
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -685,8 +685,8 @@ class HomeTab extends ConsumerWidget {
                   final displayRoutes = routes.take(3).toList();
                   
                   // 全ルート数を取得（ボタン表示用）
-                  final totalRoutes = allRoutesAsync.maybeWhen(
-                    data: (allRoutes) => allRoutes.length,
+                  final totalRoutes = totalRoutesCountAsync.maybeWhen(
+                    data: (count) => count,
                     orElse: () => routes.length,
                   );
                   
