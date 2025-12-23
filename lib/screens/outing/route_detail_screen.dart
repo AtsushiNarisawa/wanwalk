@@ -810,23 +810,25 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                     }).toList(),
                   ),
                 ],
-                // 詳細情報アイコン（Tips、施設情報、営業時間がある場合）
-                if (_hasAdditionalInfo(spot)) ...[
+                // 公式HPリンク（Tipsにリンクがある場合）
+                if (spot.tips != null && _extractURL(spot.tips!) != null) ...[
                   const SizedBox(height: 8),
                   InkWell(
-                    onTap: () => _showSpotDetails(context, spot, isDark),
+                    onTap: () => _launchURL(_extractURL(spot.tips!)!),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.lightbulb_outline,
-                          size: 18,
-                          color: Colors.orange,
+                          Icons.open_in_new,
+                          size: 16,
+                          color: Colors.blue,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '詳細情報を見る',
                           style: WanMapTypography.caption.copyWith(
-                            color: Colors.orange,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -850,65 +852,11 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
            spot.petFriendly == true;
   }
 
-  /// Tipsテキストをリンクとしてビルドするヘルパーメソッド
-  Widget _buildTipsWithLink(String tips, bool isDark) {
-    // 「詳しくはこちら: URL」の形式をパース
-    final urlPattern = RegExp(r'詳しくはこちら:\s*(https?://[^\s]+)');
+  /// TipsテキストからURLを抽出
+  String? _extractURL(String tips) {
+    final urlPattern = RegExp(r'https?://[^\s]+');
     final match = urlPattern.firstMatch(tips);
-    
-    if (match != null && match.groupCount >= 1) {
-      final url = match.group(1)!;
-      final textBeforeLink = tips.substring(0, match.start).trim();
-      
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (textBeforeLink.isNotEmpty) ...[
-            Text(
-              textBeforeLink,
-              style: WanMapTypography.bodyMedium.copyWith(
-                color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
-              ),
-            ),
-            const SizedBox(height: 4),
-          ],
-          InkWell(
-            onTap: () => _launchURL(url),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '詳しくはこちら',
-                  style: WanMapTypography.bodyMedium.copyWith(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.open_in_new,
-                  size: 16,
-                  color: Colors.blue,
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-    
-    // リンクがない場合は通常のテキスト表示
-    return Text(
-      tips,
-      style: WanMapTypography.bodyMedium.copyWith(
-        color: isDark
-            ? WanMapColors.textPrimaryDark
-            : WanMapColors.textPrimaryLight,
-      ),
-    );
+    return match?.group(0);
   }
 
   /// URLを開くヘルパーメソッド
@@ -919,185 +867,6 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     } else {
       print('Could not launch $urlString');
     }
-  }
-
-  /// スポット詳細情報をダイアログで表示
-  void _showSpotDetails(BuildContext context, RouteSpot spot, bool isDark) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-        title: Row(
-          children: [
-            Icon(
-              Icons.lightbulb,
-              color: Colors.orange,
-              size: 24,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '${spot.name} の詳細情報',
-                style: WanMapTypography.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isDark
-                      ? WanMapColors.textPrimaryDark
-                      : WanMapColors.textPrimaryLight,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Tips（リンク対応）
-              if (spot.tips != null) ...[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 18,
-                      color: Colors.orange,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildTipsWithLink(spot.tips!, isDark),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-              ],
-              // 施設情報
-              if (spot.facilityType != null) ...[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.store,
-                      size: 18,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '施設タイプ',
-                            style: WanMapTypography.caption.copyWith(
-                              color: isDark
-                                  ? WanMapColors.textSecondaryDark
-                                  : WanMapColors.textSecondaryLight,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            spot.facilityType!,
-                            style: WanMapTypography.bodyMedium.copyWith(
-                              color: isDark
-                                  ? WanMapColors.textPrimaryDark
-                                  : WanMapColors.textPrimaryLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-              ],
-              // ペット同伴可否
-              if (spot.petFriendly == true) ...[
-                Row(
-                  children: [
-                    Icon(
-                      Icons.pets,
-                      size: 18,
-                      color: Colors.green,
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        '🐕 ペット同伴OK',
-                        style: WanMapTypography.bodyMedium.copyWith(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-              ],
-              // 営業時間
-              if (spot.openingHours != null) ...[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 18,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '営業時間',
-                            style: WanMapTypography.caption.copyWith(
-                              color: isDark
-                                  ? WanMapColors.textSecondaryDark
-                                  : WanMapColors.textSecondaryLight,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            spot.openingHours!,
-                            style: WanMapTypography.bodyMedium.copyWith(
-                              color: isDark
-                                  ? WanMapColors.textPrimaryDark
-                                  : WanMapColors.textPrimaryLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              '閉じる',
-              style: TextStyle(
-                color: WanMapColors.accent,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   /// スポットタイプに応じたアイコン
