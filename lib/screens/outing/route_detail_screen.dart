@@ -823,8 +823,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                         : WanMapColors.textSecondaryLight,
                   ),
                 ),
-                // 説明（ゴールの場合は非表示）
-                if (spot.description != null && spot.spotType != RouteSpotType.end) ...[
+                // 説明
+                if (spot.description != null) ...[
                   const SizedBox(height: 8),
                   Text(
                     spot.description!,
