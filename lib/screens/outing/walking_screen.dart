@@ -695,53 +695,6 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       ],
     );
   }
-}
-
-/// 統計アイテム
-class _StatItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isDark;
-
-  const _StatItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.isDark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(
-          icon,
-          color: WanMapColors.accent,
-          size: 28,
-        ),
-        const SizedBox(height: WanMapSpacing.xs),
-        Text(
-          label,
-          style: WanMapTypography.caption.copyWith(
-            color: isDark
-                ? WanMapColors.textSecondaryDark
-                : WanMapColors.textSecondaryLight,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: WanMapTypography.headlineSmall.copyWith(
-            color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
 
   /// スポットマーカーを生成（スタート・ゴール・中間スポット）
   List<Marker> _buildSpotMarkers(List<RouteSpot> spots) {
@@ -881,6 +834,53 @@ class _StatItem extends StatelessWidget {
           size: iconSize,
         ),
       ),
+    );
+  }
+}
+
+/// 統計アイテム
+class _StatItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isDark;
+
+  const _StatItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: WanMapColors.accent,
+          size: 28,
+        ),
+        const SizedBox(height: WanMapSpacing.xs),
+        Text(
+          label,
+          style: WanMapTypography.caption.copyWith(
+            color: isDark
+                ? WanMapColors.textSecondaryDark
+                : WanMapColors.textSecondaryLight,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: WanMapTypography.headlineSmall.copyWith(
+            color: isDark
+                ? WanMapColors.textPrimaryDark
+                : WanMapColors.textPrimaryLight,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }
