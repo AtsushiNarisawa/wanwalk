@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:ui' as ui;
+import 'package:url_launcher/url_launcher.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
@@ -849,6 +850,77 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
            spot.petFriendly == true;
   }
 
+  /// Tipsテキストをリンクとしてビルドするヘルパーメソッド
+  Widget _buildTipsWithLink(String tips, bool isDark) {
+    // 「詳しくはこちら: URL」の形式をパース
+    final urlPattern = RegExp(r'詳しくはこちら:\s*(https?://[^\s]+)');
+    final match = urlPattern.firstMatch(tips);
+    
+    if (match != null && match.groupCount >= 1) {
+      final url = match.group(1)!;
+      final textBeforeLink = tips.substring(0, match.start).trim();
+      
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (textBeforeLink.isNotEmpty) ...[
+            Text(
+              textBeforeLink,
+              style: WanMapTypography.bodyMedium.copyWith(
+                color: isDark
+                    ? WanMapColors.textPrimaryDark
+                    : WanMapColors.textPrimaryLight,
+              ),
+            ),
+            const SizedBox(height: 4),
+          ],
+          InkWell(
+            onTap: () => _launchURL(url),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '詳しくはこちら',
+                  style: WanMapTypography.bodyMedium.copyWith(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.open_in_new,
+                  size: 16,
+                  color: Colors.blue,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+    
+    // リンクがない場合は通常のテキスト表示
+    return Text(
+      tips,
+      style: WanMapTypography.bodyMedium.copyWith(
+        color: isDark
+            ? WanMapColors.textPrimaryDark
+            : WanMapColors.textPrimaryLight,
+      ),
+    );
+  }
+
+  /// URLを開くヘルパーメソッド
+  Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      print('Could not launch $urlString');
+    }
+  }
+
   /// スポット詳細情報をダイアログで表示
   void _showSpotDetails(BuildContext context, RouteSpot spot, bool isDark) {
     showDialog(
@@ -881,7 +953,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Tips
+              // Tips（リンク対応）
               if (spot.tips != null) ...[
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -893,14 +965,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        spot.tips!,
-                        style: WanMapTypography.bodyMedium.copyWith(
-                          color: isDark
-                              ? WanMapColors.textPrimaryDark
-                              : WanMapColors.textPrimaryLight,
-                        ),
-                      ),
+                      child: _buildTipsWithLink(spot.tips!, isDark),
                     ),
                   ],
                 ),
