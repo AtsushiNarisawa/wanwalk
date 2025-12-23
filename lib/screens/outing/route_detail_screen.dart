@@ -780,14 +780,14 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                     ),
                   ),
                 ],
-                // アクティビティ提案
+                // アクティビティ提案（最大2個まで表示）
                 if (spot.activitySuggestions != null &&
                     spot.activitySuggestions!.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
-                    children: spot.activitySuggestions!.map((activity) {
+                    children: spot.activitySuggestions!.take(2).map((activity) {
                       return Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
