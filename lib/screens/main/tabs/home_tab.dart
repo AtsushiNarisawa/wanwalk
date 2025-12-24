@@ -33,9 +33,9 @@ import '../../../widgets/shimmer/wanmap_shimmer.dart';
 /// HomeTab - 発見・閲覧のホーム画面
 /// 
 /// 構成:
-/// 1. おすすめエリア（3枚 + 一覧を見るボタン）
-/// 2. 今月の人気ルート
-/// 3. 最新のピン投稿（横2枚）
+/// 1. 今月の人気ルート
+/// 2. 最新のピン投稿（横2枚）
+/// 3. おすすめエリア（3枚 + 一覧を見るボタン）
 /// 4. 高評価スポット（評価4以上）
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
@@ -88,13 +88,13 @@ class HomeTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. 最新のピン投稿（横2枚）
-            _buildRecentPinPosts(context, isDark),
+            // 1. 今月の人気ルート
+            _buildPopularRoutes(context, isDark),
             
             const SizedBox(height: WanMapSpacing.xl),
             
-            // 2. 今月の人気ルート
-            _buildPopularRoutes(context, isDark),
+            // 2. 最新のピン投稿（横2枚）
+            _buildRecentPinPosts(context, isDark),
             
             const SizedBox(height: WanMapSpacing.xl),
             
