@@ -6,6 +6,8 @@ import 'package:latlong2/latlong.dart';
 class PetInfo {
   final String? parking;        // 駐車場情報
   final String? surface;         // 道の状態
+  final String? stairs;          // 階段情報（ペットカート利用者向け）
+  final String? slope;           // スロープ情報（ペットカート利用者向け）
   final String? restroom;        // トイレ
   final String? waterStation;    // 水飲み場
   final String? petFacilities;   // ペット施設
@@ -14,6 +16,8 @@ class PetInfo {
   const PetInfo({
     this.parking,
     this.surface,
+    this.stairs,
+    this.slope,
     this.restroom,
     this.waterStation,
     this.petFacilities,
@@ -25,6 +29,8 @@ class PetInfo {
     return PetInfo(
       parking: json['parking'] as String?,
       surface: json['surface'] as String?,
+      stairs: json['stairs'] as String?,
+      slope: json['slope'] as String?,
       restroom: json['restroom'] as String?,
       waterStation: json['water_station'] as String?,
       petFacilities: json['pet_facilities'] as String?,
@@ -37,6 +43,8 @@ class PetInfo {
     return {
       'parking': parking,
       'surface': surface,
+      'stairs': stairs,
+      'slope': slope,
       'restroom': restroom,
       'water_station': waterStation,
       'pet_facilities': petFacilities,
@@ -48,6 +56,8 @@ class PetInfo {
   bool get hasAnyInfo {
     return parking != null ||
         surface != null ||
+        stairs != null ||
+        slope != null ||
         restroom != null ||
         waterStation != null ||
         petFacilities != null ||
