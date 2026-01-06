@@ -212,17 +212,17 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'com.doghub.wanmap',
           ),
-          // ルートライン（スポット座標から生成）
-          if (spots.isNotEmpty) ...[
+          // ルートライン（優先度: route.routeLine > スポット座標）
+          if (route.routeLine != null && route.routeLine!.isNotEmpty) ...[
+            // 道路に沿った正確なルートジオメトリを使用
             Builder(
               builder: (context) {
-                final routePoints = spots.map((spot) => spot.location).toList();
-                print('🛣️ Rendering PolylineLayer from ${routePoints.length} spot locations');
+                print('🛣️ Rendering PolylineLayer from route.routeLine (${route.routeLine!.length} points) - ROAD GEOMETRY');
                 print('🛣️ Line color: #FF6B35 (orange), width: 5.0');
                 return PolylineLayer(
                   polylines: [
                     Polyline(
-                      points: routePoints,
+                      points: route.routeLine!,
                       strokeWidth: 5.0,
                       color: const Color(0xFFFF6B35), // 鮮やかなオレンジ色
                       borderStrokeWidth: 2.0,
@@ -232,17 +232,17 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 );
               },
             ),
-          ],
-          // フォールバック：route.routeLine（スポットがない場合のみ）
-          if (spots.isEmpty && route.routeLine != null && route.routeLine!.isNotEmpty) ...[
+          ] else if (spots.isNotEmpty) ...[
+            // フォールバック：route.routeLineがない場合はスポット座標を直線で繋ぐ
             Builder(
               builder: (context) {
-                print('🛣️ Rendering PolylineLayer from route.routeLine (${route.routeLine!.length} points) - FALLBACK');
+                final routePoints = spots.map((spot) => spot.location).toList();
+                print('🛣️ Rendering PolylineLayer from ${routePoints.length} spot locations - FALLBACK (straight lines)');
                 print('🛣️ Line color: #FF6B35 (orange), width: 5.0');
                 return PolylineLayer(
                   polylines: [
                     Polyline(
-                      points: route.routeLine!,
+                      points: routePoints,
                       strokeWidth: 5.0,
                       color: const Color(0xFFFF6B35),
                       borderStrokeWidth: 2.0,
