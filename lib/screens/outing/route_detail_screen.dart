@@ -158,9 +158,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     if (route.routeLine != null && route.routeLine!.isNotEmpty) {
       print('🛣️ First point: ${route.routeLine!.first}');
       print('🛣️ Last point: ${route.routeLine!.last}');
-      print('🛣️ All routeLine points:');
-      for (var i = 0; i < route.routeLine!.length; i++) {
-        print('  Point $i: ${route.routeLine![i]}');
+      print('🛣️ All routeLine points (first 5):');
+      for (var i = 0; i < route.routeLine!.length && i < 5; i++) {
+        print('  Point $i: lat=${route.routeLine![i].latitude}, lon=${route.routeLine![i].longitude}');
       }
     }
     print('📍 spotsAsync state: ${spotsAsync.toString()}');
