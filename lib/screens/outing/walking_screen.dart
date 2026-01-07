@@ -48,6 +48,17 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   @override
   void initState() {
     super.initState();
+    
+    // デバッグ：ルートライン情報を出力
+    print('🚶 WalkingScreen initialized for route: ${widget.route.id}');
+    print('🛣️ route.routeLine: ${widget.route.routeLine?.length ?? 0} points');
+    if (widget.route.routeLine != null && widget.route.routeLine!.isNotEmpty) {
+      print('🛣️ First point: ${widget.route.routeLine!.first}');
+      print('🛣️ Last point: ${widget.route.routeLine!.last}');
+    } else {
+      print('⚠️ route.routeLine is null or empty!');
+    }
+    
     // 自動的に記録開始しない（スタートボタンを待つ）
     // ただし、現在地は取得しておく（地図表示のため）
     _initializeLocation();
@@ -363,16 +374,29 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           userAgentPackageName: 'com.doghub.wanmap',
         ),
         // 公式ルートライン
-        if (widget.route.routeLine != null)
-          PolylineLayer(
-            polylines: [
-              Polyline(
-                points: widget.route.routeLine!,
-                strokeWidth: 4.0,
-                color: WanMapColors.accent.withOpacity(0.6),
-              ),
-            ],
+        if (widget.route.routeLine != null) ...[
+          Builder(
+            builder: (context) {
+              print('🛣️ Rendering PolylineLayer in WalkingScreen: ${widget.route.routeLine!.length} points');
+              return PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: widget.route.routeLine!,
+                    strokeWidth: 4.0,
+                    color: WanMapColors.accent.withOpacity(0.6),
+                  ),
+                ],
+              );
+            },
           ),
+        ] else ...[
+          Builder(
+            builder: (context) {
+              print('⚠️ No route line to render in WalkingScreen');
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
         // スポットマーカー（スタート・ゴール・中間スポット）
         spotsAsync.when(
           data: (spots) {
