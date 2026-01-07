@@ -359,7 +359,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       ),
       children: [
         TileLayer(
-          urlTemplate: 'https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=${Environment.thunderforestApiKey}',
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.doghub.wanmap',
         ),
         // 公式ルートライン
