@@ -68,14 +68,12 @@ function calculateRoute(coordinates) {
 }
 
 /**
- * ルートのスポットを取得
+ * ルートのスポットを取得（WKB形式対応）
  */
 async function getRouteSpots(routeId) {
+  // PostGIS RPC関数を使ってテキスト形式で取得
   const { data, error } = await supabase
-    .from('route_spots')
-    .select('location, spot_order')
-    .eq('route_id', routeId)
-    .order('spot_order');
+    .rpc('get_route_spots_as_text', { p_route_id: routeId });
 
   if (error) {
     throw new Error(`Failed to fetch spots: ${error.message}`);
