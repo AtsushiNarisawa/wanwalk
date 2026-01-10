@@ -5,6 +5,7 @@ enum PinType {
   scenery('scenery', '景色', '美しい景色や風景'),
   shop('shop', '店舗', 'カフェやペットショップなど'),
   encounter('encounter', '出会い', '他のワンちゃんとの出会い'),
+  facility('facility', '施設紹介', '公式施設の詳細情報'),
   other('other', 'その他', 'その他の体験や発見');
 
   const PinType(this.value, this.label, this.description);
@@ -22,6 +23,8 @@ enum PinType {
       case 'encounter':
         return PinType.encounter;
       case 'other':
+      case 'facility':
+        return PinType.facility;
         return PinType.other;
       default:
         return PinType.other;
@@ -41,6 +44,8 @@ class RoutePin {
   final List<String> photoUrls; // 写真URL（最大5枚）
   final int likesCount; // いいね数
   final int commentsCount; // コメント数
+  final Map<String, dynamic>? facilityInfo; // 施設情報（facility タイプのみ）
+  final bool isOfficial; // 公式投稿フラグ
   final DateTime createdAt;
 
   RoutePin({
@@ -54,6 +59,8 @@ class RoutePin {
     this.photoUrls = const [],
     this.likesCount = 0,
     this.commentsCount = 0,
+    this.facilityInfo,
+    this.isOfficial = false,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -120,6 +127,8 @@ class RoutePin {
       photoUrls: photoUrls,
       likesCount: json['likes_count'] as int? ?? 0,
       commentsCount: json['comments_count'] as int? ?? 0,
+      facilityInfo: json['facility_info'] as Map<String, dynamic>?,
+      isOfficial: json['is_official'] as bool? ?? false,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
@@ -177,6 +186,9 @@ class RoutePin {
     String? comment,
     List<String>? photoUrls,
     int? likesCount,
+    int? commentsCount,
+    Map<String, dynamic>? facilityInfo,
+    bool? isOfficial,
     DateTime? createdAt,
   }) {
     return RoutePin(
@@ -187,6 +199,9 @@ class RoutePin {
       pinType: pinType ?? this.pinType,
       title: title ?? this.title,
       comment: comment ?? this.comment,
+      commentsCount: commentsCount ?? this.commentsCount,
+      facilityInfo: facilityInfo ?? this.facilityInfo,
+      isOfficial: isOfficial ?? this.isOfficial,
       photoUrls: photoUrls ?? this.photoUrls,
       likesCount: likesCount ?? this.likesCount,
       createdAt: createdAt ?? this.createdAt,
