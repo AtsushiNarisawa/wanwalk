@@ -1112,6 +1112,11 @@ class _PinHistoryCard extends StatelessWidget {
         badgeColor = Colors.green;
         badgeIcon = Icons.pets;
         break;
+      case PinType.facility:
+        badgeColor = Colors.purple;
+        badgeIcon = Icons.business;
+        break;
+
       case PinType.other:
         badgeColor = Colors.grey;
         badgeIcon = Icons.more_horiz;

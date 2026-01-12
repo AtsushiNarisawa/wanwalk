@@ -760,6 +760,11 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
         badgeColor = Colors.pink;
         icon = Icons.pets;
         break;
+      case PinType.facility:
+        badgeColor = Colors.purple;
+        icon = Icons.business;
+        break;
+
       case PinType.other:
         badgeColor = Colors.grey;
         icon = Icons.more_horiz;
