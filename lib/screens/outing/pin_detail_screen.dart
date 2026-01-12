@@ -262,6 +262,9 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                       const SizedBox(height: WanMapSpacing.sm),
                       _buildLocationMap(pin, isDark),
 
+                      // 施設情報（facility タイプのみ）
+                      _buildFacilityInfo(pin, isDark),
+
                       const SizedBox(height: WanMapSpacing.xl),
 
                       // スポット評価・レビューセクション
@@ -1368,6 +1371,213 @@ class _StatCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// 施設情報（facility タイプのみ表示）
+  Widget _buildFacilityInfo(RoutePin pin, bool isDark) {
+    final facilityInfo = pin.facilityInfo;
+    if (facilityInfo == null || pin.pinType != PinType.facility) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: WanMapSpacing.lg),
+        Text(
+          '施設情報',
+          style: WanMapTypography.headlineSmall.copyWith(
+            color: isDark
+                ? WanMapColors.textPrimaryDark
+                : WanMapColors.textPrimaryLight,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: WanMapSpacing.md),
+        
+        // 営業時間
+        if (facilityInfo['business_hours'] != null)
+          _buildInfoSection(
+            icon: Icons.access_time,
+            title: '営業時間',
+            children: [
+              _buildInfoRow('平日', facilityInfo['business_hours']['weekday']),
+              _buildInfoRow('週末', facilityInfo['business_hours']['weekend']),
+              _buildInfoRow('定休日', facilityInfo['business_hours']['closed']),
+            ],
+            isDark: isDark,
+          ),
+        
+        const SizedBox(height: WanMapSpacing.md),
+        
+        // サービス
+        if (facilityInfo['services'] != null)
+          _buildInfoSection(
+            icon: Icons.check_circle,
+            title: 'サービス',
+            children: [
+              Wrap(
+                spacing: WanMapSpacing.sm,
+                runSpacing: WanMapSpacing.sm,
+                children: (facilityInfo['services'] as List)
+                    .map((service) => Chip(
+                          label: Text(service.toString()),
+                          backgroundColor: Colors.blue.withOpacity(0.1),
+                        ))
+                    .toList(),
+              ),
+            ],
+            isDark: isDark,
+          ),
+        
+        const SizedBox(height: WanMapSpacing.md),
+        
+        // 施設設備
+        if (facilityInfo['facilities'] != null)
+          _buildInfoSection(
+            icon: Icons.home_work,
+            title: '施設設備',
+            children: [
+              Wrap(
+                spacing: WanMapSpacing.sm,
+                runSpacing: WanMapSpacing.sm,
+                children: (facilityInfo['facilities'] as List)
+                    .map((facility) => Chip(
+                          label: Text(facility.toString()),
+                          backgroundColor: Colors.green.withOpacity(0.1),
+                        ))
+                    .toList(),
+              ),
+            ],
+            isDark: isDark,
+          ),
+        
+        const SizedBox(height: WanMapSpacing.md),
+        
+        // アクセス
+        if (facilityInfo['access'] != null)
+          _buildInfoSection(
+            icon: Icons.directions_car,
+            title: 'アクセス',
+            children: [
+              if (facilityInfo['access']['by_car'] != null)
+                _buildInfoRow('車', facilityInfo['access']['by_car']),
+              if (facilityInfo['access']['by_train'] != null)
+                _buildInfoRow('電車', facilityInfo['access']['by_train']),
+              if (facilityInfo['access']['parking'] != null)
+                _buildInfoRow('駐車場', facilityInfo['access']['parking']),
+            ],
+            isDark: isDark,
+          ),
+        
+        const SizedBox(height: WanMapSpacing.md),
+        
+        // わんちゃん対応
+        if (facilityInfo['dog_friendly'] != null)
+          _buildInfoSection(
+            icon: Icons.pets,
+            title: 'わんちゃん対応',
+            children: [
+              _buildInfoRow(
+                '対応サイズ',
+                _getDogSizeText(facilityInfo['dog_friendly']['size']),
+              ),
+              _buildInfoRow(
+                '室内同伴',
+                facilityInfo['dog_friendly']['indoor_allowed'] == true ? '可能' : '不可',
+              ),
+              _buildInfoRow(
+                'リード',
+                facilityInfo['dog_friendly']['leash_required'] == true ? '必要' : '不要',
+              ),
+              _buildInfoRow(
+                'ワクチン',
+                facilityInfo['dog_friendly']['vaccination_required'] == true ? '必要' : '不要',
+              ),
+            ],
+            isDark: isDark,
+          ),
+        
+        const SizedBox(height: WanMapSpacing.md),
+        
+        // お問い合わせ
+        if (facilityInfo['contact'] != null)
+          _buildInfoSection(
+            icon: Icons.phone,
+            title: 'お問い合わせ',
+            children: [
+              if (facilityInfo['contact']['phone'] != null)
+                _buildInfoRow('電話', facilityInfo['contact']['phone']),
+              if (facilityInfo['contact']['email'] != null)
+                _buildInfoRow('メール', facilityInfo['contact']['email']),
+              if (facilityInfo['contact']['website'] != null)
+                _buildInfoRow('ウェブサイト', facilityInfo['contact']['website']),
+              if (facilityInfo['contact']['instagram'] != null)
+                _buildInfoRow('Instagram', facilityInfo['contact']['instagram']),
+            ],
+            isDark: isDark,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildInfoSection({
+    required IconData icon,
+    required String title,
+    required List<Widget> children,
+    required bool isDark,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isDark
+                  ? WanMapColors.textSecondaryDark
+                  : WanMapColors.textSecondaryLight,
+            ),
+            const SizedBox(width: WanMapSpacing.sm),
+            Text(
+              title,
+              style: WanMapTypography.bodyMedium.copyWith(
+                color: isDark
+                    ? WanMapColors.textPrimaryDark
+                    : WanMapColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: WanMapSpacing.sm),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String? value) {
+    if (value == null || value.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(left: WanMapSpacing.lg, bottom: WanMapSpacing.xs),
+      child: Text('$label: $value'),
+    );
+  }
+
+  String _getDogSizeText(String? size) {
+    switch (size) {
+      case 'small':
+        return '小型犬';
+      case 'medium':
+        return '中型犬';
+      case 'large':
+        return '大型犬';
+      case 'all':
+        return '全サイズ対応';
+      default:
+        return '不明';
+    }
   }
 }
 
