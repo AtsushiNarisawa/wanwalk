@@ -14,7 +14,7 @@ final pinsByRouteProvider = FutureProvider.family<List<RoutePin>, String>(
       // route_pinsテーブルからピンを取得（locationフィールドは除外）
       final pinsResponse = await _supabase
           .from('route_pins')
-          .select('id, route_id, user_id, pin_type, title, comment, likes_count, created_at')
+          .select('id, route_id, user_id, pin_type, title, comment, likes_count, comments_count, facility_info, is_official, created_at')
           .eq('route_id', routeId)
           .order('created_at', ascending: false);
 
@@ -81,7 +81,7 @@ final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
       // route_pinsテーブルからピンを取得（locationフィールドは除外）
       final response = await _supabase
           .from('route_pins')
-          .select('id, route_id, user_id, pin_type, title, comment, likes_count, created_at')
+          .select('id, route_id, user_id, pin_type, title, comment, likes_count, comments_count, facility_info, is_official, created_at')
           .eq('id', pinId)
           .maybeSingle();
 
