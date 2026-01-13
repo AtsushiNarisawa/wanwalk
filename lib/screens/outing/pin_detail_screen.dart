@@ -27,26 +27,6 @@ class PinDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
-  final TextEditingController _commentController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  bool _isSubmitting = false;
-  
-  // 返信先の情報
-  String? _replyToUserId;
-  String? _replyToUserName;
-
-  @override
-  void initState() {
-    super.initState();
-    // コメント数の初期化はbuild内で行う（pinデータ取得後）
-  }
-
-  @override
-  void dispose() {
-    _commentController.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
 
   /// 返信を開始
   void _startReply(String userId, String userName) {
@@ -297,124 +277,10 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
           ),
         ),
       ),
-      // コメント入力欄（固定）
-      bottomNavigationBar: _buildCommentInput(isDark),
     );
   }
 
   /// コメント入力欄
-  Widget _buildCommentInput(bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.only(
-        left: WanMapSpacing.md,
-        right: WanMapSpacing.md,
-        top: WanMapSpacing.sm,
-        bottom: MediaQuery.of(context).viewInsets.bottom + WanMapSpacing.sm,
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 返信先インジケーター
-            if (_replyToUserName != null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: WanMapSpacing.sm,
-                  vertical: WanMapSpacing.xs,
-                ),
-                margin: const EdgeInsets.only(bottom: WanMapSpacing.sm),
-                decoration: BoxDecoration(
-                  color: WanMapColors.accent.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.reply,
-                      size: 16,
-                      color: WanMapColors.accent,
-                    ),
-                    const SizedBox(width: WanMapSpacing.xs),
-                    Expanded(
-                      child: Text(
-                        '$_replyToUserNameに返信中',
-                        style: WanMapTypography.caption.copyWith(
-                          color: WanMapColors.accent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: _cancelReply,
-                      child: Icon(
-                        Icons.close,
-                        size: 16,
-                        color: WanMapColors.accent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            // 入力フィールド
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _commentController,
-                    focusNode: _focusNode,
-                    decoration: InputDecoration(
-                      hintText: _replyToUserName != null 
-                          ? '返信を入力...' 
-                          : 'コメントを入力...',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[600] : Colors.grey[400],
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: isDark ? Colors.grey[850] : Colors.grey[100],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: WanMapSpacing.md,
-                    vertical: WanMapSpacing.sm,
-                  ),
-                ),
-                    maxLines: null,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _submitComment(),
-                  ),
-                ),
-                const SizedBox(width: WanMapSpacing.sm),
-                IconButton(
-                  onPressed: _isSubmitting ? null : _submitComment,
-                  icon: _isSubmitting
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.send),
-                  color: WanMapColors.accent,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   /// 写真ギャラリー
   Widget _buildPhotoGallery(RoutePin pin, bool isDark) {
