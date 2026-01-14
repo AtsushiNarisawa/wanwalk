@@ -28,99 +28,6 @@ class PinDetailScreen extends ConsumerStatefulWidget {
 
 class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
 
-  /// 返信を開始
-  void _startReply(String userId, String userName) {
-    setState(() {
-      _replyToUserId = userId;
-      _replyToUserName = userName;
-    });
-    _focusNode.requestFocus();
-  }
-
-  /// 返信をキャンセル
-  void _cancelReply() {
-    setState(() {
-      _replyToUserId = null;
-      _replyToUserName = null;
-    });
-  }
-
-  /// コメントを投稿
-  Future<void> _submitComment() async {
-    if (_commentController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('コメントを入力してください')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    final actions = ref.read(pinCommentActionsProvider);
-    final success = await actions.addComment(
-      widget.pinId,
-      _commentController.text.trim(),
-      replyToUserId: _replyToUserId,
-      replyToUserName: _replyToUserName,
-    );
-
-    setState(() {
-      _isSubmitting = false;
-    });
-
-    if (success) {
-      _commentController.clear();
-      _cancelReply(); // 返信先をクリア
-      _focusNode.unfocus();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('コメントを投稿しました')),
-        );
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('コメントの投稿に失敗しました')),
-        );
-      }
-    }
-  }
-
-  /// コメントを削除
-  Future<void> _deleteComment(String commentId, String pinId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('コメントを削除'),
-        content: const Text('このコメントを削除しますか?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('キャンセル'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('削除', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      final actions = ref.read(pinCommentActionsProvider);
-      final success = await actions.deleteComment(pinId, commentId);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(success ? 'コメントを削除しました' : 'コメントの削除に失敗しました'),
-          ),
-        );
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,13 +58,6 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
               ),
             );
           }
-
-          // コメント数の初期化
-          Future.microtask(() {
-            ref.read(pinCommentActionsProvider).initializeCommentCount(
-              pin.id,
-              pin.commentsCount,
-            );
 
           return SingleChildScrollView(
             child: Column(
@@ -378,8 +278,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
 
   /// 統計情報
   Widget _buildStats(RoutePin pin, bool isDark) {
-    final commentCount = ref.watch(pinCommentCountProvider(pin.id));
-    
+
     return Row(
       children: [
         Expanded(
@@ -387,15 +286,6 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             icon: Icons.favorite,
             label: 'いいね',
             value: '${pin.likesCount}',
-            isDark: isDark,
-          ),
-        ),
-        const SizedBox(width: WanMapSpacing.md),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.chat_bubble_outline,
-            label: 'コメント',
-            value: '$commentCount',
             isDark: isDark,
           ),
         ),
@@ -886,62 +776,6 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
       ),
     );
   }
-}
-
-/// 統計カード
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isDark;
-
-  const _StatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.isDark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
-      decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: WanMapColors.accent,
-            size: 24,
-          ),
-          const SizedBox(height: WanMapSpacing.xs),
-          Text(
-            label,
-            style: WanMapTypography.caption.copyWith(
-              color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
-            ),
-          ),
-          const SizedBox(height: WanMapSpacing.xs),
-          Text(
-            value,
-            style: WanMapTypography.bodyMedium.copyWith(
-              color: isDark
-                  ? WanMapColors.textPrimaryDark
-                  : WanMapColors.textPrimaryLight,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 施設情報（facility タイプのみ表示）
   Widget _buildFacilityInfo(RoutePin pin, bool isDark) {
     final facilityInfo = pin.facilityInfo;
     if (facilityInfo == null || pin.pinType != PinType.facility) {
@@ -1148,4 +982,58 @@ class _StatCard extends StatelessWidget {
     }
   }
 }
+/// 統計カード
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isDark;
 
+  const _StatCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(WanMapSpacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: WanMapColors.accent,
+            size: 24,
+          ),
+          const SizedBox(height: WanMapSpacing.xs),
+          Text(
+            label,
+            style: WanMapTypography.caption.copyWith(
+              color: isDark
+                  ? WanMapColors.textSecondaryDark
+                  : WanMapColors.textSecondaryLight,
+            ),
+          ),
+          const SizedBox(height: WanMapSpacing.xs),
+          Text(
+            value,
+            style: WanMapTypography.bodyMedium.copyWith(
+              color: isDark
+                  ? WanMapColors.textPrimaryDark
+                  : WanMapColors.textPrimaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+}
