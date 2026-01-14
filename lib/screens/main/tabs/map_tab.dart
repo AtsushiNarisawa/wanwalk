@@ -986,18 +986,8 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   }
 
   IconData _getPinIcon(PinType pinType) {
-    switch (pinType) {
-      case PinType.scenery:
-        return Icons.landscape;
-      case PinType.shop:
-        return Icons.store;
-      case PinType.encounter:
-        return Icons.pets;
-      case PinType.facility:
-        return Icons.business;
-      case PinType.other:
-        return Icons.place;
-    }
+    // すべてのピンを統一マーカー（location_on）で表示し、色で区別
+    return Icons.location_on;
   }
 
   Color _getPinColor(PinType pinType) {
