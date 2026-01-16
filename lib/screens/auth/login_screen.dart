@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../config/wanmap_colors.dart';
 import '../../providers/auth_provider.dart';
 import 'signup_screen.dart';
 import 'password_reset_screen.dart';
@@ -78,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: WanMapColors.backgroundLight,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -94,7 +95,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4A90E2),
+                      color: WanMapColors.primary,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -119,7 +120,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF4A90E2),
+                      color: WanMapColors.primary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -203,7 +204,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4A90E2),
+                        backgroundColor: WanMapColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

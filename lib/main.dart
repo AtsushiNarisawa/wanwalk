@@ -127,21 +127,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     
     if (!mounted) return;
     
-    // 認証状態を確認
-    final isLoggedIn = SupabaseConfig.isLoggedIn;
-    
-    // 適切な画面に遷移
-    if (isLoggedIn) {
-      // ログイン済み → メイン画面（4タブUI）
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
-    } else {
-      // 未ログイン → ログイン画面
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-    }
+    // ログイン状態に関わらず、常にメイン画面へ遷移
+    // 未ログイン時はプロフィールタブでログイン画面を表示
+    // 投稿・いいね等のアクション時にログイン促進
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+    );
   }
   
   @override

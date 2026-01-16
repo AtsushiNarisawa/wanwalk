@@ -67,9 +67,13 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
               ),
               const SizedBox(height: WanMapSpacing.xl),
               ElevatedButton(
-                onPressed: () => Navigator.pushReplacement(
+                onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: WanMapColors.primary,
+                  foregroundColor: Colors.white,
                 ),
                 child: const Text('ログイン'),
               ),
