@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../config/wanmap_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../main/main_screen.dart';
 
@@ -87,7 +88,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text('新規登録'),
-        backgroundColor: const Color(0xFF4A90E2),
+        backgroundColor: WanMapColors.primary,
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
@@ -105,7 +106,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4A90E2),
+                      color: WanMapColors.primary,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -130,7 +131,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF4A90E2),
+                      color: WanMapColors.primary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -277,7 +278,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleSignup,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF7ED321),
+                        backgroundColor: WanMapColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
