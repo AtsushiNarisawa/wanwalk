@@ -822,22 +822,27 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                 spacing: WanMapSpacing.sm,
                 runSpacing: WanMapSpacing.sm,
                 children: (facilityInfo['services'] as List)
-                    .map((service) => Chip(
-                          label: Text(
-                            service.toString(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          backgroundColor: Colors.blue.withOpacity(0.2),
-                          side: BorderSide(
-                            color: Colors.blue.withOpacity(0.5),
-                            width: 1,
-                          ),
+                    .map((service) => Container(
+                          margin: const EdgeInsets.only(right: 8, bottom: 8),
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            border: Border.all(
+                              color: Colors.blue.shade700,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            service.toString(),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue.shade900,
+                            ),
                           ),
                         ))
                     .toList(),
@@ -858,22 +863,27 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                 spacing: WanMapSpacing.sm,
                 runSpacing: WanMapSpacing.sm,
                 children: (facilityInfo['facilities'] as List)
-                    .map((facility) => Chip(
-                          label: Text(
-                            facility.toString(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          backgroundColor: Colors.green.withOpacity(0.2),
-                          side: BorderSide(
-                            color: Colors.green.withOpacity(0.5),
-                            width: 1,
-                          ),
+                    .map((facility) => Container(
+                          margin: const EdgeInsets.only(right: 8, bottom: 8),
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            border: Border.all(
+                              color: Colors.green.shade700,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            facility.toString(),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.green.shade900,
+                            ),
                           ),
                         ))
                     .toList(),
