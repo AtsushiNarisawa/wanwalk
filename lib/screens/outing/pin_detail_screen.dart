@@ -823,8 +823,22 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                 runSpacing: WanMapSpacing.sm,
                 children: (facilityInfo['services'] as List)
                     .map((service) => Chip(
-                          label: Text(service.toString()),
-                          backgroundColor: Colors.blue.withOpacity(0.1),
+                          label: Text(
+                            service.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          backgroundColor: Colors.blue.withOpacity(0.2),
+                          side: BorderSide(
+                            color: Colors.blue.withOpacity(0.5),
+                            width: 1,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                         ))
                     .toList(),
               ),
@@ -845,8 +859,22 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                 runSpacing: WanMapSpacing.sm,
                 children: (facilityInfo['facilities'] as List)
                     .map((facility) => Chip(
-                          label: Text(facility.toString()),
-                          backgroundColor: Colors.green.withOpacity(0.1),
+                          label: Text(
+                            facility.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          backgroundColor: Colors.green.withOpacity(0.2),
+                          side: BorderSide(
+                            color: Colors.green.withOpacity(0.5),
+                            width: 1,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                         ))
                     .toList(),
               ),
