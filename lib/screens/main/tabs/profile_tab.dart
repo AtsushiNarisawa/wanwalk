@@ -129,12 +129,12 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                   error: (_, __) => _buildUserInfoCard(context, isDark, null, currentUser),
                 ),
                 
-                const SizedBox(height: WanMapSpacing.xl),
+                const SizedBox(height: WanMapSpacing.md),
                 
                 // 愛犬カード
                 _buildDogCards(context, isDark, userId, ref),
                 
-                const SizedBox(height: WanMapSpacing.xl),
+                const SizedBox(height: WanMapSpacing.md),
                 
                 // メニューリスト
                 _buildMenuList(context, isDark, currentUser, ref),
