@@ -24,6 +24,7 @@ import '../../outing/route_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../outing/pin_comment_screen.dart';
 import '../../outing/hakone_sub_area_screen.dart';
+import '../../daily/daily_walk_landing_screen.dart';
 
 import '../../routes/public_routes_screen.dart';
 import '../../outing/route_list_screen.dart';
@@ -179,7 +180,12 @@ class HomeTab extends ConsumerWidget {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/daily-walk');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DailyWalkLandingScreen(),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.pets, size: 24),
                     label: Text(
@@ -207,7 +213,12 @@ class HomeTab extends ConsumerWidget {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/area-list');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AreaListScreen(),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.luggage, size: 24),
                     label: Text(
