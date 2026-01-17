@@ -634,6 +634,13 @@ class _DogCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                
+                // 編集アイコン
+                Icon(
+                  Icons.edit,
+                  color: (isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight).withOpacity(0.6),
+                  size: 24,
+                ),
               ],
             ),
           ),
