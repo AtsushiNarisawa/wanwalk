@@ -9,7 +9,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../providers/profile_provider.dart';
 import '../../../providers/dog_provider.dart';
 import '../../../models/dog_model.dart';
-import '../../auth/login_screen.dart';
+import '../../auth/auth_selection_screen.dart';
 import '../../legal/terms_of_service_screen.dart';
 import '../../legal/privacy_policy_screen.dart';
 
@@ -69,13 +69,23 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
               ElevatedButton(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  MaterialPageRoute(builder: (_) => const AuthSelectionScreen()),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: WanMapColors.primary,
                   foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: const Text('ログイン'),
+                child: const Text(
+                  'ログイン / 新規登録',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),

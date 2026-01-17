@@ -310,24 +310,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-
-                  // ログインせずに続ける
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.grey[600],
-                    ),
-                    child: const Text(
-                      'ログインせずに続ける',
-                      style: TextStyle(
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
                       ],
                     ),
                   ),
