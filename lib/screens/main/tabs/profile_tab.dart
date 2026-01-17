@@ -10,6 +10,7 @@ import '../../../providers/profile_provider.dart';
 import '../../../providers/dog_provider.dart';
 import '../../../models/dog_model.dart';
 import '../../auth/auth_selection_screen.dart';
+import '../main_screen.dart';
 import '../../legal/terms_of_service_screen.dart';
 import '../../legal/privacy_policy_screen.dart';
 
@@ -474,9 +475,10 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
             const SnackBar(content: Text('ログアウトしました')),
           );
           
+          // ログアウト後もメイン画面を表示（未ログイン状態）
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            MaterialPageRoute(builder: (_) => const MainScreen()),
             (route) => false,
           );
         }
