@@ -152,85 +152,73 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     ProfileData? profile,
     User? currentUser,
   ) {
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
-        );
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              WanMapColors.accent,
-              WanMapColors.accent.withOpacity(0.8),
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(WanMapSpacing.lg),
+          child: Row(
+            children: [
+              // アバター（左側）
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: WanMapColors.accent.withOpacity(0.1),
+                backgroundImage: profile?.avatarUrl != null
+                    ? NetworkImage(profile!.avatarUrl!)
+                    : null,
+                child: profile?.avatarUrl == null
+                    ? const Icon(Icons.person, size: 48, color: WanMapColors.accent)
+                    : null,
+              ),
+              
+              const SizedBox(width: WanMapSpacing.md),
+              
+              // ユーザー情報（右側）
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 表示名
+                    Text(
+                      profile?.displayName ?? 'ユーザー名未設定',
+                      style: WanMapTypography.headlineSmall.copyWith(
+                        color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    
+                    const SizedBox(height: WanMapSpacing.xs),
+                    
+                    // メールアドレス
+                    if (currentUser?.email != null)
+                      Text(
+                        currentUser!.email!,
+                        style: WanMapTypography.bodyMedium.copyWith(
+                          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              
+              // 編集アイコン
+              Icon(
+                Icons.edit,
+                color: (isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight).withOpacity(0.6),
+                size: 24,
+              ),
             ],
           ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: WanMapColors.accent.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // アバター（左側）
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.white,
-              backgroundImage: profile?.avatarUrl != null
-                  ? NetworkImage(profile!.avatarUrl!)
-                  : null,
-              child: profile?.avatarUrl == null
-                  ? const Icon(Icons.person, size: 48, color: WanMapColors.accent)
-                  : null,
-            ),
-            
-            const SizedBox(width: WanMapSpacing.md),
-            
-            // ユーザー情報（右側）
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 表示名
-                  Text(
-                    profile?.displayName ?? 'ユーザー名未設定',
-                    style: WanMapTypography.headlineSmall.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  
-                  const SizedBox(height: WanMapSpacing.xs),
-                  
-                  // メールアドレス
-                  if (currentUser?.email != null)
-                    Text(
-                      currentUser!.email!,
-                      style: WanMapTypography.bodyMedium.copyWith(
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
-              ),
-            ),
-            
-            // 編集アイコン
-            Icon(
-              Icons.edit,
-              color: Colors.white.withOpacity(0.8),
-              size: 24,
-            ),
-          ],
         ),
       ),
     );
@@ -250,42 +238,35 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       print('🐕 Dogs: ${dogs.map((d) => d.name).join(", ")}');
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ヘッダー
-          Padding(
-            padding: const EdgeInsets.all(WanMapSpacing.lg),
-            child: Row(
-              children: [
-                Icon(Icons.pets, color: WanMapColors.accent, size: 24),
-                const SizedBox(width: WanMapSpacing.sm),
-                Text(
-                  '愛犬情報',
-                  style: WanMapTypography.headlineSmall.copyWith(
-                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ヘッダー
+        Padding(
+          padding: const EdgeInsets.only(left: WanMapSpacing.xs, bottom: WanMapSpacing.sm),
+          child: Row(
+            children: [
+              Icon(Icons.pets, color: WanMapColors.accent, size: 20),
+              const SizedBox(width: WanMapSpacing.xs),
+              Text(
+                '愛犬情報',
+                style: WanMapTypography.titleMedium.copyWith(
+                  color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
 
-          // 愛犬リスト
-          if (dogs.isEmpty)
-            Padding(
+        // 愛犬リスト
+        if (dogs.isEmpty)
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
               padding: const EdgeInsets.all(WanMapSpacing.xl),
               child: Center(
                 child: Column(
@@ -305,84 +286,71 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                   ],
                 ),
               ),
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.md, vertical: WanMapSpacing.sm),
-              child: Column(
-                children: [
-                  ...dogs.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final dog = entry.value;
-                    if (kDebugMode) {
-                      print('🐕 Building dog card #$index: ${dog.name}');
-                    }
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        bottom: index < dogs.length - 1 ? WanMapSpacing.md : 0,
-                      ),
-                      child: _DogCard(
-                        dog: dog,
-                        isDark: isDark,
-                        onTap: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DogEditScreen(userId: userId, dog: dog),
-                            ),
-                          );
-                          if (result == true) {
-                            ref.read(dogProvider.notifier).loadUserDogs(userId);
-                          }
-                        },
-                      ),
-                    );
-                  }).toList(),
-                ],
+            ),
+          )
+        else
+          ...dogs.asMap().entries.map((entry) {
+            final index = entry.key;
+            final dog = entry.value;
+            if (kDebugMode) {
+              print('🐕 Building dog card #$index: ${dog.name}');
+            }
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: WanMapSpacing.md,
+              ),
+              child: _DogCard(
+                dog: dog,
+                isDark: isDark,
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DogEditScreen(userId: userId, dog: dog),
+                    ),
+                  );
+                  if (result == true) {
+                    ref.read(dogProvider.notifier).loadUserDogs(userId);
+                  }
+                },
+              ),
+            );
+          }).toList(),
+
+        // 愛犬を追加ボタン（大きく目立つ）
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => DogEditScreen(userId: userId)),
+              );
+              // createDogで既にstateに追加されているため、loadUserDogsは不要
+              // （サーバーから取得すると、新規登録した犬が反映されていない場合がある）
+            },
+            icon: Icon(
+              Icons.add_circle_outline,
+              size: 24,
+              color: WanMapColors.primary,
+            ),
+            label: Text(
+              '愛犬を追加',
+              style: WanMapTypography.titleMedium.copyWith(
+                color: WanMapColors.primary,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
-          const Divider(height: 1),
-
-          // 愛犬を追加ボタン（小さく控えめに）
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: WanMapSpacing.md,
-              vertical: WanMapSpacing.sm,
-            ),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => DogEditScreen(userId: userId)),
-                  );
-                  // createDogで既にstateに追加されているため、loadUserDogsは不要
-                  // （サーバーから取得すると、新規登録した犬が反映されていない場合がある）
-                },
-                icon: Icon(
-                  Icons.add_circle_outline,
-                  size: 18,
-                  color: WanMapColors.accent,
-                ),
-                label: Text(
-                  '愛犬を追加',
-                  style: WanMapTypography.bodySmall.copyWith(
-                    color: WanMapColors.accent,
-                  ),
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: WanMapSpacing.sm,
-                    vertical: WanMapSpacing.xs,
-                  ),
-                ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: WanMapColors.primary, width: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -400,22 +368,6 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       ),
       child: Column(
         children: [
-          _MenuItem(
-            icon: Icons.edit_outlined,
-            label: 'プロフィール編集',
-            isDark: isDark,
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
-              );
-              // プロフィールが更新された場合、再読み込み
-              if (result == true) {
-                ref.invalidate(profileProvider);
-              }
-            },
-          ),
-          const Divider(height: 1),
           _MenuItem(
             icon: Icons.settings_outlined,
             label: '設定',
@@ -529,122 +481,122 @@ class _DogCard extends StatelessWidget {
       print('🐕 _DogCard.build() called for: ${dog.name}');
     }
     return Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(WanMapSpacing.md),
-            child: Row(
-              children: [
-                // 犬の写真（左側）
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: dog.photoUrl != null && dog.photoUrl!.isNotEmpty
-                      ? Image.network(
-                          dog.photoUrl!,
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: 100,
-                              height: 100,
-                              color: isDark ? Colors.grey[800] : Colors.grey[300],
-                              child: const Icon(Icons.pets, size: 40, color: Colors.grey),
-                            );
-                          },
-                        )
-                      : Container(
-                          width: 100,
-                          height: 100,
-                          color: isDark ? Colors.grey[800] : Colors.grey[300],
-                          child: const Icon(Icons.pets, size: 40, color: Colors.grey),
-                        ),
-                ),
-                const SizedBox(width: WanMapSpacing.md),
-                
-                // 犬の情報（右側）
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 名前
-                      Text(
-                        dog.name,
-                        style: WanMapTypography.titleLarge.copyWith(
-                          color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(WanMapSpacing.lg),
+          child: Row(
+            children: [
+              // 犬の写真（左側）
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: dog.photoUrl != null && dog.photoUrl!.isNotEmpty
+                    ? Image.network(
+                        dog.photoUrl!,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 80,
+                            height: 80,
+                            color: isDark ? Colors.grey[800] : Colors.grey[300],
+                            child: const Icon(Icons.pets, size: 32, color: Colors.grey),
+                          );
+                        },
+                      )
+                    : Container(
+                        width: 80,
+                        height: 80,
+                        color: isDark ? Colors.grey[800] : Colors.grey[300],
+                        child: const Icon(Icons.pets, size: 32, color: Colors.grey),
                       ),
-                      const SizedBox(height: WanMapSpacing.xs),
-                      
-                      // 犬種
-                      Text(
-                        dog.breed ?? '犬種不明',
-                        style: WanMapTypography.bodyMedium.copyWith(
+              ),
+              const SizedBox(width: WanMapSpacing.md),
+              
+              // 犬の情報（右側）
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 名前
+                    Text(
+                      dog.name,
+                      style: WanMapTypography.headlineSmall.copyWith(
+                        color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: WanMapSpacing.xs),
+                    
+                    // 犬種
+                    Text(
+                      dog.breed ?? '犬種不明',
+                      style: WanMapTypography.bodyMedium.copyWith(
+                        color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: WanMapSpacing.sm),
+                    
+                    // 年齢とサイズ
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.cake_outlined,
+                          size: 18,
                           color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: WanMapSpacing.sm),
-                      
-                      // 年齢とサイズ
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.cake_outlined,
-                            size: 18,
+                        const SizedBox(width: WanMapSpacing.xxs),
+                        Text(
+                          dog.ageDisplay,
+                          style: WanMapTypography.bodyMedium.copyWith(
                             color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                           ),
-                          const SizedBox(width: WanMapSpacing.xxs),
-                          Text(
-                            dog.ageDisplay,
-                            style: WanMapTypography.bodyMedium.copyWith(
-                              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                        ),
+                        const SizedBox(width: WanMapSpacing.md),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: WanMapSpacing.sm,
+                            vertical: WanMapSpacing.xxs,
+                          ),
+                          decoration: BoxDecoration(
+                            color: WanMapColors.accent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            dog.sizeDisplay,
+                            style: WanMapTypography.bodySmall.copyWith(
+                              color: WanMapColors.accent,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: WanMapSpacing.md),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: WanMapSpacing.sm,
-                              vertical: WanMapSpacing.xxs,
-                            ),
-                            decoration: BoxDecoration(
-                              color: WanMapColors.accent.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              dog.sizeDisplay,
-                              style: WanMapTypography.bodySmall.copyWith(
-                                color: WanMapColors.accent,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                
-                // 編集アイコン
-                Icon(
-                  Icons.edit,
-                  color: (isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight).withOpacity(0.6),
-                  size: 24,
-                ),
-              ],
-            ),
+              ),
+              
+              // 編集アイコン
+              Icon(
+                Icons.edit,
+                color: (isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight).withOpacity(0.6),
+                size: 24,
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }
