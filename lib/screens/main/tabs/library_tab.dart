@@ -8,6 +8,7 @@ import '../../../models/route_pin.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_statistics_provider.dart';
 import '../../../providers/walk_history_provider.dart';
+import '../../daily/daily_walk_detail_screen.dart';
 import '../../../providers/route_pin_provider.dart';
 import '../../../widgets/shimmer/wanmap_shimmer.dart';
 import '../../history/walk_history_screen.dart';
@@ -481,9 +482,12 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                           ),
                         );
                       } else {
-                        // TODO: 日常散歩詳細画面へ遷移
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('日常散歩詳細画面は準備中です')),
+                        // 日常散歩詳細画面へ遷移
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => DailyWalkDetailScreen(history: walk),
+                          ),
                         );
                       }
                     },
