@@ -170,13 +170,13 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
             children: [
               // アバター（左側）
               CircleAvatar(
-                radius: 40,
+                radius: 32,
                 backgroundColor: WanMapColors.accent.withOpacity(0.1),
                 backgroundImage: profile?.avatarUrl != null
                     ? NetworkImage(profile!.avatarUrl!)
                     : null,
                 child: profile?.avatarUrl == null
-                    ? const Icon(Icons.person, size: 48, color: WanMapColors.accent)
+                    ? const Icon(Icons.person, size: 36, color: WanMapColors.accent)
                     : null,
               ),
               
@@ -190,7 +190,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                     // 表示名
                     Text(
                       profile?.displayName ?? 'ユーザー名未設定',
-                      style: WanMapTypography.headlineSmall.copyWith(
+                      style: WanMapTypography.titleLarge.copyWith(
                         color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                         fontWeight: FontWeight.bold,
                       ),
@@ -255,6 +255,22 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const Spacer(),
+              // 愛犬追加ボタン（ヘッダーに統合）
+              IconButton(
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => DogEditScreen(userId: userId)),
+                  );
+                },
+                icon: Icon(
+                  Icons.add_circle_outline,
+                  color: WanMapColors.primary,
+                  size: 28,
+                ),
+                tooltip: '愛犬を追加',
+              ),
             ],
           ),
         ),
@@ -297,7 +313,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
             }
             return Padding(
               padding: EdgeInsets.only(
-                bottom: WanMapSpacing.xs,
+                bottom: WanMapSpacing.xxs,
               ),
               child: _DogCard(
                 dog: dog,
@@ -316,40 +332,6 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
               ),
             );
           }).toList(),
-
-        // 愛犬を追加ボタン（大きく目立つ）
-        SizedBox(
-          width: double.infinity,
-          height: 44,
-          child: OutlinedButton.icon(
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => DogEditScreen(userId: userId)),
-              );
-              // createDogで既にstateに追加されているため、loadUserDogsは不要
-              // （サーバーから取得すると、新規登録した犬が反映されていない場合がある）
-            },
-            icon: Icon(
-              Icons.add_circle_outline,
-              size: 24,
-              color: WanMapColors.primary,
-            ),
-            label: Text(
-              '愛犬を追加',
-              style: WanMapTypography.titleMedium.copyWith(
-                color: WanMapColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: WanMapColors.primary, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -498,23 +480,23 @@ class _DogCard extends StatelessWidget {
                 child: dog.photoUrl != null && dog.photoUrl!.isNotEmpty
                     ? Image.network(
                         dog.photoUrl!,
-                        width: 80,
-                        height: 80,
+                        width: 64,
+                        height: 64,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
-                            width: 80,
-                            height: 80,
+                            width: 64,
+                            height: 64,
                             color: isDark ? Colors.grey[800] : Colors.grey[300],
-                            child: const Icon(Icons.pets, size: 32, color: Colors.grey),
+                            child: const Icon(Icons.pets, size: 28, color: Colors.grey),
                           );
                         },
                       )
                     : Container(
-                        width: 80,
-                        height: 80,
+                        width: 64,
+                        height: 64,
                         color: isDark ? Colors.grey[800] : Colors.grey[300],
-                        child: const Icon(Icons.pets, size: 32, color: Colors.grey),
+                        child: const Icon(Icons.pets, size: 28, color: Colors.grey),
                       ),
               ),
               const SizedBox(width: WanMapSpacing.md),
@@ -528,7 +510,7 @@ class _DogCard extends StatelessWidget {
                     // 名前
                     Text(
                       dog.name,
-                      style: WanMapTypography.headlineSmall.copyWith(
+                      style: WanMapTypography.titleLarge.copyWith(
                         color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                         fontWeight: FontWeight.bold,
                       ),
