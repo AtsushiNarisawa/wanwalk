@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
-import '../../models/walk_history_item.dart';
+import '../../models/walk_history.dart';
 
 /// 日常散歩詳細画面
 /// 
