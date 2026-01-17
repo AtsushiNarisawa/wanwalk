@@ -165,7 +165,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(WanMapSpacing.md),
+          padding: const EdgeInsets.all(WanMapSpacing.sm),
           child: Row(
             children: [
               // アバター（左側）
@@ -297,7 +297,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
             }
             return Padding(
               padding: EdgeInsets.only(
-                bottom: WanMapSpacing.sm,
+                bottom: WanMapSpacing.xs,
               ),
               child: _DogCard(
                 dog: dog,
@@ -320,7 +320,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         // 愛犬を追加ボタン（大きく目立つ）
         SizedBox(
           width: double.infinity,
-          height: 48,
+          height: 44,
           child: OutlinedButton.icon(
             onPressed: () async {
               await Navigator.push(
@@ -489,7 +489,7 @@ class _DogCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(WanMapSpacing.md),
+          padding: const EdgeInsets.all(WanMapSpacing.sm),
           child: Row(
             children: [
               // 犬の写真（左側）
