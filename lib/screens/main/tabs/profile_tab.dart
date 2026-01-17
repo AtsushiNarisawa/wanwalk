@@ -152,71 +152,86 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     ProfileData? profile,
     User? currentUser,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.lg),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            WanMapColors.accent,
-            WanMapColors.accent.withOpacity(0.8),
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+        );
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              WanMapColors.accent,
+              WanMapColors.accent.withOpacity(0.8),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: WanMapColors.accent.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: WanMapColors.accent.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // アバター（左側）
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: Colors.white,
-            backgroundImage: profile?.avatarUrl != null
-                ? NetworkImage(profile!.avatarUrl!)
-                : null,
-            child: profile?.avatarUrl == null
-                ? const Icon(Icons.person, size: 48, color: WanMapColors.accent)
-                : null,
-          ),
-          
-          const SizedBox(width: WanMapSpacing.md),
-          
-          // ユーザー情報（右側）
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 表示名
-                Text(
-                  profile?.displayName ?? 'ユーザー名未設定',
-                  style: WanMapTypography.headlineSmall.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                const SizedBox(height: WanMapSpacing.xs),
-                
-                // メールアドレス
-                if (currentUser?.email != null)
-                  Text(
-                    currentUser!.email!,
-                    style: WanMapTypography.bodyMedium.copyWith(
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
+        child: Row(
+          children: [
+            // アバター（左側）
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.white,
+              backgroundImage: profile?.avatarUrl != null
+                  ? NetworkImage(profile!.avatarUrl!)
+                  : null,
+              child: profile?.avatarUrl == null
+                  ? const Icon(Icons.person, size: 48, color: WanMapColors.accent)
+                  : null,
             ),
-          ),
-        ],
+            
+            const SizedBox(width: WanMapSpacing.md),
+            
+            // ユーザー情報（右側）
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 表示名
+                  Text(
+                    profile?.displayName ?? 'ユーザー名未設定',
+                    style: WanMapTypography.headlineSmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: WanMapSpacing.xs),
+                  
+                  // メールアドレス
+                  if (currentUser?.email != null)
+                    Text(
+                      currentUser!.email!,
+                      style: WanMapTypography.bodyMedium.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            
+            // 編集アイコン
+            Icon(
+              Icons.edit,
+              color: Colors.white.withOpacity(0.8),
+              size: 24,
+            ),
+          ],
+        ),
       ),
     );
   }

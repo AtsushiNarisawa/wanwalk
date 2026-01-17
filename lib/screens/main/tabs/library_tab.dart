@@ -101,19 +101,25 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
             color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
             child: TabBar(
               controller: _tabController,
-              labelColor: WanMapColors.accent,
+              labelColor: WanMapColors.primary,
               unselectedLabelColor: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-              indicatorColor: WanMapColors.accent,
-              labelStyle: WanMapTypography.bodySmall.copyWith(fontWeight: FontWeight.bold),
-              unselectedLabelStyle: WanMapTypography.bodySmall,
+              indicatorColor: WanMapColors.primary,
+              indicatorWeight: 3,
+              labelStyle: WanMapTypography.bodySmall.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+              unselectedLabelStyle: WanMapTypography.bodySmall.copyWith(
+                fontSize: 11,
+              ),
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               isScrollable: false,
               tabs: const [
-                Tab(icon: Icon(Icons.timelapse, size: 18), text: 'すべて'),
-                Tab(icon: Icon(Icons.photo_library, size: 18), text: 'アルバム'),
-                Tab(icon: Icon(Icons.explore, size: 18), text: 'お出かけ'),
-                Tab(icon: Icon(Icons.directions_walk, size: 18), text: '日常'),
-                Tab(icon: Icon(Icons.push_pin, size: 18), text: 'ピン'),
+                Tab(icon: Icon(Icons.view_list, size: 20), text: 'すべて'),
+                Tab(icon: Icon(Icons.photo_library, size: 20), text: 'アルバム'),
+                Tab(icon: Icon(Icons.luggage, size: 20), text: 'お出かけ'),
+                Tab(icon: Icon(Icons.pets, size: 20), text: '日常'),
+                Tab(icon: Icon(Icons.location_on, size: 20), text: 'ピン'),
               ],
             ),
           ),
@@ -807,11 +813,24 @@ class _WalkCard extends StatelessWidget {
                   // サブ情報
                   Row(
                     children: [
+                      // エリア名（お出かけ散歩）
                       if (isOuting && walk.areaName != null) ...[
                         Icon(Icons.location_on, size: 14, color: WanMapColors.accent),
                         const SizedBox(width: WanMapSpacing.xs),
                         Text(
                           walk.areaName!,
+                          style: WanMapTypography.bodySmall.copyWith(
+                            color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                          ),
+                        ),
+                        const SizedBox(width: WanMapSpacing.md),
+                      ],
+                      // 日常散歩の位置情報（現在地から取得）
+                      if (!isOuting) ...[
+                        Icon(Icons.my_location, size: 14, color: WanMapColors.accent),
+                        const SizedBox(width: WanMapSpacing.xs),
+                        Text(
+                          '現在地',
                           style: WanMapTypography.bodySmall.copyWith(
                             color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                           ),
