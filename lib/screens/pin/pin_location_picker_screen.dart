@@ -28,29 +28,32 @@ class PinLocationPickerScreen extends ConsumerStatefulWidget {
 
 class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScreen> {
   final MapController _mapController = MapController();
-  LatLng _selectedLocation = const LatLng(35.4437, 139.6380); // 初期値を設定
+  LatLng? _currentLocation;
 
   @override
   void initState() {
     super.initState();
     
-    // 初期位置を現在地に設定
+    // 現在地を取得
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final gpsState = ref.read(gpsProviderRiverpod);
-      if (gpsState.currentLocation != null) {
+      if (gpsState.currentLocation != null && mounted) {
         setState(() {
-          _selectedLocation = gpsState.currentLocation!;
+          _currentLocation = gpsState.currentLocation!;
         });
-        _mapController.move(gpsState.currentLocation!, 16.0);
+        // マップが初期化された後に移動
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            _mapController.move(gpsState.currentLocation!, 16.0);
+          }
+        });
       }
     });
   }
 
   /// マップの中心座標を取得
-  void _updateSelectedLocation() {
-    setState(() {
-      _selectedLocation = _mapController.camera.center;
-    });
+  LatLng _getSelectedLocation() {
+    return _mapController.camera.center;
   }
 
   @override
@@ -70,15 +73,10 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: const LatLng(35.4437, 139.6380), // 横浜の座標を直接指定
+              initialCenter: _currentLocation ?? const LatLng(35.4437, 139.6380),
               initialZoom: 16.0,
               minZoom: 5.0,
               maxZoom: 18.0,
-              onPositionChanged: (position, hasGesture) {
-                if (hasGesture) {
-                  _updateSelectedLocation();
-                }
-              },
             ),
             children: [
               TileLayer(
@@ -150,12 +148,13 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
             bottom: 16,
             child: ElevatedButton(
               onPressed: () {
+                final selectedLocation = _getSelectedLocation();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => PinCreateScreen(
                       routeId: widget.routeId ?? '',
-                      location: _selectedLocation,
+                      location: selectedLocation,
                     ),
                   ),
                 );
