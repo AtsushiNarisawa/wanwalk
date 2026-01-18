@@ -23,6 +23,14 @@ class DailyWalkLandingScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.close,
+            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+          ),
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'キャンセル',
+        ),
         title: Row(
           children: [
             const Icon(Icons.directions_walk, color: WanMapColors.accent, size: 28),
@@ -36,7 +44,6 @@ class DailyWalkLandingScreen extends StatelessWidget {
             ),
           ],
         ),
-        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Padding(

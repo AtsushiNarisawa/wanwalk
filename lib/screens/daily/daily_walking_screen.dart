@@ -50,6 +50,47 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     await gpsNotifier.getCurrentLocation();
   }
 
+  /// 戻るボタン押下時の処理
+  Future<void> _handleBackPress() async {
+    final gpsState = ref.read(gpsProviderRiverpod);
+    
+    // 散歩中の場合は確認ダイアログを表示
+    if (gpsState.isRecording) {
+      final shouldStop = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('散歩を中止しますか？'),
+          content: const Text('記録中の散歩データは保存されません。\n本当に中止しますか？'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('キャンセル'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              child: const Text('中止する'),
+            ),
+          ],
+        ),
+      );
+      
+      if (shouldStop == true) {
+        // GPS記録を停止
+        final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
+        await gpsNotifier.stopRecording();
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+    } else {
+      // 記録前の場合はそのまま戻る
+      Navigator.of(context).pop();
+    }
+  }
+
   /// 散歩を開始
   Future<void> _startWalking() async {
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
@@ -405,7 +446,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => _handleBackPress(),
               ),
               Expanded(
                 child: Text(
