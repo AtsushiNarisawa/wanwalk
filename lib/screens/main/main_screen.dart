@@ -7,6 +7,7 @@ import 'tabs/home_tab.dart';
 import 'tabs/map_tab.dart';
 import 'tabs/library_tab.dart';
 import 'tabs/profile_tab.dart';
+import '../daily/daily_walk_landing_screen.dart';
 
 /// MainScreen - 新UI（BottomNavigationBar採用）
 /// 
@@ -14,11 +15,12 @@ import 'tabs/profile_tab.dart';
 /// PRIMARY: おでかけ散歩 - 公式ルート、エリア、コミュニティ
 /// SECONDARY: 日常の散歩 - プライベート記録
 /// 
-/// 4つのタブ:
+/// 5つのタブ:
 /// 1. ホーム - おでかけ散歩優先（エリア、公式ルート）
 /// 2. マップ - おでかけ散歩中心のマップ機能
-/// 3. ライブラリ - 日常の散歩+統計+バッジ統合
-/// 4. プロフィール - アカウント管理
+/// 3. お散歩 - 散歩開始の統一入口（日常散歩・お出かけ散歩）
+/// 4. ライブラリ - 日常の散歩+統計+バッジ統合
+/// 5. プロフィール - アカウント管理
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
@@ -33,8 +35,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   // タブページリスト（動的生成）
   List<Widget> _buildPages() {
     return [
-      HomeTab(onSwitchToMapTab: () => _onItemTapped(1)),
+      const HomeTab(),
       const MapTab(),
+      Container(), // お散歩タブ（ボトムシート表示のため空）
       const LibraryTab(),
       const ProfileTab(),
     ];
@@ -42,9 +45,210 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   // タブ切り替え
   void _onItemTapped(int index) {
+    // お散歩タブ（index 2）の場合はボトムシート表示
+    if (index == 2) {
+      _showWalkTypeSelection();
+      return;
+    }
+    
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  /// 散歩タイプ選択ボトムシート
+  void _showWalkTypeSelection() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ハンドル
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // タイトル
+                Text(
+                  'お散歩を開始',
+                  style: WanMapTypography.headlineSmall.copyWith(
+                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                
+                const SizedBox(height: 8),
+                
+                Text(
+                  '散歩のタイプを選択してください',
+                  style: WanMapTypography.bodyMedium.copyWith(
+                    color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                  ),
+                ),
+                
+                const SizedBox(height: 32),
+                
+                // 日常散歩ボタン
+                _buildWalkButton(
+                  context: context,
+                  isDark: isDark,
+                  icon: Icons.pets,
+                  title: '日常散歩',
+                  description: '自由に歩く',
+                  color: WanMapColors.accent,
+                  isFilled: true,
+                  onTap: () {
+                    Navigator.pop(context);
+                    // 日常散歩開始画面へ遷移
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DailyWalkLandingScreen(),
+                      ),
+                    );
+                  },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // お出かけ散歩ボタン
+                _buildWalkButton(
+                  context: context,
+                  isDark: isDark,
+                  icon: Icons.luggage,
+                  title: 'お出かけ散歩',
+                  description: 'ルートを選んで歩く',
+                  color: WanMapColors.primary,
+                  isFilled: false,
+                  onTap: () {
+                    Navigator.pop(context);
+                    // マップタブへ遷移
+                    setState(() {
+                      _selectedIndex = 1;
+                    });
+                  },
+                ),
+                
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// 散歩ボタンウィジェット
+  Widget _buildWalkButton({
+    required BuildContext context,
+    required bool isDark,
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color color,
+    required bool isFilled,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 72,
+      child: isFilled
+          ? ElevatedButton(
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.all(16),
+              ),
+              child: Row(
+                children: [
+                  Icon(icon, size: 32),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: WanMapTypography.titleMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          description,
+                          style: WanMapTypography.bodySmall.copyWith(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, size: 20),
+                ],
+              ),
+            )
+          : OutlinedButton(
+              onPressed: onTap,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: color,
+                side: BorderSide(color: color, width: 2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.all(16),
+              ),
+              child: Row(
+                children: [
+                  Icon(icon, size: 32, color: color),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: WanMapTypography.titleMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                          ),
+                        ),
+                        Text(
+                          description,
+                          style: WanMapTypography.bodySmall.copyWith(
+                            color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward_ios, size: 20, color: color),
+                ],
+              ),
+            ),
+    );
   }
 
   @override
@@ -94,6 +298,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             icon: Icon(Icons.map_outlined, size: 28),
             activeIcon: Icon(Icons.map, size: 28),
             label: 'マップ',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pets_outlined, size: 32),
+            activeIcon: Icon(Icons.pets, size: 32),
+            label: 'お散歩',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.history, size: 28),

@@ -24,7 +24,6 @@ import '../../outing/route_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../outing/pin_comment_screen.dart';
 import '../../outing/hakone_sub_area_screen.dart';
-import '../../daily/daily_walk_landing_screen.dart';
 
 import '../../routes/public_routes_screen.dart';
 import '../../outing/route_list_screen.dart';
@@ -39,9 +38,7 @@ import '../../../widgets/shimmer/wanmap_shimmer.dart';
 /// 3. おすすめエリア（3枚 + 一覧を見るボタン）
 /// 4. 高評価スポット（評価4以上）
 class HomeTab extends ConsumerWidget {
-  final VoidCallback? onSwitchToMapTab;
-  
-  const HomeTab({super.key, this.onSwitchToMapTab});
+  const HomeTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -113,134 +110,6 @@ class HomeTab extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showWalkTypeSelection(context, isDark),
-        backgroundColor: WanMapColors.primary,
-        icon: const Icon(Icons.directions_walk, color: Colors.white),
-        label: Text(
-          '散歩を開始',
-          style: WanMapTypography.titleMedium.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 散歩タイプ選択ボトムシート
-  void _showWalkTypeSelection(BuildContext context, bool isDark) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(WanMapSpacing.lg),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // ハンドル
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                
-                const SizedBox(height: WanMapSpacing.lg),
-                
-                // タイトル
-                Text(
-                  '散歩を開始',
-                  style: WanMapTypography.headlineSmall.copyWith(
-                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                const SizedBox(height: WanMapSpacing.xs),
-                
-                Text(
-                  'どちらの散歩を開始しますか？',
-                  style: WanMapTypography.bodyMedium.copyWith(
-                    color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
-                  ),
-                ),
-                
-                const SizedBox(height: WanMapSpacing.xl),
-                
-                // 日常散歩ボタン
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const DailyWalkLandingScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.pets, size: 24),
-                    label: Text(
-                      '日常散歩',
-                      style: WanMapTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: WanMapColors.accent,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                ),
-                
-                const SizedBox(height: WanMapSpacing.md),
-                
-                // お出かけ散歩ボタン
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context); // ボトムシートを閉じる
-                      // マップタブへ切り替え
-                      onSwitchToMapTab?.call();
-                    },
-                    icon: const Icon(Icons.luggage, size: 24),
-                    label: Text(
-                      'お出かけ散歩',
-                      style: WanMapTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: WanMapColors.primary,
-                      side: const BorderSide(color: WanMapColors.primary, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                ),
-                
-                const SizedBox(height: WanMapSpacing.lg),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
