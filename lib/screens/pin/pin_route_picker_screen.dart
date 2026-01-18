@@ -5,6 +5,7 @@ import '../../config/wanmap_spacing.dart';
 import '../../config/wanmap_typography.dart';
 import '../../providers/official_route_provider.dart';
 import '../../providers/official_routes_screen_provider.dart';
+import '../../providers/area_provider.dart';
 import '../../models/official_route.dart';
 import '../pin/pin_location_picker_screen.dart';
 
@@ -19,19 +20,41 @@ class PinRoutePickerScreen extends ConsumerStatefulWidget {
 }
 
 class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     // デフォルトソートを「距離が短い順」に設定
     Future.microtask(() {
       ref.read(sortOptionProvider.notifier).state = RouteSortOption.distanceAsc;
+      ref.read(searchQueryProvider.notifier).state = '';
+      ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = null;
     });
+
+    // 検索テキストの変更を監視
+    _searchController.addListener(() {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          ref.read(searchQueryProvider.notifier).state = _searchController.text;
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final routesAsync = ref.watch(officialRoutesProvider);
+    final areasAsync = ref.watch(areasProvider);
+    final selectedAreaId = ref.watch(selectedAreaIdProviderForPublicRoutes);
+    final sortOption = ref.watch(sortOptionProvider);
 
     return Scaffold(
       backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
@@ -77,6 +100,14 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
             ),
           ),
 
+          // 検索バー
+          _buildSearchBar(isDark),
+
+          // フィルタ・ソートバー
+          _buildFilterSortBar(context, isDark, areasAsync, selectedAreaId, sortOption),
+
+          const SizedBox(height: WanMapSpacing.sm),
+
           // ルート一覧
           Expanded(
             child: routesAsync.when(
@@ -96,6 +127,118 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => _buildErrorState(isDark, error),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 検索バー
+  Widget _buildSearchBar(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.md),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'ルート名・説明文で検索',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    ref.read(searchQueryProvider.notifier).state = '';
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// フィルタ・ソートバー
+  Widget _buildFilterSortBar(
+    BuildContext context,
+    bool isDark,
+    AsyncValue areasAsync,
+    String? selectedAreaId,
+    RouteSortOption sortOption,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.md),
+      child: Column(
+        children: [
+          const SizedBox(height: WanMapSpacing.sm),
+          // エリアフィルタ
+          areasAsync.when(
+            data: (areas) {
+              return DropdownButtonFormField<String?>(
+                value: selectedAreaId,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: 'エリア',
+                  prefixIcon: const Icon(Icons.location_on, size: 20),
+                  filled: true,
+                  fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                ),
+                items: [
+                  const DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text('すべて', overflow: TextOverflow.ellipsis),
+                  ),
+                  ...areas.map<DropdownMenuItem<String?>>((area) {
+                    return DropdownMenuItem<String?>(
+                      value: area.id,
+                      child: Text(area.name, overflow: TextOverflow.ellipsis),
+                    );
+                  }).toList(),
+                ],
+                onChanged: (value) {
+                  ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = value;
+                },
+              );
+            },
+            loading: () => const CircularProgressIndicator(),
+            error: (_, __) => const SizedBox(),
+          ),
+          const SizedBox(height: WanMapSpacing.sm),
+          // ソート順
+          DropdownButtonFormField<RouteSortOption>(
+            value: sortOption,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: 'ソート',
+              prefixIcon: const Icon(Icons.sort, size: 20),
+              filled: true,
+              fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            ),
+            items: RouteSortOption.values.map((option) {
+              return DropdownMenuItem(
+                value: option,
+                child: Text(option.label, overflow: TextOverflow.ellipsis),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                ref.read(sortOptionProvider.notifier).state = value;
+              }
+            },
           ),
         ],
       ),

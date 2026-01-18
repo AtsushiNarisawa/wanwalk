@@ -87,10 +87,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}',
-                additionalOptions: {
-                  'apikey': Environment.thunderforestApiKey,
-                },
+                urlTemplate: 'https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=${Environment.thunderforestApiKey}',
                 userAgentPackageName: 'com.doghub.wanwalk',
               ),
             ],
