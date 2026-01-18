@@ -68,22 +68,25 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
         elevation: 0,
       ),
       body: Stack(
+        fit: StackFit.expand,
         children: [
           // マップ
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _currentLocation ?? const LatLng(35.4437, 139.6380),
-              initialZoom: 16.0,
-              minZoom: 5.0,
-              maxZoom: 18.0,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.doghub.wanwalk',
+          Positioned.fill(
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: _currentLocation ?? const LatLng(35.4437, 139.6380),
+                initialZoom: 16.0,
+                minZoom: 5.0,
+                maxZoom: 18.0,
               ),
-            ],
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.doghub.wanwalk',
+                ),
+              ],
+            ),
           ),
 
           // 中央の十字マーカー
