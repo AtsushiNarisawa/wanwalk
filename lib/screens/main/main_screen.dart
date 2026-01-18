@@ -168,7 +168,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }) {
     return SizedBox(
       width: double.infinity,
-      height: 72,
       child: isFilled
           ? ElevatedButton(
               onPressed: onTap,
@@ -178,15 +177,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               ),
               child: Row(
                 children: [
-                  Icon(icon, size: 32),
+                  Icon(icon, size: 28),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -196,6 +195,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             color: Colors.white,
                           ),
                         ),
+                        const SizedBox(height: 2),
                         Text(
                           description,
                           style: WanMapTypography.bodySmall.copyWith(
@@ -205,7 +205,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios, size: 20),
+                  const Icon(Icons.arrow_forward_ios, size: 18),
                 ],
               ),
             )
@@ -217,15 +217,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               ),
               child: Row(
                 children: [
-                  Icon(icon, size: 32, color: color),
+                  Icon(icon, size: 28, color: color),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -235,6 +235,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
                           ),
                         ),
+                        const SizedBox(height: 2),
                         Text(
                           description,
                           style: WanMapTypography.bodySmall.copyWith(
@@ -244,7 +245,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       ],
                     ),
                   ),
-                  Icon(Icons.arrow_forward_ios, size: 20, color: color),
+                  Icon(Icons.arrow_forward_ios, size: 18, color: color),
                 ],
               ),
             ),
