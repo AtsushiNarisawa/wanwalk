@@ -5,7 +5,6 @@ import 'package:latlong2/latlong.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../config/wanmap_typography.dart';
-import '../../config/env.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../outing/pin_create_screen.dart';
 
@@ -29,7 +28,7 @@ class PinLocationPickerScreen extends ConsumerStatefulWidget {
 
 class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScreen> {
   final MapController _mapController = MapController();
-  LatLng? _selectedLocation;
+  LatLng _selectedLocation = const LatLng(35.4437, 139.6380); // 初期値を設定
 
   @override
   void initState() {
@@ -43,10 +42,6 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
           _selectedLocation = gpsState.currentLocation!;
         });
         _mapController.move(gpsState.currentLocation!, 16.0);
-      } else {
-        // デフォルト位置（横浜）
-        _selectedLocation = LatLng(35.4437, 139.6380);
-        _mapController.move(_selectedLocation!, 16.0);
       }
     });
   }
@@ -75,7 +70,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _selectedLocation ?? LatLng(35.4437, 139.6380),
+              initialCenter: _selectedLocation,
               initialZoom: 16.0,
               minZoom: 5.0,
               maxZoom: 18.0,
@@ -87,7 +82,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=${Environment.thunderforestApiKey}',
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.doghub.wanwalk',
               ),
             ],
@@ -154,19 +149,17 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
             right: 16,
             bottom: 16,
             child: ElevatedButton(
-              onPressed: _selectedLocation == null
-                  ? null
-                  : () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PinCreateScreen(
-                            routeId: widget.routeId ?? '',
-                            location: _selectedLocation!,
-                          ),
-                        ),
-                      );
-                    },
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PinCreateScreen(
+                      routeId: widget.routeId ?? '',
+                      location: _selectedLocation,
+                    ),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: WanMapColors.accent,
                 foregroundColor: Colors.white,
