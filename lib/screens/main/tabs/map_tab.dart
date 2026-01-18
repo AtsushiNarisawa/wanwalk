@@ -21,17 +21,12 @@ import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 
-import '../../outing/pin_create_screen.dart';
-import '../../daily/daily_walking_screen.dart';
-import './walk_type_bottom_sheet.dart';
-
 /// MapTab - 全画面地図 + Bottom Sheet UI
 /// 
 /// 構成:
 /// - 全画面地図表示
 /// - 最寄りルート1件をカード表示
 /// - スワイプ可能なBottom Sheet（近くのおすすめルート）
-/// - 右下FAB: 散歩開始
 /// - 上部: 検索バー + エリア一覧ボタン
 class MapTab extends ConsumerStatefulWidget {
   const MapTab({super.key});
@@ -202,9 +197,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
 
           // 右下: 現在地ボタン + ズームコントロール
           _buildMapControls(),
-
-          // 右下: 散歩開始FAB
-          _buildStartWalkFAB(),
         ],
       ),
     );
@@ -705,60 +697,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
             maxZoom: 18.0,
           ),
         ],
-      ),
-    );
-  }
-
-  /// 散歩開始FAB（右下固定）
-  Widget _buildStartWalkFAB() {
-    return Positioned(
-      right: WanMapSpacing.md,
-      bottom: _bottomSheetHeight + WanMapSpacing.md,
-      child: FloatingActionButton.extended(
-        heroTag: 'map_start_walk',
-        onPressed: () async {
-          final result = await WalkTypeBottomSheet.show(context);
-          if (result == null || !context.mounted) return;
-
-          switch (result) {
-            case 'outing':
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AreaListScreen()),
-              );
-              break;
-            case 'daily':
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const DailyWalkingScreen()),
-              );
-              break;
-            case 'pin_only':
-              final gpsState = ref.read(gpsProviderRiverpod);
-              if (gpsState.currentLocation == null) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('現在地を取得中です。しばらくお待ちください。')),
-                  );
-                }
-                return;
-              }
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PinCreateScreen(
-                    routeId: '',
-                    location: gpsState.currentLocation!,
-                  ),
-                ),
-              );
-              break;
-          }
-        },
-        backgroundColor: WanMapColors.accent,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.directions_walk),
-        label: const Text('散歩を始める'),
       ),
     );
   }
