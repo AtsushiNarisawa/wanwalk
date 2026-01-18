@@ -78,9 +78,8 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       );
       
       if (shouldStop == true) {
-        // GPS記録を停止
-        final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
-        await gpsNotifier.stopRecording();
+        // GPS記録を中止（記録は破棄）
+        // 状態を初期化するため、単純にpopして記録を破棄
         if (mounted) {
           Navigator.of(context).pop();
         }
