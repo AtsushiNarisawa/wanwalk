@@ -180,7 +180,7 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${(route.durationSeconds / 60).round()}分',
+                          '${route.estimatedMinutes}分',
                           style: WanMapTypography.bodySmall.copyWith(
                             color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
                           ),
