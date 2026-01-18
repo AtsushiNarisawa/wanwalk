@@ -30,12 +30,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   int _selectedIndex = 0;
 
   // タブページのリスト
-  static const List<Widget> _pages = [
-    HomeTab(),
-    MapTab(),
-    LibraryTab(),
-    ProfileTab(),
-  ];
+  // タブページリスト（動的生成）
+  List<Widget> _buildPages() {
+    return [
+      HomeTab(onSwitchToMapTab: () => _onItemTapped(1)),
+      const MapTab(),
+      const LibraryTab(),
+      const ProfileTab(),
+    ];
+  }
 
   // タブ切り替え
   void _onItemTapped(int index) {
@@ -47,6 +50,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pages = _buildPages(); // 動的に生成
 
     return Scaffold(
       backgroundColor: isDark 
@@ -55,7 +59,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       // AppBarは各タブで個別に実装（タブごとに最適化）
       body: IndexedStack(
         index: _selectedIndex,
-        children: _pages,
+        children: pages,
       ),
       // 散歩中バナー（BottomNavigationBarの上に表示）
       bottomNavigationBar: Column(

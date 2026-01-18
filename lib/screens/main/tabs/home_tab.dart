@@ -39,7 +39,9 @@ import '../../../widgets/shimmer/wanmap_shimmer.dart';
 /// 3. おすすめエリア（3枚 + 一覧を見るボタン）
 /// 4. 高評価スポット（評価4以上）
 class HomeTab extends ConsumerWidget {
-  const HomeTab({super.key});
+  final VoidCallback? onSwitchToMapTab;
+  
+  const HomeTab({super.key, this.onSwitchToMapTab});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -212,13 +214,9 @@ class HomeTab extends ConsumerWidget {
                   height: 56,
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AreaListScreen(),
-                        ),
-                      );
+                      Navigator.pop(context); // ボトムシートを閉じる
+                      // マップタブへ切り替え
+                      onSwitchToMapTab?.call();
                     },
                     icon: const Icon(Icons.luggage, size: 24),
                     label: Text(
