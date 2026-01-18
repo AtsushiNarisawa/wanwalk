@@ -27,28 +27,29 @@ class PinLocationPickerScreen extends ConsumerStatefulWidget {
 }
 
 class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScreen> {
-  final MapController _mapController = MapController();
+  late final MapController _mapController;
   LatLng? _currentLocation;
 
   @override
   void initState() {
     super.initState();
+    _mapController = MapController();
     
     // 現在地を取得
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final gpsState = ref.read(gpsProviderRiverpod);
-      if (gpsState.currentLocation != null && mounted) {
+      if (gpsState.currentLocation != null) {
         setState(() {
-          _currentLocation = gpsState.currentLocation!;
-        });
-        // マップが初期化された後に移動
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
-            _mapController.move(gpsState.currentLocation!, 16.0);
-          }
+          _currentLocation = gpsState.currentLocation;
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
   }
 
   /// マップの中心座標を取得
@@ -68,25 +69,22 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
         elevation: 0,
       ),
       body: Stack(
-        fit: StackFit.expand,
         children: [
-          // マップ
-          Positioned.fill(
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                initialCenter: _currentLocation ?? const LatLng(35.4437, 139.6380),
-                initialZoom: 16.0,
-                minZoom: 5.0,
-                maxZoom: 18.0,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.doghub.wanwalk',
-                ),
-              ],
+          // マップ - マップタブと同じ構造
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _currentLocation ?? const LatLng(35.4437, 139.6380),
+              initialZoom: 13.0,
+              minZoom: 5.0,
+              maxZoom: 18.0,
             ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.doghub.wanwalk',
+              ),
+            ],
           ),
 
           // 中央の十字マーカー
