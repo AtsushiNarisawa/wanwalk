@@ -197,6 +197,9 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
 
           // 右下: 現在地ボタン + ズームコントロール
           _buildMapControls(),
+
+          // 右下: ピン投稿FAB
+          _buildPinPostFAB(isDark),
         ],
       ),
     );
@@ -697,6 +700,169 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
             maxZoom: 18.0,
           ),
         ],
+      ),
+    );
+  }
+
+  /// ピン投稿FAB（右下）
+  Widget _buildPinPostFAB(bool isDark) {
+    return Positioned(
+      right: WanMapSpacing.md,
+      bottom: _bottomSheetHeight + 80,
+      child: FloatingActionButton.extended(
+        heroTag: 'map_pin_post',
+        onPressed: () => _showPinTypeSelection(isDark),
+        backgroundColor: WanMapColors.accent,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_location_alt),
+        label: const Text('ピンを投稿'),
+      ),
+    );
+  }
+
+  /// ピン投稿タイプ選択ボトムシート
+  void _showPinTypeSelection(bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ハンドル
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // タイトル
+                Text(
+                  'ピンを投稿',
+                  style: WanMapTypography.headlineSmall.copyWith(
+                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                
+                const SizedBox(height: 8),
+                
+                Text(
+                  '投稿タイプを選択してください',
+                  style: WanMapTypography.bodyMedium.copyWith(
+                    color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                  ),
+                ),
+                
+                const SizedBox(height: 32),
+                
+                // ルートに投稿ボタン
+                _buildPinTypeButton(
+                  context: context,
+                  isDark: isDark,
+                  icon: Icons.route,
+                  title: 'ルートに投稿',
+                  description: 'みんなのピン',
+                  color: WanMapColors.primary,
+                  onTap: () {
+                    Navigator.pop(context);
+                    // TODO: ルート選択画面へ遷移
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('ルート選択画面は準備中です')),
+                    );
+                  },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // 自由なスポットボタン
+                _buildPinTypeButton(
+                  context: context,
+                  isDark: isDark,
+                  icon: Icons.location_on,
+                  title: '自由なスポット',
+                  description: '場所を自由に投稿',
+                  color: Colors.orange,
+                  onTap: () {
+                    Navigator.pop(context);
+                    // TODO: 場所選択画面へ遷移
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('場所選択画面は準備中です')),
+                    );
+                  },
+                ),
+                
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// ピン投稿タイプボタン
+  Widget _buildPinTypeButton({
+    required BuildContext context,
+    required bool isDark,
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: color,
+          side: BorderSide(color: color, width: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 28, color: color),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: WanMapTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: WanMapTypography.bodySmall.copyWith(
+                      color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 18, color: color),
+          ],
+        ),
       ),
     );
   }
