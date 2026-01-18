@@ -35,12 +35,25 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
     super.initState();
     _mapController = MapController();
     
-    // 現在地を取得
+    // 現在地を取得してマップを移動
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final gpsState = ref.read(gpsProviderRiverpod);
-      if (gpsState.currentLocation != null) {
+      if (gpsState.currentLocation != null && mounted) {
         setState(() {
           _currentLocation = gpsState.currentLocation;
+        });
+        // マップを移動してタイルを読み込む
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            _mapController.move(_currentLocation!, 16.0);
+          }
+        });
+      } else if (mounted) {
+        // 現在地がない場合は横浜にズーム
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            _mapController.move(const LatLng(35.4437, 139.6380), 16.0);
+          }
         });
       }
     });
