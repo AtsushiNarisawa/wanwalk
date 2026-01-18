@@ -20,6 +20,8 @@ import '../../../widgets/zoom_control_widget.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
+import '../../pin/pin_route_picker_screen.dart';
+import '../../pin/pin_location_picker_screen.dart';
 
 /// MapTab - 全画面地図 + Bottom Sheet UI
 /// 
@@ -777,9 +779,12 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                   color: WanMapColors.primary,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: ルート選択画面へ遷移
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('ルート選択画面は準備中です')),
+                    // ルート選択画面へ遷移
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PinRoutePickerScreen(),
+                      ),
                     );
                   },
                 ),
@@ -796,9 +801,12 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                   color: Colors.orange,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: 場所選択画面へ遷移
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('場所選択画面は準備中です')),
+                    // 場所選択画面へ遷移（route_idなし）
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PinLocationPickerScreen(),
+                      ),
                     );
                   },
                 ),
