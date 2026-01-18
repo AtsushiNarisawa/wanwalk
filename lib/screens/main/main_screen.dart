@@ -8,6 +8,8 @@ import 'tabs/map_tab.dart';
 import 'tabs/library_tab.dart';
 import 'tabs/profile_tab.dart';
 import '../daily/daily_walk_landing_screen.dart';
+import '../routes/public_routes_screen.dart';
+import '../../providers/official_routes_screen_provider.dart';
 
 /// MainScreen - 新UI（BottomNavigationBar採用）
 /// 
@@ -139,10 +141,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   isFilled: false,
                   onTap: () {
                     Navigator.pop(context);
-                    // マップタブへ遷移
-                    setState(() {
-                      _selectedIndex = 1;
-                    });
+                    // デフォルトソートを「距離が短い順」に設定
+                    ref.read(sortOptionProvider.notifier).state = RouteSortOption.distanceAsc;
+                    // 公式ルート一覧画面へ遷移
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PublicRoutesScreen(),
+                      ),
+                    );
                   },
                 ),
                 
