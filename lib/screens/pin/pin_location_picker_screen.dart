@@ -70,7 +70,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _selectedLocation,
+              initialCenter: const LatLng(35.4437, 139.6380), // 横浜の座標を直接指定
               initialZoom: 16.0,
               minZoom: 5.0,
               maxZoom: 18.0,
