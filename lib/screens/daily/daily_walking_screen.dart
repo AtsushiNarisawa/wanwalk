@@ -377,7 +377,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       ),
       children: [
         TileLayer(
-          urlTemplate: 'https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=${Environment.thunderforestApiKey}',
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.doghub.wanwalk',
         ),
         // 歩いたルートを表示
