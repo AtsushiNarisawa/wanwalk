@@ -713,10 +713,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
       bottom: _bottomSheetHeight + 80,
       child: FloatingActionButton.extended(
         heroTag: 'map_pin_post',
-        onPressed: () {
-          print('🗺️ MapTab: Pin post FAB pressed');
-          _showPinTypeSelection(isDark);
-        },
+        onPressed: () => _showPinTypeSelection(isDark),
         backgroundColor: WanMapColors.accent,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_location_alt),
@@ -727,7 +724,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
 
   /// ピン投稿タイプ選択ボトムシート
   void _showPinTypeSelection(bool isDark) {
-    print('🗺️ MapTab: _showPinTypeSelection called');
     showModalBottomSheet(
       context: context,
       backgroundColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
@@ -735,7 +731,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        print('🗺️ MapTab: Bottom sheet builder called');
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -805,9 +800,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                   description: '場所を自由に投稿',
                   color: Colors.orange,
                   onTap: () {
-                    print('🗺️ MapTab: 自由なスポット tapped');
                     Navigator.pop(context);
-                    print('🗺️ MapTab: Navigating to PinLocationPickerScreen');
                     // 場所選択画面へ遷移（route_idなし）
                     Navigator.push(
                       context,
@@ -815,7 +808,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                         builder: (_) => const PinLocationPickerScreen(),
                       ),
                     );
-                    print('🗺️ MapTab: Navigator.push called');
                   },
                 ),
                 
