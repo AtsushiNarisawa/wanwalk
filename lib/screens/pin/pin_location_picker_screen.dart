@@ -109,17 +109,29 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
             ],
           ),
 
-          // 中央の十字マーカー
+          // 中央の十字マーカー（見やすい赤色 + 白い縁取り）
           Center(
-            child: Icon(
-              Icons.add_location_alt,
-              size: 48,
-              color: WanMapColors.accent,
-              shadows: [
-                Shadow(
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                  color: Colors.black.withOpacity(0.3),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // 白い縁取り（外側）
+                Icon(
+                  Icons.add_location_alt,
+                  size: 52,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(0, 3),
+                      blurRadius: 8,
+                      color: Colors.black.withOpacity(0.5),
+                    ),
+                  ],
+                ),
+                // 赤いマーカー（内側）
+                Icon(
+                  Icons.add_location_alt,
+                  size: 48,
+                  color: Colors.red,
                 ),
               ],
             ),
@@ -170,14 +182,15 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
             bottom: 90, // ボタンの上
             child: Column(
               children: [
-                // 現在地ボタン
+                // 現在地ボタン（目立つ配色）
                 FloatingActionButton(
                   heroTag: 'pin_location_current_location',
                   mini: true,
-                  backgroundColor: Colors.white,
-                  foregroundColor: WanMapColors.accent,
+                  backgroundColor: WanMapColors.accent,
+                  foregroundColor: Colors.white,
                   onPressed: _moveToCurrentLocation,
                   tooltip: '現在地に移動',
+                  elevation: 6,
                   child: const Icon(Icons.my_location, size: 20),
                 ),
                 const SizedBox(height: WanMapSpacing.sm),
