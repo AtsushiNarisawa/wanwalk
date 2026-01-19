@@ -35,19 +35,29 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
     super.initState();
     _mapController = MapController();
     
+    print('🗺️ PinLocationPicker: initState called');
+    print('🗺️ Initial location: $_currentLocation');
+    
     // 現在地を取得
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('🗺️ PinLocationPicker: postFrameCallback started');
       _initializeLocation();
     });
   }
 
   /// 現在地を初期化
   Future<void> _initializeLocation() async {
+    print('🗺️ PinLocationPicker: _initializeLocation started');
     final gpsState = ref.read(gpsProviderRiverpod);
+    print('🗺️ GPS currentLocation: ${gpsState.currentLocation}');
+    
     if (gpsState.currentLocation != null && mounted) {
       setState(() {
         _currentLocation = gpsState.currentLocation!;
       });
+      print('🗺️ Updated location: $_currentLocation');
+    } else {
+      print('🗺️ Using default location: $_currentLocation');
     }
   }
 
