@@ -6,6 +6,7 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../config/wanmap_typography.dart';
 import '../../providers/gps_provider_riverpod.dart';
+import '../../widgets/zoom_control_widget.dart';
 import '../outing/pin_create_screen.dart';
 
 /// ピン投稿の場所選択画面
@@ -61,6 +62,21 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
   /// マップの中心座標を取得
   LatLng _getSelectedLocation() {
     return _mapController.camera.center;
+  }
+
+  /// 現在地に移動
+  void _moveToCurrentLocation() {
+    final gpsState = ref.read(gpsProviderRiverpod);
+    if (gpsState.currentLocation != null) {
+      _mapController.move(gpsState.currentLocation!, 17.0);
+      setState(() {
+        _currentLocation = gpsState.currentLocation!;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('現在地を取得できませんでした')),
+      );
+    }
   }
 
   @override
@@ -145,6 +161,33 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
                   ),
                 ],
               ),
+            ),
+          ),
+
+          // 右下: 現在地ボタン + ズームコントロール
+          Positioned(
+            right: WanMapSpacing.md,
+            bottom: 90, // ボタンの上
+            child: Column(
+              children: [
+                // 現在地ボタン
+                FloatingActionButton(
+                  heroTag: 'pin_location_current_location',
+                  mini: true,
+                  backgroundColor: Colors.white,
+                  foregroundColor: WanMapColors.accent,
+                  onPressed: _moveToCurrentLocation,
+                  tooltip: '現在地に移動',
+                  child: const Icon(Icons.my_location, size: 20),
+                ),
+                const SizedBox(height: WanMapSpacing.sm),
+                // ズームコントロール
+                ZoomControlWidget(
+                  mapController: _mapController,
+                  minZoom: 5.0,
+                  maxZoom: 19.0,
+                ),
+              ],
             ),
           ),
 
