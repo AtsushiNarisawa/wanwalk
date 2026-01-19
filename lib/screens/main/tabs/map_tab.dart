@@ -681,7 +681,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   Widget _buildMapControls() {
     return Positioned(
       right: WanMapSpacing.md,
-      bottom: _bottomSheetHeight + 80, // Bottom Sheetの上 + FABの高さ
+      top: 160, // 上部バーの下に配置（検索バー + エリア一覧ボタンの高さ考慮）
       child: Column(
         children: [
           // 現在地ボタン
