@@ -28,35 +28,27 @@ class PinLocationPickerScreen extends ConsumerStatefulWidget {
 
 class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScreen> {
   late final MapController _mapController;
-  LatLng? _currentLocation;
+  LatLng _currentLocation = const LatLng(35.4437, 139.6380); // デフォルト値を設定
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
     
-    // 現在地を取得してマップを移動
+    // 現在地を取得
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final gpsState = ref.read(gpsProviderRiverpod);
-      if (gpsState.currentLocation != null && mounted) {
-        setState(() {
-          _currentLocation = gpsState.currentLocation;
-        });
-        // マップを移動してタイルを読み込む
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            _mapController.move(_currentLocation!, 16.0);
-          }
-        });
-      } else if (mounted) {
-        // 現在地がない場合は横浜にズーム
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            _mapController.move(const LatLng(35.4437, 139.6380), 16.0);
-          }
-        });
-      }
+      _initializeLocation();
     });
+  }
+
+  /// 現在地を初期化
+  Future<void> _initializeLocation() async {
+    final gpsState = ref.read(gpsProviderRiverpod);
+    if (gpsState.currentLocation != null && mounted) {
+      setState(() {
+        _currentLocation = gpsState.currentLocation!;
+      });
+    }
   }
 
   @override
@@ -87,7 +79,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _currentLocation ?? const LatLng(35.4437, 139.6380),
+              initialCenter: _currentLocation,
               initialZoom: 13.0,
               minZoom: 5.0,
               maxZoom: 18.0,
