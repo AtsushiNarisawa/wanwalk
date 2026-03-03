@@ -19,27 +19,40 @@ class WalkDetailService {
   }) async {
     try {
       // 1. 散歩の基本情報を取得
+      // [BUG-C04 修正] walk_save_service が保存する実際のカラム名に合わせる
+      // distance_meters, duration_seconds, path_geojson を walks テーブルから読む
+      // [BUG-H02 修正] routes!inner → official_routes を route_id で参照（LEFT JOIN相当）
       final walkResponse = await _supabase
           .from('walks')
           .select('''
             id,
             start_time,
-            duration_minutes,
-            routes!inner(
-              id,
-              name,
-              distance_km,
-              estimated_time_minutes,
-              difficulty,
-              area
-            )
+            end_time,
+            distance_meters,
+            duration_seconds,
+            path_geojson,
+            route_id
           ''')
           .eq('id', walkId)
           .eq('walk_type', 'outing')
-          .single();
+          .maybeSingle();
 
-      final route = walkResponse['routes'];
-      final areaName = route['area'] as String;
+      // [BUG-H01 修正] データ不在時は null を返す
+      if (walkResponse == null) return null;
+
+      // ルート情報を別途取得（route_id がある場合）
+      Map<String, dynamic>? route;
+      final routeId = walkResponse['route_id'];
+      if (routeId != null) {
+        route = await _supabase
+            .from('official_routes')
+            .select('id, name, distance_km, estimated_time_minutes, difficulty, area')
+            .eq('id', routeId)
+            .maybeSingle();
+      }
+      
+      final areaName = route?['area'] as String? ?? '';
+      final routeIdStr = route?['id'] as String? ?? routeId ?? '';
 
       // 2. GPSポイントを path_geojson から取得
       List<RoutePoint> routePoints = [];
@@ -85,7 +98,7 @@ class WalkDetailService {
               display_order
             )
           ''')
-          .eq('route_id', route['id'])
+          .eq('route_id', routeIdStr)
           .gte('created_at', startOfDay.toIso8601String())
           .lt('created_at', endOfDay.toIso8601String())
           .order('created_at', ascending: true);
@@ -99,7 +112,7 @@ class WalkDetailService {
 
         return RoutePin(
           id: pin['id'],
-          routeId: route['id'],
+          routeId: routeIdStr,
           userId: '', // ユーザーIDは不要
           location: location,
           pinType: PinType.fromString(pin['pin_type']),
@@ -119,13 +132,14 @@ class WalkDetailService {
 
       return WalkDetail(
         id: walkResponse['id'],
-        routeId: route['id'],
-        routeName: route['name'],
+        routeId: routeIdStr,
+        routeName: route?['name'] ?? '',
         areaName: areaName,
         walkedAt: walkedDate,
-        distanceMeters: (route['distance_km']?.toDouble() ?? 0.0) * 1000.0,
-        durationSeconds: (walkResponse['duration_minutes'] ?? 0) * 60,
-        difficulty: route['difficulty'] ?? 'easy',
+        // [BUG-C04 修正] walks テーブルの実際のカラム名から読み取る
+        distanceMeters: (walkResponse['distance_meters']?.toDouble() ?? 0.0),
+        durationSeconds: (walkResponse['duration_seconds'] ?? 0) as int,
+        difficulty: route?['difficulty'] ?? 'easy',
         routePoints: routePoints,
         pins: pins,
         photoUrls: allPhotos,

@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/home_stats_service.dart';
 import '../models/route_model.dart';
 
@@ -36,7 +35,7 @@ final areasListProvider = FutureProvider<List<AreaModel>>((ref) async {
   return await service.getAreas();
 });
 
-/// 現在のユーザーIDプロバイダー
-final currentUserIdProvider = Provider<String?>((ref) {
-  return Supabase.instance.client.auth.currentUser?.id;
-});
+// [BUG-C01 修正] currentUserIdProvider は auth_provider.dart で定義済み。
+// 重複定義を削除。正規の定義は auth_provider.dart:147 を参照。
+// ※ このファイル自体が現在どこからもインポートされていないため、
+//   将来的にファイル全体の整理を推奨。

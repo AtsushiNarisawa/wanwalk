@@ -235,7 +235,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     
     if (kDebugMode) {
       print('🐕 ProfileTab _buildDogCards: ${dogs.length} dogs');
-      print('🐕 Dogs: ${dogs.map((d) => d.name).join(", ")}');
+      if (kDebugMode) {
+        print('🐕 Dogs: ${dogs.map((d) => d.name).join(", ")}');
+      }
     }
 
     return Column(

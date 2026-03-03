@@ -17,15 +17,18 @@ class AuthState {
 
   bool get isLoggedIn => currentUser != null;
 
+  // [BUG-H10 修正] clearCurrentUser フラグで currentUser を null に設定可能にする
   AuthState copyWith({
     User? currentUser,
+    bool clearCurrentUser = false,
     bool? isLoading,
     String? errorMessage,
+    bool clearError = false,
   }) {
     return AuthState(
-      currentUser: currentUser ?? this.currentUser,
+      currentUser: clearCurrentUser ? null : (currentUser ?? this.currentUser),
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
@@ -42,7 +45,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void _init() {
     _authService.authStateChanges.listen((authState) {
       final user = authState.session?.user;
-      state = state.copyWith(currentUser: user);
+      // [BUG-H10 修正] ユーザーがnullの場合はclearCurrentUserで確実にクリア
+      if (user != null) {
+        state = state.copyWith(currentUser: user);
+      } else {
+        state = state.copyWith(clearCurrentUser: true);
+      }
       if (kDebugMode) {
         print('🔐 Auth state changed: userId=${user?.id ?? "null"}');
       }
@@ -50,7 +58,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     // 現在のユーザーを取得
     final currentUser = Supabase.instance.client.auth.currentUser;
-    state = state.copyWith(currentUser: currentUser);
+    if (currentUser != null) {
+      state = state.copyWith(currentUser: currentUser);
+    }
     if (kDebugMode) {
       print('🔐 Initial auth state: userId=${currentUser?.id ?? "null"}');
     }
@@ -134,7 +144,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// エラーメッセージをクリア
   void clearError() {
-    state = state.copyWith(errorMessage: null);
+    state = state.copyWith(clearError: true);
   }
 }
 

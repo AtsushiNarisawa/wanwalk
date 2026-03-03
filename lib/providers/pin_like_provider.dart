@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -18,7 +19,9 @@ class PinLikeService {
 
       return response['success'] == true;
     } catch (e) {
-      print('Error liking pin: $e');
+      if (kDebugMode) {
+        print('Error liking pin: $e');
+      }
       return false;
     }
   }
@@ -36,7 +39,9 @@ class PinLikeService {
 
       return response['success'] == true;
     } catch (e) {
-      print('Error unliking pin: $e');
+      if (kDebugMode) {
+        print('Error unliking pin: $e');
+      }
       return false;
     }
   }
@@ -54,7 +59,9 @@ class PinLikeService {
 
       return response == true;
     } catch (e) {
-      print('Error checking if pin is liked: $e');
+      if (kDebugMode) {
+        print('Error checking if pin is liked: $e');
+      }
       return false;
     }
   }
@@ -76,7 +83,9 @@ class PinLikeService {
 
       return response.cast<Map<String, dynamic>>();
     } catch (e) {
-      print('Error fetching user liked pins: $e');
+      if (kDebugMode) {
+        print('Error fetching user liked pins: $e');
+      }
       return [];
     }
   }

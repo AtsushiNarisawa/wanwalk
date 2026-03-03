@@ -44,6 +44,13 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     _initializeLocation();
   }
 
+  // [BUG-H03 修正] MapController の dispose を追加（メモリリーク防止）
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
   /// 初期位置を取得（記録は開始しない）
   Future<void> _initializeLocation() async {
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);

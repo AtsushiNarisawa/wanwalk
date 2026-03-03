@@ -18,8 +18,12 @@ class NotificationsScreen extends ConsumerStatefulWidget {
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   final ScrollController _scrollController = ScrollController();
-  int _offset = 0;
+  // [BUG-H09 修正] ページネーションをローカルリストで蓄積する方式に変更
+  final List<dynamic> _allNotifications = [];
+  int _currentPage = 0;
   final int _pageSize = 20;
+  bool _isLoadingMore = false;
+  bool _hasMoreData = true;
 
   @override
   void initState() {
@@ -41,8 +45,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   }
 
   void _loadMore() {
+    if (!_isLoadingMore && _hasMoreData) {
+      setState(() {
+        _currentPage++;
+        _isLoadingMore = true;
+      });
+    }
+  }
+
+  void _refresh() {
     setState(() {
-      _offset += _pageSize;
+      _allNotifications.clear();
+      _currentPage = 0;
+      _isLoadingMore = false;
+      _hasMoreData = true;
     });
   }
 
@@ -58,58 +74,62 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final params = NotificationsParams(
       userId: currentUser.id,
       limit: _pageSize,
-      offset: _offset,
+      offset: _currentPage * _pageSize,
     );
     final notificationsAsync = ref.watch(notificationsProvider(params));
+
+    // 新しいページのデータを蓄積
+    notificationsAsync.whenData((newNotifications) {
+      if (_isLoadingMore || _allNotifications.isEmpty) {
+        // 重複排除して追加
+        final existingIds = _allNotifications.map((n) => n.notificationId).toSet();
+        final uniqueNew = newNotifications.where((n) => !existingIds.contains(n.notificationId)).toList();
+        if (uniqueNew.isNotEmpty) {
+          _allNotifications.addAll(uniqueNew);
+        }
+        if (newNotifications.length < _pageSize) {
+          _hasMoreData = false;
+        }
+        _isLoadingMore = false;
+      }
+    });
+
+    // 初回ロード中
+    if (_allNotifications.isEmpty && notificationsAsync.isLoading) {
+      return Scaffold(
+        backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+        appBar: _buildAppBar(isDark, notificationsAsync, currentUser),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // エラー（初回のみ）
+    if (_allNotifications.isEmpty && notificationsAsync.hasError) {
+      return Scaffold(
+        backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+        appBar: _buildAppBar(isDark, notificationsAsync, currentUser),
+        body: _buildErrorState(isDark, notificationsAsync.error.toString()),
+      );
+    }
+
+    final notifications = _allNotifications;
 
     return Scaffold(
       backgroundColor: isDark
           ? WanMapColors.backgroundDark
           : WanMapColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
-        elevation: 0,
-        title: const Text(
-          '通知',
-          style: WanMapTypography.heading2,
-        ),
-        actions: [
-          notificationsAsync.maybeWhen(
-            data: (notifications) {
-              if (notifications.any((n) => !n.isRead)) {
-                return TextButton(
-                  onPressed: () async {
-                    final service = ref.read(notificationServiceProvider);
-                    await service.markAllAsRead(userId: currentUser.id);
-                    ref.invalidate(notificationsProvider);
-                    ref.invalidate(unreadNotificationsCountProvider);
-                  },
-                  child: const Text('すべて既読'),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-            orElse: () => const SizedBox.shrink(),
-          ),
-        ],
-      ),
-      body: notificationsAsync.when(
-        data: (notifications) {
-          if (notifications.isEmpty && _offset == 0) {
-            return _buildEmptyState(isDark);
-          }
-
-          return RefreshIndicator(
+      appBar: _buildAppBar(isDark, notificationsAsync, currentUser),
+      body: notifications.isEmpty
+          ? _buildEmptyState(isDark)
+          : RefreshIndicator(
             onRefresh: () async {
-              setState(() {
-                _offset = 0;
-              });
+              _refresh();
               ref.invalidate(notificationsProvider);
             },
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(WanMapSpacing.medium),
-              itemCount: notifications.length + 1,
+              itemCount: notifications.length + (_hasMoreData ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == notifications.length) {
                   return _buildLoadingIndicator();
@@ -140,18 +160,40 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         userId: currentUser.id,
                         notificationId: notifications[index].notificationId,
                       );
+                      _allNotifications.removeAt(index);
                       ref.invalidate(notificationsProvider);
                       ref.invalidate(unreadNotificationsCountProvider);
+                      setState(() {});
                     },
                   ),
                 );
               },
             ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => _buildErrorState(isDark, error.toString()),
+          ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(bool isDark, AsyncValue notificationsAsync, dynamic currentUser) {
+    return AppBar(
+      backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+      elevation: 0,
+      title: const Text(
+        '通知',
+        style: WanMapTypography.heading2,
       ),
+      actions: [
+        if (_allNotifications.any((n) => !n.isRead))
+          TextButton(
+            onPressed: () async {
+              final service = ref.read(notificationServiceProvider);
+              await service.markAllAsRead(userId: currentUser.id);
+              _refresh();
+              ref.invalidate(notificationsProvider);
+              ref.invalidate(unreadNotificationsCountProvider);
+            },
+            child: const Text('すべて既読'),
+          ),
+      ],
     );
   }
 

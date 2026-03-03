@@ -50,21 +50,38 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     super.initState();
     
     // デバッグ：ルートライン情報を出力
-    print('🚶 WalkingScreen initialized for route: ${widget.route.id}');
-    print('🛣️ route.routeLine: ${widget.route.routeLine?.length ?? 0} points');
+    if (kDebugMode) {
+      print('🚶 WalkingScreen initialized for route: ${widget.route.id}');
+    }
+    if (kDebugMode) {
+      print('🛣️ route.routeLine: ${widget.route.routeLine?.length ?? 0} points');
+    }
     if (widget.route.routeLine != null && widget.route.routeLine!.isNotEmpty) {
-      print('🛣️ First 3 points:');
+      if (kDebugMode) {
+        print('🛣️ First 3 points:');
+      }
       for (var i = 0; i < widget.route.routeLine!.length && i < 3; i++) {
         final point = widget.route.routeLine![i];
-        print('  Point $i: lat=${point.latitude}, lon=${point.longitude}');
+        if (kDebugMode) {
+          print('  Point $i: lat=${point.latitude}, lon=${point.longitude}');
+        }
       }
     } else {
-      print('⚠️ route.routeLine is null or empty!');
+      if (kDebugMode) {
+        print('⚠️ route.routeLine is null or empty!');
+      }
     }
     
     // 自動的に記録開始しない（スタートボタンを待つ）
     // ただし、現在地は取得しておく（地図表示のため）
     _initializeLocation();
+  }
+
+  // [BUG-H03 修正] MapController の dispose を追加（メモリリーク防止）
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
   }
 
   /// 初期位置を取得（記録は開始しない）
@@ -350,21 +367,31 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       final centerLat = (minLat + maxLat) / 2;
       final centerLng = (minLng + maxLng) / 2;
       
-      print('🗺️ Map center calculated from routeLine:');
-      print('  Center: ($centerLat, $centerLng)');
-      print('  Bounds: lat[$minLat, $maxLat], lng[$minLng, $maxLng]');
+      if (kDebugMode) {
+        print('🗺️ Map center calculated from routeLine:');
+      }
+      if (kDebugMode) {
+        print('  Center: ($centerLat, $centerLng)');
+      }
+      if (kDebugMode) {
+        print('  Bounds: lat[$minLat, $maxLat], lng[$minLng, $maxLng]');
+      }
       
       return LatLng(centerLat, centerLng);
     }
     
     // 2. 現在地が存在する場合
     if (gpsState.currentLocation != null) {
-      print('🗺️ Map center: using current location');
+      if (kDebugMode) {
+        print('🗺️ Map center: using current location');
+      }
       return gpsState.currentLocation!;
     }
     
     // 3. startLocation をフォールバック
-    print('🗺️ Map center: using startLocation');
+    if (kDebugMode) {
+      print('🗺️ Map center: using startLocation');
+    }
     return widget.route.startLocation;
   }
 

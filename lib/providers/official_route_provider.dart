@@ -38,7 +38,9 @@ final routesByAreaProvider = FutureProvider.family<List<OfficialRoute>, String>(
     } catch (e, stack) {
       if (kDebugMode) {
         print('❌ Error in routesByAreaProvider: $e');
-        print('Stack trace: $stack');
+        if (kDebugMode) {
+          print('Stack trace: $stack');
+        }
       }
       throw Exception('Failed to fetch routes by area: $e');
     }
@@ -180,7 +182,9 @@ final allRoutesProvider = FutureProvider<List<OfficialRoute>>((ref) async {
   } catch (e, stack) {
     if (kDebugMode) {
       print('❌ Error in allRoutesProvider: $e');
-      print('Stack trace: $stack');
+      if (kDebugMode) {
+        print('Stack trace: $stack');
+      }
     }
     throw Exception('Failed to fetch all routes: $e');
   }

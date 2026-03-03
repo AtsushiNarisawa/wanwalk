@@ -76,10 +76,14 @@ class ErrorHandlerService {
     if (kDebugMode) {
       print('❌ Error [${exception.code}]: ${exception.message}');
       if (exception.originalError != null) {
-        print('   Original: ${exception.originalError}');
+        if (kDebugMode) {
+          print('   Original: ${exception.originalError}');
+        }
       }
       if (exception.stackTrace != null) {
-        print('   StackTrace: ${exception.stackTrace}');
+        if (kDebugMode) {
+          print('   StackTrace: ${exception.stackTrace}');
+        }
       }
     }
   }

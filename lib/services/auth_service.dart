@@ -67,15 +67,24 @@ class AuthService {
         print('🟢 [AuthService] user.email: ${response.user?.email}');
       }
 
-      // サインアップ成功時、usersテーブルにプロフィール作成
-      
+      // サインアップ成功時、profilesテーブルにプロフィール作成
+      // [BUG-H05 修正] プロフィール作成失敗時もサインアップは成功扱いとし、
+      // 後でプロフィール編集画面のUPSERTで自動補完される設計に変更
       if (response.user != null) {
-        await _supabase.from(SupabaseTables.users).insert({
-          'id': response.user!.id,
-          'email': email,
-          'display_name': displayName,
-          'created_at': DateTime.now().toIso8601String(),
-        });
+        try {
+          await _supabase.from(SupabaseTables.users).upsert({
+            'id': response.user!.id,
+            'email': email,
+            'display_name': displayName,
+            'created_at': DateTime.now().toIso8601String(),
+          });
+        } catch (profileError) {
+          // プロフィール作成失敗はログに記録するが、サインアップ自体は成功とする
+          // profile_edit_screen のUPSERTが次回アクセス時に補完する
+          if (kDebugMode) {
+            print('⚠️ [AuthService] プロフィール作成失敗（後で自動補完）: $profileError');
+          }
+        }
       }
 
       return response;
@@ -188,11 +197,12 @@ class AuthService {
       final targetUserId = userId ?? this.userId;
       if (targetUserId == null) return null;
 
+      // [BUG-H01 修正] .single() → .maybeSingle()（データ不在時のクラッシュ防止）
       final response = await _supabase
           .from(SupabaseTables.users)
           .select()
           .eq('id', targetUserId)
-          .single();
+          .maybeSingle();
 
       return response;
     } catch (e) {

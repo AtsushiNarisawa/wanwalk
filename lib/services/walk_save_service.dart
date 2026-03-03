@@ -214,9 +214,10 @@ class WalkSaveService {
       }
 
       // walks テーブルから履歴を取得
+      // [BUG-H02 修正] routes → official_routes に修正（FK先テーブル名の修正）
       var queryBuilder = _supabase
           .from('walks')
-          .select('*, routes(name, distance_km)')
+          .select('*, official_routes(name, distance_km)')
           .eq('user_id', userId);
 
       // walk_mode でフィルター
@@ -229,10 +230,12 @@ class WalkSaveService {
       final walks = await queryBuilder
           .order('start_time', ascending: false)
           .limit(limit);
+      // [BUG-H12 修正] unsafe cast を安全なキャストに変更
+      final walksList = walks as List<dynamic>;
       if (kDebugMode) {
-        print('✅ 散歩履歴取得: ${(walks as List).length}件');
+        print('✅ 散歩履歴取得: ${walksList.length}件');
       }
-      return List<Map<String, dynamic>>.from(walks);
+      return walksList.map((w) => Map<String, dynamic>.from(w as Map)).toList();
     } catch (e) {
       if (kDebugMode) {
         print('❌ 散歩履歴取得エラー: $e');

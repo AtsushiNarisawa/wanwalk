@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/area.dart';
@@ -41,7 +42,9 @@ final prefecturesProvider = FutureProvider<List<String>>((ref) async {
     prefectures.sort(); // あいうえお順
     return prefectures;
   } catch (e) {
-    print('❌ 都道府県一覧取得エラー: $e');
+    if (kDebugMode) {
+      print('❌ 都道府県一覧取得エラー: $e');
+    }
     return [];
   }
 });
@@ -83,7 +86,9 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
       
       final routeCount = routeCountResponse.count ?? 0;
       
-      print('🔍 ${area['name']}: area_id=${area['id']}, route_count=$routeCount');
+      if (kDebugMode) {
+        print('🔍 ${area['name']}: area_id=${area['id']}, route_count=$routeCount');
+      }
       
       areasWithCount.add({
         ...area,
@@ -91,7 +96,9 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
       });
       
       if (area['name'].toString().contains('箱根')) {
-        print('📊 ${area['name']}: route_count=$routeCount');
+        if (kDebugMode) {
+          print('📊 ${area['name']}: route_count=$routeCount');
+        }
       }
     }
     
@@ -107,12 +114,16 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
       }
     });
     
-    print('🔍 エリア取得完了: ${areasWithCount.length}件');
+    if (kDebugMode) {
+      print('🔍 エリア取得完了: ${areasWithCount.length}件');
+    }
     
     // 4. 箱根エリアをグループ化
     return _groupHakoneAreas(areasWithCount);
   } catch (e) {
-    print('❌ エリア一覧取得エラー: $e');
+    if (kDebugMode) {
+      print('❌ エリア一覧取得エラー: $e');
+    }
     rethrow;
   }
 });
@@ -125,15 +136,21 @@ List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
   for (final area in areas) {
     final name = area['name'] as String;
     if (name.startsWith('箱根・')) {
-      print('🔍 箱根エリア検出: $name, route_count: ${area['route_count']}');
+      if (kDebugMode) {
+        print('🔍 箱根エリア検出: $name, route_count: ${area['route_count']}');
+      }
       hakoneAreas.add(area);
     } else {
       otherAreas.add(area);
     }
   }
   
-  print('📊 箱根エリア合計: ${hakoneAreas.length}件');
-  print('📊 箱根エリア合計: ${hakoneAreas.length}件');
+  if (kDebugMode) {
+    print('📊 箱根エリア合計: ${hakoneAreas.length}件');
+  }
+  if (kDebugMode) {
+    print('📊 箱根エリア合計: ${hakoneAreas.length}件');
+  }
   
   // 箱根エリアが複数ある場合のみグループ化
   if (hakoneAreas.length > 1) {
@@ -143,7 +160,9 @@ List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
       (sum, area) => sum + ((area['route_count'] as int?) ?? 0),
     );
     
-    print('📊 箱根グループ合計ルート数: $totalRoutes');
+    if (kDebugMode) {
+      print('📊 箱根グループ合計ルート数: $totalRoutes');
+    }
     
     // 箱根親エリアを作成
     final hakoneParent = {
@@ -156,7 +175,9 @@ List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
       'sub_areas': hakoneAreas, // サブエリア一覧
     };
     
-    print('✅ 箱根グループ作成完了: sub_areas=${hakoneAreas.length}件');
+    if (kDebugMode) {
+      print('✅ 箱根グループ作成完了: sub_areas=${hakoneAreas.length}件');
+    }
     
     // 箱根親エリアを先頭に、その後に他のエリア
     return [hakoneParent, ...otherAreas];

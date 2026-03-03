@@ -78,9 +78,13 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     final gpsState = ref.read(gpsProviderRiverpod);
     if (kDebugMode) {
       if (gpsState.currentLocation != null) {
-        print('✅ MAP画面: GPS取得成功 ${gpsState.currentLocation!.latitude},${gpsState.currentLocation!.longitude}');
+        if (kDebugMode) {
+          print('✅ MAP画面: GPS取得成功 ${gpsState.currentLocation!.latitude},${gpsState.currentLocation!.longitude}');
+        }
       } else {
-        print('❌ MAP画面: GPS取得失敗');
+        if (kDebugMode) {
+          print('❌ MAP画面: GPS取得失敗');
+        }
       }
     }
   }
@@ -959,7 +963,9 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   ) {
     if (kDebugMode) {
       print('🔵 _getRecommendedRoutes: currentLocation=${currentLocation.latitude},${currentLocation.longitude}');
-      print('🔵 Total routes: ${allRoutes.length}');
+      if (kDebugMode) {
+        print('🔵 Total routes: ${allRoutes.length}');
+      }
     }
     
     final List<Map<String, dynamic>> nearbyRoutes = [];

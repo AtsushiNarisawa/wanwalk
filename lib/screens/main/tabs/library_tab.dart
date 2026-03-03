@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanmap_colors.dart';
@@ -153,7 +154,9 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
 
     // ローディング状態の確認
     if (outingAsync.isLoading || dailyAsync.isLoading) {
-      print('📊 月間統計: ローディング中...');
+      if (kDebugMode) {
+        print('📊 月間統計: ローディング中...');
+      }
       return Container(
         height: 80,
         alignment: Alignment.center,
@@ -163,7 +166,9 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
 
     // エラー状態の確認
     if (outingAsync.hasError || dailyAsync.hasError) {
-      print('❌ 月間統計: エラー発生 - outing: ${outingAsync.hasError}, daily: ${dailyAsync.hasError}');
+      if (kDebugMode) {
+        print('❌ 月間統計: エラー発生 - outing: ${outingAsync.hasError}, daily: ${dailyAsync.hasError}');
+      }
       return const SizedBox.shrink();
     }
 
@@ -194,8 +199,12 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
         : '${(thisMonthDistance / 1000).toStringAsFixed(1)}km';
 
     // デバッグログ
-    print('📊 月間統計: 今月の散歩回数=$monthlyWalkCount回, 総距離=$formattedDistance');
-    print('📊 お出かけ散歩=$thisMonthOuting回, 日常散歩=$thisMonthDaily回');
+    if (kDebugMode) {
+      print('📊 月間統計: 今月の散歩回数=$monthlyWalkCount回, 総距離=$formattedDistance');
+    }
+    if (kDebugMode) {
+      print('📊 お出かけ散歩=$thisMonthOuting回, 日常散歩=$thisMonthDaily回');
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg, vertical: WanMapSpacing.md),

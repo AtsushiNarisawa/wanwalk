@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -153,29 +154,47 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     final spotsAsync = ref.watch(routeSpotsProvider(route.id));
     
     // デバッグログ追加
-    print('🗺️ _buildMapSection called for route: ${route.id}');
-    print('🛣️ route.routeLine: ${route.routeLine?.length ?? 0} points');
+    if (kDebugMode) {
+      print('🗺️ _buildMapSection called for route: ${route.id}');
+    }
+    if (kDebugMode) {
+      print('🛣️ route.routeLine: ${route.routeLine?.length ?? 0} points');
+    }
     if (route.routeLine != null && route.routeLine!.isNotEmpty) {
-      print('🛣️ First point: ${route.routeLine!.first}');
-      print('🛣️ Last point: ${route.routeLine!.last}');
-      print('🛣️ All routeLine points (first 5):');
+      if (kDebugMode) {
+        print('🛣️ First point: ${route.routeLine!.first}');
+      }
+      if (kDebugMode) {
+        print('🛣️ Last point: ${route.routeLine!.last}');
+      }
+      if (kDebugMode) {
+        print('🛣️ All routeLine points (first 5):');
+      }
       for (var i = 0; i < route.routeLine!.length && i < 5; i++) {
-        print('  Point $i: lat=${route.routeLine![i].latitude}, lon=${route.routeLine![i].longitude}');
+        if (kDebugMode) {
+          print('  Point $i: lat=${route.routeLine![i].latitude}, lon=${route.routeLine![i].longitude}');
+        }
       }
     }
-    print('📍 spotsAsync state: ${spotsAsync.toString()}');
+    if (kDebugMode) {
+      print('📍 spotsAsync state: ${spotsAsync.toString()}');
+    }
     
     // スポットデータとピンデータを取得
     final spots = spotsAsync.maybeWhen(
       data: (data) {
-        print('✅ Spots data available: ${data.length} spots');
+        if (kDebugMode) {
+          print('✅ Spots data available: ${data.length} spots');
+        }
         
         // スポットデータ取得後、地図の中心とズームを調整
         if (data.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             final center = _calculateCenter(route);
             final zoom = _calculateZoom(route);
-            print('🗺️ Adjusting map: center=$center, zoom=$zoom');
+            if (kDebugMode) {
+              print('🗺️ Adjusting map: center=$center, zoom=$zoom');
+            }
             _mapController.move(center, zoom);
           });
         }
@@ -183,7 +202,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         return data;
       },
       orElse: () {
-        print('⚠️ Spots data not available (state: ${spotsAsync.runtimeType}), using empty list');
+        if (kDebugMode) {
+          print('⚠️ Spots data not available (state: ${spotsAsync.runtimeType}), using empty list');
+        }
         return <RouteSpot>[];
       },
     );
@@ -193,8 +214,12 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       orElse: () => [],
     );
     
-    print('🎯 Final spots count for rendering: ${spots.length}');
-    print('🎯 Will show: ${spots.isEmpty ? "fallback start/goal markers" : "spot markers"}');
+    if (kDebugMode) {
+      print('🎯 Final spots count for rendering: ${spots.length}');
+    }
+    if (kDebugMode) {
+      print('🎯 Will show: ${spots.isEmpty ? "fallback start/goal markers" : "spot markers"}');
+    }
     
     return Container(
       height: 300,
@@ -217,8 +242,12 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             // 道路に沿った正確なルートジオメトリを使用
             Builder(
               builder: (context) {
-                print('🛣️ Rendering PolylineLayer from route.routeLine (${route.routeLine!.length} points) - ROAD GEOMETRY');
-                print('🛣️ Line color: #FF6B35 (orange), width: 5.0');
+                if (kDebugMode) {
+                  print('🛣️ Rendering PolylineLayer from route.routeLine (${route.routeLine!.length} points) - ROAD GEOMETRY');
+                }
+                if (kDebugMode) {
+                  print('🛣️ Line color: #FF6B35 (orange), width: 5.0');
+                }
                 return PolylineLayer(
                   polylines: [
                     Polyline(
@@ -237,8 +266,12 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             Builder(
               builder: (context) {
                 final routePoints = spots.map((spot) => spot.location).toList();
-                print('🛣️ Rendering PolylineLayer from ${routePoints.length} spot locations - FALLBACK (straight lines)');
-                print('🛣️ Line color: #FF6B35 (orange), width: 5.0');
+                if (kDebugMode) {
+                  print('🛣️ Rendering PolylineLayer from ${routePoints.length} spot locations - FALLBACK (straight lines)');
+                }
+                if (kDebugMode) {
+                  print('🛣️ Line color: #FF6B35 (orange), width: 5.0');
+                }
                 return PolylineLayer(
                   polylines: [
                     Polyline(
@@ -257,12 +290,22 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           if (spots.isNotEmpty) ...[
             Builder(
               builder: (context) {
-                print('🎨 Building MarkerLayer with ${spots.length} spot markers');
-                print('🎨 First spot location: ${spots.first.location}');
-                print('🎨 Map center: ${_calculateCenter(route)}');
-                print('🎨 Map zoom: ${_calculateZoom(route)}');
+                if (kDebugMode) {
+                  print('🎨 Building MarkerLayer with ${spots.length} spot markers');
+                }
+                if (kDebugMode) {
+                  print('🎨 First spot location: ${spots.first.location}');
+                }
+                if (kDebugMode) {
+                  print('🎨 Map center: ${_calculateCenter(route)}');
+                }
+                if (kDebugMode) {
+                  print('🎨 Map zoom: ${_calculateZoom(route)}');
+                }
                 for (var spot in spots) {
-                  print('  📌 Spot: ${spot.name} at (${spot.location.latitude}, ${spot.location.longitude})');
+                  if (kDebugMode) {
+                    print('  📌 Spot: ${spot.name} at (${spot.location.latitude}, ${spot.location.longitude})');
+                  }
                 }
                 return MarkerLayer(
                   markers: _buildSpotMarkers(spots, isDark),
@@ -274,7 +317,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           if (spots.isEmpty) ...[
             Builder(
               builder: (context) {
-                print('⚠️ No spots, showing fallback start/goal markers');
+                if (kDebugMode) {
+                  print('⚠️ No spots, showing fallback start/goal markers');
+                }
                 return MarkerLayer(markers: _buildMarkers(route));
               },
             ),
@@ -316,7 +361,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     
     // スポットがある場合は、スポットの中心を計算
     if (spots.isNotEmpty) {
-      print('📍 _calculateCenter: Using ${spots.length} spots');
+      if (kDebugMode) {
+        print('📍 _calculateCenter: Using ${spots.length} spots');
+      }
       double latSum = 0;
       double lonSum = 0;
       for (var spot in spots) {
@@ -327,14 +374,20 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         latSum / spots.length,
         lonSum / spots.length,
       );
-      print('📍 _calculateCenter result (spots): $center');
+      if (kDebugMode) {
+        print('📍 _calculateCenter result (spots): $center');
+      }
       return center;
     }
     
     // スポットがない場合は、スタート地点を使用
     // NOTE: route.routeLine は不正確な座標を持つ可能性があるため使用しない
-    print('📍 _calculateCenter: Using startLocation (initial)');
-    print('📍 _calculateCenter result (startLocation): ${route.startLocation}');
+    if (kDebugMode) {
+      print('📍 _calculateCenter: Using startLocation (initial)');
+    }
+    if (kDebugMode) {
+      print('📍 _calculateCenter result (startLocation): ${route.startLocation}');
+    }
     return route.startLocation;
   }
 
@@ -687,7 +740,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         ),
       ),
       error: (error, stack) {
-        print('❌ スポット情報取得エラー: $error');
+        if (kDebugMode) {
+          print('❌ スポット情報取得エラー: $error');
+        }
         return const SizedBox.shrink();
       },
     );
@@ -858,7 +913,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
-      print('Could not launch $urlString');
+      if (kDebugMode) {
+        print('Could not launch $urlString');
+      }
     }
   }
 
@@ -935,7 +992,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         
         if (goalIndex != -1) {
           // スタート=ゴールの場合、半分緑・半分赤のマーカーを作成
-          print('🎯 Start=Goal detected at ${spot.name}');
+          if (kDebugMode) {
+            print('🎯 Start=Goal detected at ${spot.name}');
+          }
           markers.add(Marker(
             point: spot.location,
             width: 60.0,

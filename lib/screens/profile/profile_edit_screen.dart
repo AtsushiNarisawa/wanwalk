@@ -8,6 +8,7 @@ import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../providers/auth_provider.dart';
+import '../../config/supabase_config.dart';
 
 /// プロフィール編集画面
 class ProfileEditScreen extends ConsumerStatefulWidget {
@@ -48,7 +49,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       if (userId == null) return;
 
       final response = await Supabase.instance.client
-          .from('profiles')
+          .from(SupabaseTables.users)
           .select('display_name, bio, avatar_url')
           .eq('id', userId)
           .maybeSingle();
@@ -103,7 +104,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       
       // プロフィールを作成または更新（UPSERT）
       final currentUser = Supabase.instance.client.auth.currentUser;
-      await Supabase.instance.client.from('profiles').upsert({
+      await Supabase.instance.client.from(SupabaseTables.users).upsert({
         'id': userId,
         'email': currentUser?.email ?? '',
         'display_name': _nameController.text.trim(),
@@ -203,12 +204,12 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       final filePath = '$userId/$fileName';
 
       await Supabase.instance.client.storage
-          .from('profile-avatars')
+          .from(SupabaseBuckets.userAvatars)
           .upload(filePath, File(image.path));
 
       // 公開URLを取得
       final publicUrl = Supabase.instance.client.storage
-          .from('profile-avatars')
+          .from(SupabaseBuckets.userAvatars)
           .getPublicUrl(filePath);
 
       if (kDebugMode) {
