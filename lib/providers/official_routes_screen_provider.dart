@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/route_service.dart';
 import '../models/official_route.dart';
@@ -43,8 +44,12 @@ final officialRoutesProvider = FutureProvider.autoDispose<List<OfficialRoute>>((
     try {
       return OfficialRoute.fromJson(json as Map<String, dynamic>);
     } catch (e) {
-      print('❌ OfficialRoute.fromJson エラー: $e');
-      print('❌ 問題のJSON: $json');
+      if (kDebugMode) {
+        print('❌ OfficialRoute.fromJson エラー: $e');
+      }
+      if (kDebugMode) {
+        print('❌ 問題のJSON: $json');
+      }
       rethrow;
     }
   }).toList();

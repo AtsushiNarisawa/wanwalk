@@ -495,39 +495,11 @@ class HomeTab extends ConsumerWidget {
                     child: _FeaturedAreaCard(
                       area: hakoneArea,
                       isDark: isDark,
-                      onTap: () async {
+                      // [BUG-H06/H07/H08 修正] async onTap にローディング表示とエラーハンドリング追加
+                      onTap: () {
                         // 箱根グループの場合はサブエリア選択画面へ
                         if (hakoneArea!.id == 'hakone_group') {
-                          final supabase = Supabase.instance.client;
-                          
-                          // 各サブエリアのルート数を取得
-                          final subAreasData = <Map<String, dynamic>>[];
-                          for (final area in hakoneSubAreas) {
-                            final routeCountResponse = await supabase
-                                .from('official_routes')
-                                .select('id')
-                                .eq('area_id', area.id)
-                                .count(CountOption.exact);
-                            
-                            final routeCount = routeCountResponse.count ?? 0;
-                            
-                            subAreasData.add({
-                              'id': area.id,
-                              'name': area.name,
-                              'prefecture': area.prefecture,
-                              'description': area.description,
-                              'route_count': routeCount,
-                            });
-                          }
-                          
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => HakoneSubAreaScreen(
-                                subAreas: subAreasData,
-                              ),
-                            ),
-                          );
+                          _navigateToHakoneSubAreas(context, hakoneSubAreas);
                         } else {
                           // 通常のエリアはルート一覧へ
                           Navigator.push(
@@ -607,6 +579,58 @@ class HomeTab extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  // [BUG-H06/H07/H08 修正] 箱根サブエリアへの遷移をメソッド化し、
+  // ローディング表示とエラーハンドリングを追加
+  Future<void> _navigateToHakoneSubAreas(BuildContext context, List<Area> hakoneSubAreas) async {
+    // ローディングダイアログを表示
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final supabase = Supabase.instance.client;
+      final subAreasData = <Map<String, dynamic>>[];
+      
+      for (final area in hakoneSubAreas) {
+        final routeCountResponse = await supabase
+            .from('official_routes')
+            .select('id')
+            .eq('area_id', area.id)
+            .count(CountOption.exact);
+        
+        final routeCount = routeCountResponse.count ?? 0;
+        
+        subAreasData.add({
+          'id': area.id,
+          'name': area.name,
+          'prefecture': area.prefecture,
+          'description': area.description,
+          'route_count': routeCount,
+        });
+      }
+
+      if (!context.mounted) return;
+      Navigator.pop(context); // ローディングダイアログを閉じる
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => HakoneSubAreaScreen(
+            subAreas: subAreasData,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      Navigator.pop(context); // ローディングダイアログを閉じる
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('エリア情報の取得に失敗しました: $e')),
+      );
+    }
   }
 
 

@@ -137,12 +137,17 @@ class SpotReviewService {
       }
 
       // updated_atは自動更新されるため、明示的に設定不要
+      // [BUG-H01 修正] .single() → .maybeSingle()（更新対象不在時のクラッシュ防止）
       final response = await _supabase
           .from('spot_reviews')
           .update(updates)
           .eq('id', reviewId)
           .select()
-          .single();
+          .maybeSingle();
+
+      if (response == null) {
+        throw Exception('レビューが見つかりませんでした');
+      }
 
       if (kDebugMode) {
         print('📝 レビュー更新成功');

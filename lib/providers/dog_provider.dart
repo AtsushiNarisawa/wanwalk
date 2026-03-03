@@ -79,8 +79,12 @@ class DogNotifier extends StateNotifier<DogState> {
         final updatedDogs = [newDog, ...state.dogs];
         if (kDebugMode) {
           print('🐕 Dog created successfully: ${newDog.name} (id: ${newDog.id})');
-          print('🐕 Updated dogs count: ${updatedDogs.length}');
-          print('🐕 All dogs: ${updatedDogs.map((d) => d.name).join(", ")}');
+          if (kDebugMode) {
+            print('🐕 Updated dogs count: ${updatedDogs.length}');
+          }
+          if (kDebugMode) {
+            print('🐕 All dogs: ${updatedDogs.map((d) => d.name).join(", ")}');
+          }
         }
         state = state.copyWith(dogs: updatedDogs, isLoading: false);
       }
@@ -239,10 +243,18 @@ final userDogsProvider = Provider.family<List<DogModel>, String>((ref, userId) {
   
   if (kDebugMode) {
     print('🐕 userDogsProvider: userId=$userId');
-    print('🐕 Total dogs in state: ${dogState.dogs.length}');
-    print('🐕 All dogs: ${dogState.dogs.map((d) => "${d.name} (userId: ${d.userId})").join(", ")}');
-    print('🐕 Filtered dogs: ${filteredDogs.length}');
-    print('🐕 Filtered: ${filteredDogs.map((d) => d.name).join(", ")}');
+    if (kDebugMode) {
+      print('🐕 Total dogs in state: ${dogState.dogs.length}');
+    }
+    if (kDebugMode) {
+      print('🐕 All dogs: ${dogState.dogs.map((d) => "${d.name} (userId: ${d.userId})").join(", ")}');
+    }
+    if (kDebugMode) {
+      print('🐕 Filtered dogs: ${filteredDogs.length}');
+    }
+    if (kDebugMode) {
+      print('🐕 Filtered: ${filteredDogs.map((d) => d.name).join(", ")}');
+    }
   }
   
   return filteredDogs;

@@ -165,7 +165,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       if (value == null || value.isEmpty) {
                         return 'メールアドレスを入力してください';
                       }
-                      if (!value.contains('@')) {
+                      // [BUG-H11 修正] より厳密なメールバリデーション
+                      final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                      if (!emailRegex.hasMatch(value)) {
                         return '有効なメールアドレスを入力してください';
                       }
                       return null;

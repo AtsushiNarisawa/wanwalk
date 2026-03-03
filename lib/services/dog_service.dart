@@ -151,12 +151,14 @@ class DogService {
   /// 犬情報を取得
   Future<DogModel?> getDogById(String dogId) async {
     try {
+      // [BUG-H01 修正] .single() → .maybeSingle()（データ不在時のクラッシュ防止）
       final response = await _supabase
           .from('dogs')
           .select()
           .eq('id', dogId)
-          .single();
+          .maybeSingle();
 
+      if (response == null) return null;
       return DogModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
@@ -172,13 +174,15 @@ class DogService {
       // updated_atを自動更新
       updates['updated_at'] = DateTime.now().toIso8601String();
 
+      // [BUG-H01 修正] .single() → .maybeSingle()（更新対象が無い場合のクラッシュ防止）
       final response = await _supabase
           .from('dogs')
           .update(updates)
           .eq('id', dogId)
           .select()
-          .single();
+          .maybeSingle();
 
+      if (response == null) return null;
       return DogModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {

@@ -43,7 +43,9 @@ class SupabaseConfig {
 
 /// Supabaseテーブル名の定数
 class SupabaseTables {
-  static const String users = 'users';
+  // [BUG-C02 修正] 'users' → 'profiles' に統一
+  // Supabase Auth が auth.users を管理するため、公開プロフィールは profiles テーブルを使用
+  static const String users = 'profiles';
   static const String dogs = 'dogs';
   static const String routes = 'routes';
   static const String routePoints = 'route_points';

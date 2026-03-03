@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 
 /// プロフィール情報の状態クラス
 class ProfileData {
@@ -33,7 +34,7 @@ class ProfileData {
 final profileProvider = FutureProvider.family<ProfileData?, String>((ref, userId) async {
   try {
     final response = await Supabase.instance.client
-        .from('profiles')
+        .from(SupabaseTables.users)
         .select()
         .eq('id', userId)
         .maybeSingle();

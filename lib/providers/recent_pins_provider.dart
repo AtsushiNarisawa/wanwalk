@@ -35,8 +35,12 @@ final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
       } catch (e, stackTrace) {
         if (kDebugMode) {
           print('❌ [RecentPinsProvider] Error parsing pin: $e');
-          print('   Data: $json');
-          print('   StackTrace: $stackTrace');
+          if (kDebugMode) {
+            print('   Data: $json');
+          }
+          if (kDebugMode) {
+            print('   StackTrace: $stackTrace');
+          }
         }
         return null;
       }
@@ -45,7 +49,9 @@ final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
     if (kDebugMode) {
       print('✅ [RecentPinsProvider] Successfully parsed ${pins.length} pins');
       for (final pin in pins) {
-        print('   📌 ${pin.title} by ${pin.userName} (${pin.areaName})');
+        if (kDebugMode) {
+          print('   📌 ${pin.title} by ${pin.userName} (${pin.areaName})');
+        }
       }
     }
 
@@ -53,7 +59,9 @@ final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
   } catch (e, stackTrace) {
     if (kDebugMode) {
       print('❌ [RecentPinsProvider] Error fetching recent pins: $e');
-      print('   StackTrace: $stackTrace');
+      if (kDebugMode) {
+        print('   StackTrace: $stackTrace');
+      }
     }
     rethrow;
   }

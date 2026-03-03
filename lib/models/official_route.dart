@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
@@ -209,7 +210,9 @@ class OfficialRoute {
             (coords[0] as num).toDouble(), // 経度
           );
         } catch (e) {
-          print('❌ Failed to parse GeoJSON string: $e');
+          if (kDebugMode) {
+            print('❌ Failed to parse GeoJSON string: $e');
+          }
         }
       }
       
@@ -305,7 +308,9 @@ class OfficialRoute {
             );
           }).toList();
         } catch (e) {
-          print('❌ Failed to parse GeoJSON LineString: $e');
+          if (kDebugMode) {
+            print('❌ Failed to parse GeoJSON LineString: $e');
+          }
           return null;
         }
       }
@@ -342,7 +347,9 @@ class OfficialRoute {
       for (int i = 0; i < numPoints; i++) {
         final offset = 26 + (i * 32);
         if (offset + 32 > wkbHex.length) {
-          print('❌ WKB LineString: データ不足（offset=$offset, length=${wkbHex.length}）');
+          if (kDebugMode) {
+            print('❌ WKB LineString: データ不足（offset=$offset, length=${wkbHex.length}）');
+          }
           break;
         }
         
@@ -356,7 +363,9 @@ class OfficialRoute {
       
       return points;
     } catch (e) {
-      print('❌ Failed to parse WKB LineString: $e');
+      if (kDebugMode) {
+        print('❌ Failed to parse WKB LineString: $e');
+      }
       return [];
     }
   }

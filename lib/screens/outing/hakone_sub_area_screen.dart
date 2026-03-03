@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -49,8 +50,12 @@ class HakoneSubAreaScreen extends ConsumerWidget {
                   height: 140,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    print('❌ Banner image error: $error');
-                    print('❌ Stack trace: $stackTrace');
+                    if (kDebugMode) {
+                      print('❌ Banner image error: $error');
+                    }
+                    if (kDebugMode) {
+                      print('❌ Stack trace: $stackTrace');
+                    }
                     return Container(
                       height: 180,
                       decoration: BoxDecoration(

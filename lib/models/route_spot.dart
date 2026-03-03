@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
@@ -147,7 +148,9 @@ class RouteSpot {
             (coords[0] as num).toDouble(), // 経度
           );
         } catch (e) {
-          print('❌ Failed to parse GeoJSON string: $e');
+          if (kDebugMode) {
+            print('❌ Failed to parse GeoJSON string: $e');
+          }
         }
       }
       

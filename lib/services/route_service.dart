@@ -75,7 +75,9 @@ class RouteService {
 
   Future<RouteModel?> getRouteDetail(String routeId) async {
     try {
-      final routeResponse = await _supabase.from('routes').select().eq('id', routeId).single();
+      // [BUG-H01 修正] .single() → .maybeSingle()（データ不在時のクラッシュ防止）
+      final routeResponse = await _supabase.from('routes').select().eq('id', routeId).maybeSingle();
+      if (routeResponse == null) return null;
       final pointsResponse = await _supabase.from('route_points').select().eq('route_id', routeId).order('sequence_number', ascending: true);
 
       final points = (pointsResponse as List).asMap().entries.map((entry) {
@@ -352,7 +354,9 @@ class RouteService {
     } catch (e) {
       if (kDebugMode) {
         print('公式ルート検索エラー: $e');
-        print('エラー詳細: ${e.runtimeType}');
+        if (kDebugMode) {
+          print('エラー詳細: ${e.runtimeType}');
+        }
       }
       rethrow;
     }
@@ -370,8 +374,12 @@ class RouteService {
       if (kDebugMode) {
         print('✅ ルートスポット取得成功 (route_id: $routeId): ${response.length}件');
         if (response.isNotEmpty) {
-          print('   📍 最初のスポット location形式: ${response[0]['location'].runtimeType}');
-          print('   📍 location値: ${response[0]['location']}');
+          if (kDebugMode) {
+            print('   📍 最初のスポット location形式: ${response[0]['location'].runtimeType}');
+          }
+          if (kDebugMode) {
+            print('   📍 location値: ${response[0]['location']}');
+          }
         }
       }
 
