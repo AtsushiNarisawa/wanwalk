@@ -192,7 +192,7 @@ class SpotReviewService {
           .select('rating')
           .eq('spot_id', spotId);
 
-      if (response == null || (response as List).isEmpty) {
+      if ((response as List).isEmpty) {
         if (kDebugMode) {
           print('📊 レビューなし（平均評価なし）');
         }
@@ -200,7 +200,7 @@ class SpotReviewService {
       }
 
       final ratings = (response as List)
-          .map((r) => (r['rating'] as int).toDouble())
+          .map((r) => ((r['rating'] as int?) ?? 0).toDouble())
           .toList();
 
       final average = ratings.reduce((a, b) => a + b) / ratings.length;
@@ -262,7 +262,7 @@ class SpotReviewService {
           .from('spot_reviews')
           .select('spot_id, rating');
 
-      if (response == null || (response as List).isEmpty) {
+      if ((response as List).isEmpty) {
         if (kDebugMode) {
           print('🌟 レビューデータなし');
         }

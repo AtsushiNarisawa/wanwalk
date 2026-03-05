@@ -22,9 +22,9 @@ enum PinType {
         return PinType.shop;
       case 'encounter':
         return PinType.encounter;
-      case 'other':
       case 'facility':
         return PinType.facility;
+      case 'other':
         return PinType.other;
       default:
         return PinType.other;
@@ -117,12 +117,12 @@ class RoutePin {
     }
 
     return RoutePin(
-      id: json['id'] as String,
-      routeId: json['route_id'] as String? ?? '', // nullの場合は空文字列
-      userId: json['user_id'] as String,
+      id: (json['id'] as String?) ?? '',
+      routeId: (json['route_id'] as String?) ?? '',
+      userId: (json['user_id'] as String?) ?? '',
       location: location,
       pinType: PinType.fromString(json['pin_type'] as String? ?? 'other'),
-      title: json['title'] as String,
+      title: (json['title'] as String?) ?? '',
       comment: json['comment'] as String? ?? '',
       photoUrls: photoUrls,
       likesCount: json['likes_count'] as int? ?? 0,

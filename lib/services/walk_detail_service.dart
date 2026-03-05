@@ -38,8 +38,8 @@ class WalkDetailService {
           .eq('walk_type', 'outing')
           .single();
 
-      final route = walkResponse['routes'];
-      final areaName = route['area'] as String;
+      final route = walkResponse['routes'] as Map<String, dynamic>?;
+      final areaName = (route?['area'] as String?) ?? '不明なエリア';
 
       // 2. GPSポイントを path_geojson から取得
       List<RoutePoint> routePoints = [];
@@ -65,7 +65,9 @@ class WalkDetailService {
       }
 
       // 3. ピン情報を取得（このルートで、この日に投稿されたピン）
-      final walkedDate = DateTime.parse(walkResponse['start_time']);
+      final walkedDate = walkResponse['start_time'] != null
+          ? DateTime.parse(walkResponse['start_time'] as String)
+          : DateTime.now();
       final startOfDay = DateTime(walkedDate.year, walkedDate.month, walkedDate.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
@@ -85,29 +87,35 @@ class WalkDetailService {
               display_order
             )
           ''')
-          .eq('route_id', route['id'])
+          .eq('route_id', route?['id'] ?? '')
           .gte('created_at', startOfDay.toIso8601String())
           .lt('created_at', endOfDay.toIso8601String())
           .order('created_at', ascending: true);
 
       List<RoutePin> pins = [];
       pins = (pinsResponse as List<dynamic>).map((pin) {
-        final location = _parsePostGISPoint(pin['location']);
+        final locationStr = pin['location'] as String?;
+        final location = locationStr != null
+            ? _parsePostGISPoint(locationStr)
+            : const LatLng(35.6762, 139.6503);
         final photos = (pin['route_pin_photos'] as List<dynamic>?)
-            ?.map((photo) => photo['photo_url'] as String)
+            ?.map((photo) => (photo['photo_url'] as String?) ?? '')
+            .where((url) => url.isNotEmpty)
             .toList() ?? [];
 
         return RoutePin(
-          id: pin['id'],
-          routeId: route['id'],
-          userId: '', // ユーザーIDは不要
+          id: (pin['id'] as String?) ?? '',
+          routeId: (route?['id'] as String?) ?? '',
+          userId: '',
           location: location,
-          pinType: PinType.fromString(pin['pin_type']),
-          title: pin['title'],
-          comment: pin['comment'],
-          likesCount: pin['likes_count'] ?? 0,
+          pinType: PinType.fromString((pin['pin_type'] as String?) ?? 'other'),
+          title: (pin['title'] as String?) ?? '',
+          comment: (pin['comment'] as String?) ?? '',
+          likesCount: (pin['likes_count'] as int?) ?? 0,
           photoUrls: photos,
-          createdAt: DateTime.parse(pin['created_at']),
+          createdAt: pin['created_at'] != null
+              ? DateTime.parse(pin['created_at'] as String)
+              : DateTime.now(),
         );
       }).toList();
     
@@ -118,14 +126,14 @@ class WalkDetailService {
       }
 
       return WalkDetail(
-        id: walkResponse['id'],
-        routeId: route['id'],
-        routeName: route['name'],
+        id: (walkResponse['id'] as String?) ?? '',
+        routeId: (route?['id'] as String?) ?? '',
+        routeName: (route?['name'] as String?) ?? '不明なルート',
         areaName: areaName,
         walkedAt: walkedDate,
-        distanceMeters: (route['distance_km']?.toDouble() ?? 0.0) * 1000.0,
-        durationSeconds: (walkResponse['duration_minutes'] ?? 0) * 60,
-        difficulty: route['difficulty'] ?? 'easy',
+        distanceMeters: (route?['distance_km'] as num?)?.toDouble() ?? 0.0 * 1000.0,
+        durationSeconds: ((walkResponse['duration_minutes'] as int?) ?? 0) * 60,
+        difficulty: (route?['difficulty'] as String?) ?? 'easy',
         routePoints: routePoints,
         pins: pins,
         photoUrls: allPhotos,

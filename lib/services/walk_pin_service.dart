@@ -54,25 +54,31 @@ class WalkPinService {
 
       final pins = (response as List<dynamic>).map((pinData) {
         // PostGIS POINT形式を解析
-        final location = _parsePostGISPoint(pinData['location'] as String);
+        final locationStr = pinData['location'] as String?;
+        final location = locationStr != null
+            ? _parsePostGISPoint(locationStr)
+            : const LatLng(35.2034, 139.0315);
 
         // 写真URLを取得（display_orderでソート）
         final photos = (pinData['route_pin_photos'] as List<dynamic>?)
-            ?.map((photo) => photo['photo_url'] as String)
+            ?.map((photo) => (photo['photo_url'] as String?) ?? '')
+            .where((url) => url.isNotEmpty)
             .toList() ?? [];
 
         return RoutePin(
-          id: pinData['id'] as String,
-          routeId: pinData['route_id'] as String,
-          userId: pinData['user_id'] as String,
+          id: (pinData['id'] as String?) ?? '',
+          routeId: (pinData['route_id'] as String?) ?? '',
+          userId: (pinData['user_id'] as String?) ?? '',
           location: location,
-          pinType: PinType.fromString(pinData['pin_type'] as String),
-          title: pinData['title'] as String,
-          comment: pinData['comment'] as String? ?? '',
+          pinType: PinType.fromString((pinData['pin_type'] as String?) ?? 'other'),
+          title: (pinData['title'] as String?) ?? '',
+          comment: (pinData['comment'] as String?) ?? '',
           photoUrls: photos,
-          likesCount: pinData['likes_count'] as int? ?? 0,
-          commentsCount: pinData['comments_count'] as int? ?? 0,
-          createdAt: DateTime.parse(pinData['created_at'] as String),
+          likesCount: (pinData['likes_count'] as int?) ?? 0,
+          commentsCount: (pinData['comments_count'] as int?) ?? 0,
+          createdAt: pinData['created_at'] != null
+              ? DateTime.parse(pinData['created_at'] as String)
+              : DateTime.now(),
         );
       }).toList();
 

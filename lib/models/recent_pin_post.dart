@@ -44,19 +44,19 @@ class RecentPinPost {
   /// Supabase RPC `get_recent_pins` の返り値をパース
   factory RecentPinPost.fromJson(Map<String, dynamic> json) {
     return RecentPinPost(
-      pinId: json['pin_id'] as String,
+      pinId: (json['pin_id'] as String?) ?? '',
       routeId: json['route_id'] as String?,
       routeName: json['route_name'] as String?,
       areaId: json['area_id'] as String?,
       areaName: json['area_name'] as String?,
-      prefecture: json['prefecture'] as String? ?? '',
-      pinType: json['pin_type'] as String,
-      title: json['title'] as String,
-      comment: json['comment'] as String? ?? '',
-      likesCount: json['likes_count'] as int? ?? 0,
-      commentsCount: json['comments_count'] as int? ?? 0,
-      photoUrl: json['photo_url'] as String? ?? '',
-      userId: json['user_id'] as String,
+      prefecture: (json['prefecture'] as String?) ?? '',
+      pinType: (json['pin_type'] as String?) ?? 'other',
+      title: (json['title'] as String?) ?? '',
+      comment: (json['comment'] as String?) ?? '',
+      likesCount: (json['likes_count'] as int?) ?? 0,
+      commentsCount: (json['comments_count'] as int?) ?? 0,
+      photoUrl: (json['photo_url'] as String?) ?? '',
+      userId: (json['user_id'] as String?) ?? '',
       userName: json['user_name'] as String? ?? 'Unknown User',
       userAvatarUrl: json['user_avatar_url'] as String? ?? '',
       createdAt: json['created_at'] != null

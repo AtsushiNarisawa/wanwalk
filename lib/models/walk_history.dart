@@ -26,11 +26,13 @@ class OutingWalkHistory {
 
   factory OutingWalkHistory.fromJson(Map<String, dynamic> json) {
     return OutingWalkHistory(
-      walkId: json['walk_id'] as String,
+      walkId: (json['walk_id'] as String?) ?? '',
       routeId: (json['route_id'] as String?) ?? '',
-      routeName: (json['route_title'] as String?) ?? json['route_name'] as String? ?? '不明なルート',
-      areaName: (json['route_area'] as String?) ?? json['area_name'] as String? ?? '不明なエリア',
-      walkedAt: DateTime.parse(json['walked_at'] as String),
+      routeName: (json['route_title'] as String?) ?? (json['route_name'] as String?) ?? '不明なルート',
+      areaName: (json['route_area'] as String?) ?? (json['area_name'] as String?) ?? '不明なエリア',
+      walkedAt: json['walked_at'] != null
+          ? DateTime.parse(json['walked_at'] as String)
+          : DateTime.now(),
       distanceMeters: (json['distance_meters'] as num?)?.toDouble() ?? 0.0,
       durationSeconds: (json['duration_seconds'] as int?) ?? 0,
       photoCount: (json['photo_count'] as int?) ?? 0,
@@ -86,8 +88,10 @@ class DailyWalkHistory {
 
   factory DailyWalkHistory.fromJson(Map<String, dynamic> json) {
     return DailyWalkHistory(
-      walkId: json['walk_id'] as String,
-      walkedAt: DateTime.parse(json['walked_at'] as String),
+      walkId: (json['walk_id'] as String?) ?? '',
+      walkedAt: json['walked_at'] != null
+          ? DateTime.parse(json['walked_at'] as String)
+          : DateTime.now(),
       distanceMeters: (json['distance_meters'] as num?)?.toDouble() ?? 0.0,
       durationSeconds: json['duration_seconds'] as int? ?? 0,
     );
