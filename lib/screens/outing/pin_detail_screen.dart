@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/route_pin.dart';
 import '../../models/spot_review_model.dart';
 
@@ -36,8 +36,8 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: const Text('ピン詳細'),
         backgroundColor: Colors.transparent,
@@ -49,10 +49,10 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             return Center(
               child: Text(
                 'ピンが見つかりません',
-                style: WanMapTypography.bodyLarge.copyWith(
+                style: WanWalkTypography.bodyLarge.copyWith(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
               ),
             );
@@ -66,81 +66,81 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                 if (pin.hasPhotos) _buildPhotoGallery(pin, isDark),
 
                 Padding(
-                  padding: const EdgeInsets.all(WanMapSpacing.lg),
+                  padding: const EdgeInsets.all(WanWalkSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // タイトル
                       Text(
                         pin.title,
-                        style: WanMapTypography.headlineMedium.copyWith(
+                        style: WanWalkTypography.headlineMedium.copyWith(
                           color: isDark
-                              ? WanMapColors.textPrimaryDark
-                              : WanMapColors.textPrimaryLight,
+                              ? WanWalkColors.textPrimaryDark
+                              : WanWalkColors.textPrimaryLight,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
 
-                      const SizedBox(height: WanMapSpacing.md),
+                      const SizedBox(height: WanWalkSpacing.md),
 
                       // ピンタイプバッジ
                       _buildPinTypeBadge(pin.pinType),
 
-                      const SizedBox(height: WanMapSpacing.xl),
+                      const SizedBox(height: WanWalkSpacing.xl),
 
                       // 統計情報
                       _buildStats(pin, isDark),
 
-                      const SizedBox(height: WanMapSpacing.xl),
+                      const SizedBox(height: WanWalkSpacing.xl),
 
                       // コメント
                       if (pin.comment.isNotEmpty) ...[
                         Text(
                           'コメント',
-                          style: WanMapTypography.headlineSmall.copyWith(
+                          style: WanWalkTypography.headlineSmall.copyWith(
                             color: isDark
-                                ? WanMapColors.textPrimaryDark
-                                : WanMapColors.textPrimaryLight,
+                                ? WanWalkColors.textPrimaryDark
+                                : WanWalkColors.textPrimaryLight,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: WanMapSpacing.sm),
+                        const SizedBox(height: WanWalkSpacing.sm),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(WanMapSpacing.md),
+                          padding: const EdgeInsets.all(WanWalkSpacing.md),
                           decoration: BoxDecoration(
-                            color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                            color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             pin.comment,
-                            style: WanMapTypography.bodyMedium.copyWith(
+                            style: WanWalkTypography.bodyMedium.copyWith(
                           color: isDark
-                              ? WanMapColors.textPrimaryDark
-                              : WanMapColors.textPrimaryLight,
+                              ? WanWalkColors.textPrimaryDark
+                              : WanWalkColors.textPrimaryLight,
                         ),
                       ),
                     ),
-                    const SizedBox(height: WanMapSpacing.xl),
+                    const SizedBox(height: WanWalkSpacing.xl),
                   ],
 
                       // 位置情報
                       Text(
                         '位置',
-                        style: WanMapTypography.headlineSmall.copyWith(
+                        style: WanWalkTypography.headlineSmall.copyWith(
                           color: isDark
-                              ? WanMapColors.textPrimaryDark
-                              : WanMapColors.textPrimaryLight,
+                              ? WanWalkColors.textPrimaryDark
+                              : WanWalkColors.textPrimaryLight,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: WanMapSpacing.sm),
+                      const SizedBox(height: WanWalkSpacing.sm),
                       _buildLocationMap(pin, isDark),
 
                       // 施設情報（facility タイプのみ）
                       _buildFacilityInfo(pin, isDark),
 
-                      const SizedBox(height: WanMapSpacing.xl),
+                      const SizedBox(height: WanWalkSpacing.xl),
 
                       // スポット評価・レビューセクション
                       _buildReviewsSection(pin.id, pin.title, isDark),
@@ -160,16 +160,16 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                 Icons.error_outline,
                 size: 64,
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
               ),
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
               Text(
                 'ピンの読み込みに失敗しました',
-                style: WanMapTypography.bodyLarge.copyWith(
+                style: WanWalkTypography.bodyLarge.copyWith(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
               ),
             ],
@@ -196,13 +196,13 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             errorBuilder: (_, __, ___) {
               return Container(
                 height: 300,
-                color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                 child: Icon(
                   Icons.photo,
                   size: 80,
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
               );
             },
@@ -243,8 +243,8 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.md,
-        vertical: WanMapSpacing.sm,
+        horizontal: WanWalkSpacing.md,
+        vertical: WanWalkSpacing.sm,
       ),
       decoration: BoxDecoration(
         color: badgeColor.withOpacity(0.1),
@@ -262,10 +262,10 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             color: badgeColor,
             size: 20,
           ),
-          const SizedBox(width: WanMapSpacing.xs),
+          const SizedBox(width: WanWalkSpacing.xs),
           Text(
             pinType.label,
-            style: WanMapTypography.bodyMedium.copyWith(
+            style: WanWalkTypography.bodyMedium.copyWith(
               color: badgeColor,
               fontWeight: FontWeight.bold,
             ),
@@ -288,7 +288,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             isDark: isDark,
           ),
         ),
-        const SizedBox(width: WanMapSpacing.md),
+        const SizedBox(width: WanWalkSpacing.md),
         Expanded(
           child: _StatCard(
             icon: Icons.photo_library,
@@ -306,7 +306,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
     return Container(
       height: 200,
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ClipRRect(
@@ -332,7 +332,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                   height: 40,
                   child: Icon(
                     Icons.location_on,
-                    color: WanMapColors.accent,
+                    color: WanWalkColors.accent,
                     size: 40,
                     shadows: [
                       Shadow(
@@ -369,9 +369,9 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
         : null;
 
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -392,27 +392,27 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                   color: Colors.amber,
                 ),
               ),
-              const SizedBox(width: WanMapSpacing.sm),
+              const SizedBox(width: WanWalkSpacing.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'このスポットの評価',
-                      style: WanMapTypography.headlineSmall.copyWith(
+                      style: WanWalkTypography.headlineSmall.copyWith(
                         color: isDark
-                            ? WanMapColors.textPrimaryDark
-                            : WanMapColors.textPrimaryLight,
+                            ? WanWalkColors.textPrimaryDark
+                            : WanWalkColors.textPrimaryLight,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '設備や雰囲気についての評価です',
-                      style: WanMapTypography.bodySmall.copyWith(
+                      style: WanWalkTypography.bodySmall.copyWith(
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
                     ),
                   ],
@@ -421,7 +421,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             ],
           ),
           
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
           
           // 平均評価＋レビュー数表示
           Row(
@@ -432,10 +432,10 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                   if (avg == null) {
                     return Text(
                       '評価なし',
-                      style: WanMapTypography.bodyMedium.copyWith(
+                      style: WanWalkTypography.bodyMedium.copyWith(
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
                     );
                   }
@@ -443,7 +443,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                     children: [
                       Text(
                         avg.toStringAsFixed(1),
-                        style: WanMapTypography.headlineMedium.copyWith(
+                        style: WanWalkTypography.headlineMedium.copyWith(
                           color: Colors.amber,
                           fontWeight: FontWeight.bold,
                         ),
@@ -459,17 +459,17 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2)),
                 error: (_, __) => const SizedBox.shrink(),
               ),
-              const SizedBox(width: WanMapSpacing.sm),
+              const SizedBox(width: WanWalkSpacing.sm),
               // レビュー数
 
               reviewCountAsync.when(
                 data: (count) {
                   return Text(
                     '($count件のレビュー)',
-                    style: WanMapTypography.bodyMedium.copyWith(
+                    style: WanWalkTypography.bodyMedium.copyWith(
                       color: isDark
-                          ? WanMapColors.textSecondaryDark
-                          : WanMapColors.textSecondaryLight,
+                          ? WanWalkColors.textSecondaryDark
+                          : WanWalkColors.textSecondaryLight,
                     ),
                   );
                 },
@@ -479,16 +479,16 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             ],
           ),
 
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
 
         // レビュー一覧
         reviewsAsync.when(
           data: (reviews) {
             if (reviews.isEmpty) {
               return Container(
-                padding: const EdgeInsets.all(WanMapSpacing.lg),
+                padding: const EdgeInsets.all(WanWalkSpacing.lg),
                 decoration: BoxDecoration(
-                  color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                  color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -498,20 +498,20 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                         Icons.rate_review_outlined,
                         size: 48,
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
-                      const SizedBox(height: WanMapSpacing.sm),
+                      const SizedBox(height: WanWalkSpacing.sm),
                       Text(
                         'このスポットの最初のレビューを投稿しませんか？',
-                        style: WanMapTypography.bodyMedium.copyWith(
+                        style: WanWalkTypography.bodyMedium.copyWith(
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: WanMapSpacing.md),
+                      const SizedBox(height: WanWalkSpacing.md),
                       ElevatedButton.icon(
                         onPressed: () async {
                           // ユーザーの既存レビューを取得
@@ -550,11 +550,11 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                             ? 'レビューを編集' 
                             : 'レビューを書く'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: WanMapColors.accent,
+                          backgroundColor: WanWalkColors.accent,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: WanMapSpacing.lg,
-                            vertical: WanMapSpacing.md,
+                            horizontal: WanWalkSpacing.lg,
+                            vertical: WanWalkSpacing.md,
                           ),
                         ),
                       ),
@@ -572,7 +572,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                     .map((review) => _buildReviewCard(review, isDark))
                     .toList(),
                 
-                const SizedBox(height: WanMapSpacing.md),
+                const SizedBox(height: WanWalkSpacing.md),
                 
                 // レビューを書くボタン
                 SizedBox(
@@ -615,9 +615,9 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                         ? 'レビューを編集' 
                         : 'レビューを書く'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: WanMapColors.accent,
-                      side: BorderSide(color: WanMapColors.accent),
-                      padding: const EdgeInsets.symmetric(vertical: WanMapSpacing.md),
+                      foregroundColor: WanWalkColors.accent,
+                      side: BorderSide(color: WanWalkColors.accent),
+                      padding: const EdgeInsets.symmetric(vertical: WanWalkSpacing.md),
                     ),
                   ),
                 ),
@@ -626,14 +626,14 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => Container(
-            padding: const EdgeInsets.all(WanMapSpacing.md),
+            padding: const EdgeInsets.all(WanWalkSpacing.md),
             decoration: BoxDecoration(
               color: Colors.red.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               'レビューの読み込みに失敗しました',
-              style: WanMapTypography.bodySmall.copyWith(color: Colors.red),
+              style: WanWalkTypography.bodySmall.copyWith(color: Colors.red),
             ),
           ),
         ),
@@ -645,13 +645,13 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
   /// レビューカード
   Widget _buildReviewCard(SpotReviewModel review, bool isDark) {
     return Container(
-      margin: const EdgeInsets.only(bottom: WanMapSpacing.md),
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      margin: const EdgeInsets.only(bottom: WanWalkSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? WanMapColors.borderDark : WanMapColors.borderLight,
+          color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
         ),
       ),
       child: Column(
@@ -674,24 +674,24 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
               // 相対時間
               Text(
                 review.relativeTime,
-                style: WanMapTypography.bodySmall.copyWith(
+                style: WanWalkTypography.bodySmall.copyWith(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
               ),
             ],
           ),
 
           if (review.reviewText != null && review.reviewText!.isNotEmpty) ...[
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             // レビューテキスト
             Text(
               review.reviewText!,
-              style: WanMapTypography.bodyMedium.copyWith(
+              style: WanWalkTypography.bodyMedium.copyWith(
                 color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
+                    ? WanWalkColors.textPrimaryDark
+                    : WanWalkColors.textPrimaryLight,
               ),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -700,10 +700,10 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
 
           // 設備情報アイコン
           if (review.hasAnyFacilities) ...[
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Wrap(
-              spacing: WanMapSpacing.xs,
-              runSpacing: WanMapSpacing.xs,
+              spacing: WanWalkSpacing.xs,
+              runSpacing: WanWalkSpacing.xs,
               children: [
                 if (review.hasWaterFountain)
                   _buildFacilityChip('水飲み場', Icons.water_drop, isDark),
@@ -721,23 +721,23 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
 
           // 写真プレビュー（あれば）
           if (review.photoCount > 0) ...[
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Row(
               children: [
                 Icon(
                   Icons.photo_library,
                   size: 16,
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
-                const SizedBox(width: WanMapSpacing.xs),
+                const SizedBox(width: WanWalkSpacing.xs),
                 Text(
                   '${review.photoCount}枚の写真',
-                  style: WanMapTypography.bodySmall.copyWith(
+                  style: WanWalkTypography.bodySmall.copyWith(
                     color: isDark
-                        ? WanMapColors.textSecondaryDark
-                        : WanMapColors.textSecondaryLight,
+                        ? WanWalkColors.textSecondaryDark
+                        : WanWalkColors.textSecondaryLight,
                   ),
                 ),
               ],
@@ -752,22 +752,22 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
   Widget _buildFacilityChip(String label, IconData icon, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.sm,
-        vertical: WanMapSpacing.xs,
+        horizontal: WanWalkSpacing.sm,
+        vertical: WanWalkSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: WanMapColors.accent.withOpacity(0.1),
+        color: WanWalkColors.accent.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: WanMapColors.accent),
+          Icon(icon, size: 14, color: WanWalkColors.accent),
           const SizedBox(width: 4),
           Text(
             label,
-            style: WanMapTypography.bodySmall.copyWith(
-              color: WanMapColors.accent,
+            style: WanWalkTypography.bodySmall.copyWith(
+              color: WanWalkColors.accent,
               fontSize: 12,
             ),
           ),
@@ -784,17 +784,17 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: WanMapSpacing.lg),
+        const SizedBox(height: WanWalkSpacing.lg),
         Text(
           '施設情報',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         
         // 営業時間
         if (facilityInfo['business_hours'] != null)
@@ -809,7 +809,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             isDark: isDark,
           ),
         
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         
         // サービス
         if (facilityInfo['services'] != null)
@@ -818,8 +818,8 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             title: 'サービス',
             children: [
               Wrap(
-                spacing: WanMapSpacing.sm,
-                runSpacing: WanMapSpacing.sm,
+                spacing: WanWalkSpacing.sm,
+                runSpacing: WanWalkSpacing.sm,
                 children: (facilityInfo['services'] as List)
                     .map((service) => Container(
                           margin: const EdgeInsets.only(right: 8, bottom: 8),
@@ -850,7 +850,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             isDark: isDark,
           ),
         
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         
         // 施設設備
         if (facilityInfo['facilities'] != null)
@@ -859,8 +859,8 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             title: '施設設備',
             children: [
               Wrap(
-                spacing: WanMapSpacing.sm,
-                runSpacing: WanMapSpacing.sm,
+                spacing: WanWalkSpacing.sm,
+                runSpacing: WanWalkSpacing.sm,
                 children: (facilityInfo['facilities'] as List)
                     .map((facility) => Container(
                           margin: const EdgeInsets.only(right: 8, bottom: 8),
@@ -891,7 +891,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             isDark: isDark,
           ),
         
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         
         // アクセス
         if (facilityInfo['access'] != null)
@@ -909,7 +909,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             isDark: isDark,
           ),
         
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         
         // わんちゃん対応
         if (facilityInfo['dog_friendly'] != null)
@@ -937,7 +937,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
             isDark: isDark,
           ),
         
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         
         // お問い合わせ
         if (facilityInfo['contact'] != null)
@@ -975,22 +975,22 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
               icon,
               size: 20,
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
-            const SizedBox(width: WanMapSpacing.sm),
+            const SizedBox(width: WanWalkSpacing.sm),
             Text(
               title,
-              style: WanMapTypography.bodyMedium.copyWith(
+              style: WanWalkTypography.bodyMedium.copyWith(
                 color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
+                    ? WanWalkColors.textPrimaryDark
+                    : WanWalkColors.textPrimaryLight,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         ...children,
       ],
     );
@@ -999,7 +999,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
   Widget _buildInfoRow(String label, String? value) {
     if (value == null || value.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(left: WanMapSpacing.lg, bottom: WanMapSpacing.xs),
+      padding: const EdgeInsets.only(left: WanWalkSpacing.lg, bottom: WanWalkSpacing.xs),
       child: Text('$label: $value'),
     );
   }
@@ -1036,34 +1036,34 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
           Icon(
             icon,
-            color: WanMapColors.accent,
+            color: WanWalkColors.accent,
             size: 24,
           ),
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: WanWalkSpacing.xs),
           Text(
             label,
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: WanWalkSpacing.xs),
           Text(
             value,
-            style: WanMapTypography.bodyMedium.copyWith(
+            style: WanWalkTypography.bodyMedium.copyWith(
               color: isDark
-                  ? WanMapColors.textPrimaryDark
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark
+                  : WanWalkColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
             ),
           ),

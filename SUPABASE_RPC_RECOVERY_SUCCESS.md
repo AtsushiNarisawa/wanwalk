@@ -160,12 +160,12 @@ type 'Null' is not a subtype of type 'String'
 ## Files Modified
 
 ### Created/Updated
-1. `/home/user/webapp/wanmap_v2/restore_get_areas_simple.sql`
-2. `/home/user/webapp/wanmap_v2/restore_get_areas_simple_v2.sql`
-3. `/home/user/webapp/wanmap_v2/restore_get_areas_simple_v3.sql` (FINAL)
-4. `/home/user/webapp/wanmap_v2/SUPABASE_CLEANUP_PLAN.md` (updated)
-5. `/home/user/webapp/wanmap_v2/MAC_APP_TEST_CHECKLIST.md`
-6. `/home/user/webapp/wanmap_v2/SUPABASE_RPC_RECOVERY_SUCCESS.md`
+1. `/home/user/webapp/wanwalk/restore_get_areas_simple.sql`
+2. `/home/user/webapp/wanwalk/restore_get_areas_simple_v2.sql`
+3. `/home/user/webapp/wanwalk/restore_get_areas_simple_v3.sql` (FINAL)
+4. `/home/user/webapp/wanwalk/SUPABASE_CLEANUP_PLAN.md` (updated)
+5. `/home/user/webapp/wanwalk/MAC_APP_TEST_CHECKLIST.md`
+6. `/home/user/webapp/wanwalk/SUPABASE_RPC_RECOVERY_SUCCESS.md`
 
 ## Next Steps (Optional)
 
@@ -177,7 +177,7 @@ type 'Null' is not a subtype of type 'String'
 
 ### Git Commit (Recommended)
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 git add .
 git commit -m "Fix Supabase RPC: restore get_areas_simple with correct schema"
 git push origin main

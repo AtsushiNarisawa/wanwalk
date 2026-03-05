@@ -1,4 +1,4 @@
--- WanMap 完全データベーススキーマ (Phase 1-24)
+-- WanWalk 完全データベーススキーマ (Phase 1-24)
 -- Supabase SQL Editorで実行してください
 -- 既存のテーブルがある場合は影響しません (CREATE TABLE IF NOT EXISTS)
 
@@ -399,7 +399,7 @@ $$ LANGUAGE sql STABLE;
 DO $$
 BEGIN
   RAISE NOTICE '====================================';
-  RAISE NOTICE 'WanMap データベーススキーマ適用完了';
+  RAISE NOTICE 'WanWalk データベーススキーマ適用完了';
   RAISE NOTICE '====================================';
   RAISE NOTICE 'テーブル作成: profiles, dogs, routes, route_points, favorites, route_photos, comments, follows, likes';
   RAISE NOTICE 'RLSポリシー: すべて設定済み';

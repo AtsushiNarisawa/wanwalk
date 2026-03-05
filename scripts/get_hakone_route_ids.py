@@ -8,7 +8,7 @@ import json
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
-load_dotenv('/home/user/wanmap_v2/.env')
+load_dotenv('/home/user/wanwalk/.env')
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
@@ -48,7 +48,7 @@ for idx, route in enumerate(latest_9_routes, 1):
     route_mapping[route['name']] = route['id']
 
 # JSON形式で保存
-with open('/home/user/wanmap_v2/scripts/hakone_route_ids.json', 'w', encoding='utf-8') as f:
+with open('/home/user/wanwalk/scripts/hakone_route_ids.json', 'w', encoding='utf-8') as f:
     json.dump(route_mapping, f, ensure_ascii=False, indent=2)
 
 print("\n✅ ルートIDを hakone_route_ids.json に保存しました")

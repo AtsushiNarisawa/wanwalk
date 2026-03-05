@@ -52,12 +52,12 @@ TestFlight配信に向けて、アプリ全体の品質向上を実施
 **実装内容:**
 ```dart
 // 共通Shimmerウィジェット作成
-class WanMapShimmer extends StatelessWidget {
+class WanWalkShimmer extends StatelessWidget {
   final double height;
   final double width;
   final BorderRadius? borderRadius;
   
-  const WanMapShimmer({
+  const WanWalkShimmer({
     required this.height,
     required this.width,
     this.borderRadius,
@@ -84,12 +84,12 @@ class ListTileShimmer extends StatelessWidget {
 - 共通エラーウィジェット作成
 
 ```dart
-class WanMapErrorWidget extends StatelessWidget {
+class WanWalkErrorWidget extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
   final bool isNetworkError;
   
-  const WanMapErrorWidget({
+  const WanWalkErrorWidget({
     required this.message,
     this.onRetry,
     this.isNetworkError = false,
@@ -104,7 +104,7 @@ class WanMapErrorWidget extends StatelessWidget {
 - 共通空状態ウィジェット作成
 
 ```dart
-class WanMapEmptyState extends StatelessWidget {
+class WanWalkEmptyState extends StatelessWidget {
   final String title;
   final String message;
   final IconData icon;

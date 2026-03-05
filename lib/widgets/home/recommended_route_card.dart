@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/route_model.dart';
 
 /// おすすめルートカード（大きく目立つ表示）
@@ -22,9 +22,9 @@ class RecommendedRouteCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+        margin: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -42,23 +42,23 @@ class RecommendedRouteCard extends StatelessWidget {
 
             // ルート情報
             Padding(
-              padding: const EdgeInsets.all(WanMapSpacing.lg),
+              padding: const EdgeInsets.all(WanWalkSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // タイトル
                   Text(
                     route.name ?? route.title,
-                    style: WanMapTypography.headlineSmall.copyWith(
+                    style: WanWalkTypography.headlineSmall.copyWith(
                       color: isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
+                          ? WanWalkColors.textPrimaryDark
+                          : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: WanMapSpacing.sm),
+                  const SizedBox(height: WanWalkSpacing.sm),
 
                   // エリア名
                   if (route.areaName != null)
@@ -67,19 +67,19 @@ class RecommendedRouteCard extends StatelessWidget {
                         const Icon(
                           Icons.location_on,
                           size: 16,
-                          color: WanMapColors.accent,
+                          color: WanWalkColors.accent,
                         ),
-                        const SizedBox(width: WanMapSpacing.xs),
+                        const SizedBox(width: WanWalkSpacing.xs),
                         Text(
                           route.areaName!,
-                          style: WanMapTypography.bodyMedium.copyWith(
-                            color: WanMapColors.accent,
+                          style: WanWalkTypography.bodyMedium.copyWith(
+                            color: WanWalkColors.accent,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
-                  const SizedBox(height: WanMapSpacing.md),
+                  const SizedBox(height: WanWalkSpacing.md),
 
                   // 統計情報
                   Row(
@@ -89,13 +89,13 @@ class RecommendedRouteCard extends StatelessWidget {
                         label: route.formattedDistance,
                         isDark: isDark,
                       ),
-                      const SizedBox(width: WanMapSpacing.sm),
+                      const SizedBox(width: WanWalkSpacing.sm),
                       _InfoChip(
                         icon: Icons.access_time,
                         label: '${route.duration}分',
                         isDark: isDark,
                       ),
-                      const SizedBox(width: WanMapSpacing.sm),
+                      const SizedBox(width: WanWalkSpacing.sm),
                       _InfoChip(
                         icon: Icons.push_pin,
                         label: '${route.totalPins ?? 0}',
@@ -103,7 +103,7 @@ class RecommendedRouteCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: WanMapSpacing.md),
+                  const SizedBox(height: WanWalkSpacing.md),
 
                   // 評価
                   if (route.averageRating != null)
@@ -118,27 +118,27 @@ class RecommendedRouteCard extends StatelessWidget {
                             color: Colors.amber,
                           );
                         }),
-                        const SizedBox(width: WanMapSpacing.xs),
+                        const SizedBox(width: WanWalkSpacing.xs),
                         Text(
                           route.averageRating!.toStringAsFixed(1),
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: isDark
-                                ? WanMapColors.textSecondaryDark
-                                : WanMapColors.textSecondaryLight,
+                                ? WanWalkColors.textSecondaryDark
+                                : WanWalkColors.textSecondaryLight,
                           ),
                         ),
                       ],
                     ),
-                  const SizedBox(height: WanMapSpacing.md),
+                  const SizedBox(height: WanWalkSpacing.md),
 
                   // 説明文
                   if (route.description != null && route.description!.isNotEmpty)
                     Text(
                       route.description!,
-                      style: WanMapTypography.bodyMedium.copyWith(
+                      style: WanWalkTypography.bodyMedium.copyWith(
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -158,8 +158,8 @@ class RecommendedRouteCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         color: isDark
-            ? WanMapColors.backgroundDark
-            : WanMapColors.backgroundLight,
+            ? WanWalkColors.backgroundDark
+            : WanWalkColors.backgroundLight,
       ),
       child: route.thumbnailUrl != null
           ? ClipRRect(
@@ -186,13 +186,13 @@ class RecommendedRouteCard extends StatelessWidget {
           Icon(
             Icons.landscape,
             size: 64,
-            color: WanMapColors.accent.withOpacity(0.3),
+            color: WanWalkColors.accent.withOpacity(0.3),
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           Text(
             'ルート画像',
-            style: WanMapTypography.bodyMedium.copyWith(
-              color: WanMapColors.accent.withOpacity(0.5),
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: WanWalkColors.accent.withOpacity(0.5),
             ),
           ),
         ],
@@ -217,13 +217,13 @@ class _InfoChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.sm,
-        vertical: WanMapSpacing.xs,
+        horizontal: WanWalkSpacing.sm,
+        vertical: WanWalkSpacing.xs,
       ),
       decoration: BoxDecoration(
         color: isDark
-            ? WanMapColors.backgroundDark
-            : WanMapColors.backgroundLight,
+            ? WanWalkColors.backgroundDark
+            : WanWalkColors.backgroundLight,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -233,16 +233,16 @@ class _InfoChip extends StatelessWidget {
             icon,
             size: 16,
             color: isDark
-                ? WanMapColors.textSecondaryDark
-                : WanMapColors.textSecondaryLight,
+                ? WanWalkColors.textSecondaryDark
+                : WanWalkColors.textSecondaryLight,
           ),
-          const SizedBox(width: WanMapSpacing.xs),
+          const SizedBox(width: WanWalkSpacing.xs),
           Text(
             label,
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
               fontWeight: FontWeight.w600,
             ),
           ),

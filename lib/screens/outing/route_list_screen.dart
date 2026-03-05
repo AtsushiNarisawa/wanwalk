@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/official_route_provider.dart';
 import '../../providers/area_provider.dart';
 import '../../models/official_route.dart';
@@ -30,8 +30,8 @@ class RouteListScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: Text('$areaNameのルート'),
         backgroundColor: Colors.transparent,
@@ -43,7 +43,7 @@ class RouteListScreen extends ConsumerWidget {
             return _buildEmptyState(isDark);
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(WanMapSpacing.lg),
+            padding: const EdgeInsets.all(WanWalkSpacing.lg),
             itemCount: routes.length + (isHakoneSubArea ? 1 : 0),
             itemBuilder: (context, index) {
               // 箱根サブエリアの場合、最初に交通情報カードを表示
@@ -54,7 +54,7 @@ class RouteListScreen extends ConsumerWidget {
                       return const SizedBox.shrink();
                     }
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+                      padding: const EdgeInsets.only(bottom: WanWalkSpacing.md),
                       child: _buildTransportInfoCard(isDark, area.description),
                     );
                   },
@@ -68,7 +68,7 @@ class RouteListScreen extends ConsumerWidget {
               final route = routes[routeIndex];
               return Padding(
                 padding: EdgeInsets.only(
-                  bottom: routeIndex < routes.length - 1 ? WanMapSpacing.md : 0,
+                  bottom: routeIndex < routes.length - 1 ? WanWalkSpacing.md : 0,
                 ),
                 child: _RouteCard(
                   route: route,
@@ -97,16 +97,16 @@ class RouteListScreen extends ConsumerWidget {
                 Icons.error_outline,
                 size: 64,
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
               ),
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
               Text(
                 'ルートの読み込みに失敗しました',
-                style: WanMapTypography.bodyLarge.copyWith(
+                style: WanWalkTypography.bodyLarge.copyWith(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
               ),
             ],
@@ -119,12 +119,12 @@ class RouteListScreen extends ConsumerWidget {
   /// 交通情報カード
   Widget _buildTransportInfoCard(bool isDark, String description) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: WanMapColors.accent.withOpacity(0.1),
+        color: WanWalkColors.accent.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: WanMapColors.accent.withOpacity(0.3),
+          color: WanWalkColors.accent.withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -134,7 +134,7 @@ class RouteListScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: WanMapColors.accent,
+              color: WanWalkColors.accent,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -143,25 +143,25 @@ class RouteListScreen extends ConsumerWidget {
               size: 20,
             ),
           ),
-          const SizedBox(width: WanMapSpacing.md),
+          const SizedBox(width: WanWalkSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '交通アクセス',
-                  style: WanMapTypography.titleMedium.copyWith(
-                    color: WanMapColors.accent,
+                  style: WanWalkTypography.titleMedium.copyWith(
+                    color: WanWalkColors.accent,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.xs),
+                const SizedBox(height: WanWalkSpacing.xs),
                 Text(
                   description,
-                  style: WanMapTypography.bodySmall.copyWith(
+                  style: WanWalkTypography.bodySmall.copyWith(
                     color: isDark
-                        ? WanMapColors.textPrimaryDark
-                        : WanMapColors.textPrimaryLight,
+                        ? WanWalkColors.textPrimaryDark
+                        : WanWalkColors.textPrimaryLight,
                     height: 1.5,
                   ),
                 ),
@@ -182,16 +182,16 @@ class RouteListScreen extends ConsumerWidget {
             Icons.route_outlined,
             size: 64,
             color: isDark
-                ? WanMapColors.textSecondaryDark
-                : WanMapColors.textSecondaryLight,
+                ? WanWalkColors.textSecondaryDark
+                : WanWalkColors.textSecondaryLight,
           ),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
           Text(
             'ルートがありません',
-            style: WanMapTypography.bodyLarge.copyWith(
+            style: WanWalkTypography.bodyLarge.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
         ],
@@ -228,9 +228,9 @@ class _RouteCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.lg),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -256,17 +256,17 @@ class _RouteCard extends StatelessWidget {
                     return Container(
                       width: double.infinity,
                       height: 200,
-                      color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+                      color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
                       child: Icon(
                         Icons.image_not_supported,
-                        color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                       ),
                     );
                   },
                 ),
               ),
             if (route.thumbnailUrl != null)
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
             // ルート名と難易度バッジ
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,19 +274,19 @@ class _RouteCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     route.name,
-                    style: WanMapTypography.bodyLarge.copyWith(
+                    style: WanWalkTypography.bodyLarge.copyWith(
                       color: isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
+                          ? WanWalkColors.textPrimaryDark
+                          : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.sm),
+                const SizedBox(width: WanWalkSpacing.sm),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: WanMapSpacing.sm,
-                    vertical: WanMapSpacing.xs,
+                    horizontal: WanWalkSpacing.sm,
+                    vertical: WanWalkSpacing.xs,
                   ),
                   decoration: BoxDecoration(
                     color: _getDifficultyColor().withOpacity(0.1),
@@ -294,7 +294,7 @@ class _RouteCard extends StatelessWidget {
                   ),
                   child: Text(
                     route.difficultyLevel.label,
-                    style: WanMapTypography.caption.copyWith(
+                    style: WanWalkTypography.caption.copyWith(
                       color: _getDifficultyColor(),
                       fontWeight: FontWeight.bold,
                     ),
@@ -302,19 +302,19 @@ class _RouteCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             // 説明
             Text(
               route.description,
-              style: WanMapTypography.caption.copyWith(
+              style: WanWalkTypography.caption.copyWith(
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             // 統計情報（中央揃え）
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -324,13 +324,13 @@ class _RouteCard extends StatelessWidget {
                   label: route.formattedDistance,
                   isDark: isDark,
                 ),
-                const SizedBox(width: WanMapSpacing.sm),
+                const SizedBox(width: WanWalkSpacing.sm),
                 _StatChip(
                   icon: Icons.timer,
                   label: route.formattedDuration,
                   isDark: isDark,
                 ),
-                const SizedBox(width: WanMapSpacing.sm),
+                const SizedBox(width: WanWalkSpacing.sm),
                 _StatChip(
                   icon: Icons.push_pin,
                   label: '${route.totalPins}ピン',
@@ -361,11 +361,11 @@ class _StatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.sm,
-        vertical: WanMapSpacing.xs,
+        horizontal: WanWalkSpacing.sm,
+        vertical: WanWalkSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: WanMapColors.accent.withOpacity(0.1),
+        color: WanWalkColors.accent.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -374,15 +374,15 @@ class _StatChip extends StatelessWidget {
           Icon(
             icon,
             size: 16,
-            color: WanMapColors.accent,
+            color: WanWalkColors.accent,
           ),
           const SizedBox(width: 4),
           Text(
             label,
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: isDark
-                  ? WanMapColors.textPrimaryDark
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark
+                  : WanWalkColors.textPrimaryLight,
             ),
           ),
         ],

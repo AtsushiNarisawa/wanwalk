@@ -6,7 +6,7 @@ import os
 from supabase import create_client
 from dotenv import load_dotenv
 
-load_dotenv('/home/user/wanmap_v2/.env')
+load_dotenv('/home/user/wanwalk/.env')
 supabase = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_SERVICE_ROLE_KEY'))
 
 print("=" * 80)

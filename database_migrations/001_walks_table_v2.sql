@@ -2,7 +2,7 @@
 -- Phase 1-1: Walks Table (散歩履歴)
 -- ============================================================================
 -- Description: Core table for storing walk history (both Daily and Outing)
--- Author: WanMap Development Team
+-- Author: WanWalk Development Team
 -- Created: 2025-11-23
 -- Version: 2 (修正版 - 未作成テーブルへの参照を削除)
 -- ============================================================================

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/spot_review_model.dart';
 import '../../providers/spot_review_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -221,38 +221,38 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(WanMapSpacing.md),
+          padding: const EdgeInsets.all(WanWalkSpacing.md),
           children: [
             // スポット名
             Text(
               widget.spotTitle,
-              style: WanMapTypography.headlineMedium.copyWith(
+              style: WanWalkTypography.headlineMedium.copyWith(
                 color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
+                    ? WanWalkColors.textPrimaryDark
+                    : WanWalkColors.textPrimaryLight,
               ),
             ),
-            const SizedBox(height: WanMapSpacing.lg),
+            const SizedBox(height: WanWalkSpacing.lg),
 
             // 星評価セクション
             _buildRatingSection(isDark),
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
 
             // レビューテキストセクション
             _buildReviewTextSection(isDark),
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
 
             // 設備情報セクション
             _buildFacilitiesSection(isDark),
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
 
             // 利用条件セクション
             _buildConditionsSection(isDark),
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
 
             // 季節情報セクション
             _buildSeasonalInfoSection(isDark),
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
 
             // 写真セクション（今回は省略）
             // TODO: 将来実装
@@ -269,14 +269,14 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
       children: [
         Text(
           '総合評価',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(5, (index) {
@@ -298,10 +298,10 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
         Center(
           child: Text(
             _getRatingText(_rating),
-            style: WanMapTypography.bodyLarge.copyWith(
+            style: WanWalkTypography.bodyLarge.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
         ),
@@ -333,14 +333,14 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
       children: [
         Text(
           'レビュー（任意）',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         TextFormField(
           controller: _reviewTextController,
           maxLines: 5,
@@ -351,7 +351,7 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             filled: true,
-            fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           ),
         ),
       ],
@@ -365,14 +365,14 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
       children: [
         Text(
           '設備情報',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         _buildCheckboxTile('水飲み場', Icons.water_drop, _hasWaterFountain,
             (value) {
           setState(() {
@@ -414,15 +414,15 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
     return CheckboxListTile(
       title: Row(
         children: [
-          Icon(icon, size: 20, color: WanMapColors.accent),
-          const SizedBox(width: WanMapSpacing.sm),
+          Icon(icon, size: 20, color: WanWalkColors.accent),
+          const SizedBox(width: WanWalkSpacing.sm),
           Text(title),
         ],
       ),
       value: value,
       onChanged: onChanged,
-      activeColor: WanMapColors.accent,
-      tileColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+      activeColor: WanWalkColors.accent,
+      tileColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
@@ -436,14 +436,14 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
       children: [
         Text(
           '利用条件',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         SwitchListTile(
           title: const Text('リード必須'),
           value: _leashRequired,
@@ -452,13 +452,13 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
               _leashRequired = value;
             });
           },
-          activeColor: WanMapColors.accent,
-          tileColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          activeColor: WanWalkColors.accent,
+          tileColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         SwitchListTile(
           title: const Text('ドッグカフェあり'),
           value: _hasDogFriendlyCafe,
@@ -467,24 +467,24 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
               _hasDogFriendlyCafe = value;
             });
           },
-          activeColor: WanMapColors.accent,
-          tileColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          activeColor: WanWalkColors.accent,
+          tileColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         Text(
           '適した犬のサイズ',
-          style: WanMapTypography.bodyMedium.copyWith(
+          style: WanWalkTypography.bodyMedium.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         Wrap(
-          spacing: WanMapSpacing.sm,
+          spacing: WanWalkSpacing.sm,
           children: [
             _buildDogSizeChip('すべて', 'all', isDark),
             _buildDogSizeChip('小型犬', 'small', isDark),
@@ -506,7 +506,7 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
           _dogSizeSuitable = value;
         });
       },
-      selectedColor: WanMapColors.accent,
+      selectedColor: WanWalkColors.accent,
       labelStyle: TextStyle(
         color: isSelected ? Colors.white : null,
       ),
@@ -520,14 +520,14 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
       children: [
         Text(
           '季節情報（任意）',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         TextFormField(
           controller: _seasonalInfoController,
           maxLines: 3,
@@ -538,7 +538,7 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             filled: true,
-            fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           ),
         ),
       ],

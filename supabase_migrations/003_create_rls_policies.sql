@@ -1,4 +1,4 @@
--- WanMap リニューアル Phase 1a: RLS (Row Level Security) ポリシー設定
+-- WanWalk リニューアル Phase 1a: RLS (Row Level Security) ポリシー設定
 -- すべてのテーブルにRLSを有効化し、適切なアクセス制御を実装
 
 -- ============================================================

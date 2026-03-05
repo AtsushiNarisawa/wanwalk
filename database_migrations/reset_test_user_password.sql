@@ -6,7 +6,7 @@
 --
 -- 実行手順:
 -- 1. https://supabase.com/dashboard にアクセス
--- 2. WanMapプロジェクトを選択
+-- 2. WanWalkプロジェクトを選択
 -- 3. 左サイドバー → Authentication → Users
 -- 4. test1@example.com をクリック
 -- 5. 画面右上の "..." メニュー → "Send password reset email" または "Update user"

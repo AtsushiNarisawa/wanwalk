@@ -5,7 +5,7 @@
 --
 -- 実行手順:
 -- 1. https://supabase.com/dashboard にアクセス
--- 2. WanMapプロジェクトを選択
+-- 2. WanWalkプロジェクトを選択
 -- 3. 左サイドバー → SQL Editor
 -- 4. このSQLをコピー&ペースト
 -- 5. Runをクリック

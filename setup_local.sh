@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# WanMap セットアップスクリプト
+# WanWalk セットアップスクリプト
 # このスクリプトはローカルで実行可能な設定を自動化します
 
 set -e  # エラーで停止
 
-echo "🚀 WanMap セットアップを開始します..."
+echo "🚀 WanWalk セットアップを開始します..."
 echo ""
 
 # カラー定義
@@ -15,7 +15,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # プロジェクトディレクトリ
-PROJECT_DIR="/home/user/webapp/wanmap_v2"
+PROJECT_DIR="/home/user/webapp/wanwalk"
 cd "$PROJECT_DIR"
 
 echo "📂 プロジェクトディレクトリ: $PROJECT_DIR"

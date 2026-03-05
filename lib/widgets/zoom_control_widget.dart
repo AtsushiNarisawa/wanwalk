@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../config/wanmap_colors.dart';
+import '../config/wanwalk_colors.dart';
 
 /// 地図のズームコントロールウィジェット
 /// 
@@ -73,7 +73,7 @@ class ZoomControlWidget extends StatelessWidget {
                 alignment: Alignment.center,
                 child: const Icon(
                   Icons.add,
-                  color: WanMapColors.textPrimaryLight,
+                  color: WanWalkColors.textPrimaryLight,
                   size: 24,
                 ),
               ),
@@ -100,7 +100,7 @@ class ZoomControlWidget extends StatelessWidget {
                 alignment: Alignment.center,
                 child: const Icon(
                   Icons.remove,
-                  color: WanMapColors.textPrimaryLight,
+                  color: WanWalkColors.textPrimaryLight,
                   size: 24,
                 ),
               ),

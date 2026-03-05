@@ -8,10 +8,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
-import '../../widgets/wanmap_button.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
+import '../../widgets/wanwalk_button.dart';
 
 class PasswordResetScreen extends StatefulWidget {
   const PasswordResetScreen({super.key});
@@ -72,7 +72,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('パスワードリセット用のメールを $email に送信しました'),
-          backgroundColor: WanMapColors.success,
+          backgroundColor: WanWalkColors.success,
           duration: const Duration(seconds: 5),
         ),
       );
@@ -98,7 +98,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(errorMessage),
-          backgroundColor: WanMapColors.error,
+          backgroundColor: WanWalkColors.error,
         ),
       );
     } catch (e) {
@@ -111,7 +111,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('予期しないエラーが発生しました: $e'),
-          backgroundColor: WanMapColors.error,
+          backgroundColor: WanWalkColors.error,
         ),
       );
     }
@@ -128,7 +128,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: WanMapSpacing.screenPadding,
+            padding: WanWalkSpacing.screenPadding,
             child: _emailSent ? _buildSuccessView() : _buildFormView(),
           ),
         ),
@@ -148,29 +148,29 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
           const Icon(
             Icons.lock_reset,
             size: 80,
-            color: WanMapColors.accent,
+            color: WanWalkColors.accent,
           ),
-          const SizedBox(height: WanMapSpacing.xl),
+          const SizedBox(height: WanWalkSpacing.xl),
 
           // タイトル
           Text(
             'パスワードをお忘れですか？',
-            style: WanMapTypography.headlineMedium.copyWith(
-              color: WanMapColors.textPrimaryLight,
+            style: WanWalkTypography.headlineMedium.copyWith(
+              color: WanWalkColors.textPrimaryLight,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
 
           // 説明文
           Text(
             '登録済みのメールアドレスを入力してください。\nパスワードリセット用のリンクをお送りします。',
-            style: WanMapTypography.bodyMedium.copyWith(
-              color: WanMapColors.textSecondaryLight,
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: WanWalkColors.textSecondaryLight,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: WanMapSpacing.xl),
+          const SizedBox(height: WanWalkSpacing.xl),
 
           // メールアドレス入力
           TextFormField(
@@ -188,18 +188,18 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             ),
             validator: _validateEmail,
           ),
-          const SizedBox(height: WanMapSpacing.xl),
+          const SizedBox(height: WanWalkSpacing.xl),
 
           // 送信ボタン
-          WanMapButton(
+          WanWalkButton(
             text: 'リセットメールを送信',
             icon: Icons.send,
-            size: WanMapButtonSize.large,
+            size: WanWalkButtonSize.large,
             fullWidth: true,
             loading: _isLoading,
             onPressed: _isLoading ? null : _sendResetEmail,
           ),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
 
           // ログイン画面に戻る
           TextButton(
@@ -225,71 +225,71 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
         const Icon(
           Icons.check_circle,
           size: 100,
-          color: WanMapColors.success,
+          color: WanWalkColors.success,
         ),
-        const SizedBox(height: WanMapSpacing.xl),
+        const SizedBox(height: WanWalkSpacing.xl),
 
         // タイトル
         Text(
           'メールを送信しました',
-          style: WanMapTypography.headlineMedium.copyWith(
-            color: WanMapColors.textPrimaryLight,
+          style: WanWalkTypography.headlineMedium.copyWith(
+            color: WanWalkColors.textPrimaryLight,
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
 
         // 説明文
         Text(
           '${_emailController.text.trim()} にパスワードリセット用のメールを送信しました。\n\nメール内のリンクをクリックして、新しいパスワードを設定してください。',
-          style: WanMapTypography.bodyMedium.copyWith(
-            color: WanMapColors.textSecondaryLight,
+          style: WanWalkTypography.bodyMedium.copyWith(
+            color: WanWalkColors.textSecondaryLight,
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
 
         // 注意事項
         Container(
-          padding: const EdgeInsets.all(WanMapSpacing.md),
+          padding: const EdgeInsets.all(WanWalkSpacing.md),
           decoration: BoxDecoration(
-            color: WanMapColors.secondary.withOpacity(0.1),
+            color: WanWalkColors.secondary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
               const Icon(
                 Icons.info_outline,
-                color: WanMapColors.secondary,
+                color: WanWalkColors.secondary,
                 size: 20,
               ),
-              const SizedBox(width: WanMapSpacing.sm),
+              const SizedBox(width: WanWalkSpacing.sm),
               Expanded(
                 child: Text(
                   'メールが届かない場合は、迷惑メールフォルダをご確認ください。',
-                  style: WanMapTypography.bodySmall.copyWith(
-                    color: WanMapColors.textSecondaryLight,
+                  style: WanWalkTypography.bodySmall.copyWith(
+                    color: WanWalkColors.textSecondaryLight,
                   ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: WanMapSpacing.xl),
+        const SizedBox(height: WanWalkSpacing.xl),
 
         // ログイン画面に戻るボタン
-        WanMapButton(
+        WanWalkButton(
           text: 'ログイン画面に戻る',
           icon: Icons.arrow_back,
-          size: WanMapButtonSize.large,
+          size: WanWalkButtonSize.large,
           fullWidth: true,
-          variant: WanMapButtonVariant.outlined,
+          variant: WanWalkButtonVariant.outlined,
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
 
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
 
         // メールを再送信
         TextButton(

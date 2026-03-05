@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 
 /// お問い合わせフォーム画面
 class ContactSupportScreen extends ConsumerStatefulWidget {
@@ -69,13 +69,13 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
             title: const Row(
               children: [
                 Icon(Icons.check_circle, color: Colors.green, size: 28),
-                SizedBox(width: WanMapSpacing.small),
+                SizedBox(width: WanWalkSpacing.small),
                 Text('送信完了'),
               ],
             ),
             content: const Text(
               'お問い合わせを受け付けました。\n\n通常、2〜3営業日以内にご登録のメールアドレス宛に返信いたします。',
-              style: WanMapTypography.body,
+              style: WanWalkTypography.body,
             ),
             actions: [
               TextButton(
@@ -86,7 +86,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                 child: const Text(
                   'OK',
                   style: TextStyle(
-                    color: WanMapColors.accent,
+                    color: WanWalkColors.accent,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -118,19 +118,19 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: const Text(
           'お問い合わせ',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(WanMapSpacing.medium),
+          padding: const EdgeInsets.all(WanWalkSpacing.medium),
           child: Form(
             key: _formKey,
             child: Column(
@@ -138,7 +138,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
               children: [
                 // 案内メッセージ
                 Container(
-                  padding: const EdgeInsets.all(WanMapSpacing.medium),
+                  padding: const EdgeInsets.all(WanWalkSpacing.medium),
                   decoration: BoxDecoration(
                     color: isDark
                         ? Colors.blue.shade900.withOpacity(0.3)
@@ -153,11 +153,11 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                         size: 20,
                         color: isDark ? Colors.blue.shade200 : Colors.blue.shade700,
                       ),
-                      const SizedBox(width: WanMapSpacing.small),
+                      const SizedBox(width: WanWalkSpacing.small),
                       Expanded(
                         child: Text(
                           'お問い合わせ内容を確認後、2〜3営業日以内にご返信いたします。',
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: isDark
                                 ? Colors.blue.shade200
                                 : Colors.blue.shade700,
@@ -167,31 +167,31 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // カテゴリ選択
                 const Text(
                   'お問い合わせ種類',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.medium),
+                  padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.medium),
                   decoration: BoxDecoration(
-                    color: isDark ? WanMapColors.cardDark : Colors.white,
+                    color: isDark ? WanWalkColors.cardDark : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _selectedCategory,
                       isExpanded: true,
-                      dropdownColor: isDark ? WanMapColors.cardDark : Colors.white,
+                      dropdownColor: isDark ? WanWalkColors.cardDark : Colors.white,
                       items: _categories.entries.map((entry) {
                         return DropdownMenuItem(
                           value: entry.key,
                           child: Text(
                             entry.value,
-                            style: WanMapTypography.body,
+                            style: WanWalkTypography.body,
                           ),
                         );
                       }).toList(),
@@ -205,27 +205,27 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // 件名
                 const Text(
                   '件名',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _subjectController,
                   decoration: InputDecoration(
                     hintText: '件名を入力してください',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.medium,
-                      vertical: WanMapSpacing.small,
+                      horizontal: WanWalkSpacing.medium,
+                      vertical: WanWalkSpacing.small,
                     ),
                   ),
                   validator: (value) {
@@ -238,25 +238,25 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // お問い合わせ内容
                 const Text(
                   'お問い合わせ内容',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _messageController,
                   decoration: InputDecoration(
                     hintText: 'お問い合わせ内容を詳しく入力してください',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.all(WanMapSpacing.medium),
+                    contentPadding: const EdgeInsets.all(WanWalkSpacing.medium),
                   ),
                   maxLines: 10,
                   maxLength: 1000,
@@ -270,16 +270,16 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // 送信ボタン
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submitContact,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: WanMapColors.accent,
+                    backgroundColor: WanWalkColors.accent,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      vertical: WanMapSpacing.medium,
+                      vertical: WanWalkSpacing.medium,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -296,7 +296,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                         )
                       : Text(
                           '送信する',
-                          style: WanMapTypography.heading3.copyWith(
+                          style: WanWalkTypography.heading3.copyWith(
                             color: Colors.white,
                           ),
                         ),

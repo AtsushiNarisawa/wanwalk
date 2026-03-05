@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../services/home_stats_service.dart';
 
 /// 最近の思い出写真カード
@@ -46,14 +46,14 @@ class RecentMemoryCard extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: isDark
-                          ? WanMapColors.cardDark
-                          : WanMapColors.cardLight,
+                          ? WanWalkColors.cardDark
+                          : WanWalkColors.cardLight,
                       child: Center(
                         child: Icon(
                           Icons.image_not_supported,
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                           size: 32,
                         ),
                       ),
@@ -80,23 +80,23 @@ class RecentMemoryCard extends StatelessWidget {
 
               // 情報
               Positioned(
-                bottom: WanMapSpacing.sm,
-                left: WanMapSpacing.sm,
-                right: WanMapSpacing.sm,
+                bottom: WanWalkSpacing.sm,
+                left: WanWalkSpacing.sm,
+                right: WanWalkSpacing.sm,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ルート名
                     Text(
                       memory.routeName,
-                      style: WanMapTypography.caption.copyWith(
+                      style: WanWalkTypography.caption.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: WanMapSpacing.xs),
+                    const SizedBox(height: WanWalkSpacing.xs),
 
                     // 日付
                     Row(
@@ -106,10 +106,10 @@ class RecentMemoryCard extends StatelessWidget {
                           size: 10,
                           color: Colors.white.withOpacity(0.8),
                         ),
-                        const SizedBox(width: WanMapSpacing.xs),
+                        const SizedBox(width: WanWalkSpacing.xs),
                         Text(
                           _formatDate(memory.walkedAt),
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: Colors.white.withOpacity(0.8),
                             fontSize: 10,
                           ),
@@ -123,11 +123,11 @@ class RecentMemoryCard extends StatelessWidget {
               // ピン数バッジ
               if (memory.pinCount > 0)
                 Positioned(
-                  top: WanMapSpacing.xs,
-                  right: WanMapSpacing.xs,
+                  top: WanWalkSpacing.xs,
+                  right: WanWalkSpacing.xs,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.xs,
+                      horizontal: WanWalkSpacing.xs,
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
@@ -145,7 +145,7 @@ class RecentMemoryCard extends StatelessWidget {
                         const SizedBox(width: 2),
                         Text(
                           '${memory.pinCount}',
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,

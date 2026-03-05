@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
-import '../config/wanmap_colors.dart';
-import '../config/wanmap_spacing.dart';
+import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_spacing.dart';
 
-/// WanMap 共通カードウィジェット
+/// WanWalk 共通カードウィジェット
 /// ルート表示用の大きなカード
 
-enum WanMapCardSize {
+enum WanWalkCardSize {
   small,
   medium,
   large,
 }
 
-class WanMapCard extends StatelessWidget {
+class WanWalkCard extends StatelessWidget {
   final Widget? child;
   final VoidCallback? onTap;
   final Color? backgroundColor;
-  final WanMapCardSize size;
+  final WanWalkCardSize size;
   final bool withShadow;
   final EdgeInsets? padding;
 
-  const WanMapCard({
+  const WanWalkCard({
     super.key,
     this.child,
     this.onTap,
     this.backgroundColor,
-    this.size = WanMapCardSize.medium,
+    this.size = WanWalkCardSize.medium,
     this.withShadow = true,
     this.padding,
   });
@@ -33,25 +33,25 @@ class WanMapCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final defaultBackgroundColor = isDark 
-        ? WanMapColors.surfaceDark 
-        : WanMapColors.surfaceLight;
+        ? WanWalkColors.surfaceDark 
+        : WanWalkColors.surfaceLight;
 
     // サイズに応じた角丸とパディング
     BorderRadius borderRadius;
     EdgeInsets defaultPadding;
 
     switch (size) {
-      case WanMapCardSize.small:
-        borderRadius = WanMapSpacing.borderRadiusMD;
-        defaultPadding = const EdgeInsets.all(WanMapSpacing.md);
+      case WanWalkCardSize.small:
+        borderRadius = WanWalkSpacing.borderRadiusMD;
+        defaultPadding = const EdgeInsets.all(WanWalkSpacing.md);
         break;
-      case WanMapCardSize.medium:
-        borderRadius = WanMapSpacing.borderRadiusLG;
-        defaultPadding = const EdgeInsets.all(WanMapSpacing.lg);
+      case WanWalkCardSize.medium:
+        borderRadius = WanWalkSpacing.borderRadiusLG;
+        defaultPadding = const EdgeInsets.all(WanWalkSpacing.lg);
         break;
-      case WanMapCardSize.large:
-        borderRadius = WanMapSpacing.borderRadiusXL;
-        defaultPadding = const EdgeInsets.all(WanMapSpacing.xl);
+      case WanWalkCardSize.large:
+        borderRadius = WanWalkSpacing.borderRadiusXL;
+        defaultPadding = const EdgeInsets.all(WanWalkSpacing.xl);
         break;
     }
 
@@ -75,14 +75,14 @@ class WanMapCard extends StatelessWidget {
 }
 
 /// ヒーロー画像付きカード（ルート詳細用）
-class WanMapHeroCard extends StatelessWidget {
+class WanWalkHeroCard extends StatelessWidget {
   final String? imageUrl;
   final Widget child;
   final VoidCallback? onTap;
   final double imageHeight;
   final Widget? imageOverlay;
 
-  const WanMapHeroCard({
+  const WanWalkHeroCard({
     super.key,
     this.imageUrl,
     required this.child,
@@ -93,10 +93,10 @@ class WanMapHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WanMapCard(
+    return WanWalkCard(
       padding: EdgeInsets.zero,
       onTap: onTap,
-      size: WanMapCardSize.large,
+      size: WanWalkCardSize.large,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -104,7 +104,7 @@ class WanMapHeroCard extends StatelessWidget {
           if (imageUrl != null)
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(WanMapSpacing.radiusXL),
+                top: Radius.circular(WanWalkSpacing.radiusXL),
               ),
               child: Stack(
                 children: [
@@ -117,11 +117,11 @@ class WanMapHeroCard extends StatelessWidget {
                       return Container(
                         width: double.infinity,
                         height: imageHeight,
-                        color: WanMapColors.textTertiaryLight,
+                        color: WanWalkColors.textTertiaryLight,
                         child: const Icon(
                           Icons.image_not_supported,
                           size: 48,
-                          color: WanMapColors.textSecondaryLight,
+                          color: WanWalkColors.textSecondaryLight,
                         ),
                       );
                     },
@@ -133,7 +133,7 @@ class WanMapHeroCard extends StatelessWidget {
             ),
           // コンテンツ
           Padding(
-            padding: const EdgeInsets.all(WanMapSpacing.lg),
+            padding: const EdgeInsets.all(WanWalkSpacing.lg),
             child: child,
           ),
         ],
@@ -143,7 +143,7 @@ class WanMapHeroCard extends StatelessWidget {
 }
 
 /// 統計カード（数字を大きく表示）
-class WanMapStatCard extends StatelessWidget {
+class WanWalkStatCard extends StatelessWidget {
   final String value;
   final String unit;
   final String label;
@@ -151,7 +151,7 @@ class WanMapStatCard extends StatelessWidget {
   final Color? color;
   final VoidCallback? onTap;
 
-  const WanMapStatCard({
+  const WanWalkStatCard({
     super.key,
     required this.value,
     required this.unit,
@@ -165,15 +165,15 @@ class WanMapStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final secondaryTextColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
-    return WanMapCard(
+    return WanWalkCard(
       onTap: onTap,
-      size: WanMapCardSize.medium,
+      size: WanWalkCardSize.medium,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -181,18 +181,18 @@ class WanMapStatCard extends StatelessWidget {
           // アイコン
           if (icon != null)
             Container(
-              padding: const EdgeInsets.all(WanMapSpacing.sm),
+              padding: const EdgeInsets.all(WanWalkSpacing.sm),
               decoration: BoxDecoration(
-                color: (color ?? WanMapColors.accent).withOpacity(0.1),
-                borderRadius: WanMapSpacing.borderRadiusMD,
+                color: (color ?? WanWalkColors.accent).withOpacity(0.1),
+                borderRadius: WanWalkSpacing.borderRadiusMD,
               ),
               child: Icon(
                 icon,
                 size: 24,
-                color: color ?? WanMapColors.accent,
+                color: color ?? WanWalkColors.accent,
               ),
             ),
-          if (icon != null) const SizedBox(height: WanMapSpacing.md),
+          if (icon != null) const SizedBox(height: WanWalkSpacing.md),
           
           // 数値と単位
           Row(
@@ -209,7 +209,7 @@ class WanMapStatCard extends StatelessWidget {
                   letterSpacing: -1.5,
                 ),
               ),
-              const SizedBox(width: WanMapSpacing.xs),
+              const SizedBox(width: WanWalkSpacing.xs),
               Text(
                 unit,
                 style: TextStyle(
@@ -220,7 +220,7 @@ class WanMapStatCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: WanMapSpacing.xxs),
+          const SizedBox(height: WanWalkSpacing.xxs),
           
           // ラベル
           Text(

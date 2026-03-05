@@ -1,4 +1,4 @@
-# WanMap v1.0.0+10 リリースノート
+# WanWalk v1.0.0+10 リリースノート
 
 ## 📅 リリース日
 2025-01-16
@@ -39,7 +39,7 @@
 
 ### 🐛 バグ修正
 1. HomeTabの型エラー修正
-2. WanMapTypographyのメソッド名修正（h3 → titleLarge）
+2. WanWalkTypographyのメソッド名修正（h3 → titleLarge）
 3. メソッドのスコープ修正
 
 ## 🔧 技術的改善

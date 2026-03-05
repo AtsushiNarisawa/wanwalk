@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
 import '../../widgets/active_walk_banner.dart';
 import 'tabs/home_tab.dart';
 import 'tabs/map_tab.dart';
@@ -64,7 +64,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+      backgroundColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -90,8 +90,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 // タイトル
                 Text(
                   'お散歩を開始',
-                  style: WanMapTypography.headlineSmall.copyWith(
-                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                  style: WanWalkTypography.headlineSmall.copyWith(
+                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -100,8 +100,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 
                 Text(
                   '散歩のタイプを選択してください',
-                  style: WanMapTypography.bodyMedium.copyWith(
-                    color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                  style: WanWalkTypography.bodyMedium.copyWith(
+                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                   ),
                 ),
                 
@@ -114,7 +114,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   icon: Icons.pets,
                   title: '日常散歩',
                   description: '自由に歩く',
-                  color: WanMapColors.accent,
+                  color: WanWalkColors.accent,
                   isFilled: true,
                   onTap: () {
                     Navigator.pop(context);
@@ -137,7 +137,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   icon: Icons.luggage,
                   title: 'お出かけ散歩',
                   description: 'ルートを選んで歩く',
-                  color: WanMapColors.primary,
+                  color: WanWalkColors.primary,
                   isFilled: false,
                   onTap: () {
                     Navigator.pop(context);
@@ -197,7 +197,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       children: [
                         Text(
                           title,
-                          style: WanMapTypography.titleMedium.copyWith(
+                          style: WanWalkTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -205,7 +205,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         const SizedBox(height: 2),
                         Text(
                           description,
-                          style: WanMapTypography.bodySmall.copyWith(
+                          style: WanWalkTypography.bodySmall.copyWith(
                             color: Colors.white.withOpacity(0.9),
                           ),
                         ),
@@ -237,16 +237,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       children: [
                         Text(
                           title,
-                          style: WanMapTypography.titleMedium.copyWith(
+                          style: WanWalkTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           description,
-                          style: WanMapTypography.bodySmall.copyWith(
-                            color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                          style: WanWalkTypography.bodySmall.copyWith(
+                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                           ),
                         ),
                       ],
@@ -266,8 +266,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     return Scaffold(
       backgroundColor: isDark 
-          ? WanMapColors.backgroundDark 
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark 
+          : WanWalkColors.backgroundLight,
       // AppBarは各タブで個別に実装（タブごとに最適化）
       body: IndexedStack(
         index: _selectedIndex,
@@ -284,18 +284,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: WanMapColors.accent,
+        selectedItemColor: WanWalkColors.accent,
         unselectedItemColor: isDark ? Colors.grey[600] : Colors.grey[500],
         backgroundColor: isDark 
-            ? WanMapColors.cardDark 
+            ? WanWalkColors.cardDark 
             : Colors.white,
         elevation: 8,
         selectedFontSize: 12,
         unselectedFontSize: 12,
-        selectedLabelStyle: WanMapTypography.caption.copyWith(
+        selectedLabelStyle: WanWalkTypography.caption.copyWith(
           fontWeight: FontWeight.bold,
         ),
-        unselectedLabelStyle: WanMapTypography.caption,
+        unselectedLabelStyle: WanWalkTypography.caption,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined, size: 28),

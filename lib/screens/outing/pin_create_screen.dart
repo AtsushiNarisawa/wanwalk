@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/route_pin.dart';
 import '../../providers/route_pin_provider.dart';
 import '../../providers/recent_pins_provider.dart';
@@ -199,8 +199,8 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: const Text('ピンを投稿'),
         backgroundColor: Colors.transparent,
@@ -211,8 +211,8 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
               onPressed: _submitPin,
               child: Text(
                 '投稿',
-                style: WanMapTypography.bodyLarge.copyWith(
-                  color: WanMapColors.accent,
+                style: WanWalkTypography.bodyLarge.copyWith(
+                  color: WanWalkColors.accent,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -222,7 +222,7 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       body: _isSubmitting
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(WanMapSpacing.lg),
+              padding: const EdgeInsets.all(WanWalkSpacing.lg),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -231,27 +231,27 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
                     // ピン種類選択
                     _buildPinTypeSelector(isDark),
 
-                    const SizedBox(height: WanMapSpacing.xl),
+                    const SizedBox(height: WanWalkSpacing.xl),
 
                     // タイトル入力
                     _buildTitleField(isDark),
 
-                    const SizedBox(height: WanMapSpacing.lg),
+                    const SizedBox(height: WanWalkSpacing.lg),
 
                     // コメント入力
                     _buildCommentField(isDark),
 
-                    const SizedBox(height: WanMapSpacing.xl),
+                    const SizedBox(height: WanWalkSpacing.xl),
 
                     // 写真選択
                     _buildPhotoSection(isDark),
 
-                    const SizedBox(height: WanMapSpacing.xl),
+                    const SizedBox(height: WanWalkSpacing.xl),
 
                     // 位置情報表示
                     _buildLocationInfo(isDark),
 
-                    const SizedBox(height: WanMapSpacing.xxxl),
+                    const SizedBox(height: WanWalkSpacing.xxxl),
 
                     // 投稿ボタン
                     _buildSubmitButton(),
@@ -269,17 +269,17 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       children: [
         Text(
           'ピンの種類',
-          style: WanMapTypography.bodyLarge.copyWith(
+          style: WanWalkTypography.bodyLarge.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         Wrap(
-          spacing: WanMapSpacing.sm,
-          runSpacing: WanMapSpacing.sm,
+          spacing: WanWalkSpacing.sm,
+          runSpacing: WanWalkSpacing.sm,
           children: PinType.values.map((type) {
             final isSelected = _selectedType == type;
             return GestureDetector(
@@ -290,31 +290,31 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: WanMapSpacing.md,
-                  vertical: WanMapSpacing.sm,
+                  horizontal: WanWalkSpacing.md,
+                  vertical: WanWalkSpacing.sm,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? WanMapColors.accent
-                      : (isDark ? WanMapColors.cardDark : WanMapColors.cardLight),
+                      ? WanWalkColors.accent
+                      : (isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
-                        ? WanMapColors.accent
+                        ? WanWalkColors.accent
                         : (isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight),
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight),
                     width: 2,
                   ),
                 ),
                 child: Text(
                   type.label,
-                  style: WanMapTypography.bodyMedium.copyWith(
+                  style: WanWalkTypography.bodyMedium.copyWith(
                     color: isSelected
                         ? Colors.white
                         : (isDark
-                            ? WanMapColors.textPrimaryDark
-                            : WanMapColors.textPrimaryLight),
+                            ? WanWalkColors.textPrimaryDark
+                            : WanWalkColors.textPrimaryLight),
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
@@ -334,16 +334,16 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
         labelText: 'タイトル',
         hintText: '例：絶景の富士山ビュー',
         filled: true,
-        fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
       ),
-      style: WanMapTypography.bodyLarge.copyWith(
+      style: WanWalkTypography.bodyLarge.copyWith(
         color: isDark
-            ? WanMapColors.textPrimaryDark
-            : WanMapColors.textPrimaryLight,
+            ? WanWalkColors.textPrimaryDark
+            : WanWalkColors.textPrimaryLight,
       ),
       maxLength: 50,
       validator: (value) {
@@ -363,16 +363,16 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
         labelText: 'コメント',
         hintText: 'この場所について教えてください',
         filled: true,
-        fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
       ),
-      style: WanMapTypography.bodyMedium.copyWith(
+      style: WanWalkTypography.bodyMedium.copyWith(
         color: isDark
-            ? WanMapColors.textPrimaryDark
-            : WanMapColors.textPrimaryLight,
+            ? WanWalkColors.textPrimaryDark
+            : WanWalkColors.textPrimaryLight,
       ),
       maxLines: 5,
       maxLength: 500,
@@ -395,14 +395,14 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
           children: [
             Text(
               '写真（最大5枚）',
-              style: WanMapTypography.bodyLarge.copyWith(
+              style: WanWalkTypography.bodyLarge.copyWith(
                 color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
+                    ? WanWalkColors.textPrimaryDark
+                    : WanWalkColors.textPrimaryLight,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Row(
               children: [
                 Expanded(
@@ -414,13 +414,13 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       side: BorderSide(
                         color: _selectedImages.length < 5 
-                            ? WanMapColors.accent 
+                            ? WanWalkColors.accent 
                             : Colors.grey,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.sm),
+                const SizedBox(width: WanWalkSpacing.sm),
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _selectedImages.length < 5 ? _pickImages : null,
@@ -430,7 +430,7 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       side: BorderSide(
                         color: _selectedImages.length < 5 
-                            ? WanMapColors.accent 
+                            ? WanWalkColors.accent 
                             : Colors.grey,
                       ),
                     ),
@@ -440,17 +440,17 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
             ),
           ],
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         if (_selectedImages.isEmpty)
           Container(
             height: 120,
             decoration: BoxDecoration(
-              color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+              color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
                 style: BorderStyle.solid,
               ),
             ),
@@ -462,16 +462,16 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
                     Icons.add_photo_alternate_outlined,
                     size: 48,
                     color: isDark
-                        ? WanMapColors.textSecondaryDark
-                        : WanMapColors.textSecondaryLight,
+                        ? WanWalkColors.textSecondaryDark
+                        : WanWalkColors.textSecondaryLight,
                   ),
-                  const SizedBox(height: WanMapSpacing.sm),
+                  const SizedBox(height: WanWalkSpacing.sm),
                   Text(
                     '写真を追加',
-                    style: WanMapTypography.bodyMedium.copyWith(
+                    style: WanWalkTypography.bodyMedium.copyWith(
                       color: isDark
-                          ? WanMapColors.textSecondaryDark
-                          : WanMapColors.textSecondaryLight,
+                          ? WanWalkColors.textSecondaryDark
+                          : WanWalkColors.textSecondaryLight,
                     ),
                   ),
                 ],
@@ -488,7 +488,7 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
                 return Padding(
                   padding: EdgeInsets.only(
                     right: index < _selectedImages.length - 1
-                        ? WanMapSpacing.sm
+                        ? WanWalkSpacing.sm
                         : 0,
                   ),
                   child: Stack(
@@ -534,38 +534,38 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
   /// 位置情報表示
   Widget _buildLocationInfo(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           const Icon(
             Icons.location_on,
-            color: WanMapColors.accent,
+            color: WanWalkColors.accent,
             size: 24,
           ),
-          const SizedBox(width: WanMapSpacing.sm),
+          const SizedBox(width: WanWalkSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '投稿位置',
-                  style: WanMapTypography.caption.copyWith(
+                  style: WanWalkTypography.caption.copyWith(
                     color: isDark
-                        ? WanMapColors.textSecondaryDark
-                        : WanMapColors.textSecondaryLight,
+                        ? WanWalkColors.textSecondaryDark
+                        : WanWalkColors.textSecondaryLight,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '緯度: ${widget.location.latitude.toStringAsFixed(6)}\n経度: ${widget.location.longitude.toStringAsFixed(6)}',
-                  style: WanMapTypography.bodySmall.copyWith(
+                  style: WanWalkTypography.bodySmall.copyWith(
                     color: isDark
-                        ? WanMapColors.textPrimaryDark
-                        : WanMapColors.textPrimaryLight,
+                        ? WanWalkColors.textPrimaryDark
+                        : WanWalkColors.textPrimaryLight,
                   ),
                 ),
               ],
@@ -584,22 +584,22 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       child: ElevatedButton(
         onPressed: _isSubmitting ? null : _submitPin,
         style: ElevatedButton.styleFrom(
-          backgroundColor: WanMapColors.accent,
+          backgroundColor: WanWalkColors.accent,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           elevation: 8,
-          shadowColor: WanMapColors.accent.withOpacity(0.4),
+          shadowColor: WanWalkColors.accent.withOpacity(0.4),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.send, size: 24),
-            const SizedBox(width: WanMapSpacing.sm),
+            const SizedBox(width: WanWalkSpacing.sm),
             Text(
               'ピンを投稿',
-              style: WanMapTypography.bodyLarge.copyWith(
+              style: WanWalkTypography.bodyLarge.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),

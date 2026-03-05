@@ -8,7 +8,7 @@ import json
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
-load_dotenv('/home/user/wanmap_v2/.env')
+load_dotenv('/home/user/wanwalk/.env')
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
@@ -16,7 +16,7 @@ SUPABASE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ルートIDマッピングを読み込み
-with open('/home/user/wanmap_v2/scripts/hakone_route_ids.json', 'r', encoding='utf-8') as f:
+with open('/home/user/wanwalk/scripts/hakone_route_ids.json', 'r', encoding='utf-8') as f:
     route_ids = json.load(f)
 
 # テストユーザーID（プロジェクトドキュメントに記載）

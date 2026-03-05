@@ -1,6 +1,6 @@
-# WanMap Supabase データベースセットアップ手順
+# WanWalk Supabase データベースセットアップ手順
 
-このディレクトリには、WanMapアプリで使用するSupabaseデータベースのスキーマファイルが含まれています。
+このディレクトリには、WanWalkアプリで使用するSupabaseデータベースのスキーマファイルが含まれています。
 
 ## 📋 ファイル一覧
 
@@ -21,7 +21,7 @@
 
 1. Supabaseダッシュボードにアクセス
    - https://supabase.com/dashboard にログイン
-   - WanMapプロジェクトを選択
+   - WanWalkプロジェクトを選択
 
 2. SQL Editorを開く
    - 左サイドバーから「SQL Editor」をクリック
@@ -42,7 +42,7 @@
    - 「Success. No rows returned」と表示されればOK
    - NOTICEメッセージが表示されます：
      ```
-     WanMap データベーススキーマ適用完了
+     WanWalk データベーススキーマ適用完了
      テーブル作成: profiles, dogs, routes, route_points, favorites, route_photos, comments, follows, likes
      RLSポリシー: すべて設定済み
      インデックス: すべて作成済み
@@ -193,7 +193,7 @@ ALTER TABLE public.likes ENABLE ROW LEVEL SECURITY;
 
 1. Flutterアプリをビルド
    ```bash
-   cd wanmap_v2
+   cd wanwalk
    flutter pub get
    flutter run
    ```

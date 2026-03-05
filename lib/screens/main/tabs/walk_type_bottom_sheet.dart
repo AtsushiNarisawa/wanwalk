@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../config/wanmap_colors.dart';
-import '../../../config/wanmap_spacing.dart';
-import '../../../config/wanmap_typography.dart';
+import '../../../config/wanwalk_colors.dart';
+import '../../../config/wanwalk_spacing.dart';
+import '../../../config/wanwalk_typography.dart';
 
 /// 散歩タイプ選択ボトムシート
 /// 
@@ -31,11 +31,11 @@ class WalkTypeBottomSheet extends StatelessWidget {
           maxHeight: MediaQuery.of(context).size.height * 0.6,
         ),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+          color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(WanMapSpacing.lg),
+          padding: const EdgeInsets.all(WanWalkSpacing.lg),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -48,44 +48,44 @@ class WalkTypeBottomSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(height: WanMapSpacing.lg),
+          const SizedBox(height: WanWalkSpacing.lg),
 
           // タイトル
           Text(
             '散歩を始める',
-            style: WanMapTypography.headlineMedium.copyWith(
-              color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+            style: WanWalkTypography.headlineMedium.copyWith(
+              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: WanWalkSpacing.xs),
           Text(
             '散歩のタイプを選択してください',
-            style: WanMapTypography.bodyMedium.copyWith(
-              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.lg),
+          const SizedBox(height: WanWalkSpacing.lg),
 
           // お出かけ散歩
           _WalkTypeCard(
             icon: Icons.route,
             title: 'お出かけ散歩',
             description: '公式ルートを歩く',
-            color: WanMapColors.accent,
+            color: WanWalkColors.accent,
             onTap: () => Navigator.pop(context, 'outing'),
           ),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
 
           // 日常散歩
           _WalkTypeCard(
             icon: Icons.pets,
             title: '日常散歩',
             description: '自由に歩く',
-            color: WanMapColors.primary,
+            color: WanWalkColors.primary,
             onTap: () => Navigator.pop(context, 'daily'),
           ),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
 
           // ピン投稿のみ
           _WalkTypeCard(
@@ -95,19 +95,19 @@ class WalkTypeBottomSheet extends StatelessWidget {
             color: Colors.orange,
             onTap: () => Navigator.pop(context, 'pin_only'),
           ),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
 
           // キャンセルボタン
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'キャンセル',
-              style: WanMapTypography.bodyMedium.copyWith(
-                color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+              style: WanWalkTypography.bodyMedium.copyWith(
+                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
               ),
             ),
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
             ],
           ),
         ),
@@ -140,7 +140,7 @@ class _WalkTypeCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
+        padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[850] : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -153,7 +153,7 @@ class _WalkTypeCard extends StatelessWidget {
           children: [
             // アイコン
             Container(
-              padding: const EdgeInsets.all(WanMapSpacing.sm),
+              padding: const EdgeInsets.all(WanWalkSpacing.sm),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -164,7 +164,7 @@ class _WalkTypeCard extends StatelessWidget {
                 size: 28,
               ),
             ),
-            const SizedBox(width: WanMapSpacing.md),
+            const SizedBox(width: WanWalkSpacing.md),
 
             // テキスト
             Expanded(
@@ -173,16 +173,16 @@ class _WalkTypeCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: WanMapTypography.titleMedium.copyWith(
-                      color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    style: WanWalkTypography.titleMedium.copyWith(
+                      color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     description,
-                    style: WanMapTypography.bodySmall.copyWith(
-                      color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                    style: WanWalkTypography.bodySmall.copyWith(
+                      color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                     ),
                   ),
                 ],

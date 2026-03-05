@@ -201,7 +201,7 @@ ORDER BY title;
 SQLを実行した後：
 
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 git pull origin main
 flutter run
 ```

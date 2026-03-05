@@ -209,4 +209,4 @@ INSERT INTO official_routes (
 
 ---
 
-**このファイルの場所**: `/home/user/webapp/wanmap_v2/DEBUG_ROUTES_DATA.md`
+**このファイルの場所**: `/home/user/webapp/wanwalk/DEBUG_ROUTES_DATA.md`

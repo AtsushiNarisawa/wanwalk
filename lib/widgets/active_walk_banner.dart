@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../config/wanmap_colors.dart';
-import '../config/wanmap_spacing.dart';
-import '../config/wanmap_typography.dart';
+import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_spacing.dart';
+import '../config/wanwalk_typography.dart';
 import '../providers/gps_provider_riverpod.dart';
 import '../models/walk_mode.dart';
 import '../screens/daily/daily_walking_screen.dart';
@@ -29,19 +29,19 @@ class ActiveWalkBanner extends ConsumerWidget {
 
     return Material(
       elevation: 8,
-      color: WanMapColors.primary,
+      color: WanWalkColors.primary,
       child: InkWell(
         onTap: () => _navigateToWalkingScreen(context, gpsState),
         child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: WanMapSpacing.md,
-            vertical: WanMapSpacing.sm,
+            horizontal: WanWalkSpacing.md,
+            vertical: WanWalkSpacing.sm,
           ),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                WanMapColors.primary,
-                WanMapColors.primary.withOpacity(0.8),
+                WanWalkColors.primary,
+                WanWalkColors.primary.withOpacity(0.8),
               ],
             ),
           ),
@@ -66,7 +66,7 @@ class ActiveWalkBanner extends ConsumerWidget {
                     );
                   },
                 ),
-                const SizedBox(width: WanMapSpacing.sm),
+                const SizedBox(width: WanWalkSpacing.sm),
                 // 散歩情報
                 Expanded(
                   child: Column(
@@ -77,7 +77,7 @@ class ActiveWalkBanner extends ConsumerWidget {
                         gpsState.isPaused 
                             ? '散歩を一時停止中'
                             : '散歩を記録中',
-                        style: WanMapTypography.labelMedium.copyWith(
+                        style: WanWalkTypography.labelMedium.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -87,37 +87,37 @@ class ActiveWalkBanner extends ConsumerWidget {
                         children: [
                           Text(
                             gpsState.formattedDistance,
-                            style: WanMapTypography.bodySmall.copyWith(
+                            style: WanWalkTypography.bodySmall.copyWith(
                               color: Colors.white.withOpacity(0.9),
                             ),
                           ),
-                          const SizedBox(width: WanMapSpacing.sm),
+                          const SizedBox(width: WanWalkSpacing.sm),
                           Text(
                             '•',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.9),
                             ),
                           ),
-                          const SizedBox(width: WanMapSpacing.sm),
+                          const SizedBox(width: WanWalkSpacing.sm),
                           Text(
                             gpsState.formattedDuration,
-                            style: WanMapTypography.bodySmall.copyWith(
+                            style: WanWalkTypography.bodySmall.copyWith(
                               color: Colors.white.withOpacity(0.9),
                             ),
                           ),
-                          const SizedBox(width: WanMapSpacing.sm),
+                          const SizedBox(width: WanWalkSpacing.sm),
                           Text(
                             '•',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.9),
                             ),
                           ),
-                          const SizedBox(width: WanMapSpacing.sm),
+                          const SizedBox(width: WanWalkSpacing.sm),
                           Text(
                             gpsState.walkMode == WalkMode.daily
                                 ? '日常散歩'
                                 : 'おでかけ散歩',
-                            style: WanMapTypography.bodySmall.copyWith(
+                            style: WanWalkTypography.bodySmall.copyWith(
                               color: Colors.white.withOpacity(0.9),
                             ),
                           ),
@@ -156,7 +156,7 @@ class ActiveWalkBanner extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('おでかけ散歩中です。マップタブから確認してください。'),
-          backgroundColor: WanMapColors.accent,
+          backgroundColor: WanWalkColors.accent,
           duration: const Duration(seconds: 2),
         ),
       );

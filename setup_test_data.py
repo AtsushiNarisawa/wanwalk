@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WanMap テストデータ自動セットアップスクリプト
+WanWalk テストデータ自動セットアップスクリプト
 
 このスクリプトは以下を自動で実行します:
 1. Supabaseにテストユーザーを作成
@@ -355,7 +355,7 @@ def insert_test_data(user_ids):
 def main():
     """メイン処理"""
     print("\n" + "="*60)
-    print("🐕 WanMap テストデータ自動セットアップ")
+    print("🐕 WanWalk テストデータ自動セットアップ")
     print("="*60)
     
     try:

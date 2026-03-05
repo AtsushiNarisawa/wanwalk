@@ -113,8 +113,8 @@ DO $$
 DECLARE
   target_emails TEXT[] := ARRAY[
     'romeo007002003@gmail.com',
-    'test2@wanmap.com',
-    'test3@wanmap.com',
+    'test2@wanwalk.com',
+    'test3@wanwalk.com',
     'c***m@example.com'
   ];
   target_email TEXT;

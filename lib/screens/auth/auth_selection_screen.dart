@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../config/wanmap_colors.dart';
+import '../../config/wanwalk_colors.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 
@@ -11,7 +11,7 @@ class AuthSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: WanMapColors.backgroundLight,
+      backgroundColor: WanWalkColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -38,7 +38,7 @@ class AuthSelectionScreen extends StatelessWidget {
                         width: 120,
                         height: 120,
                         decoration: BoxDecoration(
-                          color: WanMapColors.primary,
+                          color: WanWalkColors.primary,
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: [
                             BoxShadow(
@@ -63,7 +63,7 @@ class AuthSelectionScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
-                          color: WanMapColors.primary,
+                          color: WanWalkColors.primary,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -89,7 +89,7 @@ class AuthSelectionScreen extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: WanMapColors.primary,
+                            backgroundColor: WanWalkColors.primary,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -119,9 +119,9 @@ class AuthSelectionScreen extends StatelessWidget {
                             );
                           },
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: WanMapColors.primary,
+                            foregroundColor: WanWalkColors.primary,
                             side: const BorderSide(
-                              color: WanMapColors.primary,
+                              color: WanWalkColors.primary,
                               width: 2,
                             ),
                             shape: RoundedRectangleBorder(

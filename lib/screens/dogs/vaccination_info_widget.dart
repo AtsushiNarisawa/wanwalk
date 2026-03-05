@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/dog_model.dart';
 import '../../services/dog_service.dart';
 import '../../providers/dog_provider.dart';
@@ -188,7 +188,7 @@ class _VaccinationInfoWidgetState extends ConsumerState<VaccinationInfoWidget> {
           isDark: isDark,
         ),
         
-        const SizedBox(height: WanMapSpacing.lg),
+        const SizedBox(height: WanWalkSpacing.lg),
         
         // 混合ワクチン
         _buildVaccinationCard(
@@ -214,11 +214,11 @@ class _VaccinationInfoWidgetState extends ConsumerState<VaccinationInfoWidget> {
       children: [
         Text(
           title,
-          style: WanMapTypography.titleMedium.copyWith(
+          style: WanWalkTypography.titleMedium.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         
         // 接種証明書の画像と編集ボタン
         Stack(
@@ -292,7 +292,7 @@ class _VaccinationInfoWidgetState extends ConsumerState<VaccinationInfoWidget> {
           ],
         ),
         
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         
         // 接種日（1行）
         Row(
@@ -302,10 +302,10 @@ class _VaccinationInfoWidgetState extends ConsumerState<VaccinationInfoWidget> {
                 size: 18,
                 color: isDark ? Colors.white70 : Colors.black54,
               ),
-              const SizedBox(width: WanMapSpacing.xs),
+              const SizedBox(width: WanWalkSpacing.xs),
               Text(
                 '接種日: ',
-                style: WanMapTypography.bodyMedium.copyWith(
+                style: WanWalkTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
                   color: isDark ? Colors.white70 : Colors.black54,
                 ),
@@ -315,7 +315,7 @@ class _VaccinationInfoWidgetState extends ConsumerState<VaccinationInfoWidget> {
                   date != null 
                       ? DateFormat('yyyy年MM月dd日').format(date)
                       : '未設定',
-                  style: WanMapTypography.bodyMedium.copyWith(
+                  style: WanWalkTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -329,7 +329,7 @@ class _VaccinationInfoWidgetState extends ConsumerState<VaccinationInfoWidget> {
                   child: Icon(
                     Icons.edit,
                     size: 18,
-                    color: WanMapColors.primary,
+                    color: WanWalkColors.primary,
                   ),
                 ),
               ),

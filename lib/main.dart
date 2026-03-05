@@ -4,8 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'config/supabase_config.dart';
-import 'config/wanmap_theme.dart';
-import 'config/wanmap_colors.dart';
+import 'config/wanwalk_theme.dart';
+import 'config/wanwalk_colors.dart';
 import 'config/env.dart';
 import 'screens/main/main_screen.dart';
 
@@ -76,8 +76,8 @@ class WanWalkApp extends StatelessWidget {
     return MaterialApp(
       title: 'WanWalk',
       debugShowCheckedModeBanner: false,
-      theme: WanMapTheme.lightTheme,
-      darkTheme: WanMapTheme.darkTheme,
+      theme: WanWalkTheme.lightTheme,
+      darkTheme: WanWalkTheme.darkTheme,
       themeMode: ThemeMode.system, // システム設定に従う
       home: const SplashScreen(),
     );
@@ -145,7 +145,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: WanMapColors.primaryGradient,
+          gradient: WanWalkColors.primaryGradient,
         ),
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -171,7 +171,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   child: const Icon(
                     Icons.pets,
                     size: 70,
-                    color: WanMapColors.accent,
+                    color: WanWalkColors.accent,
                   ),
                 ),
                 const SizedBox(height: 30),

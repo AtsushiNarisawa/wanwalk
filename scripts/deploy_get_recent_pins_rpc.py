@@ -85,5 +85,5 @@ def execute_sql_migration(sql_file_path):
     return True
 
 if __name__ == '__main__':
-    sql_file = '/home/user/wanmap_v2/supabase_migrations/008_add_get_recent_pins.sql'
+    sql_file = '/home/user/wanwalk/supabase_migrations/008_add_get_recent_pins.sql'
     execute_sql_migration(sql_file)

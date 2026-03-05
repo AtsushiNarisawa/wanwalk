@@ -122,7 +122,7 @@ class LocalNotificationService {
 
     try {
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'wanmap_channel',
+        'wanwalk_channel',
         'WanWalk通知',
         channelDescription: 'WanWalkからの通知',
         importance: Importance.high,
@@ -189,7 +189,7 @@ class LocalNotificationService {
       }
 
       const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'wanmap_daily_channel',
+        'wanwalk_daily_channel',
         'WanWalk毎日の通知',
         channelDescription: '毎日のお散歩リマインダー',
         importance: Importance.high,

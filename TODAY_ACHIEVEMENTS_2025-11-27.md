@@ -1,5 +1,5 @@
 # Today's Achievements - 2025-11-27
-**Project**: WanMap v2
+**Project**: WanWalk v2
 **Developer**: Atsushi Narisawa
 **Assistant**: Claude AI
 
@@ -60,7 +60,7 @@
    - `*_SUMMARY.md`, `AUTO_*.md`, `DEBUG_*.md`
 
 4. **Backup Directories** (3 directories)
-   - `/home/user/webapp/wanmap_v2_backup_before_provider_migration_20251121_080200`
+   - `/home/user/webapp/wanwalk_backup_before_provider_migration_20251121_080200`
 
 #### Kept Essential Docs (5 files)
 - `README.md`
@@ -379,7 +379,7 @@ The project is now in a much cleaner, more maintainable state with comprehensive
 
 ---
 
-**GitHub Repository**: https://github.com/AtsushiNarisawa/wanmap_v2
+**GitHub Repository**: https://github.com/AtsushiNarisawa/wanwalk
 **Latest Commit**: 93bfdba (Emergency fix: Restore get_areas_simple RPC function)
 **Status**: ✅ All critical issues resolved
 

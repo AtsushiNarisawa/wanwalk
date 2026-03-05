@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_spacing.dart';
-import '../../config/wanmap_typography.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_spacing.dart';
+import '../../config/wanwalk_typography.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../widgets/zoom_control_widget.dart';
 import '../outing/pin_create_screen.dart';
@@ -84,7 +84,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+      backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: Text(widget.routeName != null ? '${widget.routeName}にピンを投稿' : 'ピンを投稿'),
         backgroundColor: Colors.transparent,
@@ -143,9 +143,9 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
             left: 16,
             right: 16,
             child: Container(
-              padding: const EdgeInsets.all(WanMapSpacing.md),
+              padding: const EdgeInsets.all(WanWalkSpacing.md),
               decoration: BoxDecoration(
-                color: isDark ? WanMapColors.cardDark : Colors.white,
+                color: isDark ? WanWalkColors.cardDark : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -159,15 +159,15 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
                 children: [
                   Icon(
                     Icons.info_outline,
-                    color: WanMapColors.primary,
+                    color: WanWalkColors.primary,
                     size: 20,
                   ),
-                  const SizedBox(width: WanMapSpacing.sm),
+                  const SizedBox(width: WanWalkSpacing.sm),
                   Expanded(
                     child: Text(
                       'マップを動かして投稿する場所を選択してください',
-                      style: WanMapTypography.bodySmall.copyWith(
-                        color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                      style: WanWalkTypography.bodySmall.copyWith(
+                        color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       ),
                     ),
                   ),
@@ -178,7 +178,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
 
           // 右下: 現在地ボタン + ズームコントロール
           Positioned(
-            right: WanMapSpacing.md,
+            right: WanWalkSpacing.md,
             bottom: 90, // ボタンの上
             child: Column(
               children: [
@@ -186,14 +186,14 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
                 FloatingActionButton(
                   heroTag: 'pin_location_current_location',
                   mini: true,
-                  backgroundColor: WanMapColors.accent,
+                  backgroundColor: WanWalkColors.accent,
                   foregroundColor: Colors.white,
                   onPressed: _moveToCurrentLocation,
                   tooltip: '現在地に移動',
                   elevation: 6,
                   child: const Icon(Icons.my_location, size: 20),
                 ),
-                const SizedBox(height: WanMapSpacing.sm),
+                const SizedBox(height: WanWalkSpacing.sm),
                 // ズームコントロール
                 ZoomControlWidget(
                   mapController: _mapController,
@@ -223,7 +223,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: WanMapColors.accent,
+                backgroundColor: WanWalkColors.accent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -235,10 +235,10 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.check_circle, size: 24),
-                  const SizedBox(width: WanMapSpacing.sm),
+                  const SizedBox(width: WanWalkSpacing.sm),
                   Text(
                     'ここに投稿',
-                    style: WanMapTypography.titleMedium.copyWith(
+                    style: WanWalkTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),

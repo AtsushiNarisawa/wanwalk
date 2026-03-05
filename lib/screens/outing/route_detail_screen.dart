@@ -4,9 +4,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:ui' as ui;
 import 'package:url_launcher/url_launcher.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/official_route_provider.dart';
 import '../../providers/route_pin_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
@@ -58,8 +58,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: const Text('ルート詳細'),
         backgroundColor: Colors.transparent,
@@ -82,51 +82,51 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 // 地図セクション
                 _buildMapSection(route, pinsAsync, isDark),
                 Padding(
-                  padding: const EdgeInsets.all(WanMapSpacing.lg),
+                  padding: const EdgeInsets.all(WanWalkSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                   // ルート名
                   Text(
                     route.name,
-                    style: WanMapTypography.headlineMedium.copyWith(
+                    style: WanWalkTypography.headlineMedium.copyWith(
                       color: isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
+                          ? WanWalkColors.textPrimaryDark
+                          : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  const SizedBox(height: WanMapSpacing.xl),
+                  const SizedBox(height: WanWalkSpacing.xl),
 
                   // 統計情報
                   _buildStats(route, isDark),
 
-                  const SizedBox(height: WanMapSpacing.xl),
+                  const SizedBox(height: WanWalkSpacing.xl),
 
                   // 説明
                   _buildDescription(route, isDark),
 
-                  const SizedBox(height: WanMapSpacing.xl),
+                  const SizedBox(height: WanWalkSpacing.xl),
 
                   // ギャラリーセクション（ルートの写真）
                   if (route.galleryImages != null && route.galleryImages!.isNotEmpty) ...[
                     _buildGallerySection(route, isDark),
-                    const SizedBox(height: WanMapSpacing.xl),
+                    const SizedBox(height: WanWalkSpacing.xl),
                   ],
 
                   // ルートタイムライン（スポット情報）
                   _buildRouteTimelineSection(route.id, isDark),
 
-                  const SizedBox(height: WanMapSpacing.xl),
+                  const SizedBox(height: WanWalkSpacing.xl),
 
                   // 愛犬家向け情報
                   if (route.petInfo != null && route.petInfo!.hasAnyInfo) ...[
                     _buildPetInfoSection(route.petInfo!, isDark),
-                    const SizedBox(height: WanMapSpacing.xl),
+                    const SizedBox(height: WanWalkSpacing.xl),
                   ],
 
-                  const SizedBox(height: WanMapSpacing.xl),
+                  const SizedBox(height: WanWalkSpacing.xl),
 
                   // ピンセクション
                   _buildPinsSection(context, ref, pinsAsync, isDark),
@@ -198,7 +198,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     
     return Container(
       height: 300,
-      color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+      color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
       child: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
@@ -289,7 +289,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                   height: 40,
                   child: Icon(
                     Icons.location_on,
-                    color: WanMapColors.accent,
+                    color: WanWalkColors.accent,
                     size: 40,
                     shadows: [
                       Shadow(
@@ -531,19 +531,19 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       children: [
         Text(
           'ルートについて',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(WanMapSpacing.md),
+          padding: const EdgeInsets.all(WanWalkSpacing.md),
           decoration: BoxDecoration(
-            color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -551,13 +551,13 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             children: [
               Text(
                 route.description,
-                style: WanMapTypography.bodyMedium.copyWith(
+                style: WanWalkTypography.bodyMedium.copyWith(
                   color: isDark
-                      ? WanMapColors.textPrimaryDark
-                      : WanMapColors.textPrimaryLight,
+                      ? WanWalkColors.textPrimaryDark
+                      : WanWalkColors.textPrimaryLight,
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
               _DifficultyBadge(
                 level: route.difficultyLevel,
                 isDark: isDark,
@@ -576,7 +576,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     final isRecording = gpsState.isRecording;
     
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+      margin: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
       width: double.infinity,
       height: 56,
       child: FloatingActionButton.extended(
@@ -595,8 +595,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           }
         },
         backgroundColor: isRecording 
-            ? WanMapColors.secondary  // 散歩中は異なる色
-            : WanMapColors.accent,
+            ? WanWalkColors.secondary  // 散歩中は異なる色
+            : WanWalkColors.accent,
         elevation: 8,
         icon: Icon(
           isRecording ? Icons.my_location : Icons.directions_walk, 
@@ -605,7 +605,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         ),
         label: Text(
           isRecording ? '進行中の散歩に戻る' : 'このルートを歩く',
-          style: WanMapTypography.bodyLarge.copyWith(
+          style: WanWalkTypography.bodyLarge.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -629,7 +629,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('別のルートを散歩中です。画面下部のバナーから確認してください。'),
-          backgroundColor: WanMapColors.secondary,
+          backgroundColor: WanWalkColors.secondary,
           duration: const Duration(seconds: 3),
         ),
       );
@@ -651,19 +651,19 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           children: [
             Text(
               'ルートタイムライン',
-              style: WanMapTypography.headlineSmall.copyWith(
+              style: WanWalkTypography.headlineSmall.copyWith(
                 color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
+                    ? WanWalkColors.textPrimaryDark
+                    : WanWalkColors.textPrimaryLight,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(WanMapSpacing.lg),
+              padding: const EdgeInsets.all(WanWalkSpacing.lg),
               decoration: BoxDecoration(
-                color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -682,7 +682,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       },
       loading: () => const Center(
         child: Padding(
-          padding: EdgeInsets.all(WanMapSpacing.lg),
+          padding: EdgeInsets.all(WanWalkSpacing.lg),
           child: CircularProgressIndicator(),
         ),
       ),
@@ -710,11 +710,11 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
               ),
           ],
         ),
-        const SizedBox(width: WanMapSpacing.md),
+        const SizedBox(width: WanWalkSpacing.md),
         // スポット情報
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+            padding: const EdgeInsets.only(bottom: WanWalkSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -724,11 +724,11 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                     Expanded(
                       child: Text(
                         spot.name,
-                        style: WanMapTypography.bodyLarge.copyWith(
+                        style: WanWalkTypography.bodyLarge.copyWith(
                           fontWeight: FontWeight.bold,
                           color: isDark
-                              ? WanMapColors.textPrimaryDark
-                              : WanMapColors.textPrimaryLight,
+                              ? WanWalkColors.textPrimaryDark
+                              : WanWalkColors.textPrimaryLight,
                         ),
                       ),
                     ),
@@ -739,13 +739,13 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: WanMapColors.accent.withOpacity(0.2),
+                          color: WanWalkColors.accent.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           '立ち寄り任意',
-                          style: WanMapTypography.caption.copyWith(
-                            color: WanMapColors.accent,
+                          style: WanWalkTypography.caption.copyWith(
+                            color: WanWalkColors.accent,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -756,10 +756,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 // 距離と時間
                 Text(
                   'スタートから ${spot.formattedDistance} • ${spot.formattedTime}',
-                  style: WanMapTypography.bodySmall.copyWith(
+                  style: WanWalkTypography.bodySmall.copyWith(
                     color: isDark
-                        ? WanMapColors.textSecondaryDark
-                        : WanMapColors.textSecondaryLight,
+                        ? WanWalkColors.textSecondaryDark
+                        : WanWalkColors.textSecondaryLight,
                   ),
                 ),
                 // 説明（基本情報のみ）
@@ -767,10 +767,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                   const SizedBox(height: 8),
                   Text(
                     spot.description!,
-                    style: WanMapTypography.bodyMedium.copyWith(
+                    style: WanWalkTypography.bodyMedium.copyWith(
                       color: isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
+                          ? WanWalkColors.textPrimaryDark
+                          : WanWalkColors.textPrimaryLight,
                     ),
                   ),
                 ],
@@ -795,7 +795,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                         ),
                         child: Text(
                           activity,
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: Colors.blue,
                           ),
                         ),
@@ -819,7 +819,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                         const SizedBox(width: 4),
                         Text(
                           '詳細情報を見る',
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: Colors.blue,
                             decoration: TextDecoration.underline,
                             fontWeight: FontWeight.bold,
@@ -1119,19 +1119,19 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       children: [
         Text(
           '愛犬家向け情報',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(WanMapSpacing.lg),
+          padding: const EdgeInsets.all(WanWalkSpacing.lg),
           decoration: BoxDecoration(
-            color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -1145,7 +1145,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                   value: petInfo.parking!,
                   isDark: isDark,
                 ),
-                const SizedBox(height: WanMapSpacing.md),
+                const SizedBox(height: WanWalkSpacing.md),
               ],
               // 道の状態
               if (petInfo.surface != null) ...[
@@ -1155,7 +1155,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                   value: petInfo.surface!,
                   isDark: isDark,
                 ),
-                const SizedBox(height: WanMapSpacing.md),
+                const SizedBox(height: WanWalkSpacing.md),
               ],
               // 水飲み場
               if (petInfo.waterStation != null) ...[
@@ -1165,7 +1165,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                   value: petInfo.waterStation!,
                   isDark: isDark,
                 ),
-                const SizedBox(height: WanMapSpacing.md),
+                const SizedBox(height: WanWalkSpacing.md),
               ],
               // トイレ
               if (petInfo.restroom != null) ...[
@@ -1175,7 +1175,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                   value: petInfo.restroom!,
                   isDark: isDark,
                 ),
-                const SizedBox(height: WanMapSpacing.md),
+                const SizedBox(height: WanWalkSpacing.md),
               ],
               // ペット施設
               if (petInfo.petFacilities != null) ...[
@@ -1185,7 +1185,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                   value: petInfo.petFacilities!,
                   isDark: isDark,
                 ),
-                const SizedBox(height: WanMapSpacing.md),
+                const SizedBox(height: WanWalkSpacing.md),
               ],
               // その他
               if (petInfo.others != null) ...[
@@ -1215,30 +1215,30 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       children: [
         Icon(
           icon,
-          color: WanMapColors.accent,
+          color: WanWalkColors.accent,
           size: 24,
         ),
-        const SizedBox(width: WanMapSpacing.sm),
+        const SizedBox(width: WanWalkSpacing.sm),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: WanMapTypography.bodySmall.copyWith(
+                style: WanWalkTypography.bodySmall.copyWith(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 value,
-                style: WanMapTypography.bodyMedium.copyWith(
+                style: WanWalkTypography.bodyMedium.copyWith(
                   color: isDark
-                      ? WanMapColors.textPrimaryDark
-                      : WanMapColors.textPrimaryLight,
+                      ? WanWalkColors.textPrimaryDark
+                      : WanWalkColors.textPrimaryLight,
                 ),
               ),
             ],
@@ -1260,22 +1260,22 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       children: [
         Text(
           'みんなのピン',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         pinsAsync.when(
           data: (pins) {
             if (pins.isEmpty) {
               return Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(WanMapSpacing.xl),
+                padding: const EdgeInsets.all(WanWalkSpacing.xl),
                 decoration: BoxDecoration(
-                  color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                  color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Center(
@@ -1285,16 +1285,16 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                         Icons.push_pin_outlined,
                         size: 48,
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
-                      const SizedBox(height: WanMapSpacing.md),
+                      const SizedBox(height: WanWalkSpacing.md),
                       Text(
                         'まだピンがありません',
-                        style: WanMapTypography.bodyLarge.copyWith(
+                        style: WanWalkTypography.bodyLarge.copyWith(
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -1311,7 +1311,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 // ピンカードリスト
                 ...displayPins.map<Widget>((pin) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+                  padding: const EdgeInsets.only(bottom: WanWalkSpacing.md),
                   child: GestureDetector(
                     onTap: () {
                       // ピン詳細画面へ遷移
@@ -1326,7 +1326,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.05),
@@ -1352,35 +1352,35 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                           // テキスト情報
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.all(WanMapSpacing.md),
+                              padding: const EdgeInsets.all(WanWalkSpacing.md),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // タイトル
                                   Text(
                                     pin.title,
-                                    style: WanMapTypography.bodyMedium.copyWith(
+                                    style: WanWalkTypography.bodyMedium.copyWith(
                                       color: isDark
-                                          ? WanMapColors.textPrimaryDark
-                                          : WanMapColors.textPrimaryLight,
+                                          ? WanWalkColors.textPrimaryDark
+                                          : WanWalkColors.textPrimaryLight,
                                       fontWeight: FontWeight.bold,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: WanMapSpacing.xs),
+                                  const SizedBox(height: WanWalkSpacing.xs),
                                   // コメント
                                   Text(
                                     pin.comment,
-                                    style: WanMapTypography.bodySmall.copyWith(
+                                    style: WanWalkTypography.bodySmall.copyWith(
                                       color: isDark
-                                          ? WanMapColors.textSecondaryDark
-                                          : WanMapColors.textSecondaryLight,
+                                          ? WanWalkColors.textSecondaryDark
+                                          : WanWalkColors.textSecondaryLight,
                                     ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: WanMapSpacing.sm),
+                                  const SizedBox(height: WanWalkSpacing.sm),
                                   // いいね・コメント・ブックマーク・相対時間
                                   Row(
                                     children: [
@@ -1389,25 +1389,25 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                                         initialLikesCount: pin.likesCount,
                                         isDark: isDark,
                                       ),
-                                      const SizedBox(width: WanMapSpacing.sm),
+                                      const SizedBox(width: WanWalkSpacing.sm),
                                       _PinCommentButton(
                                         pinId: pin.id,
                                         pinTitle: pin.title,
                                         initialCommentsCount: pin.commentsCount,
                                         isDark: isDark,
                                       ),
-                                      const SizedBox(width: WanMapSpacing.sm),
+                                      const SizedBox(width: WanWalkSpacing.sm),
                                       _PinBookmarkButton(
                                         pinId: pin.id,
                                         isDark: isDark,
                                       ),
-                                      const SizedBox(width: WanMapSpacing.sm),
+                                      const SizedBox(width: WanWalkSpacing.sm),
                                       Text(
                                         pin.relativeTime,
-                                        style: WanMapTypography.caption.copyWith(
+                                        style: WanWalkTypography.caption.copyWith(
                                           color: isDark
-                                              ? WanMapColors.textSecondaryDark
-                                              : WanMapColors.textSecondaryLight,
+                                              ? WanWalkColors.textSecondaryDark
+                                              : WanWalkColors.textSecondaryLight,
                                         ),
                                       ),
                                     ],
@@ -1427,7 +1427,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 // 「もっと見る」/「閉じる」ボタン
                 if (hasMorePins)
                   Padding(
-                    padding: const EdgeInsets.only(top: WanMapSpacing.md),
+                    padding: const EdgeInsets.only(top: WanWalkSpacing.md),
                     child: OutlinedButton.icon(
                       onPressed: () {
                         setState(() {
@@ -1441,8 +1441,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                             : 'もっと見る (残り${pins.length - 3}件)',
                       ),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: WanMapColors.accent,
-                        side: BorderSide(color: WanMapColors.accent),
+                        foregroundColor: WanWalkColors.accent,
+                        side: BorderSide(color: WanWalkColors.accent),
                         minimumSize: const Size(double.infinity, 48),
                       ),
                     ),
@@ -1463,12 +1463,12 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       width: 120,
       height: 120,
       decoration: BoxDecoration(
-        color: WanMapColors.accent.withOpacity(0.2),
+        color: WanWalkColors.accent.withOpacity(0.2),
       ),
       child: Icon(
         Icons.photo,
         size: 40,
-        color: WanMapColors.accent,
+        color: WanWalkColors.accent,
       ),
     );
   }
@@ -1481,27 +1481,27 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         // セクションタイトル
         Text(
           'ルートの写真',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         // ギャラリー画像（横スクロール）
         SizedBox(
           height: 200,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+            padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
             itemCount: route.galleryImages!.length,
             itemBuilder: (context, index) {
               final imageUrl = route.galleryImages![index];
               return Padding(
                 padding: EdgeInsets.only(
                   right: index < route.galleryImages!.length - 1
-                      ? WanMapSpacing.md
+                      ? WanWalkSpacing.md
                       : 0,
                 ),
                 child: ClipRRect(
@@ -1516,13 +1516,13 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                         width: 280,
                         height: 200,
                         color: isDark
-                            ? WanMapColors.surfaceDark
-                            : WanMapColors.surfaceLight,
+                            ? WanWalkColors.surfaceDark
+                            : WanWalkColors.surfaceLight,
                         child: Icon(
                           Icons.image_not_supported,
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                           size: 48,
                         ),
                       );
@@ -1557,7 +1557,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -1565,16 +1565,16 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: WanMapColors.accent,
+            color: WanWalkColors.accent,
             size: 22,
           ),
           const SizedBox(height: 3.0),
           Text(
             label,
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -1582,10 +1582,10 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 3.0),
           Text(
             value,
-            style: WanMapTypography.bodyLarge.copyWith(
+            style: WanWalkTypography.bodyLarge.copyWith(
               color: isDark
-                  ? WanMapColors.textPrimaryDark
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark
+                  : WanWalkColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
               fontSize: 14, // 若干フォントサイズを調整
             ),
@@ -1624,8 +1624,8 @@ class _DifficultyBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.md,
-        vertical: WanMapSpacing.sm,
+        horizontal: WanWalkSpacing.md,
+        vertical: WanWalkSpacing.sm,
       ),
       decoration: BoxDecoration(
         color: _getColor().withOpacity(0.1),
@@ -1643,18 +1643,18 @@ class _DifficultyBadge extends StatelessWidget {
             color: _getColor(),
             size: 20,
           ),
-          const SizedBox(width: WanMapSpacing.xs),
+          const SizedBox(width: WanWalkSpacing.xs),
           Text(
             '難易度: ${level.label}',
-            style: WanMapTypography.bodyMedium.copyWith(
+            style: WanWalkTypography.bodyMedium.copyWith(
               color: _getColor(),
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: WanMapSpacing.xs),
+          const SizedBox(width: WanWalkSpacing.xs),
           Text(
             '(${level.description})',
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: _getColor(),
             ),
           ),
@@ -1719,10 +1719,10 @@ class _PinLikeButtonState extends ConsumerState<_PinLikeButton> {
           const SizedBox(width: 4),
           Text(
             '$likeCount',
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: widget.isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
         ],
@@ -1775,7 +1775,7 @@ class _PinBookmarkButtonState extends ConsumerState<_PinBookmarkButton> {
         isBookmarked ? Icons.bookmark : Icons.bookmark_border,
         size: 16,
         color: isBookmarked 
-            ? WanMapColors.accent 
+            ? WanWalkColors.accent 
             : (widget.isDark ? Colors.grey[400] : Colors.grey[600]),
       ),
     );
@@ -1840,10 +1840,10 @@ class _PinCommentButtonState extends ConsumerState<_PinCommentButton> {
           const SizedBox(width: 4),
           Text(
             '$commentCount',
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: widget.isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
         ],

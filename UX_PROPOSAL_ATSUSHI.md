@@ -1,4 +1,4 @@
-# WanMap v2 UX改善提案 - Atsushiさん案の分析と実装検討
+# WanWalk v2 UX改善提案 - Atsushiさん案の分析と実装検討
 
 ## 📊 提案内容の整理
 

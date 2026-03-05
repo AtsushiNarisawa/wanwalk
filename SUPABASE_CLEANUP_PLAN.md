@@ -148,7 +148,7 @@
 
 ### 3. Git コミット
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 git add SUPABASE_CLEANUP_PLAN.md
 git commit -m "Add Supabase cleanup plan: identify 20 unused resources"
 git push origin main

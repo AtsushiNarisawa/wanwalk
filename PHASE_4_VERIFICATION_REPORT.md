@@ -23,9 +23,9 @@ import '../config/app_spacing.dart';
 import '../config/app_typography.dart';
 
 // 修正後
-import '../config/wanmap_colors.dart';
-import '../config/wanmap_spacing.dart';
-import '../config/wanmap_typography.dart';
+import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_spacing.dart';
+import '../config/wanwalk_typography.dart';
 ```
 
 ---
@@ -45,15 +45,15 @@ horizontal: AppSpacing.md
 style: AppTypography.labelMedium
 
 // 修正後
-color: WanMapColors.primary
-horizontal: WanMapSpacing.md
-style: WanMapTypography.labelMedium
+color: WanWalkColors.primary
+horizontal: WanWalkSpacing.md
+style: WanWalkTypography.labelMedium
 ```
 
 **修正箇所**: 合計11箇所
-- `WanMapColors`: 3箇所
-- `WanMapSpacing`: 6箇所
-- `WanMapTypography`: 2箇所
+- `WanWalkColors`: 3箇所
+- `WanWalkSpacing`: 6箇所
+- `WanWalkTypography`: 2箇所
 
 ---
 
@@ -208,7 +208,7 @@ Future<void> _initializeWalking() async {
 
 ### Mac実機テスト
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 git pull origin main
 # Flutterホットリスタート（R）
 ```

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../config/wanmap_colors.dart';
-import '../config/wanmap_typography.dart';
-import '../config/wanmap_spacing.dart';
+import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_typography.dart';
+import '../config/wanwalk_spacing.dart';
 
-/// WanMap ルートカードウィジェット
+/// WanWalk ルートカードウィジェット
 /// ルート一覧・詳細画面で使用する大きなカード
 
-class WanMapRouteCard extends StatelessWidget {
+class WanWalkRouteCard extends StatelessWidget {
   final String title;
   final String? subtitle;
   final double distance; // km
@@ -22,7 +22,7 @@ class WanMapRouteCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLike;
 
-  const WanMapRouteCard({
+  const WanWalkRouteCard({
     super.key,
     required this.title,
     this.subtitle,
@@ -42,20 +42,20 @@ class WanMapRouteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final secondaryTextColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: isDark 
-              ? WanMapColors.surfaceDark 
-              : WanMapColors.surfaceLight,
-          borderRadius: WanMapSpacing.borderRadiusXL,
+              ? WanWalkColors.surfaceDark 
+              : WanWalkColors.surfaceLight,
+          borderRadius: WanWalkSpacing.borderRadiusXL,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -72,14 +72,14 @@ class WanMapRouteCard extends StatelessWidget {
             
             // コンテンツ
             Padding(
-              padding: const EdgeInsets.all(WanMapSpacing.lg),
+              padding: const EdgeInsets.all(WanWalkSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // タイトル
                   Text(
                     title,
-                    style: WanMapTypography.headlineSmall.copyWith(
+                    style: WanWalkTypography.headlineSmall.copyWith(
                       color: textColor,
                     ),
                     maxLines: 2,
@@ -88,10 +88,10 @@ class WanMapRouteCard extends StatelessWidget {
                   
                   // サブタイトル
                   if (subtitle != null) ...[
-                    const SizedBox(height: WanMapSpacing.xxs),
+                    const SizedBox(height: WanWalkSpacing.xxs),
                     Text(
                       subtitle!,
-                      style: WanMapTypography.bodyMedium.copyWith(
+                      style: WanWalkTypography.bodyMedium.copyWith(
                         color: secondaryTextColor,
                       ),
                       maxLines: 1,
@@ -99,14 +99,14 @@ class WanMapRouteCard extends StatelessWidget {
                     ),
                   ],
                   
-                  const SizedBox(height: WanMapSpacing.md),
+                  const SizedBox(height: WanWalkSpacing.md),
                   
                   // 統計情報
                   _buildStats(context),
                   
                   // タグ
                   if (tags != null && tags!.isNotEmpty) ...[
-                    const SizedBox(height: WanMapSpacing.md),
+                    const SizedBox(height: WanWalkSpacing.md),
                     _buildTags(context),
                   ],
                 ],
@@ -124,7 +124,7 @@ class WanMapRouteCard extends StatelessWidget {
         // サムネイル画像 or マップ
         ClipRRect(
           borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(WanMapSpacing.radiusXL),
+            top: Radius.circular(WanWalkSpacing.radiusXL),
           ),
           child: SizedBox(
             height: 200,
@@ -154,7 +154,7 @@ class WanMapRouteCard extends StatelessWidget {
                 ],
               ),
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(WanMapSpacing.radiusXL),
+                top: Radius.circular(WanWalkSpacing.radiusXL),
               ),
             ),
           ),
@@ -163,12 +163,12 @@ class WanMapRouteCard extends StatelessWidget {
         // いいねボタン
         if (onLike != null)
           Positioned(
-            top: WanMapSpacing.md,
-            right: WanMapSpacing.md,
+            top: WanWalkSpacing.md,
+            right: WanWalkSpacing.md,
             child: GestureDetector(
               onTap: onLike,
               child: Container(
-                padding: const EdgeInsets.all(WanMapSpacing.sm),
+                padding: const EdgeInsets.all(WanWalkSpacing.sm),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
@@ -182,7 +182,7 @@ class WanMapRouteCard extends StatelessWidget {
                 ),
                 child: Icon(
                   isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: isLiked ? WanMapColors.error : WanMapColors.textSecondaryLight,
+                  color: isLiked ? WanWalkColors.error : WanWalkColors.textSecondaryLight,
                   size: 20,
                 ),
               ),
@@ -195,12 +195,12 @@ class WanMapRouteCard extends StatelessWidget {
   Widget _buildMapThumbnail() {
     if (routePoints == null || routePoints!.isEmpty) {
       return Container(
-        color: WanMapColors.textTertiaryLight,
+        color: WanWalkColors.textTertiaryLight,
         child: const Center(
           child: Icon(
             Icons.map,
             size: 48,
-            color: WanMapColors.textSecondaryLight,
+            color: WanWalkColors.textSecondaryLight,
           ),
         ),
       );
@@ -221,7 +221,7 @@ class WanMapRouteCard extends StatelessWidget {
           polylines: [
             Polyline(
               points: routePoints!,
-              color: WanMapColors.accent,
+              color: WanWalkColors.accent,
               strokeWidth: 4,
             ),
           ],
@@ -233,8 +233,8 @@ class WanMapRouteCard extends StatelessWidget {
   Widget _buildStats(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryTextColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
     return Row(
       children: [
@@ -244,7 +244,7 @@ class WanMapRouteCard extends StatelessWidget {
           value: '${distance.toStringAsFixed(1)}km',
           color: secondaryTextColor,
         ),
-        const SizedBox(width: WanMapSpacing.lg),
+        const SizedBox(width: WanWalkSpacing.lg),
         
         // 時間
         _StatItem(
@@ -255,7 +255,7 @@ class WanMapRouteCard extends StatelessWidget {
         
         // 高低差
         if (elevation != null) ...[
-          const SizedBox(width: WanMapSpacing.lg),
+          const SizedBox(width: WanWalkSpacing.lg),
           _StatItem(
             icon: Icons.terrain,
             value: '${elevation}m',
@@ -270,7 +270,7 @@ class WanMapRouteCard extends StatelessWidget {
           _StatItem(
             icon: Icons.favorite,
             value: likeCount.toString(),
-            color: WanMapColors.error,
+            color: WanWalkColors.error,
           ),
       ],
     );
@@ -278,22 +278,22 @@ class WanMapRouteCard extends StatelessWidget {
 
   Widget _buildTags(BuildContext context) {
     return Wrap(
-      spacing: WanMapSpacing.xs,
-      runSpacing: WanMapSpacing.xs,
+      spacing: WanWalkSpacing.xs,
+      runSpacing: WanWalkSpacing.xs,
       children: tags!.take(3).map((tag) {
         return Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: WanMapSpacing.sm,
-            vertical: WanMapSpacing.xxs,
+            horizontal: WanWalkSpacing.sm,
+            vertical: WanWalkSpacing.xxs,
           ),
           decoration: BoxDecoration(
-            color: WanMapColors.secondary.withOpacity(0.1),
-            borderRadius: WanMapSpacing.borderRadiusMD,
+            color: WanWalkColors.secondary.withOpacity(0.1),
+            borderRadius: WanWalkSpacing.borderRadiusMD,
           ),
           child: Text(
             tag,
-            style: WanMapTypography.labelSmall.copyWith(
-              color: WanMapColors.secondary,
+            style: WanWalkTypography.labelSmall.copyWith(
+              color: WanWalkColors.secondary,
             ),
           ),
         );
@@ -320,10 +320,10 @@ class _StatItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 16, color: color),
-        const SizedBox(width: WanMapSpacing.xxs),
+        const SizedBox(width: WanWalkSpacing.xxs),
         Text(
           value,
-          style: WanMapTypography.labelMedium.copyWith(
+          style: WanWalkTypography.labelMedium.copyWith(
             color: color,
           ),
         ),
@@ -333,14 +333,14 @@ class _StatItem extends StatelessWidget {
 }
 
 /// コンパクトルートカード（リスト表示用）
-class WanMapRouteCardCompact extends StatelessWidget {
+class WanWalkRouteCardCompact extends StatelessWidget {
   final String title;
   final double distance;
   final int duration;
   final String? thumbnailUrl;
   final VoidCallback? onTap;
 
-  const WanMapRouteCardCompact({
+  const WanWalkRouteCardCompact({
     super.key,
     required this.title,
     required this.distance,
@@ -353,27 +353,27 @@ class WanMapRouteCardCompact extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final secondaryTextColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
+        padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
           color: isDark 
-              ? WanMapColors.surfaceDark 
-              : WanMapColors.surfaceLight,
-          borderRadius: WanMapSpacing.borderRadiusLG,
+              ? WanWalkColors.surfaceDark 
+              : WanWalkColors.surfaceLight,
+          borderRadius: WanWalkSpacing.borderRadiusLG,
         ),
         child: Row(
           children: [
             // サムネイル
             ClipRRect(
-              borderRadius: WanMapSpacing.borderRadiusMD,
+              borderRadius: WanWalkSpacing.borderRadiusMD,
               child: SizedBox(
                 width: 60,
                 height: 60,
@@ -383,26 +383,26 @@ class WanMapRouteCardCompact extends StatelessWidget {
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
-                            color: WanMapColors.textTertiaryLight,
+                            color: WanWalkColors.textTertiaryLight,
                             child: const Icon(
                               Icons.map,
                               size: 24,
-                              color: WanMapColors.textSecondaryLight,
+                              color: WanWalkColors.textSecondaryLight,
                             ),
                           );
                         },
                       )
                     : Container(
-                        color: WanMapColors.textTertiaryLight,
+                        color: WanWalkColors.textTertiaryLight,
                         child: const Icon(
                           Icons.map,
                           size: 24,
-                          color: WanMapColors.textSecondaryLight,
+                          color: WanWalkColors.textSecondaryLight,
                         ),
                       ),
               ),
             ),
-            const SizedBox(width: WanMapSpacing.md),
+            const SizedBox(width: WanWalkSpacing.md),
             
             // テキスト情報
             Expanded(
@@ -411,13 +411,13 @@ class WanMapRouteCardCompact extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: WanMapTypography.titleMedium.copyWith(
+                    style: WanWalkTypography.titleMedium.copyWith(
                       color: textColor,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: WanMapSpacing.xxs),
+                  const SizedBox(height: WanWalkSpacing.xxs),
                   Row(
                     children: [
                       Icon(
@@ -425,23 +425,23 @@ class WanMapRouteCardCompact extends StatelessWidget {
                         size: 14,
                         color: secondaryTextColor,
                       ),
-                      const SizedBox(width: WanMapSpacing.xxs),
+                      const SizedBox(width: WanWalkSpacing.xxs),
                       Text(
                         '${distance.toStringAsFixed(1)}km',
-                        style: WanMapTypography.labelSmall.copyWith(
+                        style: WanWalkTypography.labelSmall.copyWith(
                           color: secondaryTextColor,
                         ),
                       ),
-                      const SizedBox(width: WanMapSpacing.sm),
+                      const SizedBox(width: WanWalkSpacing.sm),
                       Icon(
                         Icons.access_time,
                         size: 14,
                         color: secondaryTextColor,
                       ),
-                      const SizedBox(width: WanMapSpacing.xxs),
+                      const SizedBox(width: WanWalkSpacing.xxs),
                       Text(
                         '$duration分',
-                        style: WanMapTypography.labelSmall.copyWith(
+                        style: WanWalkTypography.labelSmall.copyWith(
                           color: secondaryTextColor,
                         ),
                       ),

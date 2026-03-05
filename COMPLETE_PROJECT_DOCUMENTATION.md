@@ -1,4 +1,4 @@
-# WanMap v2 - 完全プロジェクトドキュメント
+# WanWalk v2 - 完全プロジェクトドキュメント
 
 **作成日**: 2025-11-24  
 **最終更新**: 2025-11-24  
@@ -22,7 +22,7 @@
 ## プロジェクト概要
 
 ### 🎯 プロジェクト名
-**WanMap** - 愛犬の散歩ルート共有モバイルアプリ
+**WanWalk** - 愛犬の散歩ルート共有モバイルアプリ
 
 ### 👤 プロジェクトオーナー
 - **名前**: 成沢敦史 (Atsushi Narisawa)
@@ -84,16 +84,16 @@
 ### プロジェクト構造
 
 ```
-wanmap_v2/
+wanwalk/
 ├── lib/
 │   ├── main.dart                    # エントリーポイント (Riverpod対応)
 │   │
 │   ├── config/                      # 設定ファイル
 │   │   ├── env.dart                 # 環境変数読み込み
 │   │   ├── supabase_config.dart     # Supabase設定
-│   │   ├── wanmap_colors.dart       # カラーパレット
-│   │   ├── wanmap_typography.dart   # タイポグラフィ
-│   │   └── wanmap_spacing.dart      # スペーシング定数
+│   │   ├── wanwalk_colors.dart       # カラーパレット
+│   │   ├── wanwalk_typography.dart   # タイポグラフィ
+│   │   └── wanwalk_spacing.dart      # スペーシング定数
 │   │
 │   ├── models/ (24個)               # データモデル
 │   │   ├── walk_mode.dart           # Daily/Outing enum
@@ -531,7 +531,7 @@ await Supabase.initialize(
 ```dart
 TileLayer(
   urlTemplate: 'https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=${Environment.thunderforestApiKey}',
-  userAgentPackageName: 'com.doghub.wanmap',
+  userAgentPackageName: 'com.doghub.wanwalk',
 )
 ```
 
@@ -543,13 +543,13 @@ TileLayer(
 
 | 項目 | 値 |
 |-----|---|
-| **リポジトリ** | `https://github.com/AtsushiNarisawa/wanmap_v2` |
+| **リポジトリ** | `https://github.com/AtsushiNarisawa/wanwalk` |
 | ブランチ | `main` |
 | オーナー | AtsushiNarisawa |
 
 **Git操作時の注意:**
-- サンドボックス環境（`/home/user/webapp/wanmap_v2`）で開発
-- ローカルMac（`/Users/atsushinarisawa/projects/webapp/wanmap_v2`）でテスト
+- サンドボックス環境（`/home/user/webapp/wanwalk`）で開発
+- ローカルMac（`/Users/atsushinarisawa/projects/webapp/wanwalk`）でテスト
 - 修正後は必ず `git push` → `git pull` でローカルに反映
 
 ### 🧪 テストアカウント
@@ -571,12 +571,12 @@ TileLayer(
 **【重要】このプロジェクトは2つの環境で動作:**
 
 1. **サンドボックス環境（AIアシスタント）**
-   - パス: `/home/user/webapp/wanmap_v2`
+   - パス: `/home/user/webapp/wanwalk`
    - 用途: コード編集、Git操作、ドキュメント作成
    - 役割: 開発作業
 
 2. **ローカルMac（ユーザー）**
-   - パス: `/Users/atsushinarisawa/projects/webapp/wanmap_v2`
+   - パス: `/Users/atsushinarisawa/projects/webapp/wanwalk`
    - 用途: Flutter実行、iOSシミュレータでテスト
    - 役割: 動作確認
 
@@ -667,7 +667,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // 4. プロジェクト内ファイル
-import '../../config/wanmap_colors.dart';
+import '../../config/wanwalk_colors.dart';
 import '../../models/area.dart';
 ```
 
@@ -984,7 +984,7 @@ onPressed: () async {
 
 **開発者:** 成沢敦史 (Atsushi Narisawa)  
 **GitHub:** https://github.com/AtsushiNarisawa  
-**リポジトリ:** https://github.com/AtsushiNarisawa/wanmap_v2  
+**リポジトリ:** https://github.com/AtsushiNarisawa/wanwalk  
 **問い合わせ:** GitHub Issues
 
 ---

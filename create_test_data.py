@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WanMap テストデータ作成スクリプト
+WanWalk テストデータ作成スクリプト
 箱根周辺の実在する散歩ルートを3件作成し、それぞれに写真を追加します。
 """
 
@@ -151,7 +151,7 @@ def add_photos_to_route(route_id, user_id, num_photos=3):
 
 def main():
     print("=" * 60)
-    print("🐕 WanMap テストデータ作成スクリプト")
+    print("🐕 WanWalk テストデータ作成スクリプト")
     print("=" * 60)
     print()
     

@@ -1,4 +1,4 @@
-# WanMap v2 - アプリケーション総合まとめ資料
+# WanWalk v2 - アプリケーション総合まとめ資料
 
 ## 📅 作成日: 2025-12-03
 ## 🎯 用途: 別スレッドでの分析・評価、プレゼン資料作成
@@ -11,14 +11,14 @@
 
 | 項目 | 内容 |
 |------|------|
-| **アプリ名** | WanMap (ワンマップ) |
+| **アプリ名** | WanWalk (ワンマップ) |
 | **サブタイトル** | 愛犬の散歩ルート共有モバイルアプリ |
 | **バージョン** | 1.0.0 (Build 2) |
 | **プラットフォーム** | iOS (Flutter製) |
 | **対象ユーザー** | 犬の飼い主 |
 | **カテゴリ** | ライフスタイル・ペット |
 | **開発者** | Atsushi Narisawa (DogHub 箱根) |
-| **リポジトリ** | https://github.com/AtsushiNarisawa/wanmap_v2 |
+| **リポジトリ** | https://github.com/AtsushiNarisawa/wanwalk |
 
 ---
 
@@ -153,9 +153,9 @@
 ### デザインシステム
 | 要素 | 詳細 |
 |------|------|
-| **カラーパレット** | WanMapColors（Nike Run Club風） |
-| **タイポグラフィ** | WanMapTypography |
-| **スペーシング** | WanMapSpacing |
+| **カラーパレット** | WanWalkColors（Nike Run Club風） |
+| **タイポグラフィ** | WanWalkTypography |
+| **スペーシング** | WanWalkSpacing |
 | **コンポーネント** | 共通ウィジェット化 |
 
 ---
@@ -325,15 +325,15 @@ PK: (user_id, pin_id)
 ## ファイル構造
 
 ```
-wanmap_v2/
+wanwalk/
 ├── lib/
 │   ├── main.dart                          # エントリーポイント
 │   ├── config/                            # 設定
 │   │   ├── env.dart                       # 環境変数
 │   │   ├── supabase_config.dart           # Supabase設定
-│   │   ├── wanmap_colors.dart             # カラーパレット
-│   │   ├── wanmap_typography.dart         # タイポグラフィ
-│   │   └── wanmap_spacing.dart            # スペーシング
+│   │   ├── wanwalk_colors.dart             # カラーパレット
+│   │   ├── wanwalk_typography.dart         # タイポグラフィ
+│   │   └── wanwalk_spacing.dart            # スペーシング
 │   ├── models/                            # データモデル
 │   │   ├── area.dart                      # エリアモデル
 │   │   ├── official_route.dart            # 公式ルートモデル
@@ -400,9 +400,9 @@ wanmap_v2/
 │   │   └── storage_service.dart           # ストレージ処理
 │   └── widgets/                           # 共通ウィジェット
 │       ├── shimmer/
-│       │   └── wanmap_shimmer.dart        # Shimmerローディング
+│       │   └── wanwalk_shimmer.dart        # Shimmerローディング
 │       ├── error/
-│       │   └── wanmap_error_widget.dart   # エラー表示
+│       │   └── wanwalk_error_widget.dart   # エラー表示
 │       ├── optimized_image.dart           # 画像最適化
 │       ├── active_walk_banner.dart        # 散歩中バナー
 │       └── walk_photo_grid.dart           # 写真グリッド
@@ -575,7 +575,7 @@ labelSmall:     12px, FontWeight.w600  // ラベル
 | 0a697e2 | 12-03 | エラーハンドリング & 空状態ウィジェット |
 | 0068229 | 12-03 | 画像メモリ最適化 |
 | 0aab5f5 | 12-03 | TestFlight準備 - バージョン & 権限 |
-| dcab6ec | 12-03 | WanMapColorsにborderLight/Dark追加 |
+| dcab6ec | 12-03 | WanWalkColorsにborderLight/Dark追加 |
 | ee49804 | 12-03 | 最終チェック完了報告書 |
 
 ---
@@ -728,7 +728,7 @@ labelSmall:     12px, FontWeight.w600  // ラベル
 
 ## 競合比較
 
-| 機能 | WanMap | 他の散歩アプリA | 他の散歩アプリB |
+| 機能 | WanWalk | 他の散歩アプリA | 他の散歩アプリB |
 |------|--------|---------------|---------------|
 | **公式ルート** | ✅ 観光地の厳選ルート | ❌ | ⚠️ ユーザー投稿のみ |
 | **2つの散歩モード** | ✅ おでかけ/日常 | ❌ 1種類のみ | ❌ 1種類のみ |
@@ -844,7 +844,7 @@ labelSmall:     12px, FontWeight.w600  // ラベル
 5. **FINAL_CHECK_REPORT.md** - 最終チェック報告
 
 ## GitHub Repository
-- **URL**: https://github.com/AtsushiNarisawa/wanmap_v2
+- **URL**: https://github.com/AtsushiNarisawa/wanwalk
 - **Branch**: main
 - **Latest Commit**: ee49804
 
@@ -854,7 +854,7 @@ labelSmall:     12px, FontWeight.w600  // ラベル
 
 ## エレベーターピッチ（30秒）
 
-「WanMapは、愛犬との散歩をもっと楽しく、もっと思い出深くするアプリです。箱根などの観光地の厳選ルートを歩きながら、写真付きピン投稿で見所を共有。日常の散歩も記録して統計とバッジで継続モチベーションを維持。犬の飼い主同士の新しいコミュニティを作ります。」
+「WanWalkは、愛犬との散歩をもっと楽しく、もっと思い出深くするアプリです。箱根などの観光地の厳選ルートを歩きながら、写真付きピン投稿で見所を共有。日常の散歩も記録して統計とバッジで継続モチベーションを維持。犬の飼い主同士の新しいコミュニティを作ります。」
 
 ---
 

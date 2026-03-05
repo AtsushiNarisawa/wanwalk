@@ -2,7 +2,7 @@
 -- Phase 1-3: Walk Photos Table (散歩写真)
 -- ============================================================================
 -- Description: Table for storing photos taken during walks
--- Author: WanMap Development Team
+-- Author: WanWalk Development Team
 -- Created: 2025-11-23
 -- Version: 1
 -- ============================================================================

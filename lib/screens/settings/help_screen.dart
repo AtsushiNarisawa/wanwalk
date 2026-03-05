@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import 'contact_support_screen.dart';
 
 /// ヘルプ・サポート画面
@@ -15,26 +15,26 @@ class HelpScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: const Text(
           'ヘルプ・サポート',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(WanMapSpacing.medium),
+        padding: const EdgeInsets.all(WanWalkSpacing.medium),
         children: [
           // お問い合わせボタン
           _buildContactButton(context, isDark),
-          const SizedBox(height: WanMapSpacing.large),
+          const SizedBox(height: WanWalkSpacing.large),
 
           // よくある質問セクション
           _buildSectionHeader('よくある質問', isDark),
-          const SizedBox(height: WanMapSpacing.small),
+          const SizedBox(height: WanWalkSpacing.small),
           _buildFAQCard(isDark, children: [
             _buildFAQItem(
               context,
@@ -76,11 +76,11 @@ class HelpScreen extends ConsumerWidget {
                   'プロフィール画面 → 設定 → 「アカウント削除」から手続きできます。削除後、投稿したルートやピンも全て削除されます。',
             ),
           ]),
-          const SizedBox(height: WanMapSpacing.large),
+          const SizedBox(height: WanWalkSpacing.large),
 
           // 使い方ガイドセクション
           _buildSectionHeader('使い方ガイド', isDark),
-          const SizedBox(height: WanMapSpacing.small),
+          const SizedBox(height: WanWalkSpacing.small),
           _buildGuideCard(isDark, children: [
             _buildGuideItem(
               context,
@@ -114,11 +114,11 @@ class HelpScreen extends ConsumerWidget {
               description: '気に入ったルートを保存',
             ),
           ]),
-          const SizedBox(height: WanMapSpacing.large),
+          const SizedBox(height: WanWalkSpacing.large),
 
           // アプリ情報
           _buildSectionHeader('アプリ情報', isDark),
-          const SizedBox(height: WanMapSpacing.small),
+          const SizedBox(height: WanWalkSpacing.small),
           _buildInfoCard(isDark),
         ],
       ),
@@ -134,11 +134,11 @@ class HelpScreen extends ConsumerWidget {
         );
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: WanMapColors.accent,
+        backgroundColor: WanWalkColors.accent,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(
-          vertical: WanMapSpacing.medium,
-          horizontal: WanMapSpacing.large,
+          vertical: WanWalkSpacing.medium,
+          horizontal: WanWalkSpacing.large,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -147,7 +147,7 @@ class HelpScreen extends ConsumerWidget {
       icon: const Icon(Icons.support_agent, size: 24),
       label: Text(
         'お問い合わせ',
-        style: WanMapTypography.heading3.copyWith(
+        style: WanWalkTypography.heading3.copyWith(
           color: Colors.white,
         ),
       ),
@@ -156,11 +156,11 @@ class HelpScreen extends ConsumerWidget {
 
   Widget _buildSectionHeader(String title, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.small),
+      padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.small),
       child: Text(
         title,
-        style: WanMapTypography.heading2.copyWith(
-          color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+        style: WanWalkTypography.heading2.copyWith(
+          color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -170,7 +170,7 @@ class HelpScreen extends ConsumerWidget {
   Widget _buildFAQCard(bool isDark, {required List<Widget> children}) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : Colors.white,
+        color: isDark ? WanWalkColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(children: children),
@@ -187,29 +187,29 @@ class HelpScreen extends ConsumerWidget {
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(
-          horizontal: WanMapSpacing.medium,
-          vertical: WanMapSpacing.small,
+          horizontal: WanWalkSpacing.medium,
+          vertical: WanWalkSpacing.small,
         ),
         title: Text(
           question,
-          style: WanMapTypography.bodyLarge.copyWith(
+          style: WanWalkTypography.bodyLarge.copyWith(
             fontWeight: FontWeight.bold,
-            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
           ),
         ),
-        iconColor: WanMapColors.accent,
+        iconColor: WanWalkColors.accent,
         collapsedIconColor: isDark ? Colors.white70 : Colors.black54,
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
-              WanMapSpacing.medium,
+              WanWalkSpacing.medium,
               0,
-              WanMapSpacing.medium,
-              WanMapSpacing.medium,
+              WanWalkSpacing.medium,
+              WanWalkSpacing.medium,
             ),
             child: Text(
               answer,
-              style: WanMapTypography.body.copyWith(
+              style: WanWalkTypography.body.copyWith(
                 color: isDark ? Colors.white70 : Colors.black87,
                 height: 1.6,
               ),
@@ -223,7 +223,7 @@ class HelpScreen extends ConsumerWidget {
   Widget _buildGuideCard(bool isDark, {required List<Widget> children}) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : Colors.white,
+        color: isDark ? WanWalkColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(children: children),
@@ -239,31 +239,31 @@ class HelpScreen extends ConsumerWidget {
   }) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.medium,
-        vertical: WanMapSpacing.small,
+        horizontal: WanWalkSpacing.medium,
+        vertical: WanWalkSpacing.small,
       ),
       leading: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.small),
+        padding: const EdgeInsets.all(WanWalkSpacing.small),
         decoration: BoxDecoration(
-          color: WanMapColors.accent.withOpacity(0.1),
+          color: WanWalkColors.accent.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           icon,
-          color: WanMapColors.accent,
+          color: WanWalkColors.accent,
           size: 24,
         ),
       ),
       title: Text(
         title,
-        style: WanMapTypography.bodyLarge.copyWith(
+        style: WanWalkTypography.bodyLarge.copyWith(
           fontWeight: FontWeight.bold,
-          color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+          color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
         ),
       ),
       subtitle: Text(
         description,
-        style: WanMapTypography.body.copyWith(
+        style: WanWalkTypography.body.copyWith(
           color: isDark ? Colors.white70 : Colors.black54,
         ),
       ),
@@ -272,9 +272,9 @@ class HelpScreen extends ConsumerWidget {
 
   Widget _buildInfoCard(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.medium),
+      padding: const EdgeInsets.all(WanWalkSpacing.medium),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : Colors.white,
+        color: isDark ? WanWalkColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -283,37 +283,37 @@ class HelpScreen extends ConsumerWidget {
             children: [
               const Icon(
                 Icons.pets,
-                color: WanMapColors.accent,
+                color: WanWalkColors.accent,
                 size: 32,
               ),
-              const SizedBox(width: WanMapSpacing.small),
+              const SizedBox(width: WanWalkSpacing.small),
               Text(
                 'WanWalk',
-                style: WanMapTypography.headlineLarge.copyWith(
-                  color: WanMapColors.accent,
+                style: WanWalkTypography.headlineLarge.copyWith(
+                  color: WanWalkColors.accent,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           Text(
             'Version 1.0.0',
-            style: WanMapTypography.body.copyWith(
+            style: WanWalkTypography.body.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.small),
+          const SizedBox(height: WanWalkSpacing.small),
           Text(
             'by DogHub 箱根',
-            style: WanMapTypography.body.copyWith(
+            style: WanWalkTypography.body.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           Text(
             '愛犬との散歩をもっと楽しく',
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: isDark ? Colors.white60 : Colors.black45,
               fontStyle: FontStyle.italic,
             ),

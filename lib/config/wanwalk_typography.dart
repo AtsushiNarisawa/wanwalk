@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// WanMap デザインシステム - タイポグラフィ
+/// WanWalk デザインシステム - タイポグラフィ
 /// DogHub風の柔らかく読みやすいタイポグラフィ
-class WanMapTypography {
+class WanWalkTypography {
   // ==================================================
   // ディスプレイスタイル（超大見出し - 記録中の数値など）
   // ==================================================

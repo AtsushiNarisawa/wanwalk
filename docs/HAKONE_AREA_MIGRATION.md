@@ -277,7 +277,7 @@ WHERE id IN (
 
 ### **3. Flutterアプリで確認**
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 flutter run
 # または Hot Restart
 
@@ -322,4 +322,4 @@ flutter run
 ---
 
 作成日: 2025-12-16
-作成者: WanMap開発チーム
+作成者: WanWalk開発チーム

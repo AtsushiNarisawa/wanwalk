@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 
 /// パスワード変更画面
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -109,19 +109,19 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: const Text(
           'パスワード変更',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(WanMapSpacing.medium),
+          padding: const EdgeInsets.all(WanWalkSpacing.medium),
           child: Form(
             key: _formKey,
             child: Column(
@@ -129,7 +129,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               children: [
                 // 注意事項
                 Container(
-                  padding: const EdgeInsets.all(WanMapSpacing.medium),
+                  padding: const EdgeInsets.all(WanWalkSpacing.medium),
                   decoration: BoxDecoration(
                     color: isDark
                         ? Colors.blue.shade900.withOpacity(0.3)
@@ -144,11 +144,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                         size: 20,
                         color: isDark ? Colors.blue.shade200 : Colors.blue.shade700,
                       ),
-                      const SizedBox(width: WanMapSpacing.small),
+                      const SizedBox(width: WanWalkSpacing.small),
                       Expanded(
                         child: Text(
                           'パスワードは8文字以上で設定してください',
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: isDark
                                 ? Colors.blue.shade200
                                 : Colors.blue.shade700,
@@ -158,28 +158,28 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // 現在のパスワード
                 const Text(
                   '現在のパスワード',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _currentPasswordController,
                   obscureText: _obscureCurrentPassword,
                   decoration: InputDecoration(
                     hintText: '現在のパスワードを入力',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.medium,
-                      vertical: WanMapSpacing.small,
+                      horizontal: WanWalkSpacing.medium,
+                      vertical: WanWalkSpacing.small,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -201,28 +201,28 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // 新しいパスワード
                 const Text(
                   '新しいパスワード',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _newPasswordController,
                   obscureText: _obscureNewPassword,
                   decoration: InputDecoration(
                     hintText: '新しいパスワードを入力',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.medium,
-                      vertical: WanMapSpacing.small,
+                      horizontal: WanWalkSpacing.medium,
+                      vertical: WanWalkSpacing.small,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -250,28 +250,28 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // パスワード確認
                 const Text(
                   'パスワード確認',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
                   decoration: InputDecoration(
                     hintText: 'もう一度新しいパスワードを入力',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.medium,
-                      vertical: WanMapSpacing.small,
+                      horizontal: WanWalkSpacing.medium,
+                      vertical: WanWalkSpacing.small,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -296,16 +296,16 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: WanMapSpacing.xxl),
+                const SizedBox(height: WanWalkSpacing.xxl),
 
                 // 変更ボタン
                 ElevatedButton(
                   onPressed: _isLoading ? null : _changePassword,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: WanMapColors.accent,
+                    backgroundColor: WanWalkColors.accent,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      vertical: WanMapSpacing.medium,
+                      vertical: WanWalkSpacing.medium,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -322,7 +322,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                         )
                       : Text(
                           'パスワードを変更',
-                          style: WanMapTypography.heading3.copyWith(
+                          style: WanWalkTypography.heading3.copyWith(
                             color: Colors.white,
                           ),
                         ),

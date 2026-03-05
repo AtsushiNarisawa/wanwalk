@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import '../config/wanmap_colors.dart';
-import '../config/wanmap_typography.dart';
-import '../config/wanmap_spacing.dart';
+import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_typography.dart';
+import '../config/wanwalk_spacing.dart';
 
-/// WanMap 統計表示ウィジェット
+/// WanWalk 統計表示ウィジェット
 /// GPS記録画面などで使用する超大サイズの数値表示
 
 /// 超大サイズ統計表示（GPS記録画面用）
-class WanMapHeroStat extends StatelessWidget {
+class WanWalkHeroStat extends StatelessWidget {
   final String value;
   final String unit;
   final String label;
@@ -15,7 +15,7 @@ class WanMapHeroStat extends StatelessWidget {
   final Color? unitColor;
   final Color? labelColor;
 
-  const WanMapHeroStat({
+  const WanWalkHeroStat({
     super.key,
     required this.value,
     required this.unit,
@@ -29,11 +29,11 @@ class WanMapHeroStat extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final defaultValueColor = valueColor ?? 
-        (isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight);
+        (isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight);
     final defaultUnitColor = unitColor ?? 
-        (isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight);
+        (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight);
     final defaultLabelColor = labelColor ?? 
-        (isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight);
+        (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,11 +45,11 @@ class WanMapHeroStat extends StatelessWidget {
           children: [
             Text(
               value,
-              style: WanMapTypography.displayLarge.copyWith(
+              style: WanWalkTypography.displayLarge.copyWith(
                 color: defaultValueColor,
               ),
             ),
-            const SizedBox(width: WanMapSpacing.sm),
+            const SizedBox(width: WanWalkSpacing.sm),
             Text(
               unit,
               style: TextStyle(
@@ -60,7 +60,7 @@ class WanMapHeroStat extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: WanMapSpacing.xs),
+        const SizedBox(height: WanWalkSpacing.xs),
         
         // ラベル
         Text(
@@ -78,10 +78,10 @@ class WanMapHeroStat extends StatelessWidget {
 }
 
 /// 横並び統計表示（複数の統計を並べる）
-class WanMapStatsRow extends StatelessWidget {
-  final List<WanMapStatItem> stats;
+class WanWalkStatsRow extends StatelessWidget {
+  final List<WanWalkStatItem> stats;
 
-  const WanMapStatsRow({
+  const WanWalkStatsRow({
     super.key,
     required this.stats,
   });
@@ -98,32 +98,32 @@ class WanMapStatsRow extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, WanMapStatItem stat) {
+  Widget _buildStatItem(BuildContext context, WanWalkStatItem stat) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final secondaryTextColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
     return Column(
       children: [
         // アイコン（オプション）
         if (stat.icon != null) ...[
           Container(
-            padding: const EdgeInsets.all(WanMapSpacing.sm),
+            padding: const EdgeInsets.all(WanWalkSpacing.sm),
             decoration: BoxDecoration(
-              color: (stat.color ?? WanMapColors.accent).withOpacity(0.1),
+              color: (stat.color ?? WanWalkColors.accent).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               stat.icon,
               size: 24,
-              color: stat.color ?? WanMapColors.accent,
+              color: stat.color ?? WanWalkColors.accent,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
         ],
         
         // 数値 + 単位
@@ -141,7 +141,7 @@ class WanMapStatsRow extends StatelessWidget {
                 height: 1.0,
               ),
             ),
-            const SizedBox(width: WanMapSpacing.xxs),
+            const SizedBox(width: WanWalkSpacing.xxs),
             Text(
               stat.unit,
               style: TextStyle(
@@ -152,7 +152,7 @@ class WanMapStatsRow extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: WanMapSpacing.xxs),
+        const SizedBox(height: WanWalkSpacing.xxs),
         
         // ラベル
         Text(
@@ -170,14 +170,14 @@ class WanMapStatsRow extends StatelessWidget {
 }
 
 /// 統計アイテムのデータクラス
-class WanMapStatItem {
+class WanWalkStatItem {
   final String value;
   final String unit;
   final String label;
   final IconData? icon;
   final Color? color;
 
-  const WanMapStatItem({
+  const WanWalkStatItem({
     required this.value,
     required this.unit,
     required this.label,
@@ -187,7 +187,7 @@ class WanMapStatItem {
 }
 
 /// プログレスサークル統計表示
-class WanMapProgressStat extends StatelessWidget {
+class WanWalkProgressStat extends StatelessWidget {
   final double progress; // 0.0 ~ 1.0
   final String value;
   final String unit;
@@ -195,7 +195,7 @@ class WanMapProgressStat extends StatelessWidget {
   final Color? progressColor;
   final double size;
 
-  const WanMapProgressStat({
+  const WanWalkProgressStat({
     super.key,
     required this.progress,
     required this.value,
@@ -209,12 +209,12 @@ class WanMapProgressStat extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final secondaryTextColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
-    final defaultProgressColor = progressColor ?? WanMapColors.accent;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
+    final defaultProgressColor = progressColor ?? WanWalkColors.accent;
 
     return Column(
       children: [
@@ -233,7 +233,7 @@ class WanMapProgressStat extends StatelessWidget {
                   value: 1.0,
                   strokeWidth: 8,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    WanMapColors.textTertiaryLight,
+                    WanWalkColors.textTertiaryLight,
                   ),
                 ),
               ),
@@ -282,7 +282,7 @@ class WanMapProgressStat extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         
         // ラベル
         Text(
@@ -300,14 +300,14 @@ class WanMapProgressStat extends StatelessWidget {
 }
 
 /// リニアプログレス統計表示
-class WanMapLinearProgressStat extends StatelessWidget {
+class WanWalkLinearProgressStat extends StatelessWidget {
   final double progress; // 0.0 ~ 1.0
   final String value;
   final String unit;
   final String label;
   final Color? progressColor;
 
-  const WanMapLinearProgressStat({
+  const WanWalkLinearProgressStat({
     super.key,
     required this.progress,
     required this.value,
@@ -320,12 +320,12 @@ class WanMapLinearProgressStat extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final secondaryTextColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
-    final defaultProgressColor = progressColor ?? WanMapColors.accent;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
+    final defaultProgressColor = progressColor ?? WanWalkColors.accent;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,7 +355,7 @@ class WanMapLinearProgressStat extends StatelessWidget {
                     height: 1.0,
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.xxs),
+                const SizedBox(width: WanWalkSpacing.xxs),
                 Text(
                   unit,
                   style: TextStyle(
@@ -368,7 +368,7 @@ class WanMapLinearProgressStat extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         
         // プログレスバー
         ClipRRect(
@@ -376,7 +376,7 @@ class WanMapLinearProgressStat extends StatelessWidget {
           child: LinearProgressIndicator(
             value: progress.clamp(0.0, 1.0),
             minHeight: 8,
-            backgroundColor: WanMapColors.textTertiaryLight,
+            backgroundColor: WanWalkColors.textTertiaryLight,
             valueColor: AlwaysStoppedAnimation<Color>(
               defaultProgressColor,
             ),
@@ -388,14 +388,14 @@ class WanMapLinearProgressStat extends StatelessWidget {
 }
 
 /// 比較統計表示（先週比など）
-class WanMapComparisonStat extends StatelessWidget {
+class WanWalkComparisonStat extends StatelessWidget {
   final String value;
   final String unit;
   final String label;
   final double? comparisonValue; // 前回の値
   final String? comparisonLabel; // "vs 先週" など
 
-  const WanMapComparisonStat({
+  const WanWalkComparisonStat({
     super.key,
     required this.value,
     required this.unit,
@@ -408,11 +408,11 @@ class WanMapComparisonStat extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final secondaryTextColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
     // 差分計算
     double? diff;
@@ -437,7 +437,7 @@ class WanMapComparisonStat extends StatelessWidget {
             color: secondaryTextColor,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.xs),
+        const SizedBox(height: WanWalkSpacing.xs),
         
         // メインの数値
         Row(
@@ -453,7 +453,7 @@ class WanMapComparisonStat extends StatelessWidget {
                 height: 1.0,
               ),
             ),
-            const SizedBox(width: WanMapSpacing.xs),
+            const SizedBox(width: WanWalkSpacing.xs),
             Text(
               unit,
               style: TextStyle(
@@ -467,25 +467,25 @@ class WanMapComparisonStat extends StatelessWidget {
         
         // 比較情報
         if (diff != null && isIncrease != null) ...[
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: WanWalkSpacing.xs),
           Row(
             children: [
               Icon(
                 isIncrease ? Icons.arrow_upward : Icons.arrow_downward,
                 size: 16,
-                color: isIncrease ? WanMapColors.success : WanMapColors.error,
+                color: isIncrease ? WanWalkColors.success : WanWalkColors.error,
               ),
-              const SizedBox(width: WanMapSpacing.xxs),
+              const SizedBox(width: WanWalkSpacing.xxs),
               Text(
                 '${diff.abs().toStringAsFixed(1)}$unit',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isIncrease ? WanMapColors.success : WanMapColors.error,
+                  color: isIncrease ? WanWalkColors.success : WanWalkColors.error,
                 ),
               ),
               if (comparisonLabel != null) ...[
-                const SizedBox(width: WanMapSpacing.xs),
+                const SizedBox(width: WanWalkSpacing.xs),
                 Text(
                   comparisonLabel!,
                   style: TextStyle(

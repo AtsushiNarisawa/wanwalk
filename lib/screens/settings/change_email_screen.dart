@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 
 /// メールアドレス変更画面
 class ChangeEmailScreen extends ConsumerStatefulWidget {
@@ -81,13 +81,13 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
             title: const Row(
               children: [
                 Icon(Icons.check_circle, color: Colors.green, size: 28),
-                SizedBox(width: WanMapSpacing.small),
+                SizedBox(width: WanWalkSpacing.small),
                 Text('確認メール送信'),
               ],
             ),
             content: Text(
               '${_newEmailController.text.trim()} に確認メールを送信しました。\n\nメール内のリンクをクリックして、メールアドレス変更を完了してください。',
-              style: WanMapTypography.body,
+              style: WanWalkTypography.body,
             ),
             actions: [
               TextButton(
@@ -98,7 +98,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                 child: const Text(
                   'OK',
                   style: TextStyle(
-                    color: WanMapColors.accent,
+                    color: WanWalkColors.accent,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -150,19 +150,19 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: const Text(
           'メールアドレス変更',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(WanMapSpacing.medium),
+          padding: const EdgeInsets.all(WanWalkSpacing.medium),
           child: Form(
             key: _formKey,
             child: Column(
@@ -170,7 +170,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
               children: [
                 // 注意事項
                 Container(
-                  padding: const EdgeInsets.all(WanMapSpacing.medium),
+                  padding: const EdgeInsets.all(WanWalkSpacing.medium),
                   decoration: BoxDecoration(
                     color: isDark
                         ? Colors.blue.shade900.withOpacity(0.3)
@@ -185,11 +185,11 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                         size: 20,
                         color: isDark ? Colors.blue.shade200 : Colors.blue.shade700,
                       ),
-                      const SizedBox(width: WanMapSpacing.small),
+                      const SizedBox(width: WanWalkSpacing.small),
                       Expanded(
                         child: Text(
                           '新しいメールアドレスに確認メールが送信されます。メール内のリンクをクリックして変更を完了してください。',
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: isDark
                                 ? Colors.blue.shade200
                                 : Colors.blue.shade700,
@@ -199,51 +199,51 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // 現在のメールアドレス表示
                 const Text(
                   '現在のメールアドレス',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 Container(
-                  padding: const EdgeInsets.all(WanMapSpacing.medium),
+                  padding: const EdgeInsets.all(WanWalkSpacing.medium),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? WanMapColors.cardDark.withOpacity(0.5)
+                        ? WanWalkColors.cardDark.withOpacity(0.5)
                         : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     _currentEmail ?? '読み込み中...',
-                    style: WanMapTypography.body.copyWith(
+                    style: WanWalkTypography.body.copyWith(
                       color: isDark ? Colors.white70 : Colors.black54,
                     ),
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // パスワード確認
                 const Text(
                   'パスワード',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _currentPasswordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     hintText: '現在のパスワードを入力',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.medium,
-                      vertical: WanMapSpacing.small,
+                      horizontal: WanWalkSpacing.medium,
+                      vertical: WanWalkSpacing.small,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -265,28 +265,28 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
 
                 // 新しいメールアドレス
                 const Text(
                   '新しいメールアドレス',
-                  style: WanMapTypography.heading3,
+                  style: WanWalkTypography.heading3,
                 ),
-                const SizedBox(height: WanMapSpacing.small),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _newEmailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     hintText: '新しいメールアドレスを入力',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.medium,
-                      vertical: WanMapSpacing.small,
+                      horizontal: WanWalkSpacing.medium,
+                      vertical: WanWalkSpacing.small,
                     ),
                     prefixIcon: const Icon(Icons.email_outlined),
                   ),
@@ -305,16 +305,16 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: WanMapSpacing.xxl),
+                const SizedBox(height: WanWalkSpacing.xxl),
 
                 // 変更ボタン
                 ElevatedButton(
                   onPressed: _isLoading ? null : _changeEmail,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: WanMapColors.accent,
+                    backgroundColor: WanWalkColors.accent,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      vertical: WanMapSpacing.medium,
+                      vertical: WanWalkSpacing.medium,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -331,7 +331,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                         )
                       : Text(
                           'メールアドレスを変更',
-                          style: WanMapTypography.heading3.copyWith(
+                          style: WanWalkTypography.heading3.copyWith(
                             color: Colors.white,
                           ),
                         ),

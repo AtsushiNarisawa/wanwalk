@@ -1,4 +1,4 @@
-# WanMap v2 最終UX設計 - Atsushiさん改善案
+# WanWalk v2 最終UX設計 - Atsushiさん改善案
 
 ## 📋 最終決定事項
 
@@ -203,7 +203,7 @@ class DailyWalkLandingScreen extends StatelessWidget {
 
 ```
 ┌─────────────────────────────────────┐
-│  WanMap            🔔              │ <- AppBar
+│  WanWalk            🔔              │ <- AppBar
 ├─────────────────────────────────────┤
 │                                     │
 │  📍 マップ表示 (200px)              │

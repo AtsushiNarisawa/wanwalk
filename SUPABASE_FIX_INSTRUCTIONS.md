@@ -38,7 +38,7 @@ DROP FUNCTION IF EXISTS get_recent_pins(INT, INT);
 
 ```sql
 -- =====================================================
--- WanMap: get_recent_pins修正（route_id=NULL対応）
+-- WanWalk: get_recent_pins修正（route_id=NULL対応）
 -- =====================================================
 CREATE OR REPLACE FUNCTION get_recent_pins(
   p_limit INT DEFAULT 10,
@@ -146,7 +146,7 @@ SELECT * FROM get_recent_pins(2, 0);
 ### 1. Mac側で最新コードを取得
 
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 git pull origin main
 ```
 
@@ -244,4 +244,4 @@ areas (エリア)
 
 ---
 
-**このファイルの場所**: `/home/user/webapp/wanmap_v2/SUPABASE_FIX_INSTRUCTIONS.md`
+**このファイルの場所**: `/home/user/webapp/wanwalk/SUPABASE_FIX_INSTRUCTIONS.md`

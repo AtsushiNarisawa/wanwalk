@@ -1,5 +1,5 @@
 # Final Status Report - 2025-11-27
-**Project**: WanMap v2
+**Project**: WanWalk v2
 **Date**: November 27, 2025
 **Status**: ✅ ALL OBJECTIVES COMPLETED
 
@@ -28,7 +28,7 @@ Total Commits Today: 3
 - 93bfdba: Emergency RPC fix (4 files)
 
 Current Branch: main
-Remote: https://github.com/AtsushiNarisawa/wanmap_v2
+Remote: https://github.com/AtsushiNarisawa/wanwalk
 Latest Commit: 93bfdba
 ```
 
@@ -65,7 +65,7 @@ Critical RPCs: Restored ✅
 
 ### Mac Environment (Local)
 ```
-Location: ~/projects/webapp/wanmap_v2
+Location: ~/projects/webapp/wanwalk
 Flutter: 3.38.3
 Dart: 3.10.1
 Xcode: Ready
@@ -78,7 +78,7 @@ Latest Commit: 93bfdba
 
 ### Sandbox Environment
 ```
-Location: /home/user/webapp/wanmap_v2
+Location: /home/user/webapp/wanwalk
 Git Branch: main
 Git Status: Up to date with origin/main
 Latest Commit: 93bfdba
@@ -99,8 +99,8 @@ Critical Functions: ✅ All working
 ### GitHub Repository
 ```
 Owner: AtsushiNarisawa
-Repo: wanmap_v2
-URL: https://github.com/AtsushiNarisawa/wanmap_v2
+Repo: wanwalk
+URL: https://github.com/AtsushiNarisawa/wanwalk
 Branch: main
 Latest Commit: 93bfdba
 Status: ✅ All changes pushed
@@ -357,7 +357,7 @@ SELECT * FROM your_function();
 ## 📞 Contact & Resources
 
 ### Project Links
-- **GitHub**: https://github.com/AtsushiNarisawa/wanmap_v2
+- **GitHub**: https://github.com/AtsushiNarisawa/wanwalk
 - **Supabase**: https://supabase.com/dashboard/project/jkpenklhrlbctebkpvax
 - **Latest Commit**: 93bfdba
 

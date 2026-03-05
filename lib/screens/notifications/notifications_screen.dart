@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/notifications/notification_item.dart';
@@ -64,14 +64,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: const Text(
           '通知',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
         actions: [
           notificationsAsync.maybeWhen(
@@ -108,14 +108,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             },
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.all(WanMapSpacing.medium),
+              padding: const EdgeInsets.all(WanWalkSpacing.medium),
               itemCount: notifications.length + 1,
               itemBuilder: (context, index) {
                 if (index == notifications.length) {
                   return _buildLoadingIndicator();
                 }
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: WanMapSpacing.small),
+                  padding: const EdgeInsets.only(bottom: WanWalkSpacing.small),
                   child: NotificationItem(
                     notification: notifications[index],
                     onTap: () async {
@@ -189,20 +189,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             size: 64,
             color: isDark ? Colors.white38 : Colors.black38,
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           Text(
             'ログインが必要です',
-            style: WanMapTypography.heading3.copyWith(
+            style: WanWalkTypography.heading3.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           ElevatedButton(
             onPressed: () {
               Navigator.pushNamed(context, '/login');
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: WanMapColors.accent,
+              backgroundColor: WanWalkColors.accent,
             ),
             child: const Text('ログイン'),
           ),
@@ -221,10 +221,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             size: 64,
             color: isDark ? Colors.white38 : Colors.black38,
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           Text(
             '通知はありません',
-            style: WanMapTypography.heading3.copyWith(
+            style: WanWalkTypography.heading3.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),
           ),
@@ -243,17 +243,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             size: 64,
             color: isDark ? Colors.red.shade300 : Colors.red,
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           Text(
             'エラーが発生しました',
-            style: WanMapTypography.heading3.copyWith(
+            style: WanWalkTypography.heading3.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.small),
+          const SizedBox(height: WanWalkSpacing.small),
           Text(
             error,
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: isDark ? Colors.white54 : Colors.black45,
             ),
             textAlign: TextAlign.center,
@@ -265,7 +265,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   Widget _buildLoadingIndicator() {
     return const Padding(
-      padding: EdgeInsets.all(WanMapSpacing.medium),
+      padding: EdgeInsets.all(WanWalkSpacing.medium),
       child: Center(
         child: CircularProgressIndicator(),
       ),

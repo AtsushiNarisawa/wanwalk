@@ -2,7 +2,7 @@
 -- Storage Bucket Creation: walk-photos
 -- ============================================================================
 -- Description: Create Supabase Storage bucket for walk photos
--- Author: WanMap Development Team
+-- Author: WanWalk Development Team
 -- Created: 2025-11-24
 -- Version: 1
 -- ============================================================================

@@ -8,7 +8,7 @@
 --
 -- 実行手順:
 -- 1. https://supabase.com/dashboard にアクセス
--- 2. WanMapプロジェクトを選択
+-- 2. WanWalkプロジェクトを選択
 -- 3. 左サイドバー → Authentication → Users
 -- 4. "Add user" ボタンをクリック
 -- 5. 以下の情報を入力:

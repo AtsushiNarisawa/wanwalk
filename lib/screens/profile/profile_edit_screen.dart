@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/auth_provider.dart';
 
 /// プロフィール編集画面
@@ -246,14 +246,14 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: const Text(
           'プロフィール編集',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
         actions: [
           if (_isSaving)
@@ -273,7 +273,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               child: const Text(
                 '保存',
                 style: TextStyle(
-                  color: WanMapColors.accent,
+                  color: WanWalkColors.accent,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -285,7 +285,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(WanMapSpacing.medium),
+                padding: const EdgeInsets.all(WanWalkSpacing.medium),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -307,11 +307,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                                       )
                                     : CircleAvatar(
                                         radius: 60,
-                                        backgroundColor: WanMapColors.accent.withOpacity(0.2),
+                                        backgroundColor: WanWalkColors.accent.withOpacity(0.2),
                                         child: const Icon(
                                           Icons.person,
                                           size: 60,
-                                          color: WanMapColors.accent,
+                                          color: WanWalkColors.accent,
                                         ),
                                       ),
                             Positioned(
@@ -322,7 +322,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: const BoxDecoration(
-                                    color: WanMapColors.accent,
+                                    color: WanWalkColors.accent,
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -336,27 +336,27 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: WanMapSpacing.large),
+                      const SizedBox(height: WanWalkSpacing.large),
                       
                       // 名前入力
                       const Text(
                         '名前',
-                        style: WanMapTypography.heading3,
+                        style: WanWalkTypography.heading3,
                       ),
-                      const SizedBox(height: WanMapSpacing.small),
+                      const SizedBox(height: WanWalkSpacing.small),
                       TextFormField(
                         controller: _nameController,
                         decoration: InputDecoration(
                           hintText: '名前を入力してください',
                           filled: true,
-                          fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                          fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: WanMapSpacing.medium,
-                            vertical: WanMapSpacing.small,
+                            horizontal: WanWalkSpacing.medium,
+                            vertical: WanWalkSpacing.small,
                           ),
                         ),
                         validator: (value) {
@@ -369,25 +369,25 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: WanMapSpacing.large),
+                      const SizedBox(height: WanWalkSpacing.large),
                       
                       // 自己紹介入力
                       const Text(
                         '自己紹介',
-                        style: WanMapTypography.heading3,
+                        style: WanWalkTypography.heading3,
                       ),
-                      const SizedBox(height: WanMapSpacing.small),
+                      const SizedBox(height: WanWalkSpacing.small),
                       TextFormField(
                         controller: _bioController,
                         decoration: InputDecoration(
                           hintText: '愛犬と一緒に散歩を楽しんでいます！',
                           filled: true,
-                          fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                          fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.all(WanMapSpacing.medium),
+                          contentPadding: const EdgeInsets.all(WanWalkSpacing.medium),
                         ),
                         maxLines: 5,
                         maxLength: 200,
@@ -398,11 +398,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: WanMapSpacing.large),
+                      const SizedBox(height: WanWalkSpacing.large),
                       
                       // 注意事項
                       Container(
-                        padding: const EdgeInsets.all(WanMapSpacing.medium),
+                        padding: const EdgeInsets.all(WanWalkSpacing.medium),
                         decoration: BoxDecoration(
                           color: isDark
                               ? Colors.blue.shade900.withOpacity(0.3)
@@ -417,11 +417,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                               size: 20,
                               color: isDark ? Colors.blue.shade200 : Colors.blue.shade700,
                             ),
-                            const SizedBox(width: WanMapSpacing.small),
+                            const SizedBox(width: WanWalkSpacing.small),
                             Expanded(
                               child: Text(
                                 'プロフィール情報は他のユーザーに公開されます',
-                                style: WanMapTypography.caption.copyWith(
+                                style: WanWalkTypography.caption.copyWith(
                                   color: isDark
                                       ? Colors.blue.shade200
                                       : Colors.blue.shade700,

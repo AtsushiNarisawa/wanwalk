@@ -1,4 +1,4 @@
-# WanMap v2 - Phase 1 & 2 デプロイ手順
+# WanWalk v2 - Phase 1 & 2 デプロイ手順
 
 ## 実装完了内容
 
@@ -51,7 +51,7 @@
 3. **以下のSQLをコピー&ペースト**
    ```sql
    -- =====================================================
-   -- WanMap: ホーム画面用・最新の写真付きピン投稿取得
+   -- WanWalk: ホーム画面用・最新の写真付きピン投稿取得
    -- =====================================================
    -- 実行日: 2025-11-29
    -- 目的: ホームタブに最新の写真付きピン投稿を表示するRPC追加
@@ -144,7 +144,7 @@
 
 ### 1. GitHubから最新コードを取得
 ```bash
-cd /Users/atsushinarisawa/projects/webapp/wanmap_v2
+cd /Users/atsushinarisawa/projects/webapp/wanwalk
 
 git pull origin main
 
@@ -218,7 +218,7 @@ flutter run
 **解決策**:
 - Week 3データインポートスクリプトを実行:
   ```bash
-  cd /Users/atsushinarisawa/projects/webapp/wanmap_v2/scripts
+  cd /Users/atsushinarisawa/projects/webapp/wanwalk/scripts
   python3 add_hakone_pins.py
   python3 add_yokohama_kamakura_pins.py
   ```

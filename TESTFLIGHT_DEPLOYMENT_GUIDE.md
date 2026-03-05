@@ -21,7 +21,7 @@
 
 ### STEP 1: プロジェクトのクリーンアップ
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 flutter clean
 flutter pub get
 ```
@@ -41,8 +41,8 @@ open ios/Runner.xcworkspace
 
 ### STEP 4: Xcode設定の確認
 1. **General タブ**
-   - Display Name: `WanMap`
-   - Bundle Identifier: `com.doghub.wanmap` (または既存のID)
+   - Display Name: `WanWalk`
+   - Bundle Identifier: `com.doghub.wanwalk` (または既存のID)
    - Version: `1.0.0`
    - Build: `10`
    - Minimum Deployments: `iOS 13.0`
@@ -70,7 +70,7 @@ open ios/Runner.xcworkspace
 ### STEP 7: App Store Connectでの処理待ち
 1. アップロード完了後、App Store Connectでの処理に約10-30分かかります
 2. https://appstoreconnect.apple.com にアクセス
-3. `マイApp` → `WanMap` → `TestFlight`タブ
+3. `マイApp` → `WanWalk` → `TestFlight`タブ
 4. 処理中のビルドが表示されます
 
 ### STEP 8: TestFlightでのテスト準備

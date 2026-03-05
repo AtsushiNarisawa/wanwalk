@@ -2,7 +2,7 @@
 -- Phase 6: Dogs Table (犬情報)
 -- ============================================================================
 -- Description: Table for storing dog information
--- Author: WanMap Development Team
+-- Author: WanWalk Development Team
 -- Created: 2025-11-24
 -- Version: 1
 -- ============================================================================

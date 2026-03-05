@@ -6,10 +6,10 @@ import 'package:latlong2/latlong.dart';
 import '../../services/gps_service.dart';
 import '../../services/photo_service.dart';
 import '../../config/supabase_config.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
-import '../../widgets/wanmap_widgets.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
+import '../../widgets/wanwalk_widgets.dart';
 import '../../models/route_model.dart';
 
 /// マップ画面
@@ -270,11 +270,11 @@ class _MapScreenState extends State<MapScreen> {
           
           return Dialog(
             shape: const RoundedRectangleBorder(
-              borderRadius: WanMapSpacing.borderRadiusXL,
+              borderRadius: WanWalkSpacing.borderRadiusXL,
             ),
             insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
-              padding: const EdgeInsets.all(WanMapSpacing.lg),
+              padding: const EdgeInsets.all(WanWalkSpacing.lg),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -284,45 +284,45 @@ class _MapScreenState extends State<MapScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(WanMapSpacing.sm),
+                          padding: const EdgeInsets.all(WanWalkSpacing.sm),
                           decoration: BoxDecoration(
-                            color: WanMapColors.accent.withOpacity(0.1),
+                            color: WanWalkColors.accent.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.save,
-                            color: WanMapColors.accent,
+                            color: WanWalkColors.accent,
                             size: 28,
                           ),
                         ),
-                        const SizedBox(width: WanMapSpacing.md),
+                        const SizedBox(width: WanWalkSpacing.md),
                         Expanded(
                           child: Text(
                             'お散歩を保存',
-                            style: WanMapTypography.headlineSmall.copyWith(
+                            style: WanWalkTypography.headlineSmall.copyWith(
                               color: isDark 
-                                  ? WanMapColors.textPrimaryDark 
-                                  : WanMapColors.textPrimaryLight,
+                                  ? WanWalkColors.textPrimaryDark 
+                                  : WanWalkColors.textPrimaryLight,
                             ),
                           ),
                         ),
                       ],
                     ),
                     
-                    const SizedBox(height: WanMapSpacing.xl),
+                    const SizedBox(height: WanWalkSpacing.xl),
                     
                     // タイトル入力
-                    WanMapTextField(
+                    WanWalkTextField(
                       controller: titleController,
                       labelText: 'ルート名',
                       hintText: '朝の散歩、公園ルートなど',
                       prefixIcon: Icons.edit,
                     ),
                     
-                    const SizedBox(height: WanMapSpacing.lg),
+                    const SizedBox(height: WanWalkSpacing.lg),
                     
                     // 説明入力
-                    WanMapTextField(
+                    WanWalkTextField(
                       controller: descriptionController,
                       labelText: '説明（任意）',
                       hintText: 'ルートの特徴やメモ',
@@ -330,42 +330,42 @@ class _MapScreenState extends State<MapScreen> {
                       maxLines: 3,
                     ),
                     
-                    const SizedBox(height: WanMapSpacing.lg),
+                    const SizedBox(height: WanWalkSpacing.lg),
                     
                     // 公開設定
-                    WanMapCard(
-                      size: WanMapCardSize.small,
-                      padding: const EdgeInsets.all(WanMapSpacing.md),
+                    WanWalkCard(
+                      size: WanWalkCardSize.small,
+                      padding: const EdgeInsets.all(WanWalkSpacing.md),
                       child: Row(
                         children: [
                           Icon(
                             isPublic ? Icons.public : Icons.lock,
                             color: isPublic 
-                                ? WanMapColors.secondary 
-                                : WanMapColors.textSecondaryLight,
+                                ? WanWalkColors.secondary 
+                                : WanWalkColors.textSecondaryLight,
                           ),
-                          const SizedBox(width: WanMapSpacing.md),
+                          const SizedBox(width: WanWalkSpacing.md),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   '公開設定',
-                                  style: WanMapTypography.titleSmall.copyWith(
+                                  style: WanWalkTypography.titleSmall.copyWith(
                                     color: isDark 
-                                        ? WanMapColors.textPrimaryDark 
-                                        : WanMapColors.textPrimaryLight,
+                                        ? WanWalkColors.textPrimaryDark 
+                                        : WanWalkColors.textPrimaryLight,
                                   ),
                                 ),
-                                const SizedBox(height: WanMapSpacing.xxs),
+                                const SizedBox(height: WanWalkSpacing.xxs),
                                 Text(
                                   isPublic 
                                       ? '他のユーザーが閲覧できます' 
                                       : 'あなただけが閲覧できます',
-                                  style: WanMapTypography.labelSmall.copyWith(
+                                  style: WanWalkTypography.labelSmall.copyWith(
                                     color: isDark 
-                                        ? WanMapColors.textSecondaryDark 
-                                        : WanMapColors.textSecondaryLight,
+                                        ? WanWalkColors.textSecondaryDark 
+                                        : WanWalkColors.textSecondaryLight,
                                   ),
                                 ),
                               ],
@@ -373,7 +373,7 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                           Switch(
                             value: isPublic,
-                            activeThumbColor: WanMapColors.secondary,
+                            activeThumbColor: WanWalkColors.secondary,
                             onChanged: (value) {
                               setState(() => isPublic = value);
                             },
@@ -382,17 +382,17 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
                     
-                    const SizedBox(height: WanMapSpacing.xl),
+                    const SizedBox(height: WanWalkSpacing.xl),
                     
                     // ボタン
                     Row(
                       children: [
                         Expanded(
                           flex: 5,
-                          child: WanMapButton(
+                          child: WanWalkButton(
                             text: 'キャンセル',
-                            size: WanMapButtonSize.small,
-                            variant: WanMapButtonVariant.outlined,
+                            size: WanWalkButtonSize.small,
+                            variant: WanWalkButtonVariant.outlined,
                             onPressed: () {
                               showDialog(
                                 context: context,
@@ -424,10 +424,10 @@ class _MapScreenState extends State<MapScreen> {
                             },
                           ),
                         ),
-                        const SizedBox(width: WanMapSpacing.sm),
+                        const SizedBox(width: WanWalkSpacing.sm),
                         Expanded(
                           flex: 5,
-                          child: WanMapButton(
+                          child: WanWalkButton(
                             text: '保存',
                             icon: Icons.check,
                             onPressed: () {
@@ -437,7 +437,7 @@ class _MapScreenState extends State<MapScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('ルート名を入力してください'),
-                                    backgroundColor: WanMapColors.error,
+                                    backgroundColor: WanWalkColors.error,
                                   ),
                                 );
                                 return;
@@ -604,7 +604,7 @@ class _MapScreenState extends State<MapScreen> {
       return Scaffold(
         body: Container(
           decoration: const BoxDecoration(
-            gradient: WanMapColors.primaryGradient,
+            gradient: WanWalkColors.primaryGradient,
           ),
           child: const Center(
             child: CircularProgressIndicator(
@@ -638,8 +638,8 @@ class _MapScreenState extends State<MapScreen> {
 
     return Scaffold(
       backgroundColor: isDark 
-          ? WanMapColors.backgroundDark 
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark 
+          : WanWalkColors.backgroundLight,
       body: Stack(
         children: [
           // 背景のマップ（全画面）
@@ -662,7 +662,7 @@ class _MapScreenState extends State<MapScreen> {
                   polylines: [
                     Polyline(
                       points: _routePoints,
-                      color: WanMapColors.accent,
+                      color: WanWalkColors.accent,
                       strokeWidth: 5.0,
                     ),
                   ],
@@ -678,7 +678,7 @@ class _MapScreenState extends State<MapScreen> {
                       height: 50,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: WanMapColors.accent,
+                          color: WanWalkColors.accent,
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 4),
                           boxShadow: [
@@ -727,7 +727,7 @@ class _MapScreenState extends State<MapScreen> {
 
           // 現在位置ボタン
           Positioned(
-            right: WanMapSpacing.lg,
+            right: WanWalkSpacing.lg,
             bottom: 200,
             child: Container(
               decoration: BoxDecoration(
@@ -745,7 +745,7 @@ class _MapScreenState extends State<MapScreen> {
                 iconSize: 28,
                 icon: const Icon(
                   Icons.my_location,
-                  color: WanMapColors.accent,
+                  color: WanWalkColors.accent,
                 ),
                 onPressed: () async {
                   final position = await _gpsService.getCurrentPosition();
@@ -776,10 +776,10 @@ class _MapScreenState extends State<MapScreen> {
     return Container(
       decoration: BoxDecoration(
         color: isDark 
-            ? WanMapColors.surfaceDark.withOpacity(0.95)
+            ? WanWalkColors.surfaceDark.withOpacity(0.95)
             : Colors.white.withOpacity(0.95),
         borderRadius: const BorderRadius.vertical(
-          bottom: Radius.circular(WanMapSpacing.radiusXXL),
+          bottom: Radius.circular(WanWalkSpacing.radiusXXL),
         ),
         boxShadow: [
           BoxShadow(
@@ -791,9 +791,9 @@ class _MapScreenState extends State<MapScreen> {
       ),
       padding: const EdgeInsets.only(
         top: 60, // ステータスバー分
-        bottom: WanMapSpacing.xl,
-        left: WanMapSpacing.xl,
-        right: WanMapSpacing.xl,
+        bottom: WanWalkSpacing.xl,
+        left: WanWalkSpacing.xl,
+        right: WanWalkSpacing.xl,
       ),
       child: Column(
         children: [
@@ -806,31 +806,31 @@ class _MapScreenState extends State<MapScreen> {
                   width: 10,
                   height: 10,
                   decoration: const BoxDecoration(
-                    color: WanMapColors.error,
+                    color: WanWalkColors.error,
                     shape: BoxShape.circle,
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.xs),
+                const SizedBox(width: WanWalkSpacing.xs),
                 Text(
                   '記録中',
-                  style: WanMapTypography.labelLarge.copyWith(
-                    color: WanMapColors.error,
+                  style: WanWalkTypography.labelLarge.copyWith(
+                    color: WanWalkColors.error,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: WanMapSpacing.lg),
+            const SizedBox(height: WanWalkSpacing.lg),
           ],
 
           // メイン距離表示（超大サイズ）
-          WanMapHeroStat(
+          WanWalkHeroStat(
             value: distanceKm.toStringAsFixed(2),
             unit: 'km',
             label: '距離',
           ),
           
-          const SizedBox(height: WanMapSpacing.xl),
+          const SizedBox(height: WanWalkSpacing.xl),
           
           // サブ統計（時間・ペース）
           Row(
@@ -847,8 +847,8 @@ class _MapScreenState extends State<MapScreen> {
                 width: 1,
                 height: 40,
                 color: isDark 
-                    ? WanMapColors.textTertiaryDark 
-                    : WanMapColors.textTertiaryLight,
+                    ? WanWalkColors.textTertiaryDark 
+                    : WanWalkColors.textTertiaryLight,
               ),
               _buildSubStat(
                 context,
@@ -874,20 +874,20 @@ class _MapScreenState extends State<MapScreen> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final secondaryColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
     return Column(
       children: [
         Icon(
           icon,
           size: 24,
-          color: WanMapColors.accent,
+          color: WanWalkColors.accent,
         ),
-        const SizedBox(height: WanMapSpacing.xs),
+        const SizedBox(height: WanWalkSpacing.xs),
         Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
@@ -920,10 +920,10 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ],
         ),
-        const SizedBox(height: WanMapSpacing.xxs),
+        const SizedBox(height: WanWalkSpacing.xxs),
         Text(
           label,
-          style: WanMapTypography.labelSmall.copyWith(
+          style: WanWalkTypography.labelSmall.copyWith(
             color: secondaryColor,
           ),
         ),
@@ -938,10 +938,10 @@ class _MapScreenState extends State<MapScreen> {
     return Container(
       decoration: BoxDecoration(
         color: isDark 
-            ? WanMapColors.surfaceDark.withOpacity(0.95)
+            ? WanWalkColors.surfaceDark.withOpacity(0.95)
             : Colors.white.withOpacity(0.95),
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(WanMapSpacing.radiusXXL),
+          top: Radius.circular(WanWalkSpacing.radiusXXL),
         ),
         boxShadow: [
           BoxShadow(
@@ -951,20 +951,20 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(WanMapSpacing.xl),
+      padding: const EdgeInsets.all(WanWalkSpacing.xl),
       child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // メインコントロールボタン
-            WanMapButton(
+            WanWalkButton(
               text: _isRecording ? 'お散歩を終了' : 'お散歩を開始',
               icon: _isRecording ? Icons.stop : Icons.play_arrow,
-              size: WanMapButtonSize.large,
+              size: WanWalkButtonSize.large,
               fullWidth: true,
               variant: _isRecording 
-                  ? WanMapButtonVariant.outlined 
-                  : WanMapButtonVariant.primary,
+                  ? WanWalkButtonVariant.outlined 
+                  : WanWalkButtonVariant.primary,
               onPressed: () {
                 if (_isRecording) {
                   _stopRecording();
@@ -976,27 +976,27 @@ class _MapScreenState extends State<MapScreen> {
             
             // 一時停止ボタン（記録中のみ）
             if (_isRecording) ...[
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
               Row(
                 children: [
                   Expanded(
-                    child: WanMapButton(
+                    child: WanWalkButton(
                       text: _isPaused ? '再開' : '一時停止',
                       icon: _isPaused ? Icons.play_arrow : Icons.pause,
-                      size: WanMapButtonSize.small,
-                      variant: WanMapButtonVariant.outlined,
+                      size: WanWalkButtonSize.small,
+                      variant: WanWalkButtonVariant.outlined,
                       onPressed: _isPaused ? _resumeRecording : _pauseRecording,
                     ),
                   ),
-                  const SizedBox(width: WanMapSpacing.md),
+                  const SizedBox(width: WanWalkSpacing.md),
                   Expanded(
-                    child: WanMapButton(
+                    child: WanWalkButton(
                       text: _tempPhotoUrls.isEmpty 
                           ? '写真' 
                           : '写真 (${_tempPhotoUrls.length})',
                       icon: Icons.camera_alt,
-                      size: WanMapButtonSize.small,
-                      variant: WanMapButtonVariant.secondary,
+                      size: WanWalkButtonSize.small,
+                      variant: WanWalkButtonVariant.secondary,
                       onPressed: _takePhoto,
                     ),
                   ),

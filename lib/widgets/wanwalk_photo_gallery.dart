@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
-import '../config/wanmap_colors.dart';
-import '../config/wanmap_spacing.dart';
+import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_spacing.dart';
 
-/// WanMap フォトギャラリーウィジェット
+/// WanWalk フォトギャラリーウィジェット
 /// Instagram風のグリッド表示
 
-enum WanMapGalleryLayout {
+enum WanWalkGalleryLayout {
   grid2, // 2列グリッド
   grid3, // 3列グリッド
   masonry, // マソンリーレイアウト
 }
 
-class WanMapPhotoGallery extends StatelessWidget {
+class WanWalkPhotoGallery extends StatelessWidget {
   final List<String> imageUrls;
-  final WanMapGalleryLayout layout;
+  final WanWalkGalleryLayout layout;
   final Function(int)? onImageTap;
   final double spacing;
   final double aspectRatio;
 
-  const WanMapPhotoGallery({
+  const WanWalkPhotoGallery({
     super.key,
     required this.imageUrls,
-    this.layout = WanMapGalleryLayout.grid3,
+    this.layout = WanWalkGalleryLayout.grid3,
     this.onImageTap,
-    this.spacing = WanMapSpacing.xs,
+    this.spacing = WanWalkSpacing.xs,
     this.aspectRatio = 1.0,
   });
 
@@ -34,11 +34,11 @@ class WanMapPhotoGallery extends StatelessWidget {
     }
 
     switch (layout) {
-      case WanMapGalleryLayout.grid2:
+      case WanWalkGalleryLayout.grid2:
         return _buildGrid(context, crossAxisCount: 2);
-      case WanMapGalleryLayout.grid3:
+      case WanWalkGalleryLayout.grid3:
         return _buildGrid(context, crossAxisCount: 3);
-      case WanMapGalleryLayout.masonry:
+      case WanWalkGalleryLayout.masonry:
         return _buildMasonry(context);
     }
   }
@@ -110,9 +110,9 @@ class WanMapPhotoGallery extends StatelessWidget {
     return GestureDetector(
       onTap: () => onImageTap?.call(index),
       child: ClipRRect(
-        borderRadius: WanMapSpacing.borderRadiusMD,
+        borderRadius: WanWalkSpacing.borderRadiusMD,
         child: AspectRatio(
-          aspectRatio: layout == WanMapGalleryLayout.masonry 
+          aspectRatio: layout == WanWalkGalleryLayout.masonry 
               ? aspectRatio 
               : aspectRatio,
           child: Image.network(
@@ -120,18 +120,18 @@ class WanMapPhotoGallery extends StatelessWidget {
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: WanMapColors.textTertiaryLight,
+                color: WanWalkColors.textTertiaryLight,
                 child: const Icon(
                   Icons.image_not_supported,
                   size: 32,
-                  color: WanMapColors.textSecondaryLight,
+                  color: WanWalkColors.textSecondaryLight,
                 ),
               );
             },
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
               return Container(
-                color: WanMapColors.textTertiaryLight,
+                color: WanWalkColors.textTertiaryLight,
                 child: Center(
                   child: CircularProgressIndicator(
                     value: loadingProgress.expectedTotalBytes != null
@@ -151,21 +151,21 @@ class WanMapPhotoGallery extends StatelessWidget {
 }
 
 /// 単一写真表示ウィジェット（フルスクリーン対応）
-class WanMapPhotoViewer extends StatefulWidget {
+class WanWalkPhotoViewer extends StatefulWidget {
   final List<String> imageUrls;
   final int initialIndex;
 
-  const WanMapPhotoViewer({
+  const WanWalkPhotoViewer({
     super.key,
     required this.imageUrls,
     this.initialIndex = 0,
   });
 
   @override
-  State<WanMapPhotoViewer> createState() => _WanMapPhotoViewerState();
+  State<WanWalkPhotoViewer> createState() => _WanWalkPhotoViewerState();
 }
 
-class _WanMapPhotoViewerState extends State<WanMapPhotoViewer> {
+class _WanWalkPhotoViewerState extends State<WanWalkPhotoViewer> {
   late PageController _pageController;
   late int _currentIndex;
 
@@ -234,7 +234,7 @@ class _WanMapPhotoViewerState extends State<WanMapPhotoViewer> {
           // インジケーター
           if (widget.imageUrls.length > 1)
             Positioned(
-              bottom: WanMapSpacing.xl,
+              bottom: WanWalkSpacing.xl,
               left: 0,
               right: 0,
               child: Row(
@@ -245,7 +245,7 @@ class _WanMapPhotoViewerState extends State<WanMapPhotoViewer> {
                     width: 8,
                     height: 8,
                     margin: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.xxs,
+                      horizontal: WanWalkSpacing.xxs,
                     ),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -264,13 +264,13 @@ class _WanMapPhotoViewerState extends State<WanMapPhotoViewer> {
 }
 
 /// 写真アップロードウィジェット
-class WanMapPhotoUpload extends StatelessWidget {
+class WanWalkPhotoUpload extends StatelessWidget {
   final List<String> imageUrls;
   final VoidCallback onAddPhoto;
   final Function(int)? onRemovePhoto;
   final int maxPhotos;
 
-  const WanMapPhotoUpload({
+  const WanWalkPhotoUpload({
     super.key,
     required this.imageUrls,
     required this.onAddPhoto,
@@ -283,8 +283,8 @@ class WanMapPhotoUpload extends StatelessWidget {
     final bool canAddMore = imageUrls.length < maxPhotos;
 
     return Wrap(
-      spacing: WanMapSpacing.sm,
-      runSpacing: WanMapSpacing.sm,
+      spacing: WanWalkSpacing.sm,
+      runSpacing: WanWalkSpacing.sm,
       children: [
         // 既存の画像
         ...imageUrls.asMap().entries.map((entry) {
@@ -294,7 +294,7 @@ class WanMapPhotoUpload extends StatelessWidget {
           return Stack(
             children: [
               ClipRRect(
-                borderRadius: WanMapSpacing.borderRadiusMD,
+                borderRadius: WanWalkSpacing.borderRadiusMD,
                 child: Image.network(
                   url,
                   width: 100,
@@ -334,10 +334,10 @@ class WanMapPhotoUpload extends StatelessWidget {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: WanMapColors.textTertiaryLight,
-                borderRadius: WanMapSpacing.borderRadiusMD,
+                color: WanWalkColors.textTertiaryLight,
+                borderRadius: WanWalkSpacing.borderRadiusMD,
                 border: Border.all(
-                  color: WanMapColors.textSecondaryLight,
+                  color: WanWalkColors.textSecondaryLight,
                   width: 2,
                   style: BorderStyle.solid,
                 ),
@@ -348,14 +348,14 @@ class WanMapPhotoUpload extends StatelessWidget {
                   const Icon(
                     Icons.add_photo_alternate,
                     size: 32,
-                    color: WanMapColors.textSecondaryLight,
+                    color: WanWalkColors.textSecondaryLight,
                   ),
-                  const SizedBox(height: WanMapSpacing.xxs),
+                  const SizedBox(height: WanWalkSpacing.xxs),
                   Text(
                     '${imageUrls.length}/$maxPhotos',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: WanMapColors.textSecondaryLight,
+                      color: WanWalkColors.textSecondaryLight,
                     ),
                   ),
                 ],

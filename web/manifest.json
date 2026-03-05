@@ -1,6 +1,6 @@
 {
-    "name": "wanmap_v2",
-    "short_name": "wanmap_v2",
+    "name": "wanwalk_v2",
+    "short_name": "wanwalk_v2",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../config/wanmap_colors.dart';
-import '../../../config/wanmap_typography.dart';
-import '../../../config/wanmap_spacing.dart';
+import '../../../config/wanwalk_colors.dart';
+import '../../../config/wanwalk_typography.dart';
+import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/area_provider.dart';
 import '../../../providers/route_provider.dart';
 import '../../../providers/official_routes_screen_provider.dart';
@@ -23,7 +23,7 @@ import '../../outing/hakone_sub_area_screen.dart';
 import '../../routes/public_routes_screen.dart';
 import '../../outing/route_list_screen.dart';
 import '../../../models/area.dart';
-import '../../../widgets/shimmer/wanmap_shimmer.dart';
+import '../../../widgets/shimmer/wanwalk_shimmer.dart';
 
 /// HomeTab - 発見・閲覧のホーム画面
 /// 
@@ -51,22 +51,22 @@ class HomeTab extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark 
-          ? WanMapColors.backgroundDark 
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark 
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Row(
           children: [
-            const Icon(Icons.pets, color: WanMapColors.accent, size: 28),
-            const SizedBox(width: WanMapSpacing.sm),
+            const Icon(Icons.pets, color: WanWalkColors.accent, size: 28),
+            const SizedBox(width: WanWalkSpacing.sm),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   'WanWalk',
-                  style: WanMapTypography.headlineMedium.copyWith(
-                    color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                  style: WanWalkTypography.headlineMedium.copyWith(
+                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                     fontWeight: FontWeight.bold,
                     height: 1.0,
                   ),
@@ -86,22 +86,22 @@ class HomeTab extends ConsumerWidget {
             // 1. 今月の人気ルート
             _buildPopularRoutes(context, isDark),
             
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
             
             // 2. 最新のピン投稿（横2枚）
             _buildRecentPinPosts(context, isDark),
             
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
             
             // 3. おすすめエリア（3枚 + 一覧ボタン）
             _buildRecommendedAreas(context, isDark, areasAsync),
             
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
             
             // 4. 高評価スポット
             _buildTopRatedSpots(context, isDark),
             
-            const SizedBox(height: WanMapSpacing.xxxl),
+            const SizedBox(height: WanWalkSpacing.xxxl),
           ],
         ),
       ),
@@ -119,7 +119,7 @@ class HomeTab extends ConsumerWidget {
           children: [
             // セクションヘッダー
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               child: Row(
                 children: [
                   Container(
@@ -134,30 +134,30 @@ class HomeTab extends ConsumerWidget {
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: WanMapSpacing.sm),
+                  const SizedBox(width: WanWalkSpacing.sm),
                   Text(
                     '最新のピン投稿',
-                    style: WanMapTypography.headlineMedium.copyWith(
-                      color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    style: WanWalkTypography.headlineMedium.copyWith(
+                      color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               child: Text(
                 'みんなが見つけた素敵なスポット',
-                style: WanMapTypography.bodyMedium.copyWith(
-                  color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                style: WanWalkTypography.bodyMedium.copyWith(
+                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                 ),
               ),
             ),
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               child: Column(
                 children: [
               recentPinsAsync.when(
@@ -168,7 +168,7 @@ class HomeTab extends ConsumerWidget {
                   return Column(
                     children: pins.take(3).map((pin) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+                        padding: const EdgeInsets.only(bottom: WanWalkSpacing.md),
                         child: _RecentPinCard(
                           pin: pin,
                           isDark: isDark,
@@ -205,45 +205,45 @@ class HomeTab extends ConsumerWidget {
       children: [
         // セクションヘッダー
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: WanMapColors.primary.withOpacity(0.2),
+                  color: WanWalkColors.primary.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.explore_rounded,
-                  color: WanMapColors.primary,
+                  color: WanWalkColors.primary,
                   size: 20,
                 ),
               ),
-              const SizedBox(width: WanMapSpacing.sm),
+              const SizedBox(width: WanWalkSpacing.sm),
               Text(
                 'おすすめエリア',
-                style: WanMapTypography.headlineMedium.copyWith(
-                  color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                style: WanWalkTypography.headlineMedium.copyWith(
+                  color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
           child: Text(
             '愛犬と行きたい人気のお出かけスポット',
-            style: WanMapTypography.bodyMedium.copyWith(
-              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
             ),
           ),
         ),
-        const SizedBox(height: WanMapSpacing.md),
+        const SizedBox(height: WanWalkSpacing.md),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
           child: Column(
             children: [
           areasAsync.when(
@@ -286,7 +286,7 @@ class HomeTab extends ConsumerWidget {
                 children: [
                   // 箱根カード（大きく目立つ）
                   Padding(
-                    padding: const EdgeInsets.only(bottom: WanMapSpacing.md),
+                    padding: const EdgeInsets.only(bottom: WanWalkSpacing.md),
                     child: _FeaturedAreaCard(
                       area: hakoneArea,
                       isDark: isDark,
@@ -346,8 +346,8 @@ class HomeTab extends ConsumerWidget {
                       return Expanded(
                         child: Padding(
                           padding: EdgeInsets.only(
-                            right: index == 0 ? WanMapSpacing.sm / 2 : 0,
-                            left: index == 1 ? WanMapSpacing.sm / 2 : 0,
+                            right: index == 0 ? WanWalkSpacing.sm / 2 : 0,
+                            left: index == 1 ? WanWalkSpacing.sm / 2 : 0,
                           ),
                           child: _AreaCard(
                             name: area.name,
@@ -368,7 +368,7 @@ class HomeTab extends ConsumerWidget {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: WanMapSpacing.md),
+                  const SizedBox(height: WanWalkSpacing.md),
                   // 一覧を見るボタン
                   OutlinedButton.icon(
                     onPressed: () => Navigator.push(
@@ -378,12 +378,12 @@ class HomeTab extends ConsumerWidget {
                     icon: const Icon(Icons.list),
                     label: Text('一覧を見る（${areas.length}エリア）'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: WanMapColors.accent,
-                      side: const BorderSide(color: WanMapColors.accent),
+                      foregroundColor: WanWalkColors.accent,
+                      side: const BorderSide(color: WanWalkColors.accent),
                       minimumSize: const Size(double.infinity, 48),
                     ),
                   ),
-                  const SizedBox(height: WanMapSpacing.lg),
+                  const SizedBox(height: WanWalkSpacing.lg),
                   // バナー
                   _buildPromotionalBanner(context, isDark),
                 ],
@@ -418,45 +418,45 @@ class HomeTab extends ConsumerWidget {
           children: [
             // セクションヘッダー
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: WanMapColors.accent.withOpacity(0.2),
+                      color: WanWalkColors.accent.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       Icons.route_rounded,
-                      color: WanMapColors.accent,
+                      color: WanWalkColors.accent,
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: WanMapSpacing.sm),
+                  const SizedBox(width: WanWalkSpacing.sm),
                   Text(
                     '今月の人気ルート',
-                    style: WanMapTypography.headlineMedium.copyWith(
-                      color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    style: WanWalkTypography.headlineMedium.copyWith(
+                      color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               child: Text(
                 'みんなが歩いているルート',
-                style: WanMapTypography.bodyMedium.copyWith(
-                  color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                style: WanWalkTypography.bodyMedium.copyWith(
+                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                 ),
               ),
             ),
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               child: Column(
                 children: [
               popularRoutesAsync.when(
@@ -482,7 +482,7 @@ class HomeTab extends ConsumerWidget {
                         final route = entry.value;
                         return Padding(
                           padding: EdgeInsets.only(
-                            bottom: index < displayRoutes.length - 1 ? WanMapSpacing.md : 0,
+                            bottom: index < displayRoutes.length - 1 ? WanWalkSpacing.md : 0,
                           ),
                           child: _PopularRouteCard(
                             routeId: route['route_id'],
@@ -501,7 +501,7 @@ class HomeTab extends ConsumerWidget {
                       
                       // 一覧を見るボタン
                       if (routes.length > 3 || totalRoutes > 3) ...[
-                        const SizedBox(height: WanMapSpacing.md),
+                        const SizedBox(height: WanWalkSpacing.md),
                         OutlinedButton.icon(
                           onPressed: () {
                             if (kDebugMode) {
@@ -517,8 +517,8 @@ class HomeTab extends ConsumerWidget {
                           icon: const Icon(Icons.list),
                           label: Text('一覧を見る（${totalRoutes}ルート）'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: WanMapColors.accent,
-                            side: const BorderSide(color: WanMapColors.accent),
+                            foregroundColor: WanWalkColors.accent,
+                            side: const BorderSide(color: WanWalkColors.accent),
                             minimumSize: const Size(double.infinity, 48),
                           ),
                         ),
@@ -554,7 +554,7 @@ class HomeTab extends ConsumerWidget {
           children: [
             // セクションヘッダー
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               child: Row(
                 children: [
                   Container(
@@ -569,35 +569,35 @@ class HomeTab extends ConsumerWidget {
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: WanMapSpacing.sm),
+                  const SizedBox(width: WanWalkSpacing.sm),
                   Text(
                     '高評価スポット',
-                    style: WanMapTypography.headlineMedium.copyWith(
-                      color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    style: WanWalkTypography.headlineMedium.copyWith(
+                      color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               child: Text(
                 '評価4以上の人気スポット',
-                style: WanMapTypography.bodyMedium.copyWith(
-                  color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                style: WanWalkTypography.bodyMedium.copyWith(
+                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                 ),
               ),
             ),
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
 
             // スポット一覧
             topRatedSpotsAsync.when(
               data: (spotIds) {
                 if (spotIds.isEmpty) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+                    padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
                     child: _buildEmptyCard(isDark, 'まだ高評価スポットがありません'),
                   );
                 }
@@ -609,8 +609,8 @@ class HomeTab extends ConsumerWidget {
                   children: displaySpots.map((spotId) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: WanMapSpacing.lg,
-                        vertical: WanMapSpacing.xs,
+                        horizontal: WanWalkSpacing.lg,
+                        vertical: WanWalkSpacing.xs,
                       ),
                       child: _buildSpotCard(context, isDark, spotId, ref),
                     );
@@ -618,11 +618,11 @@ class HomeTab extends ConsumerWidget {
                 );
               },
               loading: () => const Padding(
-                padding: EdgeInsets.all(WanMapSpacing.lg),
+                padding: EdgeInsets.all(WanWalkSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (error, stack) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+                padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
                 child: _buildEmptyCard(isDark, 'スポットの読み込みに失敗しました'),
               ),
             ),
@@ -655,9 +655,9 @@ class HomeTab extends ConsumerWidget {
             );
           },
           child: Container(
-            padding: const EdgeInsets.all(WanMapSpacing.md),
+            padding: const EdgeInsets.all(WanWalkSpacing.md),
             decoration: BoxDecoration(
-              color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+              color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -682,7 +682,7 @@ class HomeTab extends ConsumerWidget {
                     size: 28,
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.md),
+                const SizedBox(width: WanWalkSpacing.md),
 
                 // スポット情報
                 Expanded(
@@ -691,8 +691,8 @@ class HomeTab extends ConsumerWidget {
                     children: [
                       Text(
                         pin.title,
-                        style: WanMapTypography.titleMedium.copyWith(
-                          color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                        style: WanWalkTypography.titleMedium.copyWith(
+                          color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                           fontWeight: FontWeight.bold,
                         ),
                         maxLines: 1,
@@ -711,7 +711,7 @@ class HomeTab extends ConsumerWidget {
                                   const SizedBox(width: 4),
                                   Text(
                                     avg.toStringAsFixed(1),
-                                    style: WanMapTypography.bodySmall.copyWith(
+                                    style: WanWalkTypography.bodySmall.copyWith(
                                       color: Colors.amber,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -722,14 +722,14 @@ class HomeTab extends ConsumerWidget {
                             loading: () => const SizedBox(width: 50),
                             error: (_, __) => const SizedBox.shrink(),
                           ),
-                          const SizedBox(width: WanMapSpacing.sm),
+                          const SizedBox(width: WanWalkSpacing.sm),
                           // レビュー数
                           reviewCountAsync.when(
                             data: (count) {
                               return Text(
                                 '($count件)',
-                                style: WanMapTypography.bodySmall.copyWith(
-                                  color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                                style: WanWalkTypography.bodySmall.copyWith(
+                                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                                 ),
                               );
                             },
@@ -754,9 +754,9 @@ class HomeTab extends ConsumerWidget {
         );
       },
       loading: () => Container(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
+        padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Center(
@@ -802,8 +802,8 @@ class HomeTab extends ConsumerWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      WanMapColors.primary,
-                      WanMapColors.primary.withOpacity(0.8),
+                      WanWalkColors.primary,
+                      WanWalkColors.primary.withOpacity(0.8),
                     ],
                   ),
                 ),
@@ -819,7 +819,7 @@ class HomeTab extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Text(
                         '箱根観光デジタルマップ',
-                        style: WanMapTypography.titleMedium.copyWith(
+                        style: WanWalkTypography.titleMedium.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -837,16 +837,16 @@ class HomeTab extends ConsumerWidget {
 
   Widget _buildEmptyCard(bool isDark, String message) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.xl),
+      padding: const EdgeInsets.all(WanWalkSpacing.xl),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Center(
         child: Text(
           message,
-          style: WanMapTypography.bodyMedium.copyWith(
-            color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+          style: WanWalkTypography.bodyMedium.copyWith(
+            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
           ),
         ),
       ),
@@ -876,7 +876,7 @@ class _AreaCard extends StatelessWidget {
     if (name.contains('江ノ島')) return Colors.cyan;
     if (name.contains('伊豆')) return Colors.orange;
     if (name.contains('熱海')) return Colors.red;
-    return WanMapColors.primary;
+    return WanWalkColors.primary;
   }
 
   @override
@@ -927,7 +927,7 @@ class _AreaCard extends StatelessWidget {
               ),
               // コンテンツ
               Padding(
-                padding: const EdgeInsets.all(WanMapSpacing.md),
+                padding: const EdgeInsets.all(WanWalkSpacing.md),
                 child: isHorizontal
                     ? Row(
                         children: [
@@ -939,11 +939,11 @@ class _AreaCard extends StatelessWidget {
                             ),
                             child: const Icon(Icons.location_on, color: Colors.white, size: 28),
                           ),
-                          const SizedBox(width: WanMapSpacing.md),
+                          const SizedBox(width: WanWalkSpacing.md),
                           Expanded(
                             child: Text(
                               name,
-                              style: WanMapTypography.bodyLarge.copyWith(
+                              style: WanWalkTypography.bodyLarge.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -965,10 +965,10 @@ class _AreaCard extends StatelessWidget {
                             ),
                             child: const Icon(Icons.location_on, color: Colors.white, size: 32),
                           ),
-                          const SizedBox(height: WanMapSpacing.sm),
+                          const SizedBox(height: WanWalkSpacing.sm),
                           Text(
                             name,
-                            style: WanMapTypography.bodyMedium.copyWith(
+                            style: WanWalkTypography.bodyMedium.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
@@ -1036,9 +1036,9 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
+        padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
-          color: widget.isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: widget.isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -1065,7 +1065,7 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                     : _buildDefaultImage(),
               ),
             ),
-            const SizedBox(width: WanMapSpacing.md),
+            const SizedBox(width: WanWalkSpacing.md),
             // テキスト情報
             Expanded(
               child: Column(
@@ -1074,10 +1074,10 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                   // タイトル
                   Text(
                     widget.pin.title,
-                    style: WanMapTypography.bodyMedium.copyWith(
+                    style: WanWalkTypography.bodyMedium.copyWith(
                       color: widget.isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
+                          ? WanWalkColors.textPrimaryDark
+                          : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
@@ -1096,10 +1096,10 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                       Expanded(
                         child: Text(
                           widget.pin.areaName ?? '不明',
-                          style: WanMapTypography.bodySmall.copyWith(
+                          style: WanWalkTypography.bodySmall.copyWith(
                             color: widget.isDark
-                                ? WanMapColors.textSecondaryDark
-                                : WanMapColors.textSecondaryLight,
+                                ? WanWalkColors.textSecondaryDark
+                                : WanWalkColors.textSecondaryLight,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1120,10 +1120,10 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                       Expanded(
                         child: Text(
                           widget.pin.userName,
-                          style: WanMapTypography.bodySmall.copyWith(
+                          style: WanWalkTypography.bodySmall.copyWith(
                             color: widget.isDark
-                                ? WanMapColors.textSecondaryDark
-                                : WanMapColors.textSecondaryLight,
+                                ? WanWalkColors.textSecondaryDark
+                                : WanWalkColors.textSecondaryLight,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1143,10 +1143,10 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                       const SizedBox(width: 4),
                       Text(
                         '$likeCount',
-                        style: WanMapTypography.bodySmall.copyWith(
+                        style: WanWalkTypography.bodySmall.copyWith(
                           color: widget.isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -1158,10 +1158,10 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                       const SizedBox(width: 4),
                       Text(
                         '$commentCount',
-                        style: WanMapTypography.bodySmall.copyWith(
+                        style: WanWalkTypography.bodySmall.copyWith(
                           color: widget.isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -1229,9 +1229,9 @@ class _PopularRouteCard extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
+        padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -1254,8 +1254,8 @@ class _PopularRouteCard extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      WanMapColors.accent.withOpacity(0.8),
-                      WanMapColors.primary.withOpacity(0.8),
+                      WanWalkColors.accent.withOpacity(0.8),
+                      WanWalkColors.primary.withOpacity(0.8),
                     ],
                   ),
                 ),
@@ -1280,7 +1280,7 @@ class _PopularRouteCard extends StatelessWidget {
                       ),
               ),
             ),
-            const SizedBox(width: WanMapSpacing.md),
+            const SizedBox(width: WanWalkSpacing.md),
             
             // ルート情報
             Expanded(
@@ -1290,8 +1290,8 @@ class _PopularRouteCard extends StatelessWidget {
                   // タイトル
                   Text(
                     title,
-                    style: WanMapTypography.titleMedium.copyWith(
-                      color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                    style: WanWalkTypography.titleMedium.copyWith(
+                      color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
@@ -1301,8 +1301,8 @@ class _PopularRouteCard extends StatelessWidget {
                   // エリア・県
                   Text(
                     '$area・$prefecture',
-                    style: WanMapTypography.bodySmall.copyWith(
-                      color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                    style: WanWalkTypography.bodySmall.copyWith(
+                      color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -1320,8 +1320,8 @@ class _PopularRouteCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             '${(distance / 1000).toStringAsFixed(1)}km',
-                            style: WanMapTypography.bodySmall.copyWith(
-                              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                            style: WanWalkTypography.bodySmall.copyWith(
+                              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                             ),
                           ),
                         ],
@@ -1333,8 +1333,8 @@ class _PopularRouteCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             '${duration}分',
-                            style: WanMapTypography.bodySmall.copyWith(
-                              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                            style: WanWalkTypography.bodySmall.copyWith(
+                              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                             ),
                           ),
                         ],
@@ -1342,12 +1342,12 @@ class _PopularRouteCard extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.pets, size: 14, color: WanMapColors.accent),
+                          Icon(Icons.pets, size: 14, color: WanWalkColors.accent),
                           const SizedBox(width: 4),
                           Text(
                             '$totalWalks回',
-                            style: WanMapTypography.bodySmall.copyWith(
-                              color: WanMapColors.accent,
+                            style: WanWalkTypography.bodySmall.copyWith(
+                              color: WanWalkColors.accent,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -1412,9 +1412,9 @@ class _FeaturedAreaCard extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      WanMapColors.accent,
-                      WanMapColors.accent.withOpacity(0.7),
-                      WanMapColors.primary.withOpacity(0.8),
+                      WanWalkColors.accent,
+                      WanWalkColors.accent.withOpacity(0.7),
+                      WanWalkColors.primary.withOpacity(0.8),
                     ],
                   ),
                 ),
@@ -1431,7 +1431,7 @@ class _FeaturedAreaCard extends StatelessWidget {
               ),
               // コンテンツ
               Padding(
-                padding: const EdgeInsets.all(WanMapSpacing.lg),
+                padding: const EdgeInsets.all(WanWalkSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1446,14 +1446,14 @@ class _FeaturedAreaCard extends StatelessWidget {
                           ),
                           child: const Icon(Icons.pets, color: Colors.white, size: 28),
                         ),
-                        const SizedBox(width: WanMapSpacing.md),
+                        const SizedBox(width: WanWalkSpacing.md),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 area.name,
-                                style: WanMapTypography.headlineMedium.copyWith(
+                                style: WanWalkTypography.headlineMedium.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24,
@@ -1469,7 +1469,7 @@ class _FeaturedAreaCard extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 area.prefecture,
-                                style: WanMapTypography.bodyMedium.copyWith(
+                                style: WanWalkTypography.bodyMedium.copyWith(
                                   color: Colors.white.withOpacity(0.95),
                                 ),
                               ),

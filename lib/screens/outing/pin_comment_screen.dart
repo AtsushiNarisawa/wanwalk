@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/pin_comment_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -115,26 +115,26 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
     final currentUser = Supabase.instance.client.auth.currentUser;
 
     return Scaffold(
-      backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+      backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'コメント',
-              style: WanMapTypography.bodyMedium.copyWith(
-                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+              style: WanWalkTypography.bodyMedium.copyWith(
+                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
               ),
             ),
             Text(
               widget.pinTitle,
-              style: WanMapTypography.bodySmall.copyWith(
-                color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+              style: WanWalkTypography.bodySmall.copyWith(
+                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
               ),
             ),
           ],
         ),
-        backgroundColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        backgroundColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         elevation: 0,
       ),
       body: Column(
@@ -153,22 +153,22 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                           size: 64,
                           color: isDark ? Colors.grey[700] : Colors.grey[300],
                         ),
-                        const SizedBox(height: WanMapSpacing.md),
+                        const SizedBox(height: WanWalkSpacing.md),
                         Text(
                           'まだコメントがありません',
-                          style: WanMapTypography.bodyMedium.copyWith(
+                          style: WanWalkTypography.bodyMedium.copyWith(
                             color: isDark
-                                ? WanMapColors.textSecondaryDark
-                                : WanMapColors.textSecondaryLight,
+                                ? WanWalkColors.textSecondaryDark
+                                : WanWalkColors.textSecondaryLight,
                           ),
                         ),
-                        const SizedBox(height: WanMapSpacing.sm),
+                        const SizedBox(height: WanWalkSpacing.sm),
                         Text(
                           '最初のコメントを投稿しましょう!',
-                          style: WanMapTypography.bodySmall.copyWith(
+                          style: WanWalkTypography.bodySmall.copyWith(
                             color: isDark
-                                ? WanMapColors.textSecondaryDark
-                                : WanMapColors.textSecondaryLight,
+                                ? WanWalkColors.textSecondaryDark
+                                : WanWalkColors.textSecondaryLight,
                           ),
                         ),
                       ],
@@ -177,7 +177,7 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                 }
 
                 return ListView.separated(
-                  padding: const EdgeInsets.all(WanMapSpacing.md),
+                  padding: const EdgeInsets.all(WanWalkSpacing.md),
                   itemCount: comments.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
@@ -185,14 +185,14 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                     final isOwnComment = currentUser?.id == comment.userId;
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: WanMapSpacing.md),
+                      padding: const EdgeInsets.symmetric(vertical: WanWalkSpacing.md),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // アバター
                           CircleAvatar(
                             radius: 20,
-                            backgroundColor: WanMapColors.accent.withOpacity(0.2),
+                            backgroundColor: WanWalkColors.accent.withOpacity(0.2),
                             backgroundImage: comment.userAvatar != null
                                 ? NetworkImage(comment.userAvatar!)
                                 : null,
@@ -200,11 +200,11 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                                 ? Icon(
                                     Icons.person,
                                     size: 20,
-                                    color: WanMapColors.accent,
+                                    color: WanWalkColors.accent,
                                   )
                                 : null,
                           ),
-                          const SizedBox(width: WanMapSpacing.sm),
+                          const SizedBox(width: WanWalkSpacing.sm),
                           // コメント内容
                           Expanded(
                             child: Column(
@@ -216,10 +216,10 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                                     Expanded(
                                       child: Text(
                                         comment.userName,
-                                        style: WanMapTypography.bodyMedium.copyWith(
+                                        style: WanWalkTypography.bodyMedium.copyWith(
                                           color: isDark
-                                              ? WanMapColors.textPrimaryDark
-                                              : WanMapColors.textPrimaryLight,
+                                              ? WanWalkColors.textPrimaryDark
+                                              : WanWalkColors.textPrimaryLight,
                                           fontWeight: FontWeight.bold,
                                         ),
                                         maxLines: 1,
@@ -228,22 +228,22 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                                     ),
                                     Text(
                                       comment.getRelativeTime(),
-                                      style: WanMapTypography.caption.copyWith(
+                                      style: WanWalkTypography.caption.copyWith(
                                         color: isDark
-                                            ? WanMapColors.textSecondaryDark
-                                            : WanMapColors.textSecondaryLight,
+                                            ? WanWalkColors.textSecondaryDark
+                                            : WanWalkColors.textSecondaryLight,
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: WanMapSpacing.xs),
+                                const SizedBox(height: WanWalkSpacing.xs),
                                 // コメント本文
                                 Text(
                                   comment.comment,
-                                  style: WanMapTypography.bodySmall.copyWith(
+                                  style: WanWalkTypography.bodySmall.copyWith(
                                     color: isDark
-                                        ? WanMapColors.textPrimaryDark
-                                        : WanMapColors.textPrimaryLight,
+                                        ? WanWalkColors.textPrimaryDark
+                                        : WanWalkColors.textPrimaryLight,
                                   ),
                                 ),
                               ],
@@ -272,13 +272,13 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                       size: 64,
                       color: Colors.red[300],
                     ),
-                    const SizedBox(height: WanMapSpacing.md),
+                    const SizedBox(height: WanWalkSpacing.md),
                     Text(
                       'コメントの読み込みに失敗しました',
-                      style: WanMapTypography.bodyMedium.copyWith(
+                      style: WanWalkTypography.bodyMedium.copyWith(
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
                     ),
                   ],
@@ -289,7 +289,7 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
           // コメント入力欄
           Container(
             decoration: BoxDecoration(
-              color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+              color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
@@ -299,10 +299,10 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
               ],
             ),
             padding: EdgeInsets.only(
-              left: WanMapSpacing.md,
-              right: WanMapSpacing.md,
-              top: WanMapSpacing.sm,
-              bottom: MediaQuery.of(context).viewInsets.bottom + WanMapSpacing.sm,
+              left: WanWalkSpacing.md,
+              right: WanWalkSpacing.md,
+              top: WanWalkSpacing.sm,
+              bottom: MediaQuery.of(context).viewInsets.bottom + WanWalkSpacing.sm,
             ),
             child: Row(
               children: [
@@ -324,8 +324,8 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                           ? Colors.grey[850]
                           : Colors.grey[100],
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: WanMapSpacing.md,
-                        vertical: WanMapSpacing.sm,
+                        horizontal: WanWalkSpacing.md,
+                        vertical: WanWalkSpacing.sm,
                       ),
                     ),
                     maxLines: null,
@@ -333,7 +333,7 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                     onSubmitted: (_) => _submitComment(),
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.sm),
+                const SizedBox(width: WanWalkSpacing.sm),
                 IconButton(
                   onPressed: _isSubmitting ? null : _submitComment,
                   icon: _isSubmitting
@@ -343,7 +343,7 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.send),
-                  color: WanMapColors.accent,
+                  color: WanWalkColors.accent,
                 ),
               ],
             ),

@@ -2,7 +2,7 @@
 -- Phase 1-2: Pins Tables (ピン・写真・いいね)
 -- ============================================================================
 -- Description: Tables for route pins, photos, and likes
--- Author: WanMap Development Team
+-- Author: WanWalk Development Team
 -- Created: 2025-11-23
 -- Version: 1
 -- ============================================================================

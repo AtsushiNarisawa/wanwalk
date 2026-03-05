@@ -65,9 +65,9 @@
   - `formattedDuration`: フォーマット済み経過時間
 
 ### デザインシステム準拠
-- `WanMapColors` - 色定義（primary, secondary, accent）
-- `WanMapTypography` - タイポグラフィ定義
-- `WanMapSpacing` - スペーシング定義
+- `WanWalkColors` - 色定義（primary, secondary, accent）
+- `WanWalkTypography` - タイポグラフィ定義
+- `WanWalkSpacing` - スペーシング定義
 
 ### Null Safety対応
 - `currentRoute`の削除（日常散歩はルート不要のため）
@@ -82,22 +82,22 @@
 
 #### 第1回チェック（15件）
 1. **import文の誤り** (3件)
-   - ❌ `app_colors.dart` → ✅ `wanmap_colors.dart`
-   - ❌ `app_spacing.dart` → ✅ `wanmap_spacing.dart`
-   - ❌ `app_typography.dart` → ✅ `wanmap_typography.dart`
+   - ❌ `app_colors.dart` → ✅ `wanwalk_colors.dart`
+   - ❌ `app_spacing.dart` → ✅ `wanwalk_spacing.dart`
+   - ❌ `app_typography.dart` → ✅ `wanwalk_typography.dart`
 
 2. **クラス名の誤り** (11件)
-   - ❌ `AppColors.primary` → ✅ `WanMapColors.primary`
-   - ❌ `AppColors.accent` → ✅ `WanMapColors.accent`
-   - ❌ `AppSpacing.lg` → ✅ `WanMapSpacing.lg`
-   - ❌ `AppSpacing.md` → ✅ `WanMapSpacing.md`
-   - ❌ `AppSpacing.sm` → ✅ `WanMapSpacing.sm`
-   - ❌ `AppTypography.bodyLarge` → ✅ `WanMapTypography.bodyLarge`
-   - ❌ `AppTypography.labelSmall` → ✅ `WanMapTypography.labelSmall`
-   - ❌ `AppTypography.bodyMedium` → ✅ `WanMapTypography.bodyMedium`
-   - ❌ `AppTypography.bodySmall` → ✅ `WanMapTypography.bodySmall`
-   - ❌ `AppColors.primaryLight` → ✅ `WanMapColors.primaryLight`
-   - ❌ `AppColors.accentLight` → ✅ `WanMapColors.accentLight`
+   - ❌ `AppColors.primary` → ✅ `WanWalkColors.primary`
+   - ❌ `AppColors.accent` → ✅ `WanWalkColors.accent`
+   - ❌ `AppSpacing.lg` → ✅ `WanWalkSpacing.lg`
+   - ❌ `AppSpacing.md` → ✅ `WanWalkSpacing.md`
+   - ❌ `AppSpacing.sm` → ✅ `WanWalkSpacing.sm`
+   - ❌ `AppTypography.bodyLarge` → ✅ `WanWalkTypography.bodyLarge`
+   - ❌ `AppTypography.labelSmall` → ✅ `WanWalkTypography.labelSmall`
+   - ❌ `AppTypography.bodyMedium` → ✅ `WanWalkTypography.bodyMedium`
+   - ❌ `AppTypography.bodySmall` → ✅ `WanWalkTypography.bodySmall`
+   - ❌ `AppColors.primaryLight` → ✅ `WanWalkColors.primaryLight`
+   - ❌ `AppColors.accentLight` → ✅ `WanWalkColors.accentLight`
 
 3. **Null Safety問題** (1件)
    - ❌ `currentRoute`の使用（日常散歩に不要） → ✅ 削除し`gpsState.walkMode`で判定
@@ -218,7 +218,7 @@
 ### 重要な技術的決定
 1. **currentRouteの削除**: 日常散歩はルート不要のため、`gpsState.walkMode`で判定
 2. **おでかけ散歩のバナータップ**: 現状は通知のみ、地図画面への遷移は次フェーズ
-3. **デザインシステム準拠**: WanMapColors/Typography/Spacingを厳密に使用
+3. **デザインシステム準拠**: WanWalkColors/Typography/Spacingを厳密に使用
 
 ### 厳守事項の確認
 - ✅ import文の正確性

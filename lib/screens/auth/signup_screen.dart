@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
+import '../../config/wanwalk_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../main/main_screen.dart';
 
@@ -88,7 +88,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text('新規登録'),
-        backgroundColor: WanMapColors.primary,
+        backgroundColor: WanWalkColors.primary,
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
@@ -106,7 +106,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: WanMapColors.primary,
+                      color: WanWalkColors.primary,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -131,7 +131,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: WanMapColors.primary,
+                      color: WanWalkColors.primary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -278,7 +278,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleSignup,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: WanMapColors.primary,
+                        backgroundColor: WanWalkColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

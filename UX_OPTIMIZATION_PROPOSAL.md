@@ -1,4 +1,4 @@
-# WanMap v2 UX整理と最適化提案
+# WanWalk v2 UX整理と最適化提案
 
 ## 📊 現状分析
 

@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/official_route.dart';
 import '../../models/route_spot.dart';
 import '../../models/walk_mode.dart';
@@ -121,7 +121,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: WanMapColors.accent,
+              backgroundColor: WanWalkColors.accent,
             ),
             child: const Text('終了'),
           ),
@@ -374,8 +374,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       body: Stack(
         children: [
           // マップ表示
@@ -481,7 +481,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       right: 0,
       child: SafeArea(
         child: Container(
-          padding: const EdgeInsets.all(WanMapSpacing.md),
+          padding: const EdgeInsets.all(WanWalkSpacing.md),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -501,7 +501,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
               Expanded(
                 child: Text(
                   widget.route.name,
-                  style: WanMapTypography.bodyLarge.copyWith(
+                  style: WanWalkTypography.bodyLarge.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -534,9 +534,9 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       left: 0,
       right: 0,
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.lg),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(24),
           ),
@@ -559,12 +559,12 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                 height: 4,
                 decoration: BoxDecoration(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
 
               // 統計情報
               Row(
@@ -591,7 +591,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                 ],
               ),
 
-              const SizedBox(height: WanMapSpacing.lg),
+              const SizedBox(height: WanWalkSpacing.lg),
 
               // コントロールボタン
               if (!gpsState.isInitialized) ...[
@@ -602,7 +602,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      vertical: WanMapSpacing.md,
+                      vertical: WanWalkSpacing.md,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -613,7 +613,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.play_arrow),
-                      SizedBox(width: WanMapSpacing.xs),
+                      SizedBox(width: WanWalkSpacing.xs),
                       Text('スタート', style: TextStyle(fontSize: 16)),
                     ],
                   ),
@@ -633,7 +633,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                               : Colors.orange,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            vertical: WanMapSpacing.md,
+                            vertical: WanWalkSpacing.md,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -643,21 +643,21 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(gpsState.isPaused ? Icons.play_arrow : Icons.pause),
-                            const SizedBox(width: WanMapSpacing.xs),
+                            const SizedBox(width: WanWalkSpacing.xs),
                             Text(gpsState.isPaused ? '再開' : '一時停止'),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(width: WanMapSpacing.md),
+                    const SizedBox(width: WanWalkSpacing.md),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: _finishWalking,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: WanMapColors.accent,
+                          backgroundColor: WanWalkColors.accent,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            vertical: WanMapSpacing.md,
+                            vertical: WanWalkSpacing.md,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -667,7 +667,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.check),
-                            SizedBox(width: WanMapSpacing.xs),
+                            SizedBox(width: WanWalkSpacing.xs),
                             Text('終了'),
                           ],
                         ),
@@ -689,7 +689,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       children: [
         // ズームコントロール（左下）
         Positioned(
-          left: WanMapSpacing.lg,
+          left: WanWalkSpacing.lg,
           bottom: _showRouteInfo ? 280 : 120,
           child: ZoomControlWidget(
             mapController: _mapController,
@@ -699,7 +699,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         ),
         // 既存のボタン群（右下）
         Positioned(
-          right: WanMapSpacing.lg,
+          right: WanWalkSpacing.lg,
           bottom: _showRouteInfo ? 280 : 120,
           child: Column(
             children: [
@@ -714,22 +714,22 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                   child: const Icon(Icons.camera_alt, color: Colors.white),
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
               // ピン投稿ボタン
               FloatingActionButton.extended(
                 heroTag: "pin_button",
                 onPressed: gpsState.currentLocation != null ? _createPin : null,
-                backgroundColor: WanMapColors.accent,
+                backgroundColor: WanWalkColors.accent,
                 icon: const Icon(Icons.push_pin, color: Colors.white),
                 label: Text(
                   'ピン投稿',
-                  style: WanMapTypography.bodyMedium.copyWith(
+                  style: WanWalkTypography.bodyMedium.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
               // 現在位置追従ボタン
               FloatingActionButton(
                 heroTag: "location_button",
@@ -744,7 +744,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                 backgroundColor: Colors.white,
                 child: Icon(
                   _isFollowingUser ? Icons.my_location : Icons.location_searching,
-                  color: WanMapColors.accent,
+                  color: WanWalkColors.accent,
                 ),
               ),
             ],
@@ -926,25 +926,25 @@ class _StatItem extends StatelessWidget {
       children: [
         Icon(
           icon,
-          color: WanMapColors.accent,
+          color: WanWalkColors.accent,
           size: 28,
         ),
-        const SizedBox(height: WanMapSpacing.xs),
+        const SizedBox(height: WanWalkSpacing.xs),
         Text(
           label,
-          style: WanMapTypography.caption.copyWith(
+          style: WanWalkTypography.caption.copyWith(
             color: isDark
-                ? WanMapColors.textSecondaryDark
-                : WanMapColors.textSecondaryLight,
+                ? WanWalkColors.textSecondaryDark
+                : WanWalkColors.textSecondaryLight,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),

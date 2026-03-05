@@ -1,39 +1,39 @@
 import 'package:flutter/material.dart';
-import '../config/wanmap_colors.dart';
-import '../config/wanmap_typography.dart';
-import '../config/wanmap_spacing.dart';
+import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_typography.dart';
+import '../config/wanwalk_spacing.dart';
 
-/// WanMap 共通ボタンウィジェット
+/// WanWalk 共通ボタンウィジェット
 /// Nike Run Club風の大きく目立つボタン
 
-enum WanMapButtonSize {
+enum WanWalkButtonSize {
   small,
   medium,
   large,
 }
 
-enum WanMapButtonVariant {
+enum WanWalkButtonVariant {
   primary,    // 塗りつぶし（アクセントカラー）
   secondary,  // 塗りつぶし（セカンダリカラー）
   outlined,   // アウトライン
   text,       // テキストのみ
 }
 
-class WanMapButton extends StatelessWidget {
+class WanWalkButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
-  final WanMapButtonSize size;
-  final WanMapButtonVariant variant;
+  final WanWalkButtonSize size;
+  final WanWalkButtonVariant variant;
   final IconData? icon;
   final bool fullWidth;
   final bool loading;
 
-  const WanMapButton({
+  const WanWalkButton({
     super.key,
     required this.text,
     this.onPressed,
-    this.size = WanMapButtonSize.medium,
-    this.variant = WanMapButtonVariant.primary,
+    this.size = WanWalkButtonSize.medium,
+    this.variant = WanWalkButtonVariant.primary,
     this.icon,
     this.fullWidth = false,
     this.loading = false,
@@ -49,22 +49,22 @@ class WanMapButton extends StatelessWidget {
     double iconSize;
 
     switch (size) {
-      case WanMapButtonSize.small:
+      case WanWalkButtonSize.small:
         padding = const EdgeInsets.symmetric(
           horizontal: 6.0,
-          vertical: WanMapSpacing.sm,
+          vertical: WanWalkSpacing.sm,
         );
-        textStyle = WanMapTypography.titleSmall;
+        textStyle = WanWalkTypography.titleSmall;
         iconSize = 20;
         break;
-      case WanMapButtonSize.medium:
-        padding = WanMapSpacing.buttonPadding;
-        textStyle = WanMapTypography.buttonMedium;
+      case WanWalkButtonSize.medium:
+        padding = WanWalkSpacing.buttonPadding;
+        textStyle = WanWalkTypography.buttonMedium;
         iconSize = 24;
         break;
-      case WanMapButtonSize.large:
-        padding = WanMapSpacing.buttonPaddingLarge;
-        textStyle = WanMapTypography.buttonLarge;
+      case WanWalkButtonSize.large:
+        padding = WanWalkSpacing.buttonPaddingLarge;
+        textStyle = WanWalkTypography.buttonLarge;
         iconSize = 28;
         break;
     }
@@ -76,35 +76,35 @@ class WanMapButton extends StatelessWidget {
     double elevation;
 
     switch (variant) {
-      case WanMapButtonVariant.primary:
+      case WanWalkButtonVariant.primary:
         backgroundColor = isDisabled 
-            ? WanMapColors.textTertiaryLight 
-            : WanMapColors.accent;
+            ? WanWalkColors.textTertiaryLight 
+            : WanWalkColors.accent;
         foregroundColor = Colors.white;
         borderColor = null;
         elevation = isDisabled ? 0 : 2;
         break;
-      case WanMapButtonVariant.secondary:
+      case WanWalkButtonVariant.secondary:
         backgroundColor = isDisabled 
-            ? WanMapColors.textTertiaryLight 
-            : WanMapColors.secondary;
+            ? WanWalkColors.textTertiaryLight 
+            : WanWalkColors.secondary;
         foregroundColor = Colors.white;
         borderColor = null;
         elevation = isDisabled ? 0 : 2;
         break;
-      case WanMapButtonVariant.outlined:
+      case WanWalkButtonVariant.outlined:
         backgroundColor = Colors.transparent;
         foregroundColor = isDisabled 
-            ? WanMapColors.textTertiaryLight 
-            : WanMapColors.accent;
+            ? WanWalkColors.textTertiaryLight 
+            : WanWalkColors.accent;
         borderColor = foregroundColor;
         elevation = 0;
         break;
-      case WanMapButtonVariant.text:
+      case WanWalkButtonVariant.text:
         backgroundColor = Colors.transparent;
         foregroundColor = isDisabled 
-            ? WanMapColors.textTertiaryLight 
-            : WanMapColors.accent;
+            ? WanWalkColors.textTertiaryLight 
+            : WanWalkColors.accent;
         borderColor = null;
         elevation = 0;
         break;
@@ -145,14 +145,14 @@ class WanMapButton extends StatelessWidget {
       child: Material(
         color: backgroundColor,
         elevation: elevation,
-        borderRadius: WanMapSpacing.borderRadiusXL,
+        borderRadius: WanWalkSpacing.borderRadiusXL,
         child: InkWell(
           onTap: isDisabled ? null : onPressed,
-          borderRadius: WanMapSpacing.borderRadiusXL,
+          borderRadius: WanWalkSpacing.borderRadiusXL,
           child: Container(
             padding: padding,
             decoration: BoxDecoration(
-              borderRadius: WanMapSpacing.borderRadiusXL,
+              borderRadius: WanWalkSpacing.borderRadiusXL,
               border: borderColor != null
                   ? Border.all(color: borderColor, width: 2)
                   : null,
@@ -166,14 +166,14 @@ class WanMapButton extends StatelessWidget {
 }
 
 /// フローティングアクションボタン（カメラボタンなど）
-class WanMapFAB extends StatelessWidget {
+class WanWalkFAB extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onPressed;
   final Color? backgroundColor;
   final Color? foregroundColor;
   final String? tooltip;
 
-  const WanMapFAB({
+  const WanWalkFAB({
     super.key,
     required this.icon,
     this.onPressed,
@@ -186,7 +186,7 @@ class WanMapFAB extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: onPressed,
-      backgroundColor: backgroundColor ?? WanMapColors.accent,
+      backgroundColor: backgroundColor ?? WanWalkColors.accent,
       foregroundColor: foregroundColor ?? Colors.white,
       tooltip: tooltip,
       elevation: 4,

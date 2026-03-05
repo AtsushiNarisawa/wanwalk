@@ -1,4 +1,4 @@
-# WanMap v2 - プレゼンテーション資料
+# WanWalk v2 - プレゼンテーション資料
 
 ## スライド構成（全30枚）
 
@@ -6,7 +6,7 @@
 
 ## 📊 スライド1: タイトル
 
-# **WanMap v2**
+# **WanWalk v2**
 ### 愛犬との散歩を、もっと楽しく、もっと繋がる
 
 **愛犬の散歩ルート共有モバイルアプリ**
@@ -17,7 +17,7 @@ Version 1.0.0+2 | 2025年12月
 
 ## 🎯 スライド2: コンセプト
 
-### なぜWanMapが必要なのか？
+### なぜWanWalkが必要なのか？
 
 **問題点**:
 - 🐕 新しい散歩コースを探したい
@@ -26,7 +26,7 @@ Version 1.0.0+2 | 2025年12月
 - 🏅 散歩のモチベーションが続かない
 
 **解決策**:
-WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
+WanWalkは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 散歩体験を革新します。
 
 ---
@@ -131,9 +131,9 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 - **Secondary (ティール)**: `#38B2AC` - 自然と癒し
 
 **デザインシステム**:
-- WanMapColors: 統一されたカラー定義
-- WanMapTypography: 階層的なタイポグラフィ
-- WanMapSpacing: 一貫したスペーシング
+- WanWalkColors: 統一されたカラー定義
+- WanWalkTypography: 階層的なタイポグラフィ
+- WanWalkSpacing: 一貫したスペーシング
 
 **UX原則**:
 1. シンプル & 直感的
@@ -235,7 +235,7 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 
 ```
 ┌─────────────────────────────────────┐
-│  WanMap v2                          │
+│  WanWalk v2                          │
 ├─────────────────────────────────────┤
 │  ┌─── ホーム ─────────────────┐    │
 │  │  - 最新ピン投稿（2件）      │    │
@@ -313,7 +313,7 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 | AllTrails | ルート共有 | ペット可ルート少ない |
 | 散歩アプリ | シンプル | ソーシャル機能弱い |
 
-**WanMapの差別化**:
+**WanWalkの差別化**:
 1. **ペット特化**: 愛犬との散歩に最適化
 2. **地域密着**: 箱根エリアのコミュニティ形成
 3. **DogHub箱根連携**: オフライン施設との連携
@@ -323,7 +323,7 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 
 ## 🏆 スライド15: 競合優位性
 
-### WanMapの独自価値
+### WanWalkの独自価値
 
 **1. 地域密着型コミュニティ**
 - 箱根エリアを中心とした愛犬家ネットワーク
@@ -461,7 +461,7 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
    - カフェ利用バッジ
 3. **イベント連携**:
    - 散歩イベント開催
-   - WanMapユーザー優待
+   - WanWalkユーザー優待
 4. **予約連携（将来）**:
    - アプリからホテル予約
    - カフェ予約機能
@@ -574,7 +574,7 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 
 ### デザインシステムの統一性
 
-**WanMapColors**:
+**WanWalkColors**:
 | カラー | Hex | 用途 |
 |-------|-----|-----|
 | Primary | #2D3748 | メイン色（ダークグレー） |
@@ -583,7 +583,7 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 | Success | #48BB78 | 成功表示（グリーン） |
 | Error | #F56565 | エラー表示（レッド） |
 
-**WanMapTypography**:
+**WanWalkTypography**:
 - Display: 32px, Bold
 - Headline: 24px, Bold
 - Title: 20px, SemiBold
@@ -592,9 +592,9 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 - Body Small: 12px, Regular
 
 **共通ウィジェット**:
-- WanMapShimmer: ローディング
-- WanMapErrorWidget: エラー表示
-- WanMapEmptyState: 空状態表示
+- WanWalkShimmer: ローディング
+- WanWalkErrorWidget: エラー表示
+- WanWalkEmptyState: 空状態表示
 - OptimizedImage: 画像最適化
 
 ---
@@ -709,7 +709,7 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 
 ## 🎉 スライド30: まとめ
 
-### WanMap v2 - 愛犬との散歩を革新する
+### WanWalk v2 - 愛犬との散歩を革新する
 
 **主要成果**:
 - ✅ 304コミット、34,374行のコード
@@ -737,7 +737,7 @@ WanMapは、GPS記録 × ソーシャル × ゲーミフィケーションで、
 
 ## 📞 連絡先 & リンク
 
-**GitHub**: https://github.com/AtsushiNarisawa/wanmap_v2  
+**GitHub**: https://github.com/AtsushiNarisawa/wanwalk  
 **Version**: 1.0.0+2  
 **Status**: ✅ TestFlight提出準備完了  
 **Latest Commit**: ee49804  

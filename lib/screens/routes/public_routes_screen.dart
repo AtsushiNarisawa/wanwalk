@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/official_route.dart';
 import '../../providers/official_routes_screen_provider.dart';
 import '../../providers/area_provider.dart';
@@ -46,7 +46,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
     final sortOption = ref.watch(sortOptionProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+      backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: const Text('公式ルート一覧'),
         backgroundColor: Colors.transparent,
@@ -92,7 +92,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
   /// 検索バー
   Widget _buildSearchBar(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
@@ -108,7 +108,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
                 )
               : null,
           filled: true,
-          fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -127,7 +127,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
     RouteSortOption sortOption,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.md),
       child: Column(
         children: [
           // エリアフィルタ
@@ -140,7 +140,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
                   labelText: 'エリア',
                   prefixIcon: const Icon(Icons.location_on, size: 20),
                   filled: true,
-                  fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                  fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -167,7 +167,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
             loading: () => const CircularProgressIndicator(),
             error: (_, __) => const SizedBox(),
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           // ソート順
           DropdownButtonFormField<RouteSortOption>(
             value: sortOption,
@@ -176,7 +176,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
               labelText: 'ソート',
               prefixIcon: const Icon(Icons.sort, size: 20),
               filled: true,
-              fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+              fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -205,16 +205,16 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.md,
-        vertical: WanMapSpacing.sm,
+        horizontal: WanWalkSpacing.md,
+        vertical: WanWalkSpacing.sm,
       ),
-      color: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+      color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
       child: Text(
         '${count}件のルート',
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+          color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
         ),
       ),
     );
@@ -231,7 +231,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
         ref.invalidate(officialRoutesProvider);
       },
       child: ListView.builder(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
+        padding: const EdgeInsets.all(WanWalkSpacing.md),
         itemCount: routes.length,
         itemBuilder: (context, index) {
           final route = routes[index];
@@ -256,30 +256,30 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(WanMapSpacing.xl),
+        padding: const EdgeInsets.all(WanWalkSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.route,
               size: 80,
-              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
             ),
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             Text(
               '該当する公式ルートがありません',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
               ),
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Text(
               '検索条件やエリアを変更してみてください',
               style: TextStyle(
                 fontSize: 14,
-                color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
               ),
               textAlign: TextAlign.center,
             ),
@@ -293,30 +293,30 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
   Widget _buildErrorState(BuildContext context, bool isDark, Object error) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(WanMapSpacing.xl),
+        padding: const EdgeInsets.all(WanWalkSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             Text(
               'エラーが発生しました',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
               ),
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Text(
               error.toString(),
               style: TextStyle(
                 fontSize: 14,
-                color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: WanMapSpacing.lg),
+            const SizedBox(height: WanWalkSpacing.lg),
             ElevatedButton.icon(
               onPressed: () {
                 ref.invalidate(officialRoutesProvider);
@@ -348,10 +348,10 @@ class _OfficialRouteCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: WanMapSpacing.md),
+        margin: const EdgeInsets.only(bottom: WanWalkSpacing.md),
         height: 140, // カード高さを固定
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -382,7 +382,7 @@ class _OfficialRouteCard extends StatelessWidget {
             // ルート情報
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(WanMapSpacing.md),
+                padding: const EdgeInsets.all(WanWalkSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -395,17 +395,17 @@ class _OfficialRouteCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: WanMapSpacing.xs),
+                        const SizedBox(height: WanWalkSpacing.xs),
                         Text(
                           route.description,
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -413,8 +413,8 @@ class _OfficialRouteCard extends StatelessWidget {
                       ],
                     ),
                     Wrap(
-                      spacing: WanMapSpacing.xs,
-                      runSpacing: WanMapSpacing.xs,
+                      spacing: WanWalkSpacing.xs,
+                      runSpacing: WanWalkSpacing.xs,
                       children: [
                         _buildInfoChip(
                           Icons.straighten,
@@ -438,11 +438,11 @@ class _OfficialRouteCard extends StatelessWidget {
     return Container(
       width: 120,
       height: 140, // カード高さに合わせる
-      color: WanMapColors.accent.withOpacity(0.2),
+      color: WanWalkColors.accent.withOpacity(0.2),
       child: Icon(
         Icons.route,
         size: 48,
-        color: WanMapColors.accent,
+        color: WanWalkColors.accent,
       ),
     );
   }
@@ -451,19 +451,19 @@ class _OfficialRouteCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: WanMapColors.accent.withOpacity(0.1),
+        color: WanWalkColors.accent.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: WanMapColors.accent),
+          Icon(icon, size: 14, color: WanWalkColors.accent),
           const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
-              color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
             ),
           ),
         ],

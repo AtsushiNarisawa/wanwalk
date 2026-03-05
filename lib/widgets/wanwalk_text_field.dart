@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../config/wanmap_colors.dart';
-import '../config/wanmap_typography.dart';
-import '../config/wanmap_spacing.dart';
+import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_typography.dart';
+import '../config/wanwalk_spacing.dart';
 
-/// WanMap 共通テキストフィールドウィジェット
+/// WanWalk 共通テキストフィールドウィジェット
 /// スタイリッシュで使いやすい入力フィールド
 
-class WanMapTextField extends StatelessWidget {
+class WanWalkTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String? labelText;
   final String? hintText;
@@ -22,7 +22,7 @@ class WanMapTextField extends StatelessWidget {
   final VoidCallback? onTap;
   final FocusNode? focusNode;
 
-  const WanMapTextField({
+  const WanWalkTextField({
     super.key,
     this.controller,
     this.labelText,
@@ -44,14 +44,14 @@ class WanMapTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark 
-        ? WanMapColors.surfaceDark 
-        : WanMapColors.surfaceLight;
+        ? WanWalkColors.surfaceDark 
+        : WanWalkColors.surfaceLight;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final hintColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,29 +60,29 @@ class WanMapTextField extends StatelessWidget {
         if (labelText != null) ...[
           Text(
             labelText!,
-            style: WanMapTypography.labelMedium.copyWith(
+            style: WanWalkTypography.labelMedium.copyWith(
               color: textColor,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: WanWalkSpacing.xs),
         ],
         
         // テキストフィールド
         Container(
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: WanMapSpacing.borderRadiusLG,
+            borderRadius: WanWalkSpacing.borderRadiusLG,
             border: Border.all(
               color: errorText != null 
-                  ? WanMapColors.error 
-                  : WanMapColors.textTertiaryLight,
+                  ? WanWalkColors.error 
+                  : WanWalkColors.textTertiaryLight,
               width: 1.5,
             ),
           ),
           child: TextField(
             controller: controller,
             focusNode: focusNode,
-            style: WanMapTypography.bodyLarge.copyWith(
+            style: WanWalkTypography.bodyLarge.copyWith(
               color: textColor,
             ),
             keyboardType: keyboardType,
@@ -94,7 +94,7 @@ class WanMapTextField extends StatelessWidget {
             onTap: onTap,
             decoration: InputDecoration(
               hintText: hintText,
-              hintStyle: WanMapTypography.bodyLarge.copyWith(
+              hintStyle: WanWalkTypography.bodyLarge.copyWith(
                 color: hintColor,
               ),
               prefixIcon: prefixIcon != null 
@@ -103,8 +103,8 @@ class WanMapTextField extends StatelessWidget {
               suffixIcon: suffixIcon,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: WanMapSpacing.lg,
-                vertical: WanMapSpacing.md,
+                horizontal: WanWalkSpacing.lg,
+                vertical: WanWalkSpacing.md,
               ),
               counterText: '', // 文字数カウンターを非表示
             ),
@@ -113,19 +113,19 @@ class WanMapTextField extends StatelessWidget {
         
         // エラーメッセージ
         if (errorText != null) ...[
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: WanWalkSpacing.xs),
           Row(
             children: [
               const Icon(
                 Icons.error_outline,
                 size: 16,
-                color: WanMapColors.error,
+                color: WanWalkColors.error,
               ),
-              const SizedBox(width: WanMapSpacing.xxs),
+              const SizedBox(width: WanWalkSpacing.xxs),
               Text(
                 errorText!,
-                style: WanMapTypography.labelSmall.copyWith(
-                  color: WanMapColors.error,
+                style: WanWalkTypography.labelSmall.copyWith(
+                  color: WanWalkColors.error,
                 ),
               ),
             ],
@@ -137,13 +137,13 @@ class WanMapTextField extends StatelessWidget {
 }
 
 /// 検索フィールド
-class WanMapSearchField extends StatelessWidget {
+class WanWalkSearchField extends StatelessWidget {
   final TextEditingController? controller;
   final String? hintText;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
 
-  const WanMapSearchField({
+  const WanWalkSearchField({
     super.key,
     this.controller,
     this.hintText,
@@ -155,29 +155,29 @@ class WanMapSearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark 
-        ? WanMapColors.surfaceDark 
-        : WanMapColors.surfaceLight;
+        ? WanWalkColors.surfaceDark 
+        : WanWalkColors.surfaceLight;
     final textColor = isDark 
-        ? WanMapColors.textPrimaryDark 
-        : WanMapColors.textPrimaryLight;
+        ? WanWalkColors.textPrimaryDark 
+        : WanWalkColors.textPrimaryLight;
     final hintColor = isDark 
-        ? WanMapColors.textSecondaryDark 
-        : WanMapColors.textSecondaryLight;
+        ? WanWalkColors.textSecondaryDark 
+        : WanWalkColors.textSecondaryLight;
 
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: WanMapSpacing.borderRadiusXL,
+        borderRadius: WanWalkSpacing.borderRadiusXL,
       ),
       child: TextField(
         controller: controller,
-        style: WanMapTypography.bodyLarge.copyWith(
+        style: WanWalkTypography.bodyLarge.copyWith(
           color: textColor,
         ),
         onChanged: onChanged,
         decoration: InputDecoration(
           hintText: hintText ?? '検索',
-          hintStyle: WanMapTypography.bodyLarge.copyWith(
+          hintStyle: WanWalkTypography.bodyLarge.copyWith(
             color: hintColor,
           ),
           prefixIcon: Icon(Icons.search, color: hintColor),
@@ -192,8 +192,8 @@ class WanMapSearchField extends StatelessWidget {
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: WanMapSpacing.lg,
-            vertical: WanMapSpacing.md,
+            horizontal: WanWalkSpacing.lg,
+            vertical: WanWalkSpacing.md,
           ),
         ),
       ),
@@ -202,12 +202,12 @@ class WanMapSearchField extends StatelessWidget {
 }
 
 /// タグ入力フィールド
-class WanMapTagInput extends StatefulWidget {
+class WanWalkTagInput extends StatefulWidget {
   final List<String> tags;
   final ValueChanged<List<String>> onTagsChanged;
   final String? hintText;
 
-  const WanMapTagInput({
+  const WanWalkTagInput({
     super.key,
     required this.tags,
     required this.onTagsChanged,
@@ -215,10 +215,10 @@ class WanMapTagInput extends StatefulWidget {
   });
 
   @override
-  State<WanMapTagInput> createState() => _WanMapTagInputState();
+  State<WanWalkTagInput> createState() => _WanWalkTagInputState();
 }
 
-class _WanMapTagInputState extends State<WanMapTagInput> {
+class _WanWalkTagInputState extends State<WanWalkTagInput> {
   final TextEditingController _controller = TextEditingController();
 
   void _addTag(String tag) {
@@ -240,8 +240,8 @@ class _WanMapTagInputState extends State<WanMapTagInput> {
         // タグリスト
         if (widget.tags.isNotEmpty)
           Wrap(
-            spacing: WanMapSpacing.xs,
-            runSpacing: WanMapSpacing.xs,
+            spacing: WanWalkSpacing.xs,
+            runSpacing: WanWalkSpacing.xs,
             children: widget.tags.map((tag) {
               return Chip(
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -249,11 +249,11 @@ class _WanMapTagInputState extends State<WanMapTagInput> {
                 labelPadding: EdgeInsets.zero,
                 label: Text(
                   tag,
-                  style: WanMapTypography.labelSmall.copyWith(
+                  style: WanWalkTypography.labelSmall.copyWith(
                     color: Colors.white,
                   ),
                 ),
-                backgroundColor: WanMapColors.accent,
+                backgroundColor: WanWalkColors.accent,
                 deleteIcon: const Icon(
                   Icons.close,
                   size: 14,
@@ -263,17 +263,17 @@ class _WanMapTagInputState extends State<WanMapTagInput> {
               );
             }).toList(),
           ),
-        if (widget.tags.isNotEmpty) const SizedBox(height: WanMapSpacing.sm),
+        if (widget.tags.isNotEmpty) const SizedBox(height: WanWalkSpacing.sm),
         
         // 入力フィールド
-        WanMapTextField(
+        WanWalkTextField(
           controller: _controller,
           hintText: widget.hintText ?? 'タグを追加',
           prefixIcon: Icons.label_outline,
           suffixIcon: IconButton(
             icon: const Icon(
               Icons.add_circle,
-              color: WanMapColors.accent,
+              color: WanWalkColors.accent,
             ),
             onPressed: () => _addTag(_controller.text),
           ),

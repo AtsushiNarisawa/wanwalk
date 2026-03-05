@@ -1,21 +1,21 @@
-/// WanMap 共通ウィジェットライブラリ
+/// WanWalk 共通ウィジェットライブラリ
 /// 
 /// Nike Run Club風のスタイリッシュなUIコンポーネント集
 /// 
 /// 使用例:
 /// ```dart
-/// import 'package:wanwalk/widgets/wanmap_widgets.dart';
+/// import 'package:wanwalk/widgets/wanwalk_widgets.dart';
 /// 
 /// // ボタン
-/// WanMapButton(
+/// WanWalkButton(
 ///   text: 'お散歩を開始',
 ///   icon: Icons.directions_walk,
-///   size: WanMapButtonSize.large,
+///   size: WanWalkButtonSize.large,
 ///   onPressed: () {},
 /// )
 /// 
 /// // カード
-/// WanMapRouteCard(
+/// WanWalkRouteCard(
 ///   title: 'お気に入りルート',
 ///   distance: 3.2,
 ///   duration: 45,
@@ -23,29 +23,29 @@
 /// )
 /// 
 /// // 統計表示
-/// WanMapHeroStat(
+/// WanWalkHeroStat(
 ///   value: '3.2',
 ///   unit: 'km',
 ///   label: '今日の距離',
 /// )
 /// ```
 
-library wanmap_widgets;
+library wanwalk_widgets;
 
 // ボタン
-export 'wanmap_button.dart';
+export 'wanwalk_button.dart';
 
 // カード
-export 'wanmap_card.dart';
+export 'wanwalk_card.dart';
 
 // テキストフィールド
-export 'wanmap_text_field.dart';
+export 'wanwalk_text_field.dart';
 
 // フォトギャラリー
-export 'wanmap_photo_gallery.dart';
+export 'wanwalk_photo_gallery.dart';
 
 // ルートカード
-export 'wanmap_route_card.dart';
+export 'wanwalk_route_card.dart';
 
 // 統計表示
-export 'wanmap_stat_display.dart';
+export 'wanwalk_stat_display.dart';

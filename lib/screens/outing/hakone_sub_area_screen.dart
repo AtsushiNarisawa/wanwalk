@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/area_provider.dart';
 import 'route_list_screen.dart';
 
@@ -22,8 +22,8 @@ class HakoneSubAreaScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: const Text('箱根エリアを選ぶ'),
         backgroundColor: Colors.transparent,
@@ -33,7 +33,7 @@ class HakoneSubAreaScreen extends ConsumerWidget {
         children: [
           // DogHubバナー
           Padding(
-            padding: const EdgeInsets.all(WanMapSpacing.lg),
+            padding: const EdgeInsets.all(WanWalkSpacing.lg),
             child: GestureDetector(
               onTap: () async {
                 final uri = Uri.parse('https://www.dog-hub.shop/');
@@ -73,25 +73,25 @@ class HakoneSubAreaScreen extends ConsumerWidget {
                               size: 48,
                               color: Colors.white,
                             ),
-                            const SizedBox(height: WanMapSpacing.sm),
+                            const SizedBox(height: WanWalkSpacing.sm),
                             Text(
                               'DogHub ペットホテル&カフェ',
-                              style: WanMapTypography.titleMedium.copyWith(
+                              style: WanWalkTypography.titleMedium.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: WanMapSpacing.xs),
+                            const SizedBox(height: WanWalkSpacing.xs),
                             Text(
                               '📍箱根',
-                              style: WanMapTypography.bodyMedium.copyWith(
+                              style: WanWalkTypography.bodyMedium.copyWith(
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(height: WanMapSpacing.xs),
+                            const SizedBox(height: WanWalkSpacing.xs),
                             Text(
                               '画像読み込みエラー',
-                              style: WanMapTypography.bodySmall.copyWith(
+                              style: WanWalkTypography.bodySmall.copyWith(
                                 color: Colors.white70,
                               ),
                             ),
@@ -107,13 +107,13 @@ class HakoneSubAreaScreen extends ConsumerWidget {
           // サブエリア一覧
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
               itemCount: subAreas.length,
               itemBuilder: (context, index) {
                 final area = subAreas[index];
                 return Padding(
                   padding: EdgeInsets.only(
-                    bottom: index < subAreas.length - 1 ? WanMapSpacing.md : WanMapSpacing.lg,
+                    bottom: index < subAreas.length - 1 ? WanWalkSpacing.md : WanWalkSpacing.lg,
                   ),
                   child: _HakoneSubAreaCard(
                     areaData: area,
@@ -169,9 +169,9 @@ class _HakoneSubAreaCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.lg),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: accentColor.withOpacity(0.3),
@@ -211,7 +211,7 @@ class _HakoneSubAreaCard extends StatelessWidget {
                     size: 28,
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.md),
+                const SizedBox(width: WanWalkSpacing.md),
                 // エリア名とルート数
                 Expanded(
                   child: Column(
@@ -219,10 +219,10 @@ class _HakoneSubAreaCard extends StatelessWidget {
                     children: [
                       Text(
                         subAreaName,
-                        style: WanMapTypography.titleLarge.copyWith(
+                        style: WanWalkTypography.titleLarge.copyWith(
                           color: isDark
-                              ? WanMapColors.textPrimaryDark
-                              : WanMapColors.textPrimaryLight,
+                              ? WanWalkColors.textPrimaryDark
+                              : WanWalkColors.textPrimaryLight,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -237,7 +237,7 @@ class _HakoneSubAreaCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             '$routeCount件のルート',
-                            style: WanMapTypography.bodySmall.copyWith(
+                            style: WanWalkTypography.bodySmall.copyWith(
                               color: accentColor,
                               fontWeight: FontWeight.bold,
                             ),
@@ -251,19 +251,19 @@ class _HakoneSubAreaCard extends StatelessWidget {
                 Icon(
                   Icons.chevron_right,
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
               ],
             ),
             if (description != null && description.isNotEmpty) ...[
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
               Text(
                 description,
-                style: WanMapTypography.bodySmall.copyWith(
+                style: WanWalkTypography.bodySmall.copyWith(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
@@ -304,6 +304,6 @@ class _HakoneSubAreaCard extends StatelessWidget {
     } else if (subAreaName.contains('強羅')) {
       return const Color(0xFF795548); // 茶（山）
     }
-    return WanMapColors.accent;
+    return WanWalkColors.accent;
   }
 }

@@ -1,6 +1,6 @@
-# WanMap v2 📚 ドキュメント索引
+# WanWalk v2 📚 ドキュメント索引
 
-このドキュメントは、WanMap v2プロジェクトのすべての重要なドキュメントへのクイックアクセスを提供します。
+このドキュメントは、WanWalk v2プロジェクトのすべての重要なドキュメントへのクイックアクセスを提供します。
 
 ---
 
@@ -98,7 +98,7 @@
 
 ### GitHub
 **リポジトリ情報は [COMPLETE_PROJECT_DOCUMENTATION.md](./COMPLETE_PROJECT_DOCUMENTATION.md) に記載**
-- プライベートリポジトリ: `wanmap_v2`
+- プライベートリポジトリ: `wanwalk`
 
 ---
 
@@ -106,8 +106,8 @@
 
 ### サンドボックスvsローカル運用
 **[COMPLETE_PROJECT_DOCUMENTATION.md](./COMPLETE_PROJECT_DOCUMENTATION.md)** の「開発ルールと原則」セクションに詳細記載：
-- サンドボックス: `/home/user/webapp/wanmap_v2` （コード編集）
-- ローカルMac: `/Users/atsushinarisawa/projects/webapp/wanmap_v2` （実行・テスト）
+- サンドボックス: `/home/user/webapp/wanwalk` （コード編集）
+- ローカルMac: `/Users/atsushinarisawa/projects/webapp/wanwalk` （実行・テスト）
 - **重要**: サンドボックスで編集 → git push → Mac で git pull → 完全再起動
 
 ### Riverpod規約
@@ -239,7 +239,7 @@
 ## 📚 その他の重要ドキュメント
 
 ### 実装ガイド
-- **[📖 wanmap_implementation_guide_v3.md](./wanmap_implementation_guide_v3.md)** - WanMap実装ガイド v3
+- **[📖 wanwalk_implementation_guide_v3.md](./wanwalk_implementation_guide_v3.md)** - WanWalk実装ガイド v3
 
 ### 提案書
 - **[💡 PUBLIC_ROUTES_ENHANCEMENT_PROPOSAL.md](./PUBLIC_ROUTES_ENHANCEMENT_PROPOSAL.md)** - 公開ルート機能拡張提案
@@ -258,4 +258,4 @@
 
 **最終更新日**: 2025-11-24  
 **プロジェクトバージョン**: v2 (Phase 3実装中)  
-**作成者**: WanMap v2 Development Team
+**作成者**: WanWalk v2 Development Team

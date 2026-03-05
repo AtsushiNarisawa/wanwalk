@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 
-/// WanMapエラー表示ウィジェット
+/// WanWalkエラー表示ウィジェット
 /// 
 /// エラー発生時のUI統一と再試行機能を提供
-class WanMapErrorWidget extends StatelessWidget {
+class WanWalkErrorWidget extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
   final bool isNetworkError;
   final IconData? icon;
 
-  const WanMapErrorWidget({
+  const WanWalkErrorWidget({
     super.key,
     required this.message,
     this.onRetry,
@@ -25,7 +25,7 @@ class WanMapErrorWidget extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.xl),
+      padding: const EdgeInsets.all(WanWalkSpacing.xl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -34,31 +34,31 @@ class WanMapErrorWidget extends StatelessWidget {
             icon ?? (isNetworkError ? Icons.wifi_off : Icons.error_outline),
             size: 64,
             color: isDark 
-                ? WanMapColors.textSecondaryDark 
-                : WanMapColors.textSecondaryLight,
+                ? WanWalkColors.textSecondaryDark 
+                : WanWalkColors.textSecondaryLight,
           ),
-          const SizedBox(height: WanMapSpacing.lg),
+          const SizedBox(height: WanWalkSpacing.lg),
           
           // エラーメッセージ
           Text(
             message,
-            style: WanMapTypography.bodyLarge.copyWith(
+            style: WanWalkTypography.bodyLarge.copyWith(
               color: isDark 
-                  ? WanMapColors.textPrimaryDark 
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark 
+                  : WanWalkColors.textPrimaryLight,
             ),
             textAlign: TextAlign.center,
           ),
           
           // ネットワークエラー時の補足
           if (isNetworkError) ...[
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Text(
               'インターネット接続を確認してください',
-              style: WanMapTypography.bodySmall.copyWith(
+              style: WanWalkTypography.bodySmall.copyWith(
                 color: isDark 
-                    ? WanMapColors.textSecondaryDark 
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark 
+                    : WanWalkColors.textSecondaryLight,
               ),
               textAlign: TextAlign.center,
             ),
@@ -66,17 +66,17 @@ class WanMapErrorWidget extends StatelessWidget {
           
           // 再試行ボタン
           if (onRetry != null) ...[
-            const SizedBox(height: WanMapSpacing.xl),
+            const SizedBox(height: WanWalkSpacing.xl),
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: const Text('再試行'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: WanMapColors.accent,
+                backgroundColor: WanWalkColors.accent,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: WanMapSpacing.xl,
-                  vertical: WanMapSpacing.md,
+                  horizontal: WanWalkSpacing.xl,
+                  vertical: WanWalkSpacing.md,
                 ),
               ),
             ),
@@ -88,11 +88,11 @@ class WanMapErrorWidget extends StatelessWidget {
 }
 
 /// カード型エラーウィジェット（小さな領域用）
-class WanMapErrorCard extends StatelessWidget {
+class WanWalkErrorCard extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
 
-  const WanMapErrorCard({
+  const WanWalkErrorCard({
     super.key,
     required this.message,
     this.onRetry,
@@ -103,16 +103,16 @@ class WanMapErrorCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.lg),
+      padding: const EdgeInsets.all(WanWalkSpacing.lg),
       decoration: BoxDecoration(
         color: isDark 
-            ? WanMapColors.surfaceDark.withOpacity(0.5)
-            : WanMapColors.surfaceLight,
+            ? WanWalkColors.surfaceDark.withOpacity(0.5)
+            : WanWalkColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark 
-              ? WanMapColors.borderDark 
-              : WanMapColors.borderLight,
+              ? WanWalkColors.borderDark 
+              : WanWalkColors.borderLight,
         ),
       ),
       child: Column(
@@ -122,27 +122,27 @@ class WanMapErrorCard extends StatelessWidget {
             Icons.error_outline,
             size: 32,
             color: isDark 
-                ? WanMapColors.textSecondaryDark 
-                : WanMapColors.textSecondaryLight,
+                ? WanWalkColors.textSecondaryDark 
+                : WanWalkColors.textSecondaryLight,
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           Text(
             message,
-            style: WanMapTypography.bodyMedium.copyWith(
+            style: WanWalkTypography.bodyMedium.copyWith(
               color: isDark 
-                  ? WanMapColors.textPrimaryDark 
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark 
+                  : WanWalkColors.textPrimaryLight,
             ),
             textAlign: TextAlign.center,
           ),
           if (onRetry != null) ...[
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: const Text('再試行'),
               style: TextButton.styleFrom(
-                foregroundColor: WanMapColors.accent,
+                foregroundColor: WanWalkColors.accent,
               ),
             ),
           ],
@@ -153,7 +153,7 @@ class WanMapErrorCard extends StatelessWidget {
 }
 
 /// 空状態ウィジェット
-class WanMapEmptyState extends StatelessWidget {
+class WanWalkEmptyState extends StatelessWidget {
   final String title;
   final String message;
   final IconData icon;
@@ -161,7 +161,7 @@ class WanMapEmptyState extends StatelessWidget {
   final String? actionLabel;
   final Widget? illustration;
 
-  const WanMapEmptyState({
+  const WanWalkEmptyState({
     super.key,
     required this.title,
     required this.message,
@@ -176,7 +176,7 @@ class WanMapEmptyState extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.xxl),
+      padding: const EdgeInsets.all(WanWalkSpacing.xxl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -188,48 +188,48 @@ class WanMapEmptyState extends StatelessWidget {
               icon,
               size: 80,
               color: isDark 
-                  ? WanMapColors.textSecondaryDark.withOpacity(0.5)
-                  : WanMapColors.textSecondaryLight.withOpacity(0.5),
+                  ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
+                  : WanWalkColors.textSecondaryLight.withOpacity(0.5),
             ),
-          const SizedBox(height: WanMapSpacing.xl),
+          const SizedBox(height: WanWalkSpacing.xl),
           
           // タイトル
           Text(
             title,
-            style: WanMapTypography.headlineSmall.copyWith(
+            style: WanWalkTypography.headlineSmall.copyWith(
               color: isDark 
-                  ? WanMapColors.textPrimaryDark 
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark 
+                  : WanWalkColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           
           // メッセージ
           Text(
             message,
-            style: WanMapTypography.bodyMedium.copyWith(
+            style: WanWalkTypography.bodyMedium.copyWith(
               color: isDark 
-                  ? WanMapColors.textSecondaryDark 
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark 
+                  : WanWalkColors.textSecondaryLight,
             ),
             textAlign: TextAlign.center,
           ),
           
           // アクションボタン
           if (onAction != null) ...[
-            const SizedBox(height: WanMapSpacing.xxl),
+            const SizedBox(height: WanWalkSpacing.xxl),
             ElevatedButton.icon(
               onPressed: onAction,
               icon: const Icon(Icons.add),
               label: Text(actionLabel ?? 'はじめる'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: WanMapColors.accent,
+                backgroundColor: WanWalkColors.accent,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: WanMapSpacing.xxl,
-                  vertical: WanMapSpacing.md,
+                  horizontal: WanWalkSpacing.xxl,
+                  vertical: WanWalkSpacing.md,
                 ),
               ),
             ),
@@ -241,11 +241,11 @@ class WanMapEmptyState extends StatelessWidget {
 }
 
 /// カード型空状態ウィジェット
-class WanMapEmptyCard extends StatelessWidget {
+class WanWalkEmptyCard extends StatelessWidget {
   final String message;
   final IconData icon;
 
-  const WanMapEmptyCard({
+  const WanWalkEmptyCard({
     super.key,
     required this.message,
     this.icon = Icons.inbox_outlined,
@@ -256,16 +256,16 @@ class WanMapEmptyCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.xl),
+      padding: const EdgeInsets.all(WanWalkSpacing.xl),
       decoration: BoxDecoration(
         color: isDark 
-            ? WanMapColors.surfaceDark.withOpacity(0.5)
-            : WanMapColors.surfaceLight,
+            ? WanWalkColors.surfaceDark.withOpacity(0.5)
+            : WanWalkColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark 
-              ? WanMapColors.borderDark 
-              : WanMapColors.borderLight,
+              ? WanWalkColors.borderDark 
+              : WanWalkColors.borderLight,
         ),
       ),
       child: Column(
@@ -275,16 +275,16 @@ class WanMapEmptyCard extends StatelessWidget {
             icon,
             size: 48,
             color: isDark 
-                ? WanMapColors.textSecondaryDark.withOpacity(0.5)
-                : WanMapColors.textSecondaryLight.withOpacity(0.5),
+                ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
+                : WanWalkColors.textSecondaryLight.withOpacity(0.5),
           ),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
           Text(
             message,
-            style: WanMapTypography.bodyMedium.copyWith(
+            style: WanWalkTypography.bodyMedium.copyWith(
               color: isDark 
-                  ? WanMapColors.textSecondaryDark 
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark 
+                  : WanWalkColors.textSecondaryLight,
             ),
             textAlign: TextAlign.center,
           ),

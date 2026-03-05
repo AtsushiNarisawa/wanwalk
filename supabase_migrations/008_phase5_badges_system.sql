@@ -1,5 +1,5 @@
 -- =====================================================
--- WanMap Phase 5-5: バッジシステム
+-- WanWalk Phase 5-5: バッジシステム
 -- =====================================================
 -- 実行日: 2025-11-22
 -- 目的: ユーザーのモチベーション向上のためのバッジ・実績システム
@@ -79,7 +79,7 @@ INSERT INTO badge_definitions (badge_code, name_ja, name_en, description, icon_n
 INSERT INTO badge_definitions (badge_code, name_ja, name_en, description, icon_name, category, tier, requirement_type, requirement_value, display_order) VALUES
 ('first_walk', '初めての散歩', 'First Walk', '初めてのお出かけ散歩を完了しました', 'celebration', 'special', 'bronze', 'total_walks', 1, 41),
 ('first_pin', '初めてのピン', 'First Pin', '初めてのピンを投稿しました', 'new_releases', 'special', 'bronze', 'pins_created', 1, 42),
-('early_adopter', 'アーリーアダプター', 'Early Adopter', 'WanMapの初期メンバーです', 'star', 'special', 'platinum', 'special', 0, 43);
+('early_adopter', 'アーリーアダプター', 'Early Adopter', 'WanWalkの初期メンバーです', 'star', 'special', 'platinum', 'special', 0, 43);
 
 -- =====================================================
 -- RPC: バッジ解除チェック関数

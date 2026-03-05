@@ -268,7 +268,7 @@ CREATE FUNCTION get_pin_comments(
 
 ```bash
 # 1. 最新コードを取得
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 git pull origin main
 
 # 2. Flutterアプリをホットリスタート
@@ -372,7 +372,7 @@ if (comment.userId == widget.pin.userId) {
   Container(
     padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     decoration: BoxDecoration(
-      color: WanMapColors.accent.withOpacity(0.2),
+      color: WanWalkColors.accent.withOpacity(0.2),
       borderRadius: BorderRadius.circular(4),
     ),
     child: Text('投稿者'),

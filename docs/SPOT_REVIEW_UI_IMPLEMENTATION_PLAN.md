@@ -50,12 +50,12 @@ import '../../models/spot_review_model.dart';
 **場所:** 262行目（位置情報マップの後）
 
 ```dart
-const SizedBox(height: WanMapSpacing.xl),
+const SizedBox(height: WanWalkSpacing.xl),
 
 // スポット評価・レビューセクション
 _buildReviewsSection(pin.id, isDark),
 
-const SizedBox(height: WanMapSpacing.xl),
+const SizedBox(height: WanWalkSpacing.xl),
 
 // みんなのコメントセクション
 _buildCommentsSection(commentsAsync, commentCount, currentUser, isDark, pin),
@@ -85,13 +85,13 @@ Widget _buildReviewsSection(String spotId, bool isDark) {
             size: 20,
             color: Colors.amber,
           ),
-          const SizedBox(width: WanMapSpacing.xs),
+          const SizedBox(width: WanWalkSpacing.xs),
           Text(
             'スポット評価',
-            style: WanMapTypography.headlineSmall.copyWith(
+            style: WanWalkTypography.headlineSmall.copyWith(
               color: isDark
-                  ? WanMapColors.textPrimaryDark
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark
+                  : WanWalkColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -104,12 +104,12 @@ Widget _buildReviewsSection(String spotId, bool isDark) {
                 children: [
                   Text(
                     avg.toStringAsFixed(1),
-                    style: WanMapTypography.headlineSmall.copyWith(
+                    style: WanWalkTypography.headlineSmall.copyWith(
                       color: Colors.amber,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: WanMapSpacing.xs),
+                  const SizedBox(width: WanWalkSpacing.xs),
                   Icon(Icons.star, color: Colors.amber, size: 20),
                 ],
               );
@@ -120,7 +120,7 @@ Widget _buildReviewsSection(String spotId, bool isDark) {
         ],
       ),
       
-      const SizedBox(height: WanMapSpacing.sm),
+      const SizedBox(height: WanWalkSpacing.sm),
 
       // レビュー数表示
       reviewCountAsync.when(
@@ -128,19 +128,19 @@ Widget _buildReviewsSection(String spotId, bool isDark) {
           if (count == 0) {
             return Text(
               'まだレビューがありません',
-              style: WanMapTypography.bodySmall.copyWith(
+              style: WanWalkTypography.bodySmall.copyWith(
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
               ),
             );
           }
           return Text(
             '$count件のレビュー',
-            style: WanMapTypography.bodySmall.copyWith(
+            style: WanWalkTypography.bodySmall.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           );
         },
@@ -148,16 +148,16 @@ Widget _buildReviewsSection(String spotId, bool isDark) {
         error: (_, __) => const SizedBox.shrink(),
       ),
 
-      const SizedBox(height: WanMapSpacing.md),
+      const SizedBox(height: WanWalkSpacing.md),
 
       // レビュー一覧
       reviewsAsync.when(
         data: (reviews) {
           if (reviews.isEmpty) {
             return Container(
-              padding: const EdgeInsets.all(WanMapSpacing.lg),
+              padding: const EdgeInsets.all(WanWalkSpacing.lg),
               decoration: BoxDecoration(
-                color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -167,16 +167,16 @@ Widget _buildReviewsSection(String spotId, bool isDark) {
                       Icons.rate_review_outlined,
                       size: 48,
                       color: isDark
-                          ? WanMapColors.textSecondaryDark
-                          : WanMapColors.textSecondaryLight,
+                          ? WanWalkColors.textSecondaryDark
+                          : WanWalkColors.textSecondaryLight,
                     ),
-                    const SizedBox(height: WanMapSpacing.sm),
+                    const SizedBox(height: WanWalkSpacing.sm),
                     Text(
                       'このスポットの最初のレビューを投稿しませんか？',
-                      style: WanMapTypography.bodyMedium.copyWith(
+                      style: WanWalkTypography.bodyMedium.copyWith(
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -193,14 +193,14 @@ Widget _buildReviewsSection(String spotId, bool isDark) {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Container(
-          padding: const EdgeInsets.all(WanMapSpacing.md),
+          padding: const EdgeInsets.all(WanWalkSpacing.md),
           decoration: BoxDecoration(
             color: Colors.red.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             'レビューの読み込みに失敗しました',
-            style: WanMapTypography.bodySmall.copyWith(color: Colors.red),
+            style: WanWalkTypography.bodySmall.copyWith(color: Colors.red),
           ),
         ),
       ),
@@ -215,13 +215,13 @@ Widget _buildReviewsSection(String spotId, bool isDark) {
 /// レビューカード
 Widget _buildReviewCard(SpotReviewModel review, bool isDark) {
   return Container(
-    margin: const EdgeInsets.only(bottom: WanMapSpacing.md),
-    padding: const EdgeInsets.all(WanMapSpacing.md),
+    margin: const EdgeInsets.only(bottom: WanWalkSpacing.md),
+    padding: const EdgeInsets.all(WanWalkSpacing.md),
     decoration: BoxDecoration(
-      color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+      color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
       borderRadius: BorderRadius.circular(12),
       border: Border.all(
-        color: isDark ? WanMapColors.borderDark : WanMapColors.borderLight,
+        color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
       ),
     ),
     child: Column(
@@ -244,24 +244,24 @@ Widget _buildReviewCard(SpotReviewModel review, bool isDark) {
             // 相対時間
             Text(
               review.relativeTime,
-              style: WanMapTypography.bodySmall.copyWith(
+              style: WanWalkTypography.bodySmall.copyWith(
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
               ),
             ),
           ],
         ),
 
         if (review.reviewText != null && review.reviewText!.isNotEmpty) ...[
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           // レビューテキスト
           Text(
             review.reviewText!,
-            style: WanMapTypography.bodyMedium.copyWith(
+            style: WanWalkTypography.bodyMedium.copyWith(
               color: isDark
-                  ? WanMapColors.textPrimaryDark
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark
+                  : WanWalkColors.textPrimaryLight,
             ),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
@@ -270,10 +270,10 @@ Widget _buildReviewCard(SpotReviewModel review, bool isDark) {
 
         // 設備情報アイコン
         if (review.hasFacilities) ...[
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           Wrap(
-            spacing: WanMapSpacing.xs,
-            runSpacing: WanMapSpacing.xs,
+            spacing: WanWalkSpacing.xs,
+            runSpacing: WanWalkSpacing.xs,
             children: [
               if (review.hasWaterFountain) _buildFacilityChip('水飲み場', Icons.water_drop, isDark),
               if (review.hasDogRun) _buildFacilityChip('ドッグラン', Icons.pets, isDark),
@@ -286,23 +286,23 @@ Widget _buildReviewCard(SpotReviewModel review, bool isDark) {
 
         // 写真プレビュー（あれば）
         if (review.photoCount > 0) ...[
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           Row(
             children: [
               Icon(
                 Icons.photo_library,
                 size: 16,
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
               ),
-              const SizedBox(width: WanMapSpacing.xs),
+              const SizedBox(width: WanWalkSpacing.xs),
               Text(
                 '${review.photoCount}枚の写真',
-                style: WanMapTypography.bodySmall.copyWith(
+                style: WanWalkTypography.bodySmall.copyWith(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                 ),
               ),
             ],
@@ -321,22 +321,22 @@ Widget _buildReviewCard(SpotReviewModel review, bool isDark) {
 Widget _buildFacilityChip(String label, IconData icon, bool isDark) {
   return Container(
     padding: const EdgeInsets.symmetric(
-      horizontal: WanMapSpacing.sm,
-      vertical: WanMapSpacing.xs,
+      horizontal: WanWalkSpacing.sm,
+      vertical: WanWalkSpacing.xs,
     ),
     decoration: BoxDecoration(
-      color: WanMapColors.accent.withOpacity(0.1),
+      color: WanWalkColors.accent.withOpacity(0.1),
       borderRadius: BorderRadius.circular(16),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: WanMapColors.accent),
+        Icon(icon, size: 14, color: WanWalkColors.accent),
         const SizedBox(width: 4),
         Text(
           label,
-          style: WanMapTypography.bodySmall.copyWith(
-            color: WanMapColors.accent,
+          style: WanWalkTypography.bodySmall.copyWith(
+            color: WanWalkColors.accent,
             fontSize: 12,
           ),
         ),

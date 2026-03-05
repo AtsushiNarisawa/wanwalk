@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/walk_history_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/history/outing_walk_history_card.dart';
@@ -79,10 +79,10 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
         body: Center(
           child: Text(
             'ログインが必要です',
-            style: WanMapTypography.bodyLarge.copyWith(
+            style: WanWalkTypography.bodyLarge.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
         ),
@@ -91,26 +91,26 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: Text(
           '散歩履歴',
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: isDark
-            ? WanMapColors.backgroundDark
-            : WanMapColors.backgroundLight,
+            ? WanWalkColors.backgroundDark
+            : WanWalkColors.backgroundLight,
         elevation: 0,
         iconTheme: IconThemeData(
           color: isDark
-              ? WanMapColors.textPrimaryDark
-              : WanMapColors.textPrimaryLight,
+              ? WanWalkColors.textPrimaryDark
+              : WanWalkColors.textPrimaryLight,
         ),
       ),
       body: Column(
@@ -121,15 +121,15 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
           // タブバー
           TabBar(
             controller: _tabController,
-            indicatorColor: WanMapColors.accent,
-            labelColor: WanMapColors.accent,
+            indicatorColor: WanWalkColors.accent,
+            labelColor: WanWalkColors.accent,
             unselectedLabelColor: isDark
-                ? WanMapColors.textSecondaryDark
-                : WanMapColors.textSecondaryLight,
-            labelStyle: WanMapTypography.bodyMedium.copyWith(
+                ? WanWalkColors.textSecondaryDark
+                : WanWalkColors.textSecondaryLight,
+            labelStyle: WanWalkTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.bold,
             ),
-            unselectedLabelStyle: WanMapTypography.bodyMedium,
+            unselectedLabelStyle: WanWalkTypography.bodyMedium,
             tabs: const [
               Tab(text: 'すべて'),
               Tab(text: 'お出かけ'),
@@ -190,14 +190,14 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
 
           return ListView.builder(
             controller: _scrollController,
-            padding: const EdgeInsets.all(WanMapSpacing.lg),
+            padding: const EdgeInsets.all(WanWalkSpacing.lg),
             itemCount: histories.length + 1,
             itemBuilder: (context, index) {
               if (index == histories.length) {
                 // ローディングインジケーター
                 return _outingOffset > 0
                     ? const Padding(
-                        padding: EdgeInsets.all(WanMapSpacing.lg),
+                        padding: EdgeInsets.all(WanWalkSpacing.lg),
                         child: Center(child: CircularProgressIndicator()),
                       )
                     : const SizedBox.shrink();
@@ -247,25 +247,25 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
         children: [
           // 説明文
           Container(
-            margin: const EdgeInsets.all(WanMapSpacing.lg),
-            padding: const EdgeInsets.all(WanMapSpacing.md),
+            margin: const EdgeInsets.all(WanWalkSpacing.lg),
+            padding: const EdgeInsets.all(WanWalkSpacing.md),
             decoration: BoxDecoration(
-              color: WanMapColors.accent.withOpacity(0.1),
+              color: WanWalkColors.accent.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
                 const Icon(
                   Icons.info_outline,
-                  color: WanMapColors.accent,
+                  color: WanWalkColors.accent,
                   size: 20,
                 ),
-                const SizedBox(width: WanMapSpacing.sm),
+                const SizedBox(width: WanWalkSpacing.sm),
                 Expanded(
                   child: Text(
                     '日常散歩はログとして記録されています',
-                    style: WanMapTypography.caption.copyWith(
-                      color: WanMapColors.accent,
+                    style: WanWalkTypography.caption.copyWith(
+                      color: WanWalkColors.accent,
                     ),
                   ),
                 ),
@@ -289,14 +289,14 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
                 return ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: WanMapSpacing.lg,
+                    horizontal: WanWalkSpacing.lg,
                   ),
                   itemCount: histories.length + 1,
                   itemBuilder: (context, index) {
                     if (index == histories.length) {
                       return _dailyOffset > 0
                           ? const Padding(
-                              padding: EdgeInsets.all(WanMapSpacing.lg),
+                              padding: EdgeInsets.all(WanWalkSpacing.lg),
                               child: Center(child: CircularProgressIndicator()),
                             )
                           : const SizedBox.shrink();
@@ -349,7 +349,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(WanMapSpacing.lg),
+            padding: const EdgeInsets.all(WanWalkSpacing.lg),
             itemCount: histories.length,
             itemBuilder: (context, index) {
               final item = histories[index];
@@ -412,7 +412,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
   ) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(WanMapSpacing.xxxl),
+        padding: const EdgeInsets.all(WanWalkSpacing.xxxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -420,27 +420,27 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
               icon,
               size: 80,
               color: isDark
-                  ? WanMapColors.textSecondaryDark.withOpacity(0.5)
-                  : WanMapColors.textSecondaryLight.withOpacity(0.5),
+                  ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
+                  : WanWalkColors.textSecondaryLight.withOpacity(0.5),
             ),
-            const SizedBox(height: WanMapSpacing.lg),
+            const SizedBox(height: WanWalkSpacing.lg),
             Text(
               title,
-              style: WanMapTypography.headlineSmall.copyWith(
+              style: WanWalkTypography.headlineSmall.copyWith(
                 color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
+                    ? WanWalkColors.textPrimaryDark
+                    : WanWalkColors.textPrimaryLight,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Text(
               subtitle,
-              style: WanMapTypography.bodyMedium.copyWith(
+              style: WanWalkTypography.bodyMedium.copyWith(
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
               ),
               textAlign: TextAlign.center,
             ),
@@ -454,7 +454,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
   Widget _buildErrorState(bool isDark, String error) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(WanMapSpacing.xxxl),
+        padding: const EdgeInsets.all(WanWalkSpacing.xxxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -463,23 +463,23 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
               size: 80,
               color: Colors.red.withOpacity(0.5),
             ),
-            const SizedBox(height: WanMapSpacing.lg),
+            const SizedBox(height: WanWalkSpacing.lg),
             Text(
               '読み込みエラー',
-              style: WanMapTypography.headlineSmall.copyWith(
+              style: WanWalkTypography.headlineSmall.copyWith(
                 color: isDark
-                    ? WanMapColors.textPrimaryDark
-                    : WanMapColors.textPrimaryLight,
+                    ? WanWalkColors.textPrimaryDark
+                    : WanWalkColors.textPrimaryLight,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: WanMapSpacing.sm),
+            const SizedBox(height: WanWalkSpacing.sm),
             Text(
               'データの取得に失敗しました',
-              style: WanMapTypography.bodyMedium.copyWith(
+              style: WanWalkTypography.bodyMedium.copyWith(
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
               ),
               textAlign: TextAlign.center,
             ),
@@ -495,9 +495,9 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
     final monthlyStatsAsync = ref.watch(monthlyStatisticsProvider(userId));
 
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.lg),
+      padding: const EdgeInsets.all(WanWalkSpacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -524,7 +524,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
               error: (_, __) => _SummaryCardError(isDark: isDark),
             ),
           ),
-          const SizedBox(width: WanMapSpacing.md),
+          const SizedBox(width: WanWalkSpacing.md),
           // 1ヶ月の統計
           Expanded(
             child: monthlyStatsAsync.when(
@@ -558,12 +558,12 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
       builder: (context) {
         return Container(
           decoration: BoxDecoration(
-            color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+            color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(24),
             ),
           ),
-          padding: const EdgeInsets.all(WanMapSpacing.xl),
+          padding: const EdgeInsets.all(WanWalkSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,25 +575,25 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
                   height: 4,
                   decoration: BoxDecoration(
                     color: isDark
-                        ? WanMapColors.textSecondaryDark
-                        : WanMapColors.textSecondaryLight,
+                        ? WanWalkColors.textSecondaryDark
+                        : WanWalkColors.textSecondaryLight,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.lg),
+              const SizedBox(height: WanWalkSpacing.lg),
 
               // タイトル
               Text(
                 '日常散歩',
-                style: WanMapTypography.headlineSmall.copyWith(
+                style: WanWalkTypography.headlineSmall.copyWith(
                   color: isDark
-                      ? WanMapColors.textPrimaryDark
-                      : WanMapColors.textPrimaryLight,
+                      ? WanWalkColors.textPrimaryDark
+                      : WanWalkColors.textPrimaryLight,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
 
               // 統計情報
               _DetailRow(
@@ -602,14 +602,14 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
                 value: DateFormat('yyyy年MM月dd日 HH:mm').format(history.walkedAt),
                 isDark: isDark,
               ),
-              const SizedBox(height: WanMapSpacing.sm),
+              const SizedBox(height: WanWalkSpacing.sm),
               _DetailRow(
                 icon: Icons.straighten,
                 label: '距離',
                 value: history.formattedDistance,
                 isDark: isDark,
               ),
-              const SizedBox(height: WanMapSpacing.sm),
+              const SizedBox(height: WanWalkSpacing.sm),
               _DetailRow(
                 icon: Icons.access_time,
                 label: '時間',
@@ -617,7 +617,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
                 isDark: isDark,
               ),
 
-              const SizedBox(height: WanMapSpacing.xl),
+              const SizedBox(height: WanWalkSpacing.xl),
 
               // 閉じるボタン
               SizedBox(
@@ -625,9 +625,9 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: WanMapColors.accent,
+                    backgroundColor: WanWalkColors.accent,
                     padding: const EdgeInsets.symmetric(
-                      vertical: WanMapSpacing.md,
+                      vertical: WanWalkSpacing.md,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -635,7 +635,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
                   ),
                   child: Text(
                     '閉じる',
-                    style: WanMapTypography.bodyLarge.copyWith(
+                    style: WanWalkTypography.bodyLarge.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -672,26 +672,26 @@ class _DetailRow extends StatelessWidget {
           icon,
           size: 20,
           color: isDark
-              ? WanMapColors.textSecondaryDark
-              : WanMapColors.textSecondaryLight,
+              ? WanWalkColors.textSecondaryDark
+              : WanWalkColors.textSecondaryLight,
         ),
-        const SizedBox(width: WanMapSpacing.sm),
+        const SizedBox(width: WanWalkSpacing.sm),
         Text(
           label,
-          style: WanMapTypography.bodyMedium.copyWith(
+          style: WanWalkTypography.bodyMedium.copyWith(
             color: isDark
-                ? WanMapColors.textSecondaryDark
-                : WanMapColors.textSecondaryLight,
+                ? WanWalkColors.textSecondaryDark
+                : WanWalkColors.textSecondaryLight,
           ),
         ),
         const Spacer(),
         Flexible(
           child: Text(
             value,
-            style: WanMapTypography.bodyLarge.copyWith(
+            style: WanWalkTypography.bodyLarge.copyWith(
               color: isDark
-                  ? WanMapColors.textPrimaryDark
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark
+                  : WanWalkColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.right,
@@ -726,7 +726,7 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
@@ -741,41 +741,41 @@ class _SummaryCard extends StatelessWidget {
           Row(
             children: [
               Icon(icon, size: 20, color: color),
-              const SizedBox(width: WanMapSpacing.xs),
+              const SizedBox(width: WanWalkSpacing.xs),
               Text(
                 title,
-                style: WanMapTypography.bodyMedium.copyWith(
+                style: WanWalkTypography.bodyMedium.copyWith(
                   color: color,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           Text(
             '$walksCount回',
-            style: WanMapTypography.headlineMedium.copyWith(
+            style: WanWalkTypography.headlineMedium.copyWith(
               color: isDark
-                  ? WanMapColors.textPrimaryDark
-                  : WanMapColors.textPrimaryLight,
+                  ? WanWalkColors.textPrimaryDark
+                  : WanWalkColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.xs),
+          const SizedBox(height: WanWalkSpacing.xs),
           Text(
             distance,
-            style: WanMapTypography.bodySmall.copyWith(
+            style: WanWalkTypography.bodySmall.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
           Text(
             duration,
-            style: WanMapTypography.bodySmall.copyWith(
+            style: WanWalkTypography.bodySmall.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
         ],
@@ -793,9 +793,9 @@ class _SummaryCardLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: const Center(
@@ -818,9 +818,9 @@ class _SummaryCardError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(

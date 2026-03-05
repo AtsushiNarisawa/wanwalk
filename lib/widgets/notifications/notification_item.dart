@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/user_statistics.dart';
 
 /// 通知アイテムウィジェット
@@ -28,7 +28,7 @@ class NotificationItem extends StatelessWidget {
       onDismissed: (_) => onDelete(),
       background: Container(
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: WanMapSpacing.medium),
+        padding: const EdgeInsets.only(right: WanWalkSpacing.medium),
         decoration: BoxDecoration(
           color: Colors.red,
           borderRadius: BorderRadius.circular(12),
@@ -41,18 +41,18 @@ class NotificationItem extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(WanMapSpacing.medium),
+          padding: const EdgeInsets.all(WanWalkSpacing.medium),
           decoration: BoxDecoration(
             color: notification.isRead
-                ? (isDark ? WanMapColors.cardDark : Colors.white)
+                ? (isDark ? WanWalkColors.cardDark : Colors.white)
                 : (isDark
-                    ? WanMapColors.accent.withOpacity(0.1)
-                    : WanMapColors.accent.withOpacity(0.05)),
+                    ? WanWalkColors.accent.withOpacity(0.1)
+                    : WanWalkColors.accent.withOpacity(0.05)),
             borderRadius: BorderRadius.circular(12),
             border: notification.isRead
                 ? null
                 : Border.all(
-                    color: WanMapColors.accent.withOpacity(0.3),
+                    color: WanWalkColors.accent.withOpacity(0.3),
                     width: 1,
                   ),
           ),
@@ -61,7 +61,7 @@ class NotificationItem extends StatelessWidget {
             children: [
               // アイコン
               _buildNotificationIcon(isDark),
-              const SizedBox(width: WanMapSpacing.medium),
+              const SizedBox(width: WanWalkSpacing.medium),
               
               // 通知内容
               Expanded(
@@ -73,7 +73,7 @@ class NotificationItem extends StatelessWidget {
                         Expanded(
                           child: Text(
                             notification.title,
-                            style: WanMapTypography.heading4.copyWith(
+                            style: WanWalkTypography.heading4.copyWith(
                               fontWeight: notification.isRead
                                   ? FontWeight.normal
                                   : FontWeight.bold,
@@ -87,27 +87,27 @@ class NotificationItem extends StatelessWidget {
                             width: 8,
                             height: 8,
                             decoration: const BoxDecoration(
-                              color: WanMapColors.accent,
+                              color: WanWalkColors.accent,
                               shape: BoxShape.circle,
                             ),
                           ),
                       ],
                     ),
                     if (notification.body != null) ...[
-                      const SizedBox(height: WanMapSpacing.tiny),
+                      const SizedBox(height: WanWalkSpacing.tiny),
                       Text(
                         '${notification.actorName}${notification.body}',
-                        style: WanMapTypography.body.copyWith(
+                        style: WanWalkTypography.body.copyWith(
                           color: isDark ? Colors.white70 : Colors.black54,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const SizedBox(height: WanMapSpacing.tiny),
+                    const SizedBox(height: WanWalkSpacing.tiny),
                     Text(
                       _formatTime(notification.createdAt),
-                      style: WanMapTypography.caption.copyWith(
+                      style: WanWalkTypography.caption.copyWith(
                         color: isDark ? Colors.white54 : Colors.black45,
                       ),
                     ),
@@ -140,7 +140,7 @@ class NotificationItem extends StatelessWidget {
         break;
       case 'new_pin':
         icon = Icons.location_on;
-        color = WanMapColors.accent;
+        color = WanWalkColors.accent;
         break;
       case 'route_walked':
         icon = Icons.directions_walk;

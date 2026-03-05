@@ -1,7 +1,7 @@
-# WanMap - 愛犬の散歩ルート共有モバイルアプリ
+# WanWalk - 愛犬の散歩ルート共有モバイルアプリ
 
 <div align="center">
-  <img src="assets/icon/app_icon.png" width="120" alt="WanMap Icon">
+  <img src="assets/icon/app_icon.png" width="120" alt="WanWalk Icon">
   
   [![Flutter](https://img.shields.io/badge/Flutter-3.38.2-blue.svg)](https://flutter.dev)
   [![Dart](https://img.shields.io/badge/Dart-3.0+-blue.svg)](https://dart.dev)
@@ -11,7 +11,7 @@
 
 ## 📱 プロジェクト概要
 
-WanMapは、愛犬との散歩を記録・共有できるモバイルアプリケーションです。2025年1月にリニューアルを実施し、2モード制（Daily/Outing）と公式ルート・コミュニティ機能を導入しました。
+WanWalkは、愛犬との散歩を記録・共有できるモバイルアプリケーションです。2025年1月にリニューアルを実施し、2モード制（Daily/Outing）と公式ルート・コミュニティ機能を導入しました。
 
 ### 🎯 主な機能
 
@@ -212,9 +212,9 @@ user_badges (ユーザーバッジ)
 lib/
 ├── config/                  # 設定ファイル
 │   ├── supabase_config.dart
-│   ├── wanmap_colors.dart
-│   ├── wanmap_typography.dart
-│   └── wanmap_spacing.dart
+│   ├── wanwalk_colors.dart
+│   ├── wanwalk_typography.dart
+│   └── wanwalk_spacing.dart
 │
 ├── models/                  # データモデル
 │   ├── walk_mode.dart       # Daily/Outing enum
@@ -314,8 +314,8 @@ lib/
 ### 1. リポジトリクローン
 
 ```bash
-git clone https://github.com/AtsushiNarisawa/wanmap_v2.git
-cd wanmap_v2
+git clone https://github.com/AtsushiNarisawa/wanwalk.git
+cd wanwalk
 ```
 
 ### 2. 依存関係インストール

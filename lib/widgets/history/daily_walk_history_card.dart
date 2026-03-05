@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/walk_history.dart';
 
 /// 日常散歩履歴カード（シンプル、小さい表示）
@@ -23,15 +23,15 @@ class DailyWalkHistoryCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: WanMapSpacing.sm),
-        padding: const EdgeInsets.all(WanMapSpacing.md),
+        margin: const EdgeInsets.only(bottom: WanWalkSpacing.sm),
+        padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark
-                ? WanMapColors.textSecondaryDark.withOpacity(0.1)
-                : WanMapColors.textSecondaryLight.withOpacity(0.1),
+                ? WanWalkColors.textSecondaryDark.withOpacity(0.1)
+                : WanWalkColors.textSecondaryLight.withOpacity(0.1),
             width: 1,
           ),
         ),
@@ -39,22 +39,22 @@ class DailyWalkHistoryCard extends StatelessWidget {
           children: [
             // アイコン
             Container(
-              padding: const EdgeInsets.all(WanMapSpacing.sm),
+              padding: const EdgeInsets.all(WanWalkSpacing.sm),
               decoration: BoxDecoration(
                 color: isDark
-                    ? WanMapColors.backgroundDark
-                    : WanMapColors.backgroundLight,
+                    ? WanWalkColors.backgroundDark
+                    : WanWalkColors.backgroundLight,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.pets,
                 color: isDark
-                    ? WanMapColors.textSecondaryDark
-                    : WanMapColors.textSecondaryLight,
+                    ? WanWalkColors.textSecondaryDark
+                    : WanWalkColors.textSecondaryLight,
                 size: 20,
               ),
             ),
-            const SizedBox(width: WanMapSpacing.md),
+            const SizedBox(width: WanWalkSpacing.md),
 
             // 情報
             Expanded(
@@ -64,14 +64,14 @@ class DailyWalkHistoryCard extends StatelessWidget {
                   // 日時
                   Text(
                     _formatDate(history.walkedAt),
-                    style: WanMapTypography.bodyMedium.copyWith(
+                    style: WanWalkTypography.bodyMedium.copyWith(
                       color: isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
+                          ? WanWalkColors.textPrimaryDark
+                          : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: WanMapSpacing.xs),
+                  const SizedBox(height: WanWalkSpacing.xs),
 
                   // 統計
                   Row(
@@ -80,33 +80,33 @@ class DailyWalkHistoryCard extends StatelessWidget {
                         Icons.straighten,
                         size: 14,
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
-                      const SizedBox(width: WanMapSpacing.xs),
+                      const SizedBox(width: WanWalkSpacing.xs),
                       Text(
                         history.formattedDistance,
-                        style: WanMapTypography.caption.copyWith(
+                        style: WanWalkTypography.caption.copyWith(
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                       ),
-                      const SizedBox(width: WanMapSpacing.md),
+                      const SizedBox(width: WanWalkSpacing.md),
                       Icon(
                         Icons.access_time,
                         size: 14,
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
-                      const SizedBox(width: WanMapSpacing.xs),
+                      const SizedBox(width: WanWalkSpacing.xs),
                       Text(
                         history.formattedDuration,
-                        style: WanMapTypography.caption.copyWith(
+                        style: WanWalkTypography.caption.copyWith(
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -119,8 +119,8 @@ class DailyWalkHistoryCard extends StatelessWidget {
             Icon(
               Icons.chevron_right,
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
               size: 20,
             ),
           ],

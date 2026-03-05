@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/theme_provider.dart';
 import 'change_password_screen.dart';
 import 'change_email_screen.dart';
@@ -19,14 +19,14 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: const Text(
           '設定',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
       ),
       body: ListView(
@@ -117,7 +117,7 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           
-          const SizedBox(height: WanMapSpacing.large),
+          const SizedBox(height: WanWalkSpacing.large),
         ],
       ),
     );
@@ -126,14 +126,14 @@ class SettingsScreen extends ConsumerWidget {
   Widget _buildSectionHeader(String title, bool isDark) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        WanMapSpacing.medium,
-        WanMapSpacing.large,
-        WanMapSpacing.medium,
-        WanMapSpacing.small,
+        WanWalkSpacing.medium,
+        WanWalkSpacing.large,
+        WanWalkSpacing.medium,
+        WanWalkSpacing.small,
       ),
       child: Text(
         title,
-        style: WanMapTypography.caption.copyWith(
+        style: WanWalkTypography.caption.copyWith(
           color: isDark ? Colors.white54 : Colors.black45,
           fontWeight: FontWeight.bold,
         ),
@@ -143,9 +143,9 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildSettingsCard(bool isDark, {required List<Widget> children}) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: WanMapSpacing.medium),
+      margin: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.medium),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : Colors.white,
+        color: isDark ? WanWalkColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(children: children),
@@ -161,15 +161,15 @@ class SettingsScreen extends ConsumerWidget {
     return ListTile(
       leading: const Icon(
         Icons.palette_outlined,
-        color: WanMapColors.accent,
+        color: WanWalkColors.accent,
       ),
       title: const Text(
         'テーマ',
-        style: WanMapTypography.body,
+        style: WanWalkTypography.body,
       ),
       subtitle: Text(
         _getThemeModeText(themeMode),
-        style: WanMapTypography.caption.copyWith(
+        style: WanWalkTypography.caption.copyWith(
           color: isDark ? Colors.white54 : Colors.black45,
         ),
       ),
@@ -240,15 +240,15 @@ class SettingsScreen extends ConsumerWidget {
     return SwitchListTile(
       secondary: const Icon(
         Icons.notifications_outlined,
-        color: WanMapColors.accent,
+        color: WanWalkColors.accent,
       ),
       title: const Text(
         '通知',
-        style: WanMapTypography.body,
+        style: WanWalkTypography.body,
       ),
       subtitle: Text(
         '散歩のリマインダーなど',
-        style: WanMapTypography.caption.copyWith(
+        style: WanWalkTypography.caption.copyWith(
           color: isDark ? Colors.white54 : Colors.black45,
         ),
       ),
@@ -272,16 +272,16 @@ class SettingsScreen extends ConsumerWidget {
     return ListTile(
       leading: Icon(
         icon,
-        color: WanMapColors.accent,
+        color: WanWalkColors.accent,
       ),
       title: Text(
         title,
-        style: WanMapTypography.body,
+        style: WanWalkTypography.body,
       ),
       subtitle: subtitle != null
           ? Text(
               subtitle,
-              style: WanMapTypography.caption.copyWith(
+              style: WanWalkTypography.caption.copyWith(
                 color: isDark ? Colors.white54 : Colors.black45,
               ),
             )

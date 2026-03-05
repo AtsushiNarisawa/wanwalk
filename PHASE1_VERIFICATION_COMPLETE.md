@@ -414,7 +414,7 @@ SELECT * FROM get_user_walk_statistics('e09b6a6b-fb41-44ff-853e-7cc437836c77');
 ### ステップ1: Mac実機テスト
 
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 flutter run
 ```
 

@@ -56,7 +56,7 @@ export $(grep -v '^#' .env | xargs)
 ### 3. スクリプトを実行
 
 ```bash
-cd /Users/atsushinarisawa/projects/webapp/wanmap_v2
+cd /Users/atsushinarisawa/projects/webapp/wanwalk
 python3 scripts/check_routes.py
 ```
 

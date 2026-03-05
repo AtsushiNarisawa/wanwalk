@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
+import '../../config/wanwalk_colors.dart';
 import '../../providers/auth_provider.dart';
 import 'signup_screen.dart';
 import 'password_reset_screen.dart';
@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: WanMapColors.backgroundLight,
+      backgroundColor: WanWalkColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -108,7 +108,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: WanMapColors.primary,
+                      color: WanWalkColors.primary,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -133,7 +133,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: WanMapColors.primary,
+                      color: WanWalkColors.primary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -217,7 +217,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: WanMapColors.primary,
+                        backgroundColor: WanWalkColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

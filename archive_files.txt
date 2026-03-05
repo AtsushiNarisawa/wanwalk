@@ -6,8 +6,8 @@ lib/providers/route_provider.dart
 lib/providers/spot_provider.dart
 lib/providers/theme_provider.dart
 lib/providers/notification_provider.dart
-lib/config/wanmap_spacing.dart
-lib/config/wanmap_theme.dart
+lib/config/wanwalk_spacing.dart
+lib/config/wanwalk_theme.dart
 lib/screens/map/map_screen.dart
 lib/screens/routes/route_detail_screen.dart
 lib/config/env.dart

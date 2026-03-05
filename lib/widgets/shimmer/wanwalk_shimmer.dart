@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../config/wanmap_colors.dart';
+import '../../config/wanwalk_colors.dart';
 
-/// WanMap共通Shimmerウィジェット
+/// WanWalk共通Shimmerウィジェット
 /// 
 /// スケルトンローディングに使用する基本Shimmerコンポーネント
-class WanMapShimmer extends StatelessWidget {
+class WanWalkShimmer extends StatelessWidget {
   final double width;
   final double height;
   final BorderRadius? borderRadius;
   final EdgeInsetsGeometry? margin;
 
-  const WanMapShimmer({
+  const WanWalkShimmer({
     super.key,
     required this.width,
     required this.height,
@@ -29,10 +29,10 @@ class WanMapShimmer extends StatelessWidget {
       margin: margin,
       child: Shimmer.fromColors(
         baseColor: isDark 
-            ? WanMapColors.backgroundDark.withOpacity(0.3)
+            ? WanWalkColors.backgroundDark.withOpacity(0.3)
             : Colors.grey[300]!,
         highlightColor: isDark 
-            ? WanMapColors.backgroundDark.withOpacity(0.5)
+            ? WanWalkColors.backgroundDark.withOpacity(0.5)
             : Colors.grey[100]!,
         child: Container(
           decoration: BoxDecoration(
@@ -65,7 +65,7 @@ class CardShimmer extends StatelessWidget {
         count,
         (index) => Padding(
           padding: padding ?? const EdgeInsets.only(bottom: 16),
-          child: WanMapShimmer(
+          child: WanWalkShimmer(
             width: double.infinity,
             height: height ?? 180,
             borderRadius: BorderRadius.circular(12),
@@ -97,7 +97,7 @@ class ListTileShimmer extends StatelessWidget {
           child: Row(
             children: [
               // アイコン部分
-              WanMapShimmer(
+              WanWalkShimmer(
                 width: 48,
                 height: 48,
                 borderRadius: BorderRadius.circular(24),
@@ -108,13 +108,13 @@ class ListTileShimmer extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    WanMapShimmer(
+                    WanWalkShimmer(
                       width: double.infinity,
                       height: 16,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     const SizedBox(height: 8),
-                    WanMapShimmer(
+                    WanWalkShimmer(
                       width: 200,
                       height: 12,
                       borderRadius: BorderRadius.circular(4),
@@ -158,21 +158,21 @@ class ImageCardShimmer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 画像部分
-                WanMapShimmer(
+                WanWalkShimmer(
                   width: width ?? double.infinity,
                   height: height ?? 140,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 const SizedBox(height: 8),
                 // タイトル
-                WanMapShimmer(
+                WanWalkShimmer(
                   width: double.infinity,
                   height: 14,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 const SizedBox(height: 6),
                 // サブテキスト
-                WanMapShimmer(
+                WanWalkShimmer(
                   width: 100,
                   height: 12,
                   borderRadius: BorderRadius.circular(4),
@@ -203,7 +203,7 @@ class AreaCardShimmer extends StatelessWidget {
       // 大きな特集カード
       return Column(
         children: [
-          WanMapShimmer(
+          WanWalkShimmer(
             width: double.infinity,
             height: 200,
             borderRadius: BorderRadius.circular(16),
@@ -232,7 +232,7 @@ class AreaCardShimmer extends StatelessWidget {
                       right: colIndex == 0 ? 8 : 0,
                       left: colIndex == 1 ? 8 : 0,
                     ),
-                    child: WanMapShimmer(
+                    child: WanWalkShimmer(
                       width: double.infinity,
                       height: 120,
                       borderRadius: BorderRadius.circular(12),
@@ -267,7 +267,7 @@ class RouteCardShimmer extends StatelessWidget {
           child: Row(
             children: [
               // 地図プレビュー
-              WanMapShimmer(
+              WanWalkShimmer(
                 width: 100,
                 height: 80,
                 borderRadius: BorderRadius.circular(8),
@@ -278,13 +278,13 @@ class RouteCardShimmer extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    WanMapShimmer(
+                    WanWalkShimmer(
                       width: double.infinity,
                       height: 16,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     const SizedBox(height: 8),
-                    WanMapShimmer(
+                    WanWalkShimmer(
                       width: 150,
                       height: 12,
                       borderRadius: BorderRadius.circular(4),
@@ -292,13 +292,13 @@ class RouteCardShimmer extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        WanMapShimmer(
+                        WanWalkShimmer(
                           width: 60,
                           height: 12,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         const SizedBox(width: 12),
-                        WanMapShimmer(
+                        WanWalkShimmer(
                           width: 60,
                           height: 12,
                           borderRadius: BorderRadius.circular(4),

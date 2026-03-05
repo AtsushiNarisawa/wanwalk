@@ -13,7 +13,7 @@
 ### ステップ1: Supabaseダッシュボードを開く
 1. https://supabase.com にアクセス
 2. ログイン
-3. `wanmap_v2` プロジェクトを選択
+3. `wanwalk` プロジェクトを選択
 
 ### ステップ2: SQL Editorを開く
 左側メニューから **「SQL Editor」** をクリック

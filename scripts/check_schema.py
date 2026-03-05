@@ -7,7 +7,7 @@ import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
-load_dotenv('/home/user/wanmap_v2/.env')
+load_dotenv('/home/user/wanwalk/.env')
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_ANON_KEY')

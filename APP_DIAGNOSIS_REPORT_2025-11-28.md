@@ -1,4 +1,4 @@
-# WanMap v2 アプリ全体診断レポート
+# WanWalk v2 アプリ全体診断レポート
 
 **診断日時:** 2025年11月28日  
 **実施者:** AI Assistant  
@@ -334,7 +334,7 @@ CHECK (type IN ('follow', 'like', 'comment', 'badge_unlocked', 'system'));
 
 ## 🎊 結論
 
-**WanMap v2は現在、App Store申請に向けて準備が整っています。**
+**WanWalk v2は現在、App Store申請に向けて準備が整っています。**
 
 - ✅ すべてのCritical/High問題が解決
 - ✅ 主要機能がすべて正常動作

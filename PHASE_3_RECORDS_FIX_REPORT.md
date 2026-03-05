@@ -1,7 +1,7 @@
 # Phase 3 & Records画面修正 - 完了レポート
 
 **日付:** 2025-11-27  
-**プロジェクト:** wanmap_v2  
+**プロジェクト:** wanwalk  
 **担当:** AI Assistant (自動実行)
 
 ---

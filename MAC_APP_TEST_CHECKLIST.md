@@ -6,7 +6,7 @@
 
 ### 1. App Restart
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 # Option A: Hot Restart (if app is already running)
 # Press 'R' key in terminal
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/user_statistics_provider.dart';
 import '../../providers/auth_provider.dart';
 
@@ -26,14 +26,14 @@ class UserProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: Text(
           isOwnProfile ? 'プロフィール' : 'ユーザー情報',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
         actions: [
           if (isOwnProfile)
@@ -58,9 +58,9 @@ class UserProfileScreen extends ConsumerWidget {
                   statistics,
                   isOwnProfile,
                 ),
-                const SizedBox(height: WanMapSpacing.medium),
+                const SizedBox(height: WanWalkSpacing.medium),
                 _buildStatisticsSection(isDark, statistics),
-                const SizedBox(height: WanMapSpacing.medium),
+                const SizedBox(height: WanWalkSpacing.medium),
                 _buildRecentActivity(context, isDark, userId),
               ],
             ),
@@ -80,40 +80,40 @@ class UserProfileScreen extends ConsumerWidget {
     bool isOwnProfile,
   ) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.large),
+      padding: const EdgeInsets.all(WanWalkSpacing.large),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : Colors.white,
+        color: isDark ? WanWalkColors.cardDark : Colors.white,
       ),
       child: Column(
         children: [
           // アバター
           CircleAvatar(
             radius: 50,
-            backgroundColor: WanMapColors.accent.withOpacity(0.2),
+            backgroundColor: WanWalkColors.accent.withOpacity(0.2),
             child: const Icon(
               Icons.person,
               size: 50,
-              color: WanMapColors.accent,
+              color: WanWalkColors.accent,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           
           // ユーザー名
           const Text(
             'ユーザー名', // TODO: 実際のユーザー名を表示
-            style: WanMapTypography.heading2,
+            style: WanWalkTypography.heading2,
           ),
-          const SizedBox(height: WanMapSpacing.tiny),
+          const SizedBox(height: WanWalkSpacing.tiny),
           
           // Bio
           Text(
             '愛犬と一緒に散歩を楽しんでいます！',
-            style: WanMapTypography.body.copyWith(
+            style: WanWalkTypography.body.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           
         ],
       ),
@@ -122,10 +122,10 @@ class UserProfileScreen extends ConsumerWidget {
 
   Widget _buildStatisticsSection(bool isDark, dynamic statistics) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: WanMapSpacing.medium),
-      padding: const EdgeInsets.all(WanMapSpacing.medium),
+      margin: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.medium),
+      padding: const EdgeInsets.all(WanWalkSpacing.medium),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : Colors.white,
+        color: isDark ? WanWalkColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -133,9 +133,9 @@ class UserProfileScreen extends ConsumerWidget {
         children: [
           const Text(
             '散歩統計',
-            style: WanMapTypography.heading3,
+            style: WanWalkTypography.heading3,
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           Row(
             children: [
               Expanded(
@@ -156,7 +156,7 @@ class UserProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: WanMapSpacing.small),
+          const SizedBox(height: WanWalkSpacing.small),
           Row(
             children: [
               Expanded(
@@ -193,18 +193,18 @@ class UserProfileScreen extends ConsumerWidget {
         Icon(
           icon,
           size: 32,
-          color: WanMapColors.accent,
+          color: WanWalkColors.accent,
         ),
-        const SizedBox(height: WanMapSpacing.tiny),
+        const SizedBox(height: WanWalkSpacing.tiny),
         Text(
           label,
-          style: WanMapTypography.caption.copyWith(
+          style: WanWalkTypography.caption.copyWith(
             color: isDark ? Colors.white70 : Colors.black54,
           ),
         ),
         Text(
           value,
-          style: WanMapTypography.heading3,
+          style: WanWalkTypography.heading3,
         ),
       ],
     );
@@ -212,10 +212,10 @@ class UserProfileScreen extends ConsumerWidget {
 
   Widget _buildRecentActivity(BuildContext context, bool isDark, String userId) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: WanMapSpacing.medium),
-      padding: const EdgeInsets.all(WanMapSpacing.medium),
+      margin: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.medium),
+      padding: const EdgeInsets.all(WanWalkSpacing.medium),
       decoration: BoxDecoration(
-        color: isDark ? WanMapColors.cardDark : Colors.white,
+        color: isDark ? WanWalkColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -225,7 +225,7 @@ class UserProfileScreen extends ConsumerWidget {
             children: [
               const Text(
                 '最近のアクティビティ',
-                style: WanMapTypography.heading3,
+                style: WanWalkTypography.heading3,
               ),
               const Spacer(),
               TextButton(
@@ -236,11 +236,11 @@ class UserProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           Center(
             child: Text(
               'アクティビティはまだありません',
-              style: WanMapTypography.body.copyWith(
+              style: WanWalkTypography.body.copyWith(
                 color: isDark ? Colors.white54 : Colors.black45,
               ),
             ),
@@ -260,17 +260,17 @@ class UserProfileScreen extends ConsumerWidget {
             size: 64,
             color: isDark ? Colors.red.shade300 : Colors.red,
           ),
-          const SizedBox(height: WanMapSpacing.medium),
+          const SizedBox(height: WanWalkSpacing.medium),
           Text(
             'エラーが発生しました',
-            style: WanMapTypography.heading3.copyWith(
+            style: WanWalkTypography.heading3.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.small),
+          const SizedBox(height: WanWalkSpacing.small),
           Text(
             error,
-            style: WanMapTypography.caption.copyWith(
+            style: WanWalkTypography.caption.copyWith(
               color: isDark ? Colors.white54 : Colors.black45,
             ),
             textAlign: TextAlign.center,

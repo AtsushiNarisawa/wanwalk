@@ -1,7 +1,7 @@
 # Phase 1 & 2: Walk記録機能 - 完全成功レポート
 
 **日付:** 2025-11-27  
-**プロジェクト:** wanmap_v2  
+**プロジェクト:** wanwalk  
 **担当:** Atsushi & AI Assistant
 
 ---

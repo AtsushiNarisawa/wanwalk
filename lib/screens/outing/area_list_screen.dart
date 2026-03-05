@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../providers/area_provider.dart';
 import '../../providers/area_list_screen_provider.dart';
 import 'route_list_screen.dart';
@@ -49,8 +49,8 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: const Text('エリアを選ぶ'),
         backgroundColor: Colors.transparent,
@@ -60,10 +60,10 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
         children: [
           // 検索バー
           _buildSearchBar(context, isDark),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
           // フィルタ・ソートバー
           _buildFilterSortBar(context, isDark, prefecturesAsync, selectedPrefecture, sortOption),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
           // 件数表示（固定）
           areasAsync.when(
             data: (areas) => _buildAreaCountHeader(isDark, areas.length),
@@ -82,13 +82,13 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
                     ref.invalidate(filteredAreasProvider);
                   },
                   child: ListView.builder(
-                    padding: const EdgeInsets.all(WanMapSpacing.lg),
+                    padding: const EdgeInsets.all(WanWalkSpacing.lg),
                     itemCount: areas.length,
                     itemBuilder: (context, index) {
                       final area = areas[index];
                       return Padding(
                         padding: EdgeInsets.only(
-                          bottom: index < areas.length - 1 ? WanMapSpacing.md : 0,
+                          bottom: index < areas.length - 1 ? WanWalkSpacing.md : 0,
                         ),
                         child: _AreaCard(
                           areaData: area,
@@ -143,7 +143,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
   /// 検索バー
   Widget _buildSearchBar(BuildContext context, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.md),
       child: TextField(
         controller: _searchController,
         onChanged: _onSearchChanged,
@@ -160,7 +160,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
                 )
               : null,
           filled: true,
-          fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -179,7 +179,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
     AreaSortOption sortOption,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WanMapSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.md),
       child: Column(
         children: [
           // 都道府県フィルタ
@@ -192,7 +192,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
                   labelText: '都道府県',
                   prefixIcon: const Icon(Icons.location_city, size: 20),
                   filled: true,
-                  fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+                  fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -219,7 +219,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
             loading: () => const CircularProgressIndicator(),
             error: (_, __) => const SizedBox(),
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           // ソート順
           DropdownButtonFormField<AreaSortOption>(
             value: sortOption,
@@ -228,7 +228,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
               labelText: 'ソート',
               prefixIcon: const Icon(Icons.sort, size: 20),
               filled: true,
-              fillColor: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+              fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -256,15 +256,15 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
   Widget _buildAreaCountHeader(bool isDark, int count) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: WanMapSpacing.lg,
-        vertical: WanMapSpacing.sm,
+        horizontal: WanWalkSpacing.lg,
+        vertical: WanWalkSpacing.sm,
       ),
       child: Text(
         '${count}件のエリア',
-        style: WanMapTypography.bodyMedium.copyWith(
+        style: WanWalkTypography.bodyMedium.copyWith(
           color: isDark
-              ? WanMapColors.textSecondaryDark
-              : WanMapColors.textSecondaryLight,
+              ? WanWalkColors.textSecondaryDark
+              : WanWalkColors.textSecondaryLight,
         ),
       ),
     );
@@ -279,16 +279,16 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
             Icons.location_off,
             size: 64,
             color: isDark
-                ? WanMapColors.textSecondaryDark
-                : WanMapColors.textSecondaryLight,
+                ? WanWalkColors.textSecondaryDark
+                : WanWalkColors.textSecondaryLight,
           ),
-          const SizedBox(height: WanMapSpacing.md),
+          const SizedBox(height: WanWalkSpacing.md),
           Text(
             message,
-            style: WanMapTypography.bodyLarge.copyWith(
+            style: WanWalkTypography.bodyLarge.copyWith(
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ),
         ],
@@ -316,9 +316,9 @@ class _AreaCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.lg),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -339,8 +339,8 @@ class _AreaCard extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    WanMapColors.accent,
-                    WanMapColors.accent.withOpacity(0.7),
+                    WanWalkColors.accent,
+                    WanWalkColors.accent.withOpacity(0.7),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -351,7 +351,7 @@ class _AreaCard extends StatelessWidget {
                 size: 32,
               ),
             ),
-            const SizedBox(width: WanMapSpacing.md),
+            const SizedBox(width: WanWalkSpacing.md),
             // エリア情報
             Expanded(
               child: Column(
@@ -362,10 +362,10 @@ class _AreaCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           areaData['name'] as String,
-                          style: WanMapTypography.bodyLarge.copyWith(
+                          style: WanWalkTypography.bodyLarge.copyWith(
                             color: isDark
-                                ? WanMapColors.textPrimaryDark
-                                : WanMapColors.textPrimaryLight,
+                                ? WanWalkColors.textPrimaryDark
+                                : WanWalkColors.textPrimaryLight,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -378,34 +378,34 @@ class _AreaCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: WanMapColors.accent.withOpacity(0.2),
+                          color: WanWalkColors.accent.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '$routeCount件',
-                          style: WanMapTypography.caption.copyWith(
-                            color: WanMapColors.accent,
+                          style: WanWalkTypography.caption.copyWith(
+                            color: WanWalkColors.accent,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: WanMapSpacing.xs),
+                  const SizedBox(height: WanWalkSpacing.xs),
                   Text(
                     areaData['prefecture'] as String,
-                    style: WanMapTypography.bodySmall.copyWith(
-                      color: WanMapColors.accent,
+                    style: WanWalkTypography.bodySmall.copyWith(
+                      color: WanWalkColors.accent,
                     ),
                   ),
                   if (areaData['description'] != null) ...[
-                    const SizedBox(height: WanMapSpacing.xs),
+                    const SizedBox(height: WanWalkSpacing.xs),
                     Text(
                       areaData['description'] as String,
-                      style: WanMapTypography.caption.copyWith(
+                      style: WanWalkTypography.caption.copyWith(
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -414,13 +414,13 @@ class _AreaCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: WanMapSpacing.sm),
+            const SizedBox(width: WanWalkSpacing.sm),
             // 矢印アイコン
             Icon(
               Icons.chevron_right,
               color: isDark
-                  ? WanMapColors.textSecondaryDark
-                  : WanMapColors.textSecondaryLight,
+                  ? WanWalkColors.textSecondaryDark
+                  : WanWalkColors.textSecondaryLight,
             ),
           ],
         ),

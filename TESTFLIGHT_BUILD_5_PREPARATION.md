@@ -57,7 +57,7 @@ version: 1.0.0+6
 ### **Step 2: 依存関係の確認**
 
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 flutter pub get
 flutter doctor
 ```
@@ -74,7 +74,7 @@ flutter doctor
 
 #### **1. Xcodeを開く**
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 open ios/Runner.xcworkspace
 ```
 
@@ -84,7 +84,7 @@ open ios/Runner.xcworkspace
 - **Archive > Build Configuration > Release**
 
 #### **3. Bundle Identifierの確認**
-- `com.doghub.wanmap` が正しく設定されているか確認
+- `com.doghub.wanwalk` が正しく設定されているか確認
 
 #### **4. チーム設定の確認**
 - **Signing & Capabilities**
@@ -101,7 +101,7 @@ open ios/Runner.xcworkspace
 
 #### **1. クリーンビルド**
 ```bash
-cd ~/projects/webapp/wanmap_v2
+cd ~/projects/webapp/wanwalk
 flutter clean
 flutter pub get
 cd ios

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/route_model.dart';
 
 /// 人気急上昇ルートカード（コンパクト横スクロール用）
@@ -24,7 +24,7 @@ class TrendingRouteCard extends StatelessWidget {
       child: Container(
         width: 280,
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -42,18 +42,18 @@ class TrendingRouteCard extends StatelessWidget {
 
             // ルート情報
             Padding(
-              padding: const EdgeInsets.all(WanMapSpacing.md),
+              padding: const EdgeInsets.all(WanWalkSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 人気バッジ
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: WanMapSpacing.sm,
-                      vertical: WanMapSpacing.xs,
+                      horizontal: WanWalkSpacing.sm,
+                      vertical: WanWalkSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: WanMapColors.accent,
+                      color: WanWalkColors.accent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -64,10 +64,10 @@ class TrendingRouteCard extends StatelessWidget {
                           size: 14,
                           color: Colors.white,
                         ),
-                        const SizedBox(width: WanMapSpacing.xs),
+                        const SizedBox(width: WanWalkSpacing.xs),
                         Text(
                           '人気急上昇',
-                          style: WanMapTypography.caption.copyWith(
+                          style: WanWalkTypography.caption.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -75,21 +75,21 @@ class TrendingRouteCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: WanMapSpacing.sm),
+                  const SizedBox(height: WanWalkSpacing.sm),
 
                   // ルート名
                   Text(
                     route.name ?? route.title,
-                    style: WanMapTypography.bodyLarge.copyWith(
+                    style: WanWalkTypography.bodyLarge.copyWith(
                       color: isDark
-                          ? WanMapColors.textPrimaryDark
-                          : WanMapColors.textPrimaryLight,
+                          ? WanWalkColors.textPrimaryDark
+                          : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: WanMapSpacing.xs),
+                  const SizedBox(height: WanWalkSpacing.xs),
 
                   // エリア名
                   if (route.areaName != null)
@@ -99,17 +99,17 @@ class TrendingRouteCard extends StatelessWidget {
                           Icons.location_on,
                           size: 14,
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
-                        const SizedBox(width: WanMapSpacing.xs),
+                        const SizedBox(width: WanWalkSpacing.xs),
                         Expanded(
                           child: Text(
                             route.areaName!,
-                            style: WanMapTypography.caption.copyWith(
+                            style: WanWalkTypography.caption.copyWith(
                               color: isDark
-                                  ? WanMapColors.textSecondaryDark
-                                  : WanMapColors.textSecondaryLight,
+                                  ? WanWalkColors.textSecondaryDark
+                                  : WanWalkColors.textSecondaryLight,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -117,7 +117,7 @@ class TrendingRouteCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                  const SizedBox(height: WanMapSpacing.sm),
+                  const SizedBox(height: WanWalkSpacing.sm),
 
                   // 統計情報
                   Row(
@@ -126,33 +126,33 @@ class TrendingRouteCard extends StatelessWidget {
                         Icons.straighten,
                         size: 14,
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
-                      const SizedBox(width: WanMapSpacing.xs),
+                      const SizedBox(width: WanWalkSpacing.xs),
                       Text(
                         route.formattedDistance,
-                        style: WanMapTypography.caption.copyWith(
+                        style: WanWalkTypography.caption.copyWith(
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                       ),
-                      const SizedBox(width: WanMapSpacing.sm),
+                      const SizedBox(width: WanWalkSpacing.sm),
                       Icon(
                         Icons.push_pin,
                         size: 14,
                         color: isDark
-                            ? WanMapColors.textSecondaryDark
-                            : WanMapColors.textSecondaryLight,
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondaryLight,
                       ),
-                      const SizedBox(width: WanMapSpacing.xs),
+                      const SizedBox(width: WanWalkSpacing.xs),
                       Text(
                         '${route.recentPinsCount ?? 0}件',
-                        style: WanMapTypography.caption.copyWith(
+                        style: WanWalkTypography.caption.copyWith(
                           color: isDark
-                              ? WanMapColors.textSecondaryDark
-                              : WanMapColors.textSecondaryLight,
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -172,8 +172,8 @@ class TrendingRouteCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         color: isDark
-            ? WanMapColors.backgroundDark
-            : WanMapColors.backgroundLight,
+            ? WanWalkColors.backgroundDark
+            : WanWalkColors.backgroundLight,
       ),
       child: route.thumbnailUrl != null
           ? ClipRRect(
@@ -198,8 +198,8 @@ class TrendingRouteCard extends StatelessWidget {
         Icons.landscape,
         size: 48,
         color: isDark
-            ? WanMapColors.textSecondaryDark.withOpacity(0.3)
-            : WanMapColors.textSecondaryLight.withOpacity(0.3),
+            ? WanWalkColors.textSecondaryDark.withOpacity(0.3)
+            : WanWalkColors.textSecondaryLight.withOpacity(0.3),
       ),
     );
   }

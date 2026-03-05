@@ -7,9 +7,9 @@
 // ==================================================
 
 import 'package:flutter/material.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
@@ -24,27 +24,27 @@ class PrivacyPolicyScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: WanMapSpacing.screenPadding,
+          padding: WanWalkSpacing.screenPadding,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // タイトル
               Text(
                 'WanWalk プライバシーポリシー',
-                style: WanMapTypography.headlineLarge.copyWith(
-                  color: WanMapColors.textPrimaryLight,
+                style: WanWalkTypography.headlineLarge.copyWith(
+                  color: WanWalkColors.textPrimaryLight,
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.sm),
+              const SizedBox(height: WanWalkSpacing.sm),
 
               // 更新日
               Text(
                 '最終更新日: 2025年11月21日',
-                style: WanMapTypography.bodySmall.copyWith(
-                  color: WanMapColors.textSecondaryLight,
+                style: WanWalkTypography.bodySmall.copyWith(
+                  color: WanWalkColors.textSecondaryLight,
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.xl),
+              const SizedBox(height: WanWalkSpacing.xl),
 
               _buildSection(
                 '個人情報の収集',
@@ -169,18 +169,18 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 '※お問い合わせへの回答には、数日かかる場合があります。',
               ),
 
-              const SizedBox(height: WanMapSpacing.xl),
+              const SizedBox(height: WanWalkSpacing.xl),
 
               // 終わり
               Center(
                 child: Text(
                   '以上',
-                  style: WanMapTypography.bodyMedium.copyWith(
-                    color: WanMapColors.textSecondaryLight,
+                  style: WanWalkTypography.bodyMedium.copyWith(
+                    color: WanWalkColors.textSecondaryLight,
                   ),
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.xxl),
+              const SizedBox(height: WanWalkSpacing.xxl),
             ],
           ),
         ),
@@ -194,20 +194,20 @@ class PrivacyPolicyScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: WanMapTypography.headlineSmall.copyWith(
-            color: WanMapColors.textPrimaryLight,
+          style: WanWalkTypography.headlineSmall.copyWith(
+            color: WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.sm),
+        const SizedBox(height: WanWalkSpacing.sm),
         Text(
           content,
-          style: WanMapTypography.bodyMedium.copyWith(
-            color: WanMapColors.textSecondaryLight,
+          style: WanWalkTypography.bodyMedium.copyWith(
+            color: WanWalkColors.textSecondaryLight,
             height: 1.6,
           ),
         ),
-        const SizedBox(height: WanMapSpacing.lg),
+        const SizedBox(height: WanWalkSpacing.lg),
       ],
     );
   }

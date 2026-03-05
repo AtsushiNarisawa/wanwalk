@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/walk_mode.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../services/profile_service.dart';
@@ -137,7 +137,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: WanMapColors.accent,
+              backgroundColor: WanWalkColors.accent,
             ),
             child: const Text('写真を選択'),
           ),
@@ -166,7 +166,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: WanMapColors.accent,
+              backgroundColor: WanWalkColors.accent,
             ),
             child: const Text('終了'),
           ),
@@ -332,8 +332,8 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       body: Stack(
         children: [
           // マップ表示
@@ -381,7 +381,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
               Polyline(
                 points: gpsState.currentRoutePoints.map((p) => p.latLng).toList(),
                 strokeWidth: 4.0,
-                color: WanMapColors.accent.withOpacity(0.8),
+                color: WanWalkColors.accent.withOpacity(0.8),
               ),
             ],
           ),
@@ -424,7 +424,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       right: 0,
       child: SafeArea(
         child: Container(
-          padding: const EdgeInsets.all(WanMapSpacing.md),
+          padding: const EdgeInsets.all(WanWalkSpacing.md),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -444,7 +444,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
               Expanded(
                 child: Text(
                   '日常の散歩',
-                  style: WanMapTypography.bodyLarge.copyWith(
+                  style: WanWalkTypography.bodyLarge.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -475,9 +475,9 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       left: 0,
       right: 0,
       child: Container(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.lg),
         decoration: BoxDecoration(
-          color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(24),
           ),
@@ -500,12 +500,12 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
                 height: 4,
                 decoration: BoxDecoration(
                   color: isDark
-                      ? WanMapColors.textSecondaryDark
-                      : WanMapColors.textSecondaryLight,
+                      ? WanWalkColors.textSecondaryDark
+                      : WanWalkColors.textSecondaryLight,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
 
               // 統計情報
               Row(
@@ -532,7 +532,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
                 ],
               ),
 
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
 
               // コントロールボタン
               if (!gpsState.isInitialized) ...[
@@ -543,7 +543,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      vertical: WanMapSpacing.md,
+                      vertical: WanWalkSpacing.md,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -554,7 +554,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.play_arrow),
-                      SizedBox(width: WanMapSpacing.xs),
+                      SizedBox(width: WanWalkSpacing.xs),
                       Text('スタート', style: TextStyle(fontSize: 16)),
                     ],
                   ),
@@ -574,7 +574,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
                               : Colors.orange,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            vertical: WanMapSpacing.md,
+                            vertical: WanWalkSpacing.md,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -584,21 +584,21 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(gpsState.isPaused ? Icons.play_arrow : Icons.pause),
-                            const SizedBox(width: WanMapSpacing.xs),
+                            const SizedBox(width: WanWalkSpacing.xs),
                             Text(gpsState.isPaused ? '再開' : '一時停止'),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(width: WanMapSpacing.md),
+                    const SizedBox(width: WanWalkSpacing.md),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: _finishWalking,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: WanMapColors.accent,
+                          backgroundColor: WanWalkColors.accent,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            vertical: WanMapSpacing.md,
+                            vertical: WanWalkSpacing.md,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -608,7 +608,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.check),
-                            SizedBox(width: WanMapSpacing.xs),
+                            SizedBox(width: WanWalkSpacing.xs),
                             Text('終了'),
                           ],
                         ),
@@ -630,7 +630,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       children: [
         // ズームコントロール（左下）
         Positioned(
-          left: WanMapSpacing.lg,
+          left: WanWalkSpacing.lg,
           bottom: 280,
           child: ZoomControlWidget(
             mapController: _mapController,
@@ -640,7 +640,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
         ),
         // 現在地ボタン（右下）
         Positioned(
-          right: WanMapSpacing.lg,
+          right: WanWalkSpacing.lg,
           bottom: 280,
           child: FloatingActionButton(
             onPressed: () {
@@ -654,7 +654,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
             backgroundColor: Colors.white,
             child: Icon(
               _isFollowingUser ? Icons.my_location : Icons.location_searching,
-              color: WanMapColors.accent,
+              color: WanWalkColors.accent,
             ),
           ),
         ),
@@ -683,25 +683,25 @@ class _StatItem extends StatelessWidget {
       children: [
         Icon(
           icon,
-          color: WanMapColors.accent,
+          color: WanWalkColors.accent,
           size: 28,
         ),
-        const SizedBox(height: WanMapSpacing.xs),
+        const SizedBox(height: WanWalkSpacing.xs),
         Text(
           label,
-          style: WanMapTypography.caption.copyWith(
+          style: WanWalkTypography.caption.copyWith(
             color: isDark
-                ? WanMapColors.textSecondaryDark
-                : WanMapColors.textSecondaryLight,
+                ? WanWalkColors.textSecondaryDark
+                : WanWalkColors.textSecondaryLight,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: WanMapTypography.headlineSmall.copyWith(
+          style: WanWalkTypography.headlineSmall.copyWith(
             color: isDark
-                ? WanMapColors.textPrimaryDark
-                : WanMapColors.textPrimaryLight,
+                ? WanWalkColors.textPrimaryDark
+                : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),

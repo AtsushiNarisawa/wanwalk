@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/dog_model.dart';
 import '../../providers/dog_provider.dart';
 import 'vaccination_info_widget.dart';
@@ -306,14 +306,14 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
 
     return Scaffold(
       backgroundColor: isDark
-          ? WanMapColors.backgroundDark
-          : WanMapColors.backgroundLight,
+          ? WanWalkColors.backgroundDark
+          : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark ? WanMapColors.cardDark : Colors.white,
+        backgroundColor: isDark ? WanWalkColors.cardDark : Colors.white,
         elevation: 0,
         title: Text(
           isEditMode ? '愛犬情報の編集' : '愛犬の登録',
-          style: WanMapTypography.heading2,
+          style: WanWalkTypography.heading2,
         ),
         actions: [
           if (isEditMode)
@@ -339,7 +339,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
               child: const Text(
                 '保存',
                 style: TextStyle(
-                  color: WanMapColors.accent,
+                  color: WanWalkColors.accent,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -349,7 +349,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(WanMapSpacing.medium),
+          padding: const EdgeInsets.all(WanWalkSpacing.medium),
           child: Form(
             key: _formKey,
             child: Column(
@@ -363,13 +363,13 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                       children: [
                         CircleAvatar(
                           radius: 60,
-                          backgroundColor: WanMapColors.accent.withOpacity(0.2),
+                          backgroundColor: WanWalkColors.accent.withOpacity(0.2),
                           backgroundImage: _getAvatarImage(),
                           child: _getAvatarImage() == null
                               ? const Icon(
                                   Icons.pets,
                                   size: 60,
-                                  color: WanMapColors.accent,
+                                  color: WanWalkColors.accent,
                                 )
                               : null,
                         ),
@@ -389,7 +389,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: const BoxDecoration(
-                              color: WanMapColors.accent,
+                              color: WanWalkColors.accent,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -403,17 +403,17 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.large),
+                const SizedBox(height: WanWalkSpacing.large),
                 
                 // 名前入力
-                const Text('名前', style: WanMapTypography.heading3),
-                const SizedBox(height: WanMapSpacing.small),
+                const Text('名前', style: WanWalkTypography.heading3),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
                     hintText: '例：ポチ',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -426,28 +426,28 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: WanMapSpacing.medium),
+                const SizedBox(height: WanWalkSpacing.medium),
                 
                 // 犬種入力
-                const Text('犬種', style: WanMapTypography.heading3),
-                const SizedBox(height: WanMapSpacing.small),
+                const Text('犬種', style: WanWalkTypography.heading3),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _breedController,
                   decoration: InputDecoration(
                     hintText: '例：柴犬',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.medium),
+                const SizedBox(height: WanWalkSpacing.medium),
                 
                 // サイズ選択
-                const Text('サイズ', style: WanMapTypography.heading3),
-                const SizedBox(height: WanMapSpacing.small),
+                const Text('サイズ', style: WanWalkTypography.heading3),
+                const SizedBox(height: WanWalkSpacing.small),
                 Wrap(
                   spacing: 8,
                   children: DogSize.values.map((size) {
@@ -464,54 +464,54 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                       onSelected: (selected) {
                         setState(() => _selectedSize = selected ? size : null);
                       },
-                      selectedColor: WanMapColors.accent,
-                      backgroundColor: isDark ? WanMapColors.cardDark : Colors.grey[200],
+                      selectedColor: WanWalkColors.accent,
+                      backgroundColor: isDark ? WanWalkColors.cardDark : Colors.grey[200],
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: WanMapSpacing.medium),
+                const SizedBox(height: WanWalkSpacing.medium),
                 
                 // 誕生日選択
-                const Text('誕生日', style: WanMapTypography.heading3),
-                const SizedBox(height: WanMapSpacing.small),
+                const Text('誕生日', style: WanWalkTypography.heading3),
+                const SizedBox(height: WanWalkSpacing.small),
                 InkWell(
                   onTap: _selectBirthDate,
                   child: Container(
-                    padding: const EdgeInsets.all(WanMapSpacing.medium),
+                    padding: const EdgeInsets.all(WanWalkSpacing.medium),
                     decoration: BoxDecoration(
-                      color: isDark ? WanMapColors.cardDark : Colors.white,
+                      color: isDark ? WanWalkColors.cardDark : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
                         const Icon(
                           Icons.calendar_today,
-                          color: WanMapColors.accent,
+                          color: WanWalkColors.accent,
                         ),
-                        const SizedBox(width: WanMapSpacing.small),
+                        const SizedBox(width: WanWalkSpacing.small),
                         Text(
                           _birthDate == null
                               ? '誕生日を選択'
                               : '${_birthDate!.year}年${_birthDate!.month}月${_birthDate!.day}日',
-                          style: WanMapTypography.body,
+                          style: WanWalkTypography.body,
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: WanMapSpacing.medium),
+                const SizedBox(height: WanWalkSpacing.medium),
                 
                 // 体重入力
-                const Text('体重（kg）', style: WanMapTypography.heading3),
-                const SizedBox(height: WanMapSpacing.small),
+                const Text('体重（kg）', style: WanWalkTypography.heading3),
+                const SizedBox(height: WanWalkSpacing.small),
                 TextFormField(
                   controller: _weightController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     hintText: '例：5.5',
                     filled: true,
-                    fillColor: isDark ? WanMapColors.cardDark : Colors.white,
+                    fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -531,7 +531,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                 
                 // 予防接種情報セクション（編集モードのみ）
                 if (isEditMode && widget.dog != null) ...[
-                  const SizedBox(height: WanMapSpacing.xl),
+                  const SizedBox(height: WanWalkSpacing.xl),
                   VaccinationInfoWidget(
                     dog: widget.dog!,
                     userId: widget.userId,

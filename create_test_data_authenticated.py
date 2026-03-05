@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WanMap テストデータ作成スクリプト（認証付き）
+WanWalk テストデータ作成スクリプト（認証付き）
 既存ユーザーでログインしてからテストデータを作成します。
 """
 
@@ -195,7 +195,7 @@ def add_photos_to_route(access_token, route_id, user_id, num_photos=3):
 
 def main():
     print("=" * 70)
-    print("🐕 WanMap テストデータ作成スクリプト（認証付き）")
+    print("🐕 WanWalk テストデータ作成スクリプト（認証付き）")
     print("=" * 70)
     print()
     

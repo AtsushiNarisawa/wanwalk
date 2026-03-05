@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../config/wanmap_colors.dart';
-import '../../config/wanmap_typography.dart';
-import '../../config/wanmap_spacing.dart';
+import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
+import '../../config/wanwalk_spacing.dart';
 import '../../models/walk_history.dart';
 
 /// 日常散歩詳細画面
@@ -21,25 +21,25 @@ class DailyWalkDetailScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
-      backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+      backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
       appBar: AppBar(
         title: const Text('日常散歩の記録'),
-        backgroundColor: isDark ? WanMapColors.backgroundDark : WanMapColors.backgroundLight,
+        backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(WanMapSpacing.md),
+        padding: const EdgeInsets.all(WanWalkSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ヘッダーカード
             _buildHeaderCard(isDark),
             
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             
             // 統計情報カード
             _buildStatsCard(isDark),
             
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             
             // 詳細情報カード
             _buildDetailCard(isDark),
@@ -59,49 +59,49 @@ class DailyWalkDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(WanMapSpacing.sm),
+                  padding: const EdgeInsets.all(WanWalkSpacing.sm),
                   decoration: BoxDecoration(
-                    color: WanMapColors.accent.withOpacity(0.1),
+                    color: WanWalkColors.accent.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.pets,
-                    color: WanMapColors.accent,
+                    color: WanWalkColors.accent,
                     size: 32,
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.md),
+                const SizedBox(width: WanWalkSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         '日常散歩',
-                        style: WanMapTypography.headlineSmall.copyWith(
-                          color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+                        style: WanWalkTypography.headlineSmall.copyWith(
+                          color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: WanMapSpacing.xs),
+                      const SizedBox(height: WanWalkSpacing.xs),
                       Row(
                         children: [
                           Icon(
                             Icons.calendar_today,
                             size: 16,
-                            color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                           ),
-                          const SizedBox(width: WanMapSpacing.xxs),
+                          const SizedBox(width: WanWalkSpacing.xxs),
                           Text(
                             dateFormat.format(history.walkedAt),
-                            style: WanMapTypography.bodyMedium.copyWith(
-                              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+                            style: WanWalkTypography.bodyMedium.copyWith(
+                              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                             ),
                           ),
                         ],
@@ -113,14 +113,14 @@ class DailyWalkDetailScreen extends StatelessWidget {
             ),
             
             if (history.areaName != null) ...[
-              const SizedBox(height: WanMapSpacing.md),
+              const SizedBox(height: WanWalkSpacing.md),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: WanMapSpacing.sm,
-                  vertical: WanMapSpacing.xs,
+                  horizontal: WanWalkSpacing.sm,
+                  vertical: WanWalkSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: WanMapColors.primary.withOpacity(0.1),
+                  color: WanWalkColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -129,13 +129,13 @@ class DailyWalkDetailScreen extends StatelessWidget {
                     const Icon(
                       Icons.my_location,
                       size: 16,
-                      color: WanMapColors.primary,
+                      color: WanWalkColors.primary,
                     ),
-                    const SizedBox(width: WanMapSpacing.xs),
+                    const SizedBox(width: WanWalkSpacing.xs),
                     Text(
                       history.areaName!,
-                      style: WanMapTypography.bodyMedium.copyWith(
-                        color: WanMapColors.primary,
+                      style: WanWalkTypography.bodyMedium.copyWith(
+                        color: WanWalkColors.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -170,18 +170,18 @@ class DailyWalkDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               '散歩の記録',
-              style: WanMapTypography.titleMedium.copyWith(
-                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+              style: WanWalkTypography.titleMedium.copyWith(
+                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             Row(
               children: [
                 Expanded(
@@ -192,7 +192,7 @@ class DailyWalkDetailScreen extends StatelessWidget {
                     isDark: isDark,
                   ),
                 ),
-                const SizedBox(width: WanMapSpacing.md),
+                const SizedBox(width: WanWalkSpacing.md),
                 Expanded(
                   child: _buildStatItem(
                     icon: Icons.access_time,
@@ -217,34 +217,34 @@ class DailyWalkDetailScreen extends StatelessWidget {
     required bool isDark,
   }) {
     return Container(
-      padding: const EdgeInsets.all(WanMapSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: WanMapColors.accent.withOpacity(0.05),
+        color: WanWalkColors.accent.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: WanMapColors.accent.withOpacity(0.2),
+          color: WanWalkColors.accent.withOpacity(0.2),
         ),
       ),
       child: Column(
         children: [
           Icon(
             icon,
-            color: WanMapColors.accent,
+            color: WanWalkColors.accent,
             size: 32,
           ),
-          const SizedBox(height: WanMapSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.sm),
           Text(
             value,
-            style: WanMapTypography.headlineSmall.copyWith(
-              color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+            style: WanWalkTypography.headlineSmall.copyWith(
+              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: WanMapSpacing.xxs),
+          const SizedBox(height: WanWalkSpacing.xxs),
           Text(
             label,
-            style: WanMapTypography.bodySmall.copyWith(
-              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+            style: WanWalkTypography.bodySmall.copyWith(
+              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
             ),
           ),
         ],
@@ -260,25 +260,25 @@ class DailyWalkDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(WanMapSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               '詳細情報',
-              style: WanMapTypography.titleMedium.copyWith(
-                color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+              style: WanWalkTypography.titleMedium.copyWith(
+                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: WanMapSpacing.md),
+            const SizedBox(height: WanWalkSpacing.md),
             _buildDetailRow(
               icon: Icons.calendar_today,
               label: '散歩ID',
               value: history.walkId.substring(0, 8),
               isDark: isDark,
             ),
-            const Divider(height: WanMapSpacing.lg),
+            const Divider(height: WanWalkSpacing.lg),
             _buildDetailRow(
               icon: Icons.route,
               label: '散歩タイプ',
@@ -286,7 +286,7 @@ class DailyWalkDetailScreen extends StatelessWidget {
               isDark: isDark,
             ),
             if (history.pinCount != null && history.pinCount! > 0) ...[
-              const Divider(height: WanMapSpacing.lg),
+              const Divider(height: WanWalkSpacing.lg),
               _buildDetailRow(
                 icon: Icons.location_on,
                 label: 'ピン数',
@@ -312,21 +312,21 @@ class DailyWalkDetailScreen extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
         ),
-        const SizedBox(width: WanMapSpacing.sm),
+        const SizedBox(width: WanWalkSpacing.sm),
         Expanded(
           child: Text(
             label,
-            style: WanMapTypography.bodyMedium.copyWith(
-              color: isDark ? WanMapColors.textSecondaryDark : WanMapColors.textSecondaryLight,
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
             ),
           ),
         ),
         Text(
           value,
-          style: WanMapTypography.bodyMedium.copyWith(
-            color: isDark ? WanMapColors.textPrimaryDark : WanMapColors.textPrimaryLight,
+          style: WanWalkTypography.bodyMedium.copyWith(
+            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),

@@ -166,7 +166,7 @@ Future<void> _initializeWalking() async {
 ## 🚀 次のステップ
 
 ### A. Mac実機テスト（推奨）
-1. `cd ~/projects/webapp/wanmap_v2`
+1. `cd ~/projects/webapp/wanwalk`
 2. `git pull origin main`
 3. Flutterホットリスタート（`R`）
 4. 以下の操作でテスト:

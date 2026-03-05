@@ -15,7 +15,7 @@
 ### 1. Supabase SQL Editorを開く
 
 1. [Supabase Dashboard](https://supabase.com/dashboard)にログイン
-2. プロジェクト選択: **wanmap_v2**
+2. プロジェクト選択: **wanwalk**
 3. 左メニューから「SQL Editor」を選択
 
 ### 2. SQLスクリプトを実行

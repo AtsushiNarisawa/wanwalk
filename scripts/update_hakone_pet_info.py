@@ -10,7 +10,7 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 
 # .envファイルを読み込み
-load_dotenv('/home/user/wanmap_v2/.env')
+load_dotenv('/home/user/wanwalk/.env')
 
 # Supabase接続（Service Role Keyを使用してRLSをバイパス）
 SUPABASE_URL = os.getenv('SUPABASE_URL')
