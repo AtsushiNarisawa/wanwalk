@@ -115,36 +115,6 @@ class UserProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: WanMapSpacing.medium),
           
-          // フォロー機能削除: フォローボタンを表示しない
-          if (false) ...[
-            // フォローボタン削除
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatButton(
-    BuildContext context,
-    bool isDark,
-    int count,
-    String label,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Text(
-            count.toString(),
-            style: WanMapTypography.heading2,
-          ),
-          Text(
-            label,
-            style: WanMapTypography.caption.copyWith(
-              color: isDark ? Colors.white70 : Colors.black54,
-            ),
-          ),
         ],
       ),
     );

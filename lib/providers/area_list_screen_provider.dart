@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/area.dart';
 import '../config/supabase_config.dart';
 
 /// ソートオプション
@@ -81,7 +80,7 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
           .eq('area_id', area['id'])
           .count(CountOption.exact);
       
-      final routeCount = routeCountResponse.count ?? 0;
+      final routeCount = routeCountResponse.count;
       
       print('🔍 ${area['name']}: area_id=${area['id']}, route_count=$routeCount');
       

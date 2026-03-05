@@ -7,7 +7,6 @@ import 'config/supabase_config.dart';
 import 'config/wanmap_theme.dart';
 import 'config/wanmap_colors.dart';
 import 'config/env.dart';
-import 'screens/auth/login_screen.dart';
 import 'screens/main/main_screen.dart';
 
 void main() async {

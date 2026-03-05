@@ -112,7 +112,6 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final commentsAsync = ref.watch(pinCommentsProvider(widget.pinId));
-    final commentCount = ref.watch(pinCommentCountProvider(widget.pinId));
     final currentUser = Supabase.instance.client.auth.currentUser;
 
     return Scaffold(

@@ -6,15 +6,11 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import '../../../providers/area_provider.dart';
 import '../../../providers/route_provider.dart';
-import '../../../providers/official_route_provider.dart';
 import '../../../providers/official_routes_screen_provider.dart';
 import '../../../providers/recent_pins_provider.dart';
 import '../../../providers/pin_like_provider.dart';
-import '../../../providers/pin_bookmark_provider.dart';
 import '../../../providers/pin_comment_provider.dart';
 import '../../../providers/spot_review_provider.dart';
 import '../../../providers/route_pin_provider.dart';
@@ -22,7 +18,6 @@ import '../../../models/recent_pin_post.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
-import '../../outing/pin_comment_screen.dart';
 import '../../outing/hakone_sub_area_screen.dart';
 
 import '../../routes/public_routes_screen.dart';
@@ -110,206 +105,6 @@ class HomeTab extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-
-  /// MAP表示（今月の人気ルート1位を表示）
-  Widget _buildMapPreview(BuildContext context, bool isDark) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final popularRoutesAsync = ref.watch(popularRoutesProvider);
-        
-        // デフォルト中心位置（横浜）
-        LatLng center = const LatLng(35.4437, 139.638);
-        String? topRouteId;
-        
-        return popularRoutesAsync.when(
-          data: (routes) {
-            // 今月の人気ルート1位のIDを取得
-            if (routes.isNotEmpty) {
-              topRouteId = routes.first['route_id'] as String?;
-            }
-            
-            // ルートIDがある場合、詳細データを取得
-            if (topRouteId != null) {
-              final routeAsync = ref.watch(routeByIdProvider(topRouteId!));
-              
-              return routeAsync.when(
-                data: (route) {
-                  if (route != null) {
-                    center = route.startLocation;
-                  }
-                  
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(WanMapSpacing.md),
-                    child: Column(
-                      children: [
-                        // ヘッダー: 人気No.1ルート
-                        GestureDetector(
-                          onTap: route != null
-                              ? () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => RouteDetailScreen(routeId: route.id),
-                                    ),
-                                  );
-                                }
-                              : null,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: WanMapSpacing.md,
-                              vertical: WanMapSpacing.sm,
-                            ),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  WanMapColors.primary,
-                                  WanMapColors.primaryDark,
-                                ],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Text(
-                                  '🏆',
-                                  style: TextStyle(fontSize: 24),
-                                ),
-                                const SizedBox(width: WanMapSpacing.sm),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        '人気No.1ルート',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                      if (route != null)
-                                        Text(
-                                          route.name,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // 地図
-                        SizedBox(
-                          height: 200,
-                          width: double.infinity,
-                          child: FlutterMap(
-                            options: MapOptions(
-                              initialCenter: center,
-                              initialZoom: 13.0,
-                              interactionOptions: const InteractionOptions(
-                                flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
-                              ),
-                            ),
-                            children: [
-                              TileLayer(
-                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                              ),
-                              // 人気ルート1位のマーカーを表示
-                              if (route != null)
-                                MarkerLayer(
-                                  markers: [
-                                    Marker(
-                                      point: route.startLocation,
-                                      width: 40,
-                                      height: 40,
-                                      child: const Icon(
-                                        Icons.star,
-                                        color: Colors.orange,
-                                        size: 40,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                loading: () => ClipRRect(
-                  borderRadius: BorderRadius.circular(WanMapSpacing.md),
-                  child: Container(
-                    height: 260,
-                    color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-                error: (_, __) => ClipRRect(
-                  borderRadius: BorderRadius.circular(WanMapSpacing.md),
-                  child: Container(
-                    height: 260,
-                    color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-                    child: const Center(child: Text('マップを読み込めませんでした')),
-                  ),
-                ),
-              );
-            }
-            
-            // ルートIDがない場合はデフォルト地図を表示
-            return SizedBox(
-              height: 280,
-              width: double.infinity,
-              child: FlutterMap(
-                options: MapOptions(
-                  initialCenter: center,
-                  initialZoom: 13.0,
-                  interactionOptions: const InteractionOptions(
-                    flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
-                  ),
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  ),
-                ],
-              ),
-            );
-          },
-          loading: () => ClipRRect(
-            borderRadius: BorderRadius.circular(WanMapSpacing.md),
-            child: Container(
-              height: 260,
-              color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-              child: const Center(child: CircularProgressIndicator()),
-            ),
-          ),
-          error: (_, __) => ClipRRect(
-            borderRadius: BorderRadius.circular(WanMapSpacing.md),
-            child: Container(
-              height: 260,
-              color: isDark ? WanMapColors.cardDark : WanMapColors.cardLight,
-              child: const Center(child: Text('マップを読み込めませんでした')),
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -509,7 +304,7 @@ class HomeTab extends ConsumerWidget {
                                 .eq('area_id', area.id)
                                 .count(CountOption.exact);
                             
-                            final routeCount = routeCountResponse.count ?? 0;
+                            final routeCount = routeCountResponse.count;
                             
                             subAreasData.add({
                               'id': area.id,
@@ -1324,7 +1119,7 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          widget.pin.userName ?? '匿名',
+                          widget.pin.userName,
                           style: WanMapTypography.bodySmall.copyWith(
                             color: widget.isDark
                                 ? WanMapColors.textSecondaryDark
@@ -1391,24 +1186,6 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
     );
   }
 
-  String _formatTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inDays > 365) {
-      return '${(difference.inDays / 365).floor()}年前';
-    } else if (difference.inDays > 30) {
-      return '${(difference.inDays / 30).floor()}ヶ月前';
-    } else if (difference.inDays > 0) {
-      return '${difference.inDays}日前';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}時間前';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}分前';
-    } else {
-      return 'たった今';
-    }
-  }
 }
 
 /// 人気ルートカード

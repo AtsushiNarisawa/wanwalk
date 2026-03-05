@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_spacing.dart';
 import '../../config/wanmap_typography.dart';
-import '../../providers/official_route_provider.dart';
 import '../../providers/official_routes_screen_provider.dart';
 import '../../providers/area_provider.dart';
 import '../../models/official_route.dart';

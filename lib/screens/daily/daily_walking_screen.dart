@@ -8,7 +8,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanmap_colors.dart';
 import '../../config/wanmap_typography.dart';
 import '../../config/wanmap_spacing.dart';
-import '../../config/env.dart';
 import '../../models/walk_mode.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../services/profile_service.dart';
@@ -32,9 +31,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
   bool _isFollowingUser = true;
   bool _showRouteInfo = true; // 統計情報の表示/非表示
   final PhotoService _photoService = PhotoService();
-  final List<String> _photoUrls = []; // 撮影した写真のURL一覧
   final List<File> _photoFiles = []; // 散歩中の写真を一時保存（散歩終了時にアップロード）
-  String? _currentWalkId; // 現在の散歩ID（保存時に設定）
 
   @override
   void initState() {
@@ -223,9 +220,6 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
           );
           return;
         }
-
-        // 散歩IDを保存（写真アップロード用）
-        _currentWalkId = walkId;
 
         if (kDebugMode) {
           print('✅ 日常散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');

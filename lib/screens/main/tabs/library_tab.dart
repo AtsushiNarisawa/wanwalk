@@ -10,8 +10,6 @@ import '../../../providers/user_statistics_provider.dart';
 import '../../../providers/walk_history_provider.dart';
 import '../../daily/daily_walk_detail_screen.dart';
 import '../../../providers/route_pin_provider.dart';
-import '../../../widgets/shimmer/wanmap_shimmer.dart';
-import '../../history/walk_history_screen.dart';
 import '../../history/outing_walk_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 

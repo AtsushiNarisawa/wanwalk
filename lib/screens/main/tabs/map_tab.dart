@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'dart:math' show asin, cos, pi, sin, sqrt;
+import 'dart:math' show asin, cos, sin, sqrt;
 import '../../../config/wanmap_colors.dart';
 import '../../../config/wanmap_typography.dart';
 import '../../../config/wanmap_spacing.dart';
@@ -190,10 +190,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
           // 上部: 検索バー + エリア一覧ボタン
           _buildTopBar(isDark),
 
-          // 最寄りルート1件カード（地図上に浮かぶ）
-          // コメントアウト: 地図が見づらくなるため非表示
-          // _buildClosestRouteCard(isDark),
-
           // Bottom Sheet: 近くのおすすめルート
           _buildBottomSheet(isDark),
 
@@ -280,38 +276,6 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     );
   }
 
-  /// 最寄りルート1件カード（地図上）
-  Widget _buildClosestRouteCard(bool isDark) {
-    final gpsState = ref.watch(gpsProviderRiverpod);
-    if (gpsState.currentLocation == null) {
-      return const SizedBox.shrink();
-    }
-
-    final routesAsync = ref.watch(allRoutesProvider);
-
-    return Positioned(
-      top: MediaQuery.of(context).padding.top + 80,
-      left: WanMapSpacing.md,
-      right: WanMapSpacing.md,
-      child: routesAsync.when(
-        data: (allRoutes) {
-          final nearbyRoutes = _getRecommendedRoutes(gpsState.currentLocation!, allRoutes);
-          if (nearbyRoutes.isEmpty) {
-            return const SizedBox.shrink();
-          }
-
-          // 最も近いルート1件のみ表示
-          final closestRoute = nearbyRoutes.first;
-          final route = closestRoute['route'] as OfficialRoute;
-          final distance = closestRoute['distance'] as double;
-
-          return _buildRouteCard(route, distance, isDark, isClosest: true);
-        },
-        loading: () => const SizedBox.shrink(),
-        error: (_, __) => const SizedBox.shrink(),
-      ),
-    );
-  }
 
   /// ルートカード（共通）
   Widget _buildRouteCard(OfficialRoute route, double distance, bool isDark, {bool isClosest = false}) {

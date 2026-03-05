@@ -837,14 +837,6 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  /// スポットに追加情報があるかチェック
-  bool _hasAdditionalInfo(RouteSpot spot) {
-    return spot.tips != null ||
-           spot.facilityType != null ||
-           spot.openingHours != null ||
-           spot.petFriendly == true;
-  }
-
   /// TipsテキストからURLを抽出
   String? _extractURL(String tips) {
     final urlPattern = RegExp(r'https?://[^\s]+');

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import '../config/wanmap_colors.dart';
-import '../config/wanmap_spacing.dart';
 
 /// 地図のズームコントロールウィジェット
 /// 

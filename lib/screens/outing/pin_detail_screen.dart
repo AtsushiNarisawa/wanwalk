@@ -33,7 +33,6 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final pinAsync = ref.watch(pinByIdProvider(widget.pinId));
-    final currentUser = Supabase.instance.client.auth.currentUser;
 
     return Scaffold(
       backgroundColor: isDark
