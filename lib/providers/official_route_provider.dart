@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/official_route.dart';
+import '../utils/logger.dart';
 
 /// Supabaseクライアントのインスタンス取得
 final _supabase = Supabase.instance.client;
@@ -10,12 +11,12 @@ final _supabase = Supabase.instance.client;
 final routesByAreaProvider = FutureProvider.family<List<OfficialRoute>, String>(
   (ref, areaId) async {
     if (kDebugMode) {
-      print('🔵 routesByAreaProvider: Starting fetch for areaId=$areaId');
+      appLog('🔵 routesByAreaProvider: Starting fetch for areaId=$areaId');
     }
     try {
       // PostGISデータをGeoJSON形式で取得するためにRPCを使用
       if (kDebugMode) {
-        print('🔵 Calling RPC: get_routes_by_area_geojson with areaId=$areaId');
+        appLog('🔵 Calling RPC: get_routes_by_area_geojson with areaId=$areaId');
       }
       final response = await _supabase.rpc(
         'get_routes_by_area_geojson',
@@ -23,7 +24,7 @@ final routesByAreaProvider = FutureProvider.family<List<OfficialRoute>, String>(
       );
 
       if (kDebugMode) {
-        print('🔵 RPC Response type: ${response.runtimeType}');
+        appLog('🔵 RPC Response type: ${response.runtimeType}');
       }
 
       final routes = (response as List)
@@ -31,14 +32,14 @@ final routesByAreaProvider = FutureProvider.family<List<OfficialRoute>, String>(
           .toList();
       
       if (kDebugMode) {
-        print('✅ Successfully parsed ${routes.length} routes');
+        appLog('✅ Successfully parsed ${routes.length} routes');
       }
       
       return routes;
     } catch (e, stack) {
       if (kDebugMode) {
-        print('❌ Error in routesByAreaProvider: $e');
-        print('Stack trace: $stack');
+        appLog('❌ Error in routesByAreaProvider: $e');
+        appLog('Stack trace: $stack');
       }
       throw Exception('Failed to fetch routes by area: $e');
     }
@@ -63,7 +64,7 @@ final routeByIdProvider = FutureProvider.family<OfficialRoute?, String>(
       return OfficialRoute.fromJson(data);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error in routeByIdProvider: $e');
+        appLog('❌ Error in routeByIdProvider: $e');
       }
       throw Exception('Failed to fetch route: $e');
     }
@@ -127,7 +128,7 @@ final nearbyRoutesProvider = FutureProvider.family<List<OfficialRoute>, NearbyRo
       }).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error in nearbyRoutesProvider: $e');
+        appLog('❌ Error in nearbyRoutesProvider: $e');
       }
       throw Exception('Failed to fetch nearby routes: $e');
     }
@@ -163,7 +164,7 @@ final selectedRouteProvider = Provider<AsyncValue<OfficialRoute?>>((ref) {
 /// 全ての公式ルートを取得するProvider（MAP画面用）
 final allRoutesProvider = FutureProvider<List<OfficialRoute>>((ref) async {
   if (kDebugMode) {
-    print('🔵 allRoutesProvider: Fetching all routes');
+    appLog('🔵 allRoutesProvider: Fetching all routes');
   }
   try {
     final response = await _supabase.rpc('get_all_routes_geojson');
@@ -173,14 +174,14 @@ final allRoutesProvider = FutureProvider<List<OfficialRoute>>((ref) async {
         .toList();
     
     if (kDebugMode) {
-      print('✅ Successfully fetched ${routes.length} routes');
+      appLog('✅ Successfully fetched ${routes.length} routes');
     }
     
     return routes;
   } catch (e, stack) {
     if (kDebugMode) {
-      print('❌ Error in allRoutesProvider: $e');
-      print('Stack trace: $stack');
+      appLog('❌ Error in allRoutesProvider: $e');
+      appLog('Stack trace: $stack');
     }
     throw Exception('Failed to fetch all routes: $e');
   }

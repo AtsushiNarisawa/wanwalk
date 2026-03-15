@@ -2,12 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/recent_pin_post.dart';
+import '../utils/logger.dart';
 
 /// 最新の写真付きピン投稿を取得するProvider
 /// ホーム画面で最新2件を表示するために使用
 final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
   if (kDebugMode) {
-    print('📌 [RecentPinsProvider] Fetching recent pins from Supabase...');
+    appLog('📌 [RecentPinsProvider] Fetching recent pins from Supabase...');
   }
 
   try {
@@ -20,13 +21,13 @@ final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
     }).select();
 
     if (kDebugMode) {
-      print('📌 [RecentPinsProvider] Response: ${response.toString()}');
+      appLog('📌 [RecentPinsProvider] Response: ${response.toString()}');
     }
 
     final List<dynamic> data = response;
 
     if (kDebugMode) {
-      print('📌 [RecentPinsProvider] Fetched ${data.length} recent pins');
+      appLog('📌 [RecentPinsProvider] Fetched ${data.length} recent pins');
     }
 
     final pins = data.map((json) {
@@ -34,26 +35,26 @@ final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
         return RecentPinPost.fromJson(json as Map<String, dynamic>);
       } catch (e, stackTrace) {
         if (kDebugMode) {
-          print('❌ [RecentPinsProvider] Error parsing pin: $e');
-          print('   Data: $json');
-          print('   StackTrace: $stackTrace');
+          appLog('❌ [RecentPinsProvider] Error parsing pin: $e');
+          appLog('   Data: $json');
+          appLog('   StackTrace: $stackTrace');
         }
         return null;
       }
     }).where((pin) => pin != null).cast<RecentPinPost>().toList();
 
     if (kDebugMode) {
-      print('✅ [RecentPinsProvider] Successfully parsed ${pins.length} pins');
+      appLog('✅ [RecentPinsProvider] Successfully parsed ${pins.length} pins');
       for (final pin in pins) {
-        print('   📌 ${pin.title} by ${pin.userName} (${pin.areaName})');
+        appLog('   📌 ${pin.title} by ${pin.userName} (${pin.areaName})');
       }
     }
 
     return pins;
   } catch (e, stackTrace) {
     if (kDebugMode) {
-      print('❌ [RecentPinsProvider] Error fetching recent pins: $e');
-      print('   StackTrace: $stackTrace');
+      appLog('❌ [RecentPinsProvider] Error fetching recent pins: $e');
+      appLog('   StackTrace: $stackTrace');
     }
     rethrow;
   }

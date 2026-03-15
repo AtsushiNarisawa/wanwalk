@@ -9,6 +9,7 @@ import '../../providers/area_provider.dart';
 import '../../providers/area_list_screen_provider.dart';
 import 'route_list_screen.dart';
 import 'hakone_sub_area_screen.dart';
+import '../../utils/logger.dart';
 
 /// エリア一覧画面（検索・フィルタ・ソート対応）
 class AreaListScreen extends ConsumerStatefulWidget {
@@ -39,7 +40,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) {
-      print('🟢 AreaListScreen.build() called');
+      appLog('🟢 AreaListScreen.build() called');
     }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final areasAsync = ref.watch(filteredAreasProvider);
@@ -129,7 +130,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) {
                 if (kDebugMode) {
-                  print('❌ エリア一覧読み込みエラー: $error');
+                  appLog('❌ エリア一覧読み込みエラー: $error');
                 }
                 return _buildEmptyState(isDark, 'エリアの読み込みに失敗しました');
               },

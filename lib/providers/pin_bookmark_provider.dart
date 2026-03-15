@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../utils/logger.dart';
 
 /// Pinブックマークサービス
 class PinBookmarkService {
@@ -18,7 +19,7 @@ class PinBookmarkService {
 
       return response['success'] == true;
     } catch (e) {
-      print('Error bookmarking pin: $e');
+      appLog('Error bookmarking pin: $e');
       return false;
     }
   }
@@ -36,7 +37,7 @@ class PinBookmarkService {
 
       return response['success'] == true;
     } catch (e) {
-      print('Error unbookmarking pin: $e');
+      appLog('Error unbookmarking pin: $e');
       return false;
     }
   }
@@ -54,7 +55,7 @@ class PinBookmarkService {
 
       return response == true;
     } catch (e) {
-      print('Error checking if pin is bookmarked: $e');
+      appLog('Error checking if pin is bookmarked: $e');
       return false;
     }
   }
@@ -76,7 +77,7 @@ class PinBookmarkService {
 
       return response.cast<Map<String, dynamic>>();
     } catch (e) {
-      print('Error fetching user bookmarked pins: $e');
+      appLog('Error fetching user bookmarked pins: $e');
       return [];
     }
   }

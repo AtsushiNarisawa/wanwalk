@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../models/official_route.dart';
 import '../../providers/official_routes_screen_provider.dart';
@@ -48,7 +49,13 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
     return Scaffold(
       backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('公式ルート一覧'),
+        title: Text(
+          '公式ルート',
+          style: WanWalkTypography.headlineSmall.copyWith(
+            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -66,17 +73,19 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
           // 検索バー
           _buildSearchBar(isDark),
 
-          // フィルタ・ソートバー
-          _buildFilterSortBar(context, isDark, areasAsync, selectedAreaId, sortOption),
+          // フィルタ・ソートバー（チップ形式）
+          _buildFilterChips(context, isDark, areasAsync, selectedAreaId, sortOption),
 
-          // 件数表示（固定）
+          const SizedBox(height: WanWalkSpacing.xs),
+
+          // 件数表示
           routesAsync.when(
             data: (routes) => _buildRouteCountHeader(isDark, routes.length),
             loading: () => const SizedBox(),
             error: (_, __) => const SizedBox(),
           ),
 
-          // ルートカード一覧（スクロール可能）
+          // ルートカード一覧
           Expanded(
             child: routesAsync.when(
               data: (routes) => _buildRouteList(context, isDark, routes),
@@ -92,12 +101,21 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
   /// 検索バー
   Widget _buildSearchBar(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(WanWalkSpacing.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: WanWalkSpacing.lg,
+        vertical: WanWalkSpacing.sm,
+      ),
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
           hintText: 'ルート名・説明文で検索',
-          prefixIcon: const Icon(Icons.search),
+          hintStyle: WanWalkTypography.bodyMedium.copyWith(
+            color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+          ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
@@ -108,119 +126,240 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
                 )
               : null,
           filled: true,
-          fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+          fillColor: isDark ? WanWalkColors.surfaceDark : Colors.white,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
+            ),
           ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: WanWalkColors.primary, width: 1.5),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
     );
   }
 
-  /// フィルタ・ソートバー
-  Widget _buildFilterSortBar(
+  /// フィルタ・ソートチップ
+  Widget _buildFilterChips(
     BuildContext context,
     bool isDark,
     AsyncValue areasAsync,
     String? selectedAreaId,
     RouteSortOption sortOption,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.md),
-      child: Column(
+    return SizedBox(
+      height: 44,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
         children: [
-          // エリアフィルタ
+          // エリアフィルタチップ
           areasAsync.when(
             data: (areas) {
-              return DropdownButtonFormField<String?>(
-                value: selectedAreaId,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: 'エリア',
-                  prefixIcon: const Icon(Icons.location_on, size: 20),
-                  filled: true,
-                  fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                ),
-                items: [
-                  const DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text('すべて', overflow: TextOverflow.ellipsis),
-                  ),
-                  ...areas.map<DropdownMenuItem<String?>>((area) {
-                    return DropdownMenuItem<String?>(
-                      value: area.id,
-                      child: Text(area.name, overflow: TextOverflow.ellipsis),
-                    );
-                  }).toList(),
-                ],
-                onChanged: (value) {
-                  ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = value;
-                },
+              final selectedArea = selectedAreaId != null
+                  ? areas.firstWhere(
+                      (a) => a.id == selectedAreaId,
+                      orElse: () => areas.first,
+                    )
+                  : null;
+              return _FilterChip(
+                icon: Icons.location_on_outlined,
+                label: selectedArea?.name ?? 'すべてのエリア',
+                isActive: selectedAreaId != null,
+                isDark: isDark,
+                onTap: () => _showAreaFilter(context, isDark, areas, selectedAreaId),
               );
             },
-            loading: () => const CircularProgressIndicator(),
+            loading: () => const SizedBox(width: 100),
             error: (_, __) => const SizedBox(),
           ),
-          const SizedBox(height: WanWalkSpacing.sm),
-          // ソート順
-          DropdownButtonFormField<RouteSortOption>(
-            value: sortOption,
-            isExpanded: true,
-            decoration: InputDecoration(
-              labelText: 'ソート',
-              prefixIcon: const Icon(Icons.sort, size: 20),
-              filled: true,
-              fillColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            ),
-            items: RouteSortOption.values.map((option) {
-              return DropdownMenuItem<RouteSortOption>(
-                value: option,
-                child: Text(option.label, overflow: TextOverflow.ellipsis),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                ref.read(sortOptionProvider.notifier).state = value;
-              }
-            },
+          const SizedBox(width: WanWalkSpacing.sm),
+          // ソートチップ
+          _FilterChip(
+            icon: Icons.sort,
+            label: sortOption.label,
+            isActive: sortOption != RouteSortOption.popularity,
+            isDark: isDark,
+            onTap: () => _showSortOptions(context, isDark, sortOption),
           ),
         ],
       ),
     );
   }
 
-  /// 件数表示ヘッダー（固定）
-  Widget _buildRouteCountHeader(bool isDark, int count) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: WanWalkSpacing.md,
-        vertical: WanWalkSpacing.sm,
-      ),
-      color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
-      child: Text(
-        '${count}件のルート',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+  /// エリアフィルタ選択ダイアログ
+  void _showAreaFilter(BuildContext context, bool isDark, List<dynamic> areas, String? selectedAreaId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: WanWalkSpacing.md),
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: WanWalkSpacing.lg),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
+              child: Text(
+                'エリアを選択',
+                style: WanWalkTypography.titleMedium.copyWith(
+                  color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: WanWalkSpacing.md),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  _buildFilterOption(
+                    context, isDark,
+                    'すべてのエリア',
+                    selectedAreaId == null,
+                    () {
+                      ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = null;
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ...areas.map((area) => _buildFilterOption(
+                    context, isDark,
+                    area.name,
+                    selectedAreaId == area.id,
+                    () {
+                      ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = area.id;
+                      Navigator.pop(context);
+                    },
+                  )),
+                ],
+              ),
+            ),
+            SizedBox(height: MediaQuery.of(context).padding.bottom + WanWalkSpacing.md),
+          ],
         ),
       ),
     );
   }
 
-  /// ルート一覧（スクロール可能）
+  /// ソートオプション選択ダイアログ
+  void _showSortOptions(BuildContext context, bool isDark, RouteSortOption current) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: WanWalkSpacing.md),
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: WanWalkSpacing.lg),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
+              child: Text(
+                '並び替え',
+                style: WanWalkTypography.titleMedium.copyWith(
+                  color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: WanWalkSpacing.md),
+            ...RouteSortOption.values.map((option) => _buildFilterOption(
+              context, isDark,
+              option.label,
+              current == option,
+              () {
+                ref.read(sortOptionProvider.notifier).state = option;
+                Navigator.pop(context);
+              },
+            )),
+            SizedBox(height: MediaQuery.of(context).padding.bottom + WanWalkSpacing.md),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// フィルタオプション行
+  Widget _buildFilterOption(BuildContext context, bool isDark, String label, bool isSelected, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg, vertical: WanWalkSpacing.md),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: WanWalkTypography.bodyLarge.copyWith(
+                  color: isSelected
+                      ? WanWalkColors.primary
+                      : (isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check, color: WanWalkColors.primary, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 件数表示ヘッダー
+  Widget _buildRouteCountHeader(bool isDark, int count) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: WanWalkSpacing.lg,
+        vertical: WanWalkSpacing.sm,
+      ),
+      child: Row(
+        children: [
+          Text(
+            '$count件のルート',
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ルート一覧
   Widget _buildRouteList(BuildContext context, bool isDark, List<OfficialRoute> routes) {
     if (routes.isEmpty) {
       return _buildEmptyState(context, isDark);
@@ -231,7 +370,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
         ref.invalidate(officialRoutesProvider);
       },
       child: ListView.builder(
-        padding: const EdgeInsets.all(WanWalkSpacing.md),
+        padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
         itemCount: routes.length,
         itemBuilder: (context, index) {
           final route = routes[index];
@@ -260,16 +399,23 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.route,
-              size: 80,
-              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: WanWalkColors.accent.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.route,
+                size: 40,
+                color: WanWalkColors.accent,
+              ),
             ),
-            const SizedBox(height: WanWalkSpacing.md),
+            const SizedBox(height: WanWalkSpacing.lg),
             Text(
-              '該当する公式ルートがありません',
-              style: TextStyle(
-                fontSize: 18,
+              '該当するルートがありません',
+              style: WanWalkTypography.titleMedium.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
               ),
@@ -277,8 +423,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
             const SizedBox(height: WanWalkSpacing.sm),
             Text(
               '検索条件やエリアを変更してみてください',
-              style: TextStyle(
-                fontSize: 14,
+              style: WanWalkTypography.bodyMedium.copyWith(
                 color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
               ),
               textAlign: TextAlign.center,
@@ -297,12 +442,11 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const Icon(Icons.error_outline, size: 64, color: WanWalkColors.error),
             const SizedBox(height: WanWalkSpacing.md),
             Text(
               'エラーが発生しました',
-              style: TextStyle(
-                fontSize: 18,
+              style: WanWalkTypography.titleMedium.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
               ),
@@ -310,8 +454,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
             const SizedBox(height: WanWalkSpacing.sm),
             Text(
               error.toString(),
-              style: TextStyle(
-                fontSize: 14,
+              style: WanWalkTypography.bodySmall.copyWith(
                 color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
               ),
               textAlign: TextAlign.center,
@@ -323,6 +466,82 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
               },
               icon: const Icon(Icons.refresh),
               label: const Text('再試行'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: WanWalkColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// フィルタチップ
+class _FilterChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isActive;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _FilterChip({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive
+              ? WanWalkColors.primary.withOpacity(0.12)
+              : (isDark ? WanWalkColors.surfaceDark : Colors.white),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isActive
+                ? WanWalkColors.primary
+                : (isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight),
+            width: isActive ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isActive
+                  ? WanWalkColors.primary
+                  : (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: WanWalkTypography.bodySmall.copyWith(
+                color: isActive
+                    ? WanWalkColors.primary
+                    : (isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight),
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.keyboard_arrow_down,
+              size: 16,
+              color: isActive
+                  ? WanWalkColors.primary
+                  : (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight),
             ),
           ],
         ),
@@ -349,15 +568,14 @@ class _OfficialRouteCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: WanWalkSpacing.md),
-        height: 140, // カード高さを固定
         decoration: BoxDecoration(
-          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+          color: isDark ? WanWalkColors.cardDark : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: WanWalkColors.shadow,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -373,7 +591,7 @@ class _OfficialRouteCard extends StatelessWidget {
                   ? Image.network(
                       route.thumbnailUrl!,
                       width: 120,
-                      height: 140, // カード高さに合わせる
+                      height: 140,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _buildDefaultThumbnail(),
                     )
@@ -392,19 +610,17 @@ class _OfficialRouteCard extends StatelessWidget {
                       children: [
                         Text(
                           route.name,
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: WanWalkTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: WanWalkSpacing.xs),
+                        const SizedBox(height: 4),
                         Text(
                           route.description,
-                          style: TextStyle(
-                            fontSize: 13,
+                          style: WanWalkTypography.bodySmall.copyWith(
                             color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                           ),
                           maxLines: 2,
@@ -412,6 +628,7 @@ class _OfficialRouteCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: WanWalkSpacing.sm),
                     Wrap(
                       spacing: WanWalkSpacing.xs,
                       runSpacing: WanWalkSpacing.xs,
@@ -419,9 +636,13 @@ class _OfficialRouteCard extends StatelessWidget {
                         _buildInfoChip(
                           Icons.straighten,
                           route.formattedDistance,
-                          isDark,
                         ),
-                        _buildDifficultyChip(route.difficultyLevel, isDark),
+                        if (route.estimatedMinutes > 0)
+                          _buildInfoChip(
+                            Icons.schedule,
+                            '${route.estimatedMinutes}分',
+                          ),
+                        _buildDifficultyChip(route.difficultyLevel),
                       ],
                     ),
                   ],
@@ -437,17 +658,26 @@ class _OfficialRouteCard extends StatelessWidget {
   Widget _buildDefaultThumbnail() {
     return Container(
       width: 120,
-      height: 140, // カード高さに合わせる
-      color: WanWalkColors.accent.withOpacity(0.2),
-      child: Icon(
+      height: 140,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            WanWalkColors.accent.withOpacity(0.2),
+            WanWalkColors.accentLight.withOpacity(0.1),
+          ],
+        ),
+      ),
+      child: const Icon(
         Icons.route,
-        size: 48,
+        size: 40,
         color: WanWalkColors.accent,
       ),
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String label, bool isDark) {
+  Widget _buildInfoChip(IconData icon, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -457,13 +687,13 @@ class _OfficialRouteCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: WanWalkColors.accent),
+          Icon(icon, size: 13, color: WanWalkColors.accent),
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+            style: WanWalkTypography.caption.copyWith(
+              color: WanWalkColors.accent,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -471,30 +701,29 @@ class _OfficialRouteCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDifficultyChip(DifficultyLevel difficulty, bool isDark) {
+  Widget _buildDifficultyChip(DifficultyLevel difficulty) {
     Color chipColor;
     switch (difficulty) {
       case DifficultyLevel.easy:
-        chipColor = Colors.green;
+        chipColor = const Color(0xFF4CAF50);
         break;
       case DifficultyLevel.moderate:
-        chipColor = Colors.orange;
+        chipColor = WanWalkColors.routeOrange;
         break;
       case DifficultyLevel.hard:
-        chipColor = Colors.red;
+        chipColor = WanWalkColors.error;
         break;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: chipColor.withOpacity(0.2),
+        color: chipColor.withOpacity(0.12),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         difficulty.label,
-        style: TextStyle(
-          fontSize: 12,
+        style: WanWalkTypography.caption.copyWith(
           color: chipColor,
           fontWeight: FontWeight.bold,
         ),

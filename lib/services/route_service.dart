@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/route_model.dart';
 import '../models/route_spot.dart';
+import '../utils/logger.dart';
 
 class RouteService {
   final _supabase = Supabase.instance.client;
@@ -38,7 +39,7 @@ class RouteService {
       return routeId;
     } catch (e) {
       if (kDebugMode) {
-        print('ルート保存エラー: $e');
+        appLog('ルート保存エラー: $e');
       }
       rethrow;
     }
@@ -67,7 +68,7 @@ class RouteService {
       }).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('ルート一覧取得エラー: $e');
+        appLog('ルート一覧取得エラー: $e');
       }
       rethrow;
     }
@@ -100,7 +101,7 @@ class RouteService {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('ルート詳細取得エラー: $e');
+        appLog('ルート詳細取得エラー: $e');
       }
       return null;
     }
@@ -112,7 +113,7 @@ class RouteService {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('ルート削除エラー: $e');
+        appLog('ルート削除エラー: $e');
       }
       return false;
     }
@@ -226,7 +227,7 @@ class RouteService {
             }).toList();
           } catch (e) {
             if (kDebugMode) {
-              print('ポイント取得エラー (route_id: $routeId): $e');
+              appLog('ポイント取得エラー (route_id: $routeId): $e');
             }
             // ポイント取得失敗してもルート自体は返す
           }
@@ -252,7 +253,7 @@ class RouteService {
       return routes;
     } catch (e) {
       if (kDebugMode) {
-        print('公開ルート一覧取得エラー: $e');
+        appLog('公開ルート一覧取得エラー: $e');
       }
       rethrow;
     }
@@ -279,7 +280,7 @@ class RouteService {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('ルート更新エラー: $e');
+        appLog('ルート更新エラー: $e');
       }
       return false;
     }
@@ -351,8 +352,8 @@ class RouteService {
       return response as List;
     } catch (e) {
       if (kDebugMode) {
-        print('公式ルート検索エラー: $e');
-        print('エラー詳細: ${e.runtimeType}');
+        appLog('公式ルート検索エラー: $e');
+        appLog('エラー詳細: ${e.runtimeType}');
       }
       rethrow;
     }
@@ -368,10 +369,10 @@ class RouteService {
           .order('spot_order', ascending: true);
 
       if (kDebugMode) {
-        print('✅ ルートスポット取得成功 (route_id: $routeId): ${response.length}件');
+        appLog('✅ ルートスポット取得成功 (route_id: $routeId): ${response.length}件');
         if (response.isNotEmpty) {
-          print('   📍 最初のスポット location形式: ${response[0]['location'].runtimeType}');
-          print('   📍 location値: ${response[0]['location']}');
+          appLog('   📍 最初のスポット location形式: ${response[0]['location'].runtimeType}');
+          appLog('   📍 location値: ${response[0]['location']}');
         }
       }
 
@@ -380,7 +381,7 @@ class RouteService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('❌ ルートスポット取得エラー (route_id: $routeId): $e');
+        appLog('❌ ルートスポット取得エラー (route_id: $routeId): $e');
       }
       return [];
     }

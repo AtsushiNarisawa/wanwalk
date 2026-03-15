@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
+import '../utils/logger.dart';
 
 /// ルートスポットのタイプ
 enum RouteSpotType {
@@ -147,7 +148,7 @@ class RouteSpot {
             (coords[0] as num).toDouble(), // 経度
           );
         } catch (e) {
-          print('❌ Failed to parse GeoJSON string: $e');
+          appLog('❌ Failed to parse GeoJSON string: $e');
         }
       }
       

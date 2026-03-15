@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/walk_mode.dart';
+import '../utils/logger.dart';
 
 /// 散歩記録保存サービス
 /// GPS記録をSupabaseに保存する
@@ -22,7 +23,7 @@ class WalkSaveService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔵 日常散歩保存開始: userId=$userId, points=${route.points.length}');
+        appLog('🔵 日常散歩保存開始: userId=$userId, points=${route.points.length}');
       }
 
       // 1. GeoJSON 形式に変換
@@ -52,13 +53,13 @@ class WalkSaveService {
 
       final walkId = walkResponse['id'] as String;
       if (kDebugMode) {
-        print('✅ walks保存成功 (daily): walkId=$walkId');
+        appLog('✅ walks保存成功 (daily): walkId=$walkId');
       }
 
       return walkId;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 日常散歩保存エラー: $e');
+        appLog('❌ 日常散歩保存エラー: $e');
       }
       return null;
     }
@@ -80,7 +81,7 @@ class WalkSaveService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔵 おでかけ散歩保存開始: userId=$userId, routeId=$officialRouteId');
+        appLog('🔵 おでかけ散歩保存開始: userId=$userId, routeId=$officialRouteId');
       }
 
       // 1. GeoJSON 形式に変換
@@ -110,13 +111,13 @@ class WalkSaveService {
 
       final walkId = walkResponse['id'] as String;
       if (kDebugMode) {
-        print('✅ walks保存成功 (outing): walkId=$walkId');
+        appLog('✅ walks保存成功 (outing): walkId=$walkId');
       }
 
       return walkId;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ おでかけ散歩保存エラー: $e');
+        appLog('❌ おでかけ散歩保存エラー: $e');
       }
       return null;
     }
@@ -139,7 +140,7 @@ class WalkSaveService {
     String? officialRouteId,
   }) async {
     if (kDebugMode) {
-      print('🔵 散歩自動保存: mode=${walkMode.value}');
+      appLog('🔵 散歩自動保存: mode=${walkMode.value}');
     }
 
     if (walkMode == WalkMode.daily) {
@@ -153,7 +154,7 @@ class WalkSaveService {
       // おでかけ散歩として保存
       if (officialRouteId == null) {
         if (kDebugMode) {
-          print('❌ おでかけ散歩にはofficialRouteIdが必要です');
+          appLog('❌ おでかけ散歩にはofficialRouteIdが必要です');
         }
         return null;
       }
@@ -178,19 +179,19 @@ class WalkSaveService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔵 散歩削除開始: walkId=$walkId, mode=${walkMode.value}');
+        appLog('🔵 散歩削除開始: walkId=$walkId, mode=${walkMode.value}');
       }
 
       // walks テーブルから削除
       await _supabase.from('walks').delete().eq('id', walkId);
 
       if (kDebugMode) {
-        print('✅ 散歩削除成功: walkId=$walkId');
+        appLog('✅ 散歩削除成功: walkId=$walkId');
       }
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 散歩削除エラー: $e');
+        appLog('❌ 散歩削除エラー: $e');
       }
       return false;
     }
@@ -210,7 +211,7 @@ class WalkSaveService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔵 散歩履歴取得: userId=$userId, mode=${walkMode?.value}');
+        appLog('🔵 散歩履歴取得: userId=$userId, mode=${walkMode?.value}');
       }
 
       // walks テーブルから履歴を取得
@@ -230,12 +231,12 @@ class WalkSaveService {
           .order('start_time', ascending: false)
           .limit(limit);
       if (kDebugMode) {
-        print('✅ 散歩履歴取得: ${(walks as List).length}件');
+        appLog('✅ 散歩履歴取得: ${(walks as List).length}件');
       }
       return List<Map<String, dynamic>>.from(walks);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 散歩履歴取得エラー: $e');
+        appLog('❌ 散歩履歴取得エラー: $e');
       }
       return [];
     }

@@ -7,6 +7,7 @@ import '../../config/wanwalk_spacing.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dog_provider.dart';
 import 'dog_edit_screen.dart';
+import '../../utils/logger.dart';
 
 /// 愛犬一覧画面
 class DogListScreen extends ConsumerStatefulWidget {
@@ -25,7 +26,7 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
       final userId = ref.read(currentUserIdProvider);
       if (userId != null) {
         if (kDebugMode) {
-          print('🐕 DogListScreen: Loading dogs for user $userId');
+          appLog('🐕 DogListScreen: Loading dogs for user $userId');
         }
         ref.read(dogProvider.notifier).loadUserDogs(userId);
       }
@@ -39,7 +40,7 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
     final dogState = ref.watch(dogProvider);
     
     if (kDebugMode) {
-      print('🐕 DogListScreen build: dogs=${dogState.dogs.length}, loading=${dogState.isLoading}, error=${dogState.errorMessage}');
+      appLog('🐕 DogListScreen build: dogs=${dogState.dogs.length}, loading=${dogState.isLoading}, error=${dogState.errorMessage}');
     }
 
     return Scaffold(

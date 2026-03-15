@@ -22,6 +22,7 @@ import 'walking_screen.dart';
 import 'pin_detail_screen.dart';
 import 'pin_comment_screen.dart';
 import '../daily/daily_walking_screen.dart';
+import '../../utils/logger.dart';
 
 /// ルート詳細画面
 /// 公式ルートの詳細情報とピン一覧を表示
@@ -152,49 +153,27 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
   Widget _buildMapSection(OfficialRoute route, AsyncValue pinsAsync, bool isDark) {
     final spotsAsync = ref.watch(routeSpotsProvider(route.id));
     
-    // デバッグログ追加
-    print('🗺️ _buildMapSection called for route: ${route.id}');
-    print('🛣️ route.routeLine: ${route.routeLine?.length ?? 0} points');
-    if (route.routeLine != null && route.routeLine!.isNotEmpty) {
-      print('🛣️ First point: ${route.routeLine!.first}');
-      print('🛣️ Last point: ${route.routeLine!.last}');
-      print('🛣️ All routeLine points (first 5):');
-      for (var i = 0; i < route.routeLine!.length && i < 5; i++) {
-        print('  Point $i: lat=${route.routeLine![i].latitude}, lon=${route.routeLine![i].longitude}');
-      }
-    }
-    print('📍 spotsAsync state: ${spotsAsync.toString()}');
-    
     // スポットデータとピンデータを取得
     final spots = spotsAsync.maybeWhen(
       data: (data) {
-        print('✅ Spots data available: ${data.length} spots');
-        
         // スポットデータ取得後、地図の中心とズームを調整
         if (data.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             final center = _calculateCenter(route);
             final zoom = _calculateZoom(route);
-            print('🗺️ Adjusting map: center=$center, zoom=$zoom');
             _mapController.move(center, zoom);
           });
         }
-        
+
         return data;
       },
-      orElse: () {
-        print('⚠️ Spots data not available (state: ${spotsAsync.runtimeType}), using empty list');
-        return <RouteSpot>[];
-      },
+      orElse: () => <RouteSpot>[],
     );
-    
+
     final pins = pinsAsync.maybeWhen(
       data: (data) => data,
       orElse: () => [],
     );
-    
-    print('🎯 Final spots count for rendering: ${spots.length}');
-    print('🎯 Will show: ${spots.isEmpty ? "fallback start/goal markers" : "spot markers"}');
     
     return Container(
       height: 300,
@@ -212,73 +191,40 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'com.doghub.wanwalk',
           ),
-          // ルートライン（優先度: route.routeLine > スポット座標）
-          if (route.routeLine != null && route.routeLine!.isNotEmpty) ...[
-            // 道路に沿った正確なルートジオメトリを使用
-            Builder(
-              builder: (context) {
-                print('🛣️ Rendering PolylineLayer from route.routeLine (${route.routeLine!.length} points) - ROAD GEOMETRY');
-                print('🛣️ Line color: #FF6B35 (orange), width: 5.0');
-                return PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: route.routeLine!,
-                      strokeWidth: 5.0,
-                      color: const Color(0xFFFF6B35), // 鮮やかなオレンジ色
-                      borderStrokeWidth: 2.0,
-                      borderColor: Colors.white.withOpacity(0.8),
-                    ),
-                  ],
-                );
-              },
+          // ルートライン
+          if (route.routeLine != null && route.routeLine!.isNotEmpty)
+            PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: route.routeLine!,
+                  strokeWidth: 8.0,
+                  color: Colors.red,
+                  borderStrokeWidth: 3.0,
+                  borderColor: Colors.white,
+                ),
+              ],
+            )
+          else if (spots.isNotEmpty)
+            PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: spots.map((spot) => spot.location).toList(),
+                  strokeWidth: 5.0,
+                  color: const Color(0xFFFF6B35),
+                  borderStrokeWidth: 2.0,
+                  borderColor: Colors.white.withOpacity(0.8),
+                ),
+              ],
             ),
-          ] else if (spots.isNotEmpty) ...[
-            // フォールバック：route.routeLineがない場合はスポット座標を直線で繋ぐ
-            Builder(
-              builder: (context) {
-                final routePoints = spots.map((spot) => spot.location).toList();
-                print('🛣️ Rendering PolylineLayer from ${routePoints.length} spot locations - FALLBACK (straight lines)');
-                print('🛣️ Line color: #FF6B35 (orange), width: 5.0');
-                return PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: routePoints,
-                      strokeWidth: 5.0,
-                      color: const Color(0xFFFF6B35),
-                      borderStrokeWidth: 2.0,
-                      borderColor: Colors.white.withOpacity(0.8),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
           // ルートスポットマーカー
-          if (spots.isNotEmpty) ...[
-            Builder(
-              builder: (context) {
-                print('🎨 Building MarkerLayer with ${spots.length} spot markers');
-                print('🎨 First spot location: ${spots.first.location}');
-                print('🎨 Map center: ${_calculateCenter(route)}');
-                print('🎨 Map zoom: ${_calculateZoom(route)}');
-                for (var spot in spots) {
-                  print('  📌 Spot: ${spot.name} at (${spot.location.latitude}, ${spot.location.longitude})');
-                }
-                return MarkerLayer(
-                  markers: _buildSpotMarkers(spots, isDark),
-                );
-              },
+          // ルートスポットマーカー
+          if (spots.isNotEmpty)
+            MarkerLayer(
+              markers: _buildSpotMarkers(spots, isDark),
             ),
-          ],
           // スタート/ゴールマーカー（スポットがない場合のフォールバック）
-          if (spots.isEmpty) ...[
-            Builder(
-              builder: (context) {
-                print('⚠️ No spots, showing fallback start/goal markers');
-                return MarkerLayer(markers: _buildMarkers(route));
-              },
-            ),
-          ],
+          if (spots.isEmpty)
+            MarkerLayer(markers: _buildMarkers(route)),
           // ピンマーカー
           if (pins.isNotEmpty)
             MarkerLayer(
@@ -306,66 +252,59 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       ),
     );
   }
-  /// ルートの中心点を計算（スポット情報も考慮）
-  LatLng _calculateCenter(OfficialRoute route) {
+  /// 全ポイント（スポット＋ルートライン）の境界を計算
+  ({double minLat, double maxLat, double minLon, double maxLon})? _calculateBounds(OfficialRoute route) {
     final spotsAsync = ref.watch(routeSpotsProvider(route.id));
     final spots = spotsAsync.maybeWhen(
       data: (data) => data,
       orElse: () => <RouteSpot>[],
     );
-    
-    // スポットがある場合は、スポットの中心を計算
-    if (spots.isNotEmpty) {
-      print('📍 _calculateCenter: Using ${spots.length} spots');
-      double latSum = 0;
-      double lonSum = 0;
-      for (var spot in spots) {
-        latSum += spot.location.latitude;
-        lonSum += spot.location.longitude;
-      }
-      final center = LatLng(
-        latSum / spots.length,
-        lonSum / spots.length,
-      );
-      print('📍 _calculateCenter result (spots): $center');
-      return center;
+
+    // 全ポイントを集約
+    final allPoints = <LatLng>[
+      ...spots.map((s) => s.location),
+      if (route.routeLine != null) ...route.routeLine!,
+    ];
+
+    if (allPoints.isEmpty) return null;
+
+    double minLat = allPoints.first.latitude;
+    double maxLat = allPoints.first.latitude;
+    double minLon = allPoints.first.longitude;
+    double maxLon = allPoints.first.longitude;
+
+    for (var p in allPoints) {
+      if (p.latitude < minLat) minLat = p.latitude;
+      if (p.latitude > maxLat) maxLat = p.latitude;
+      if (p.longitude < minLon) minLon = p.longitude;
+      if (p.longitude > maxLon) maxLon = p.longitude;
     }
-    
-    // スポットがない場合は、スタート地点を使用
-    // NOTE: route.routeLine は不正確な座標を持つ可能性があるため使用しない
-    print('📍 _calculateCenter: Using startLocation (initial)');
-    print('📍 _calculateCenter result (startLocation): ${route.startLocation}');
+
+    return (minLat: minLat, maxLat: maxLat, minLon: minLon, maxLon: maxLon);
+  }
+
+  /// ルートの中心点を計算（スポット＋ルートラインの全体を考慮）
+  LatLng _calculateCenter(OfficialRoute route) {
+    final bounds = _calculateBounds(route);
+    if (bounds != null) {
+      return LatLng(
+        (bounds.minLat + bounds.maxLat) / 2,
+        (bounds.minLon + bounds.maxLon) / 2,
+      );
+    }
     return route.startLocation;
   }
 
-  /// ルートの境界に基づいて適切なズームレベルを計算（スポット情報も考慮）
+  /// ルートの境界に基づいて適切なズームレベルを計算（スポット＋ルートライン全体）
   double _calculateZoom(OfficialRoute route) {
-    final spotsAsync = ref.watch(routeSpotsProvider(route.id));
-    final spots = spotsAsync.maybeWhen(
-      data: (data) => data,
-      orElse: () => <RouteSpot>[],
-    );
-    
-    // スポットがある場合は、スポットの範囲を基に計算
-    if (spots.isNotEmpty) {
-      double minLat = spots.first.location.latitude;
-      double maxLat = spots.first.location.latitude;
-      double minLon = spots.first.location.longitude;
-      double maxLon = spots.first.location.longitude;
-      
-      for (var spot in spots) {
-        if (spot.location.latitude < minLat) minLat = spot.location.latitude;
-        if (spot.location.latitude > maxLat) maxLat = spot.location.latitude;
-        if (spot.location.longitude < minLon) minLon = spot.location.longitude;
-        if (spot.location.longitude > maxLon) maxLon = spot.location.longitude;
-      }
-      
-      final latDiff = maxLat - minLat;
-      final lonDiff = maxLon - minLon;
+    final bounds = _calculateBounds(route);
+    if (bounds != null) {
+      final latDiff = bounds.maxLat - bounds.minLat;
+      final lonDiff = bounds.maxLon - bounds.minLon;
       final maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
-      // マージンを40%に拡大（全スポットが余裕を持って表示）
+      // マージン40%で全体が余裕を持って表示
       final adjustedDiff = maxDiff * 1.4;
-      
+
       if (adjustedDiff > 0.1) return 11.0;
       if (adjustedDiff > 0.05) return 12.0;
       if (adjustedDiff > 0.03) return 13.0;
@@ -374,10 +313,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       if (adjustedDiff > 0.005) return 15.5;
       return 16.0;
     }
-    
-    // スポットがない場合は、デフォルトのズームレベル
-    // NOTE: route.routeLine は不正確な座標を持つ可能性があるため使用しない
-    return 14.5; // 初期表示用の適度なズームレベル
+    return 14.5;
   }
   /// マーカーを構築（スタート=ゴールの場合は特別表示）
   List<Marker> _buildMarkers(OfficialRoute route) {
@@ -687,7 +623,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         ),
       ),
       error: (error, stack) {
-        print('❌ スポット情報取得エラー: $error');
+        appLog('❌ スポット情報取得エラー: $error');
         return const SizedBox.shrink();
       },
     );
@@ -850,7 +786,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
-      print('Could not launch $urlString');
+      appLog('Could not launch $urlString');
     }
   }
 
@@ -927,7 +863,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         
         if (goalIndex != -1) {
           // スタート=ゴールの場合、半分緑・半分赤のマーカーを作成
-          print('🎯 Start=Goal detected at ${spot.name}');
+          appLog('🎯 Start=Goal detected at ${spot.name}');
           markers.add(Marker(
             point: spot.location,
             width: 60.0,

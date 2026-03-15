@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/dog_model.dart';
 import '../services/dog_service.dart';
+import '../utils/logger.dart';
 
 /// 犬情報の状態クラス
 class DogState {
@@ -45,19 +46,19 @@ class DogNotifier extends StateNotifier<DogState> {
   /// ユーザーの犬一覧を読み込み
   Future<void> loadUserDogs(String userId) async {
     if (kDebugMode) {
-      print('🐕 Loading dogs for user: $userId');
+      appLog('🐕 Loading dogs for user: $userId');
     }
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
       final dogs = await _dogService.getUserDogs(userId);
       if (kDebugMode) {
-        print('🐕 Dogs loaded successfully: ${dogs.length} dogs');
+        appLog('🐕 Dogs loaded successfully: ${dogs.length} dogs');
       }
       state = state.copyWith(dogs: dogs, isLoading: false);
     } catch (e) {
       if (kDebugMode) {
-        print('🐕 Error loading dogs: $e');
+        appLog('🐕 Error loading dogs: $e');
       }
       state = state.copyWith(
         errorMessage: '犬一覧の取得に失敗しました: ${e.toString()}',
@@ -69,7 +70,7 @@ class DogNotifier extends StateNotifier<DogState> {
   /// 犬情報を作成
   Future<DogModel?> createDog(DogModel dog) async {
     if (kDebugMode) {
-      print('🐕 Creating dog: ${dog.name}, current dogs count: ${state.dogs.length}');
+      appLog('🐕 Creating dog: ${dog.name}, current dogs count: ${state.dogs.length}');
     }
     state = state.copyWith(isLoading: true, errorMessage: null);
 
@@ -78,16 +79,16 @@ class DogNotifier extends StateNotifier<DogState> {
       if (newDog != null) {
         final updatedDogs = [newDog, ...state.dogs];
         if (kDebugMode) {
-          print('🐕 Dog created successfully: ${newDog.name} (id: ${newDog.id})');
-          print('🐕 Updated dogs count: ${updatedDogs.length}');
-          print('🐕 All dogs: ${updatedDogs.map((d) => d.name).join(", ")}');
+          appLog('🐕 Dog created successfully: ${newDog.name} (id: ${newDog.id})');
+          appLog('🐕 Updated dogs count: ${updatedDogs.length}');
+          appLog('🐕 All dogs: ${updatedDogs.map((d) => d.name).join(", ")}');
         }
         state = state.copyWith(dogs: updatedDogs, isLoading: false);
       }
       return newDog;
     } catch (e) {
       if (kDebugMode) {
-        print('🐕 Error creating dog: $e');
+        appLog('🐕 Error creating dog: $e');
       }
       state = state.copyWith(
         errorMessage: '犬情報の作成に失敗しました: ${e.toString()}',
@@ -238,11 +239,11 @@ final userDogsProvider = Provider.family<List<DogModel>, String>((ref, userId) {
   final filteredDogs = dogState.dogs.where((dog) => dog.userId == userId).toList();
   
   if (kDebugMode) {
-    print('🐕 userDogsProvider: userId=$userId');
-    print('🐕 Total dogs in state: ${dogState.dogs.length}');
-    print('🐕 All dogs: ${dogState.dogs.map((d) => "${d.name} (userId: ${d.userId})").join(", ")}');
-    print('🐕 Filtered dogs: ${filteredDogs.length}');
-    print('🐕 Filtered: ${filteredDogs.map((d) => d.name).join(", ")}');
+    appLog('🐕 userDogsProvider: userId=$userId');
+    appLog('🐕 Total dogs in state: ${dogState.dogs.length}');
+    appLog('🐕 All dogs: ${dogState.dogs.map((d) => "${d.name} (userId: ${d.userId})").join(", ")}');
+    appLog('🐕 Filtered dogs: ${filteredDogs.length}');
+    appLog('🐕 Filtered: ${filteredDogs.map((d) => d.name).join(", ")}');
   }
   
   return filteredDogs;

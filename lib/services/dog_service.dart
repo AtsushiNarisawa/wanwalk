@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/dog_model.dart';
+import '../utils/logger.dart';
 
 /// 犬情報管理サービス
 class DogService {
@@ -23,7 +24,7 @@ class DogService {
       return File(image.path);
     } catch (e) {
       if (kDebugMode) {
-        print('画像選択エラー: $e');
+        appLog('画像選択エラー: $e');
       }
       return null;
     }
@@ -45,7 +46,7 @@ class DogService {
       return File(image.path);
     } catch (e) {
       if (kDebugMode) {
-        print('カメラ撮影エラー: $e');
+        appLog('カメラ撮影エラー: $e');
       }
       return null;
     }
@@ -74,7 +75,7 @@ class DogService {
       return publicUrl;
     } catch (e) {
       if (kDebugMode) {
-        print('犬の写真アップロードエラー: $e');
+        appLog('犬の写真アップロードエラー: $e');
       }
       return null;
     }
@@ -104,7 +105,7 @@ class DogService {
       return publicUrl;
     } catch (e) {
       if (kDebugMode) {
-        print('ワクチン接種証明書アップロードエラー: $e');
+        appLog('ワクチン接種証明書アップロードエラー: $e');
       }
       return null;
     }
@@ -122,7 +123,7 @@ class DogService {
       return DogModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('犬情報作成エラー: $e');
+        appLog('犬情報作成エラー: $e');
       }
       return null;
     }
@@ -142,7 +143,7 @@ class DogService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('犬一覧取得エラー: $e');
+        appLog('犬一覧取得エラー: $e');
       }
       rethrow; // エラーを上位に伝播させる
     }
@@ -160,7 +161,7 @@ class DogService {
       return DogModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('犬情報取得エラー: $e');
+        appLog('犬情報取得エラー: $e');
       }
       return null;
     }
@@ -182,7 +183,7 @@ class DogService {
       return DogModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('犬情報更新エラー: $e');
+        appLog('犬情報更新エラー: $e');
       }
       return null;
     }
@@ -212,7 +213,7 @@ class DogService {
           }
         } catch (e) {
           if (kDebugMode) {
-            print('犬の写真削除エラー（処理は継続）: $e');
+            appLog('犬の写真削除エラー（処理は継続）: $e');
           }
         }
       }
@@ -227,7 +228,7 @@ class DogService {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('犬情報削除エラー: $e');
+        appLog('犬情報削除エラー: $e');
       }
       return false;
     }
@@ -258,7 +259,7 @@ class DogService {
           }
         } catch (e) {
           if (kDebugMode) {
-            print('古い写真削除エラー（処理は継続）: $e');
+            appLog('古い写真削除エラー（処理は継続）: $e');
           }
         }
       }
@@ -278,7 +279,7 @@ class DogService {
       return newPhotoUrl;
     } catch (e) {
       if (kDebugMode) {
-        print('犬の写真更新エラー: $e');
+        appLog('犬の写真更新エラー: $e');
       }
       return null;
     }

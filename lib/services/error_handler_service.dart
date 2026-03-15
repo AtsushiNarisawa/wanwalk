@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../models/app_exception.dart';
+import '../utils/logger.dart';
 
 /// グローバルなエラーハンドリングサービス
 class ErrorHandlerService {
@@ -74,12 +75,12 @@ class ErrorHandlerService {
   /// エラーをログに記録（開発時のみ）
   static void logError(AppException exception) {
     if (kDebugMode) {
-      print('❌ Error [${exception.code}]: ${exception.message}');
+      appLog('❌ Error [${exception.code}]: ${exception.message}');
       if (exception.originalError != null) {
-        print('   Original: ${exception.originalError}');
+        appLog('   Original: ${exception.originalError}');
       }
       if (exception.stackTrace != null) {
-        print('   StackTrace: ${exception.stackTrace}');
+        appLog('   StackTrace: ${exception.stackTrace}');
       }
     }
   }

@@ -22,6 +22,7 @@ import '../../outing/route_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../pin/pin_route_picker_screen.dart';
 import '../../pin/pin_location_picker_screen.dart';
+import '../../../utils/logger.dart';
 
 /// MapTab - 全画面地図 + Bottom Sheet UI
 /// 
@@ -70,7 +71,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   /// 現在地を初期化
   Future<void> _initializeLocation() async {
     if (kDebugMode) {
-      print('🗺️ MAP画面: GPS初期化開始');
+      appLog('🗺️ MAP画面: GPS初期化開始');
     }
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
     await gpsNotifier.getCurrentLocation();
@@ -78,9 +79,9 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     final gpsState = ref.read(gpsProviderRiverpod);
     if (kDebugMode) {
       if (gpsState.currentLocation != null) {
-        print('✅ MAP画面: GPS取得成功 ${gpsState.currentLocation!.latitude},${gpsState.currentLocation!.longitude}');
+        appLog('✅ MAP画面: GPS取得成功 ${gpsState.currentLocation!.latitude},${gpsState.currentLocation!.longitude}');
       } else {
-        print('❌ MAP画面: GPS取得失敗');
+        appLog('❌ MAP画面: GPS取得失敗');
       }
     }
   }
@@ -922,8 +923,8 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     List<OfficialRoute> allRoutes,
   ) {
     if (kDebugMode) {
-      print('🔵 _getRecommendedRoutes: currentLocation=${currentLocation.latitude},${currentLocation.longitude}');
-      print('🔵 Total routes: ${allRoutes.length}');
+      appLog('🔵 _getRecommendedRoutes: currentLocation=${currentLocation.latitude},${currentLocation.longitude}');
+      appLog('🔵 Total routes: ${allRoutes.length}');
     }
     
     final List<Map<String, dynamic>> nearbyRoutes = [];
@@ -935,7 +936,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
       );
 
       if (kDebugMode && distance <= 100.0) {
-        print('  🔵 Route: ${route.name} at ${route.startLocation.latitude},${route.startLocation.longitude} - ${distance.toStringAsFixed(1)}km');
+        appLog('  🔵 Route: ${route.name} at ${route.startLocation.latitude},${route.startLocation.longitude} - ${distance.toStringAsFixed(1)}km');
       }
 
       if (distance <= 50.0) {
@@ -944,7 +945,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
           'distance': distance,
         });
         if (kDebugMode) {
-          print('  ✅ Found nearby route: ${route.name} (${distance.toStringAsFixed(1)}km)');
+          appLog('  ✅ Found nearby route: ${route.name} (${distance.toStringAsFixed(1)}km)');
         }
       }
     }
@@ -952,7 +953,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     nearbyRoutes.sort((a, b) => (a['distance'] as double).compareTo(b['distance'] as double));
     
     if (kDebugMode) {
-      print('🔵 Total nearby routes (<=50km): ${nearbyRoutes.length}');
+      appLog('🔵 Total nearby routes (<=50km): ${nearbyRoutes.length}');
     }
     
     return nearbyRoutes;
@@ -1054,7 +1055,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
       loading: () => const SizedBox.shrink(),
       error: (error, stack) {
         if (kDebugMode) {
-          print('❌ ピンマーカー表示エラー: $error');
+          appLog('❌ ピンマーカー表示エラー: $error');
         }
         return const SizedBox.shrink();
       },

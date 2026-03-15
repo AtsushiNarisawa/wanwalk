@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_statistics.dart';
 import '../services/notification_service.dart';
 import 'auth_provider.dart';
+import '../utils/logger.dart';
 
 /// NotificationService プロバイダー
 final notificationServiceProvider = Provider<NotificationService>((ref) {
@@ -101,7 +102,7 @@ class NotificationStateNotifier extends StateNotifier<List<NotificationModel>> {
       }).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error marking notification as read: $e');
+        appLog('Error marking notification as read: $e');
       }
     }
   }
@@ -127,7 +128,7 @@ class NotificationStateNotifier extends StateNotifier<List<NotificationModel>> {
       }).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error marking all notifications as read: $e');
+        appLog('Error marking all notifications as read: $e');
       }
     }
   }
@@ -144,7 +145,7 @@ class NotificationStateNotifier extends StateNotifier<List<NotificationModel>> {
       state = state.where((n) => n.notificationId != notificationId).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error deleting notification: $e');
+        appLog('Error deleting notification: $e');
       }
     }
   }

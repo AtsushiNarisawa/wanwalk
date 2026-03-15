@@ -8,6 +8,9 @@ import 'config/wanwalk_theme.dart';
 import 'config/wanwalk_colors.dart';
 import 'config/env.dart';
 import 'screens/main/main_screen.dart';
+import 'screens/onboarding/welcome_screen.dart';
+import 'services/onboarding_service.dart';
+import 'utils/logger.dart';
 
 void main() async {
   // Flutterバインディングの初期化
@@ -33,28 +36,28 @@ void main() async {
     // 環境変数の読み込み
     await dotenv.load(fileName: ".env");
     if (kDebugMode) {
-      print('✅ Environment variables loaded');
+      appLog('✅ Environment variables loaded');
     }
     
     // 環境変数のバリデーション
     Environment.validate();
     if (kDebugMode) {
-      print('✅ Environment variables validated');
+      appLog('✅ Environment variables validated');
     }
     
     // Supabaseの初期化
     await SupabaseConfig.initialize();
     if (kDebugMode) {
-      print('✅ Supabase initialized successfully');
+      appLog('✅ Supabase initialized successfully');
     }
     
     // 通知システムは各画面で必要に応じて初期化
     if (kDebugMode) {
-      print('✅ Notification system ready');
+      appLog('✅ Notification system ready');
     }
   } catch (e) {
     if (kDebugMode) {
-      print('❌ Failed to initialize: $e');
+      appLog('❌ Failed to initialize: $e');
     }
     // エラーが発生しても起動を継続
   }
@@ -123,15 +126,23 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Future<void> _checkAuthAndNavigate() async {
     // スプラッシュ画面を2秒表示
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (!mounted) return;
-    
-    // ログイン状態に関わらず、常にメイン画面へ遷移
-    // 未ログイン時はプロフィールタブでログイン画面を表示
-    // 投稿・いいね等のアクション時にログイン促進
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const MainScreen()),
-    );
+
+    // ウェルカムスライド未完了 → ウェルカム画面へ
+    final welcomeCompleted = await OnboardingService.isWelcomeCompleted();
+    if (!mounted) return;
+
+    if (!welcomeCompleted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+      );
+    } else {
+      // ウェルカム済み → メイン画面へ
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainScreen()),
+      );
+    }
   }
   
   @override

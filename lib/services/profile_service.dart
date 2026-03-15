@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../utils/logger.dart';
 
 /// ユーザープロフィール更新サービス
 class ProfileService {
@@ -19,7 +20,7 @@ class ProfileService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔵 プロフィール更新開始: userId=$userId, distance=$distanceMeters, duration=$durationMinutes');
+        appLog('🔵 プロフィール更新開始: userId=$userId, distance=$distanceMeters, duration=$durationMinutes');
       }
       
       // Supabase RPC関数を呼び出し
@@ -33,12 +34,12 @@ class ProfileService {
       );
 
       if (kDebugMode) {
-        print('✅ プロフィール更新成功: $result');
+        appLog('✅ プロフィール更新成功: $result');
       }
       return result as Map<String, dynamic>?;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ プロフィール更新エラー: $e');
+        appLog('❌ プロフィール更新エラー: $e');
       }
       return null;
     }
@@ -54,7 +55,7 @@ class ProfileService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔵 散歩統計取得開始: userId=$userId');
+        appLog('🔵 散歩統計取得開始: userId=$userId');
       }
       
       // Supabase RPC関数を呼び出し
@@ -66,12 +67,12 @@ class ProfileService {
       );
 
       if (kDebugMode) {
-        print('✅ 散歩統計取得成功: $result');
+        appLog('✅ 散歩統計取得成功: $result');
       }
       return result as Map<String, dynamic>?;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 散歩統計取得エラー: $e');
+        appLog('❌ 散歩統計取得エラー: $e');
       }
       return null;
     }

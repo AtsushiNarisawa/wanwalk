@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../utils/logger.dart';
 
 /// プロフィール情報の状態クラス
 class ProfileData {
@@ -42,7 +43,7 @@ final profileProvider = FutureProvider.family<ProfileData?, String>((ref, userId
     return ProfileData.fromJson(response);
   } catch (e) {
     if (kDebugMode) {
-      print('プロフィール取得エラー: $e');
+      appLog('プロフィール取得エラー: $e');
     }
     return null;
   }

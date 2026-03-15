@@ -24,6 +24,7 @@ import '../../routes/public_routes_screen.dart';
 import '../../outing/route_list_screen.dart';
 import '../../../models/area.dart';
 import '../../../widgets/shimmer/wanwalk_shimmer.dart';
+import '../../../utils/logger.dart';
 
 /// HomeTab - 発見・閲覧のホーム画面
 /// 
@@ -38,15 +39,15 @@ class HomeTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (kDebugMode) {
-      print('🟡 HomeTab.build() called');
+      appLog('🟡 HomeTab.build() called');
     }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (kDebugMode) {
-      print('🟡 About to watch areasProvider in HomeTab...');
+      appLog('🟡 About to watch areasProvider in HomeTab...');
     }
     final areasAsync = ref.watch(areasProvider);
     if (kDebugMode) {
-      print('🟡 HomeTab areasAsync state: ${areasAsync.runtimeType}');
+      appLog('🟡 HomeTab areasAsync state: ${areasAsync.runtimeType}');
     }
 
     return Scaffold(
@@ -83,24 +84,43 @@ class HomeTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. 今月の人気ルート
-            _buildPopularRoutes(context, isDark),
-            
-            const SizedBox(height: WanWalkSpacing.xl),
-            
-            // 2. 最新のピン投稿（横2枚）
-            _buildRecentPinPosts(context, isDark),
-            
-            const SizedBox(height: WanWalkSpacing.xl),
-            
-            // 3. おすすめエリア（3枚 + 一覧ボタン）
+            // 1. おすすめエリア（箱根が最初に目に入る）
             _buildRecommendedAreas(context, isDark, areasAsync),
-            
+
             const SizedBox(height: WanWalkSpacing.xl),
-            
-            // 4. 高評価スポット
+
+            // 2. 今月の人気ルート
+            _buildPopularRoutes(context, isDark),
+
+            const SizedBox(height: WanWalkSpacing.xl),
+
+            // 3. 高評価スポット
             _buildTopRatedSpots(context, isDark),
-            
+
+            const SizedBox(height: WanWalkSpacing.xl),
+
+            // 4. 最新のピン投稿
+            _buildRecentPinPosts(context, isDark),
+
+            const SizedBox(height: WanWalkSpacing.xl),
+
+            // 5. 箱根観光バナー（提携）
+            _buildHakoneBannerSection(context, isDark),
+
+            const SizedBox(height: WanWalkSpacing.lg),
+
+            // 6. Supported by フッター
+            Center(
+              child: Text(
+                'Supported by 箱根DMO',
+                style: WanWalkTypography.caption.copyWith(
+                  color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+                  fontSize: 11,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+
             const SizedBox(height: WanWalkSpacing.xxxl),
           ],
         ),
@@ -137,7 +157,7 @@ class HomeTab extends ConsumerWidget {
                   const SizedBox(width: WanWalkSpacing.sm),
                   Text(
                     '最新のピン投稿',
-                    style: WanWalkTypography.headlineMedium.copyWith(
+                    style: WanWalkTypography.headlineSmall.copyWith(
                       color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
@@ -183,7 +203,7 @@ class HomeTab extends ConsumerWidget {
                 ),
                   error: (error, _) {
                     if (kDebugMode) {
-                      print('❌ 最新ピン投稿読み込みエラー: $error');
+                      appLog('❌ 最新ピン投稿読み込みエラー: $error');
                     }
                     return _buildEmptyCard(isDark, 'ピン投稿の読み込みに失敗しました');
                   },
@@ -223,7 +243,7 @@ class HomeTab extends ConsumerWidget {
               const SizedBox(width: WanWalkSpacing.sm),
               Text(
                 'おすすめエリア',
-                style: WanWalkTypography.headlineMedium.copyWith(
+                style: WanWalkTypography.headlineSmall.copyWith(
                   color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                   fontWeight: FontWeight.bold,
                 ),
@@ -383,9 +403,7 @@ class HomeTab extends ConsumerWidget {
                       minimumSize: const Size(double.infinity, 48),
                     ),
                   ),
-                  const SizedBox(height: WanWalkSpacing.lg),
-                  // バナー
-                  _buildPromotionalBanner(context, isDark),
+                  const SizedBox(height: WanWalkSpacing.sm),
                 ],
               );
             },
@@ -436,7 +454,7 @@ class HomeTab extends ConsumerWidget {
                   const SizedBox(width: WanWalkSpacing.sm),
                   Text(
                     '今月の人気ルート',
-                    style: WanWalkTypography.headlineMedium.copyWith(
+                    style: WanWalkTypography.headlineSmall.copyWith(
                       color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
@@ -505,7 +523,7 @@ class HomeTab extends ConsumerWidget {
                         OutlinedButton.icon(
                           onPressed: () {
                             if (kDebugMode) {
-                              print('📋 Navigate to public routes screen');
+                              appLog('📋 Navigate to public routes screen');
                             }
                             Navigator.push(
                               context,
@@ -529,7 +547,7 @@ class HomeTab extends ConsumerWidget {
                   loading: () => const RouteCardShimmer(count: 3),
                   error: (error, _) {
                     if (kDebugMode) {
-                      print('❌ 人気ルート読み込みエラー: $error');
+                      appLog('❌ 人気ルート読み込みエラー: $error');
                     }
                     return _buildEmptyCard(isDark, '人気ルートの読み込みに失敗しました');
                   },
@@ -572,7 +590,7 @@ class HomeTab extends ConsumerWidget {
                   const SizedBox(width: WanWalkSpacing.sm),
                   Text(
                     '高評価スポット',
-                    style: WanWalkTypography.headlineMedium.copyWith(
+                    style: WanWalkTypography.headlineSmall.copyWith(
                       color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                       fontWeight: FontWeight.bold,
                     ),
@@ -645,7 +663,7 @@ class HomeTab extends ConsumerWidget {
         return GestureDetector(
           onTap: () {
             if (kDebugMode) {
-              print('📍 Spot tapped: ${pin.title} (spotId: $spotId) → Navigate to PinDetailScreen');
+              appLog('📍 Spot tapped: ${pin.title} (spotId: $spotId) → Navigate to PinDetailScreen');
             }
             Navigator.push(
               context,
@@ -655,98 +673,122 @@ class HomeTab extends ConsumerWidget {
             );
           },
           child: Container(
-            padding: const EdgeInsets.all(WanWalkSpacing.md),
             decoration: BoxDecoration(
               color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Row(
               children: [
-                // アイコン
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.location_on_rounded,
-                    color: Colors.amber,
-                    size: 28,
+                // サムネイル写真
+                ClipRRect(
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+                  child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: pin.hasPhotos
+                        ? Image.network(
+                            pin.photoUrls.first,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: Colors.amber.withOpacity(0.15),
+                              child: const Center(
+                                child: Icon(Icons.location_on_rounded, color: Colors.amber, size: 32),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.amber.withOpacity(0.15),
+                            child: const Center(
+                              child: Icon(Icons.location_on_rounded, color: Colors.amber, size: 32),
+                            ),
+                          ),
                   ),
                 ),
-                const SizedBox(width: WanWalkSpacing.md),
 
                 // スポット情報
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        pin.title,
-                        style: WanWalkTypography.titleMedium.copyWith(
-                          color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                          fontWeight: FontWeight.bold,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pin.title,
+                          style: WanWalkTypography.titleMedium.copyWith(
+                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          // 平均評価
-                          averageRatingAsync.when(
-                            data: (avg) {
-                              if (avg == null) return const SizedBox.shrink();
-                              return Row(
-                                children: [
-                                  const Icon(Icons.star, color: Colors.amber, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    avg.toStringAsFixed(1),
-                                    style: WanWalkTypography.bodySmall.copyWith(
-                                      color: Colors.amber,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            // 平均評価
+                            averageRatingAsync.when(
+                              data: (avg) {
+                                if (avg == null) return const SizedBox.shrink();
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                ],
-                              );
-                            },
-                            loading: () => const SizedBox(width: 50),
-                            error: (_, __) => const SizedBox.shrink(),
-                          ),
-                          const SizedBox(width: WanWalkSpacing.sm),
-                          // レビュー数
-                          reviewCountAsync.when(
-                            data: (count) {
-                              return Text(
-                                '($count件)',
-                                style: WanWalkTypography.bodySmall.copyWith(
-                                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                                ),
-                              );
-                            },
-                            loading: () => const SizedBox.shrink(),
-                            error: (_, __) => const SizedBox.shrink(),
-                          ),
-                        ],
-                      ),
-                    ],
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.star_rounded, color: Colors.amber, size: 15),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        avg.toStringAsFixed(1),
+                                        style: WanWalkTypography.labelMedium.copyWith(
+                                          color: Colors.amber.shade800,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              loading: () => const SizedBox(width: 50),
+                              error: (_, __) => const SizedBox.shrink(),
+                            ),
+                            const SizedBox(width: 8),
+                            // レビュー数
+                            reviewCountAsync.when(
+                              data: (count) {
+                                return Text(
+                                  '($count件)',
+                                  style: WanWalkTypography.bodySmall.copyWith(
+                                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                                  ),
+                                );
+                              },
+                              loading: () => const SizedBox.shrink(),
+                              error: (_, __) => const SizedBox.shrink(),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
                 // 矢印アイコン
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                  ),
                 ),
               ],
             ),
@@ -767,70 +809,92 @@ class HomeTab extends ConsumerWidget {
     );
   }
 
-  /// プロモーションバナー
-  Widget _buildPromotionalBanner(BuildContext context, bool isDark) {
-    return GestureDetector(
-      onTap: () async {
-        final url = Uri.parse('https://map-hakone.staynavi.direct/');
-        if (await canLaunchUrl(url)) {
-          await launchUrl(url, mode: LaunchMode.externalApplication);
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        height: 120,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            'assets/images/hakone_banner_new.jpg',
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              // フォールバック: グラデーション背景
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      WanWalkColors.primary,
-                      WanWalkColors.primary.withOpacity(0.8),
-                    ],
-                  ),
+  /// 箱根観光バナーセクション（提携コンテンツ）
+  Widget _buildHakoneBannerSection(BuildContext context, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // セクションラベル
+          Row(
+            children: [
+              Icon(
+                Icons.handshake_outlined,
+                size: 16,
+                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '箱根をもっと楽しむ',
+                style: WanWalkTypography.bodySmall.copyWith(
+                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                 ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.map,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '箱根観光デジタルマップ',
-                        style: WanWalkTypography.titleMedium.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+              ),
+            ],
+          ),
+          const SizedBox(height: WanWalkSpacing.sm),
+          // バナー本体
+          GestureDetector(
+            onTap: () async {
+              final url = Uri.parse('https://map-hakone.staynavi.direct/');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
+            child: Container(
+              width: double.infinity,
+              height: 100,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset(
+                  'assets/images/hakone_banner_new.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            WanWalkColors.primary,
+                            WanWalkColors.primary.withOpacity(0.8),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.map, color: Colors.white, size: 28),
+                            const SizedBox(width: 8),
+                            Text(
+                              '箱根観光デジタルマップ',
+                              style: WanWalkTypography.titleMedium.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -869,8 +933,7 @@ class _AreaCard extends StatelessWidget {
     required this.onTap,
   });
 
-  Color _getGradientColor(String name) {
-    // エリア名に基づいて色を変える
+  Color _getAccentColor(String name) {
     if (name.contains('横浜')) return Colors.blue;
     if (name.contains('鎌倉')) return Colors.teal;
     if (name.contains('江ノ島')) return Colors.cyan;
@@ -879,108 +942,76 @@ class _AreaCard extends StatelessWidget {
     return WanWalkColors.primary;
   }
 
+  IconData _getAreaIcon(String name) {
+    if (name.contains('湘南')) return Icons.waves_rounded;
+    if (name.contains('鎌倉')) return Icons.temple_buddhist_rounded;
+    if (name.contains('横浜')) return Icons.location_city_rounded;
+    if (name.contains('江ノ島')) return Icons.beach_access_rounded;
+    if (name.contains('伊豆')) return Icons.hot_tub_rounded;
+    if (name.contains('熱海')) return Icons.spa_rounded;
+    if (name.contains('葉山')) return Icons.park_rounded;
+    return Icons.place_rounded;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final baseColor = _getGradientColor(name);
-    
+    final accentColor = _getAccentColor(name);
+    final areaIcon = _getAreaIcon(name);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: isHorizontal ? double.infinity : 160,
-        height: isHorizontal ? null : 120,
+        height: 120,
         decoration: BoxDecoration(
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            children: [
-              // グラデーション背景
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      baseColor,
-                      baseColor.withOpacity(0.7),
-                    ],
-                  ),
-                ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // アイコンバッジ
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accentColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(14),
               ),
-              // 装飾アイコン
-              Positioned(
-                right: -10,
-                bottom: -10,
-                child: Icon(
-                  Icons.location_city,
-                  size: 60,
-                  color: Colors.white.withOpacity(0.15),
-                ),
+              child: Icon(
+                areaIcon,
+                color: accentColor,
+                size: 24,
               ),
-              // コンテンツ
-              Padding(
-                padding: const EdgeInsets.all(WanWalkSpacing.md),
-                child: isHorizontal
-                    ? Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.location_on, color: Colors.white, size: 28),
-                          ),
-                          const SizedBox(width: WanWalkSpacing.md),
-                          Expanded(
-                            child: Text(
-                              name,
-                              style: WanWalkTypography.bodyLarge.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
-                        ],
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.location_on, color: Colors.white, size: 32),
-                          ),
-                          const SizedBox(height: WanWalkSpacing.sm),
-                          Text(
-                            name,
-                            style: WanWalkTypography.bodyMedium.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
+            ),
+            const SizedBox(height: 10),
+            // エリア名
+            Text(
+              name,
+              style: WanWalkTypography.titleMedium.copyWith(
+                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
               ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            // 県名
+            Text(
+              prefecture,
+              style: WanWalkTypography.labelSmall.copyWith(
+                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1024,9 +1055,8 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
 
     return GestureDetector(
       onTap: () {
-        // ピン投稿の詳細画面へ遷移
         if (kDebugMode) {
-          print('📌 Pin tapped: ${widget.pin.title} (pinId: ${widget.pin.pinId}) → Navigate to PinDetailScreen');
+          appLog('📌 Pin tapped: ${widget.pin.title} (pinId: ${widget.pin.pinId}) → Navigate to PinDetailScreen');
         }
         Navigator.push(
           context,
@@ -1036,26 +1066,26 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
           color: widget.isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // サムネイル画像（固定サイズ120x120）
+            // 写真（大きく表示）
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: SizedBox(
-                width: 120,
-                height: 120,
+                width: double.infinity,
+                height: 180,
                 child: widget.pin.photoUrl.isNotEmpty
                     ? Image.network(
                         widget.pin.photoUrl,
@@ -1065,16 +1095,16 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                     : _buildDefaultImage(),
               ),
             ),
-            const SizedBox(width: WanWalkSpacing.md),
             // テキスト情報
-            Expanded(
+            Padding(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // タイトル
                   Text(
                     widget.pin.title,
-                    style: WanWalkTypography.bodyMedium.copyWith(
+                    style: WanWalkTypography.titleMedium.copyWith(
                       color: widget.isDark
                           ? WanWalkColors.textPrimaryDark
                           : WanWalkColors.textPrimaryLight,
@@ -1083,8 +1113,8 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  // エリア名
+                  const SizedBox(height: 6),
+                  // エリア名 + ユーザー名
                   Row(
                     children: [
                       Icon(
@@ -1092,31 +1122,22 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                         size: 14,
                         color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          widget.pin.areaName ?? '不明',
-                          style: WanWalkTypography.bodySmall.copyWith(
-                            color: widget.isDark
-                                ? WanWalkColors.textSecondaryDark
-                                : WanWalkColors.textSecondaryLight,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 3),
+                      Text(
+                        widget.pin.areaName ?? '不明',
+                        style: WanWalkTypography.bodySmall.copyWith(
+                          color: widget.isDark
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  // ユーザー名
-                  Row(
-                    children: [
+                      const SizedBox(width: 12),
                       Icon(
                         Icons.person,
                         size: 14,
                         color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 3),
                       Expanded(
                         child: Text(
                           widget.pin.userName,
@@ -1132,11 +1153,11 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // いいね数・コメント数（読み取り専用）
+                  // いいね数・コメント数
                   Row(
                     children: [
                       Icon(
-                        Icons.favorite,
+                        Icons.favorite_rounded,
                         size: 16,
                         color: Colors.red.withOpacity(0.7),
                       ),
@@ -1149,9 +1170,9 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
                               : WanWalkColors.textSecondaryLight,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 16),
                       Icon(
-                        Icons.chat_bubble,
+                        Icons.chat_bubble_outline_rounded,
                         size: 16,
                         color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
@@ -1177,11 +1198,13 @@ class _RecentPinCardState extends ConsumerState<_RecentPinCard> {
 
   Widget _buildDefaultImage() {
     return Container(
-      color: widget.isDark ? Colors.grey[800] : Colors.grey[300],
-      child: Icon(
-        Icons.image_not_supported,
-        size: 40,
-        color: widget.isDark ? Colors.grey[600] : Colors.grey[400],
+      color: widget.isDark ? Colors.grey[800] : Colors.grey[200],
+      child: Center(
+        child: Icon(
+          Icons.image_outlined,
+          size: 40,
+          color: widget.isDark ? Colors.grey[600] : Colors.grey[400],
+        ),
       ),
     );
   }
@@ -1219,7 +1242,7 @@ class _PopularRouteCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (kDebugMode) {
-          print('🗺️ Route tapped: $title (routeId: $routeId) → Navigate to RouteDetailScreen');
+          appLog('🗺️ Route tapped: $title (routeId: $routeId) → Navigate to RouteDetailScreen');
         }
         Navigator.push(
           context,
@@ -1229,26 +1252,26 @@ class _PopularRouteCard extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
           color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // サムネイル画像
+            // サムネイル画像（大きく表示）
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: Container(
-                width: 80,
-                height: 80,
+                width: double.infinity,
+                height: 160,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -1266,7 +1289,7 @@ class _PopularRouteCard extends StatelessWidget {
                         errorBuilder: (_, __, ___) => Center(
                           child: Icon(
                             Icons.route,
-                            size: 40,
+                            size: 48,
                             color: Colors.white.withOpacity(0.9),
                           ),
                         ),
@@ -1274,16 +1297,15 @@ class _PopularRouteCard extends StatelessWidget {
                     : Center(
                         child: Icon(
                           Icons.route,
-                          size: 40,
+                          size: 48,
                           color: Colors.white.withOpacity(0.9),
                         ),
                       ),
               ),
             ),
-            const SizedBox(width: WanWalkSpacing.md),
-            
             // ルート情報
-            Expanded(
+            Padding(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1307,66 +1329,64 @@ class _PopularRouteCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
-                  // 距離・所要時間・今月の散歩数
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 4,
+                  const SizedBox(height: 10),
+                  // 距離・所要時間・今月の散歩数（チップ風）
+                  Row(
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.straighten, size: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${(distance / 1000).toStringAsFixed(1)}km',
-                            style: WanWalkTypography.bodySmall.copyWith(
-                              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                            ),
-                          ),
-                        ],
+                      _buildInfoChip(
+                        icon: Icons.straighten,
+                        label: '${(distance / 1000).toStringAsFixed(1)}km',
+                        color: isDark ? Colors.grey[400]! : Colors.grey[600]!,
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.schedule, size: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${duration}分',
-                            style: WanWalkTypography.bodySmall.copyWith(
-                              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                            ),
-                          ),
-                        ],
+                      const SizedBox(width: 8),
+                      _buildInfoChip(
+                        icon: Icons.schedule,
+                        label: '${duration}分',
+                        color: isDark ? Colors.grey[400]! : Colors.grey[600]!,
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.pets, size: 14, color: WanWalkColors.accent),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$totalWalks回',
-                            style: WanWalkTypography.bodySmall.copyWith(
-                              color: WanWalkColors.accent,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                      const SizedBox(width: 8),
+                      _buildInfoChip(
+                        icon: Icons.pets,
+                        label: '$totalWalks回',
+                        color: WanWalkColors.accent,
+                        isBold: true,
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            
-            // 矢印アイコン
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip({
+    required IconData icon,
+    required String label,
+    required Color color,
+    bool isBold = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: WanWalkTypography.labelSmall.copyWith(
+              color: color,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1390,100 +1410,103 @@ class _FeaturedAreaCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 140,
         decoration: BoxDecoration(
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: WanWalkColors.accent.withOpacity(0.3),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 10,
+              color: WanWalkColors.accent.withOpacity(0.08),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            children: [
-              // 背景グラデーション（画像の代わり）
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      WanWalkColors.accent,
-                      WanWalkColors.accent.withOpacity(0.7),
-                      WanWalkColors.primary.withOpacity(0.8),
-                    ],
+        child: Column(
+          children: [
+            // 上部: アクセントバー
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: WanWalkColors.accent.withOpacity(0.08),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: WanWalkColors.accent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '注目エリア',
+                      style: WanWalkTypography.labelSmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
+                  const Spacer(),
+                  Text(
+                    area.prefecture,
+                    style: WanWalkTypography.bodySmall.copyWith(
+                      color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                    ),
+                  ),
+                ],
               ),
-              // 装飾パターン
-              Positioned(
-                right: -20,
-                bottom: -20,
-                child: Icon(
-                  Icons.landscape,
-                  size: 100,
-                  color: Colors.white.withOpacity(0.1),
-                ),
-              ),
-              // コンテンツ
-              Padding(
-                padding: const EdgeInsets.all(WanWalkSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
+            ),
+            // 下部: メインコンテンツ
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(Icons.pets, color: Colors.white, size: 28),
-                        ),
-                        const SizedBox(width: WanWalkSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                area.name,
-                                style: WanWalkTypography.headlineMedium.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black.withOpacity(0.3),
-                                      offset: const Offset(0, 1),
-                                      blurRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                area.prefecture,
-                                style: WanWalkTypography.bodyMedium.copyWith(
-                                  color: Colors.white.withOpacity(0.95),
-                                ),
-                              ),
-                            ],
+                        Text(
+                          area.name,
+                          style: WanWalkTypography.headlineMedium.copyWith(
+                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 26,
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+                        const SizedBox(height: 8),
+                        Text(
+                          '温泉・芦ノ湖・美術館など\n愛犬と楽しめるルートが豊富',
+                          style: WanWalkTypography.bodySmall.copyWith(
+                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                            height: 1.5,
+                          ),
+                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: WanWalkColors.accent.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: WanWalkColors.accent,
+                      size: 28,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/area_info.dart';
+import '../utils/logger.dart';
 
 /// 写真付きルートカード
 class PhotoRouteCard extends StatelessWidget {
@@ -256,7 +257,7 @@ class PhotoRouteCard extends StatelessWidget {
           .getPublicUrl(storagePath);
     } catch (e) {
       if (kDebugMode) {
-        print('画像URL生成エラー: $e');
+        appLog('画像URL生成エラー: $e');
       }
       // エラー時は元のpathを返す（errorBuilderで処理）
       return storagePath;

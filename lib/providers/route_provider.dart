@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../services/route_service.dart';
+import '../utils/logger.dart';
 
 /// ルート情報の状態クラス
 class RouteState {
@@ -192,7 +193,7 @@ final popularRoutesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) as
     return response;
   } catch (e) {
     if (kDebugMode) {
-      print('❌ 人気の公式ルート取得エラー: $e');
+      appLog('❌ 人気の公式ルート取得エラー: $e');
     }
     return [];
   }

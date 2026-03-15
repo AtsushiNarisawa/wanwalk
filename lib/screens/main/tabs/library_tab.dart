@@ -12,6 +12,8 @@ import '../../daily/daily_walk_detail_screen.dart';
 import '../../../providers/route_pin_provider.dart';
 import '../../history/outing_walk_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
+import '../../auth/auth_selection_screen.dart';
+import '../../../utils/logger.dart';
 
 /// LibraryTab - 愛犬との散歩の思い出アルバム
 /// 
@@ -51,17 +53,25 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
 
     if (userId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('ライブラリ')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Row(
             children: [
-              Icon(Icons.directions_walk, size: 64, color: Colors.grey[400]),
-              const SizedBox(height: 16),
-              Text('ログインして散歩記録を確認しましょう', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+              const Icon(Icons.collections, color: WanWalkColors.accent, size: 28),
+              const SizedBox(width: 8),
+              Text(
+                'ライブラリ',
+                style: WanWalkTypography.headlineMedium.copyWith(
+                  color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
+        body: _buildUnauthenticatedState(context, isDark),
       );
     }
 
@@ -151,7 +161,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
 
     // ローディング状態の確認
     if (outingAsync.isLoading || dailyAsync.isLoading) {
-      print('📊 月間統計: ローディング中...');
+      appLog('📊 月間統計: ローディング中...');
       return Container(
         height: 80,
         alignment: Alignment.center,
@@ -161,7 +171,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
 
     // エラー状態の確認
     if (outingAsync.hasError || dailyAsync.hasError) {
-      print('❌ 月間統計: エラー発生 - outing: ${outingAsync.hasError}, daily: ${dailyAsync.hasError}');
+      appLog('❌ 月間統計: エラー発生 - outing: ${outingAsync.hasError}, daily: ${dailyAsync.hasError}');
       return const SizedBox.shrink();
     }
 
@@ -192,8 +202,8 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
         : '${(thisMonthDistance / 1000).toStringAsFixed(1)}km';
 
     // デバッグログ
-    print('📊 月間統計: 今月の散歩回数=$monthlyWalkCount回, 総距離=$formattedDistance');
-    print('📊 お出かけ散歩=$thisMonthOuting回, 日常散歩=$thisMonthDaily回');
+    appLog('📊 月間統計: 今月の散歩回数=$monthlyWalkCount回, 総距離=$formattedDistance');
+    appLog('📊 お出かけ散歩=$thisMonthOuting回, 日常散歩=$thisMonthDaily回');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg, vertical: WanWalkSpacing.md),
@@ -595,6 +605,114 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 未ログイン状態の表示
+  Widget _buildUnauthenticatedState(BuildContext context, bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(WanWalkSpacing.lg),
+      child: Column(
+        children: [
+          const SizedBox(height: WanWalkSpacing.xl),
+          // イラスト風アイコン
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  WanWalkColors.accent.withOpacity(0.15),
+                  WanWalkColors.accentLight.withOpacity(0.1),
+                ],
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.collections_bookmark_outlined,
+              size: 56,
+              color: WanWalkColors.accent,
+            ),
+          ),
+          const SizedBox(height: WanWalkSpacing.lg),
+          Text(
+            '散歩の思い出を記録しよう',
+            style: WanWalkTypography.headlineSmall.copyWith(
+              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: WanWalkSpacing.sm),
+          Text(
+            'ログインすると、散歩の記録や写真を\nライブラリに保存できます',
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: WanWalkSpacing.xl),
+          // 機能紹介カード
+          _UnauthFeatureItem(
+            icon: Icons.route,
+            color: WanWalkColors.routeOrange,
+            title: '散歩ルートを記録',
+            description: '歩いたルートと距離を自動記録',
+            isDark: isDark,
+          ),
+          const SizedBox(height: WanWalkSpacing.sm),
+          _UnauthFeatureItem(
+            icon: Icons.photo_library_outlined,
+            color: WanWalkColors.accent,
+            title: '写真アルバム',
+            description: '散歩中の写真を自動でまとめる',
+            isDark: isDark,
+          ),
+          const SizedBox(height: WanWalkSpacing.sm),
+          _UnauthFeatureItem(
+            icon: Icons.add_location_alt_outlined,
+            color: WanWalkColors.secondary,
+            title: 'ピン投稿',
+            description: 'お気に入りスポットを共有',
+            isDark: isDark,
+          ),
+          const SizedBox(height: WanWalkSpacing.xl),
+          // ログインボタン
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AuthSelectionScreen()),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: WanWalkColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'ログイン / 新規登録',
+                style: WanWalkTypography.titleMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: WanWalkSpacing.md),
+          Text(
+            'ログインなしでもマップの閲覧はできます',
+            style: WanWalkTypography.caption.copyWith(
+              color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1163,6 +1281,72 @@ class _PinHistoryCard extends StatelessWidget {
             style: WanWalkTypography.caption.copyWith(
               color: badgeColor,
               fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 未ログイン状態の機能紹介アイテム
+class _UnauthFeatureItem extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String description;
+  final bool isDark;
+
+  const _UnauthFeatureItem({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.description,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(WanWalkSpacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? WanWalkColors.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(width: WanWalkSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: WanWalkTypography.bodyLarge.copyWith(
+                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: WanWalkTypography.bodySmall.copyWith(
+                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

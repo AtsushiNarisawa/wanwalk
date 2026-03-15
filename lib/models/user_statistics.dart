@@ -26,17 +26,33 @@ class UserStatistics {
 
   factory UserStatistics.fromMap(Map<String, dynamic> map) {
     return UserStatistics(
-      totalWalks: (map['total_walks'] as int?) ?? 0,
-      totalOutingWalks: (map['total_outing_walks'] as int?) ?? 0,
-      totalDistanceKm: ((map['total_distance_km'] as num?) ?? 0).toDouble(),
-      totalDurationHours: ((map['total_duration_hours'] as num?) ?? 0).toDouble(),
-      areasVisited: (map['areas_visited'] as int?) ?? 0,
-      routesCompleted: (map['routes_completed'] as int?) ?? 0,
-      pinsCreated: (map['pins_created'] as int?) ?? 0,
-      pinsLikedCount: (map['pins_liked_count'] as int?) ?? 0,
-      followersCount: (map['followers_count'] as int?) ?? 0,
-      followingCount: (map['following_count'] as int?) ?? 0,
+      totalWalks: _parseInt(map['total_walks']),
+      totalOutingWalks: _parseInt(map['total_outing_walks']),
+      totalDistanceKm: _parseDouble(map['total_distance_km']),
+      totalDurationHours: _parseDouble(map['total_duration_hours']),
+      areasVisited: _parseInt(map['areas_visited']),
+      routesCompleted: _parseInt(map['routes_completed']),
+      pinsCreated: _parseInt(map['pins_created']),
+      pinsLikedCount: _parseInt(map['pins_liked_count']),
+      followersCount: _parseInt(map['followers_count']),
+      followingCount: _parseInt(map['following_count']),
     );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
   }
 
   /// 空の統計

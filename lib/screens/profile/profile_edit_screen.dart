@@ -8,6 +8,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/logger.dart';
 
 /// プロフィール編集画面
 class ProfileEditScreen extends ConsumerStatefulWidget {
@@ -73,12 +74,12 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
   Future<void> _saveProfile() async {
     if (kDebugMode) {
-      print('📝 ProfileEdit: Save button pressed');
+      appLog('📝 ProfileEdit: Save button pressed');
     }
     
     if (!_formKey.currentState!.validate()) {
       if (kDebugMode) {
-        print('📝 ProfileEdit: Validation failed');
+        appLog('📝 ProfileEdit: Validation failed');
       }
       return;
     }
@@ -88,17 +89,17 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     try {
       final userId = ref.read(currentUserIdProvider);
       if (kDebugMode) {
-        print('📝 ProfileEdit: userId=$userId');
+        appLog('📝 ProfileEdit: userId=$userId');
       }
       if (userId == null) {
         if (kDebugMode) {
-          print('📝 ProfileEdit: userId is null, aborting');
+          appLog('📝 ProfileEdit: userId is null, aborting');
         }
         return;
       }
 
       if (kDebugMode) {
-        print('📝 ProfileEdit: Upserting profile data...');
+        appLog('📝 ProfileEdit: Upserting profile data...');
       }
       
       // プロフィールを作成または更新（UPSERT）
@@ -113,7 +114,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       });
 
       if (kDebugMode) {
-        print('📝 ProfileEdit: Profile saved successfully');
+        appLog('📝 ProfileEdit: Profile saved successfully');
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -123,7 +124,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('📝 ProfileEdit: Error saving profile: $e');
+        appLog('📝 ProfileEdit: Error saving profile: $e');
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -141,7 +142,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   Future<void> _changeAvatar() async {
     try {
       if (kDebugMode) {
-        print('📸 アバター変更開始...');
+        appLog('📸 アバター変更開始...');
       }
       
       // 画像ソースを選択
@@ -179,7 +180,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
       if (image == null) {
         if (kDebugMode) {
-          print('❌ 画像選択がキャンセルされました');
+          appLog('❌ 画像選択がキャンセルされました');
         }
         return;
       }
@@ -189,13 +190,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       final userId = ref.read(currentUserIdProvider);
       if (userId == null) {
         if (kDebugMode) {
-          print('❌ userId is null');
+          appLog('❌ userId is null');
         }
         return;
       }
 
       if (kDebugMode) {
-        print('📤 アバターをアップロード中...');
+        appLog('📤 アバターをアップロード中...');
       }
 
       // Supabase Storageにアップロード
@@ -212,7 +213,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           .getPublicUrl(filePath);
 
       if (kDebugMode) {
-        print('✅ アバターアップロード成功: $publicUrl');
+        appLog('✅ アバターアップロード成功: $publicUrl');
       }
 
       setState(() {
@@ -226,7 +227,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ アバター変更エラー: $e');
+        appLog('❌ アバター変更エラー: $e');
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

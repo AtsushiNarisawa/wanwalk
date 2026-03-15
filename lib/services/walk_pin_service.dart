@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/route_pin.dart';
+import '../utils/logger.dart';
 
 /// お出かけ散歩に紐づくピンを取得するサービス
 class WalkPinService {
@@ -20,7 +21,7 @@ class WalkPinService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔍 Fetching pins for walkId: $walkId, userId: $userId');
+        appLog('🔍 Fetching pins for walkId: $walkId, userId: $userId');
       }
 
       // route_pinsテーブルから walk_id と user_id で絞り込み
@@ -49,7 +50,7 @@ class WalkPinService {
           .order('created_at', ascending: true);
 
       if (kDebugMode) {
-        print('📦 Pins response: ${response.length} pins found');
+        appLog('📦 Pins response: ${response.length} pins found');
       }
 
       final pins = (response as List<dynamic>).map((pinData) {
@@ -83,13 +84,13 @@ class WalkPinService {
       }).toList();
 
       if (kDebugMode) {
-        print('✅ Successfully parsed ${pins.length} pins');
+        appLog('✅ Successfully parsed ${pins.length} pins');
       }
 
       return pins;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error fetching walk pins: $e');
+        appLog('❌ Error fetching walk pins: $e');
       }
       return [];
     }
@@ -111,12 +112,12 @@ class WalkPinService {
       
       // パースできない場合はデフォルト値（箱根）
       if (kDebugMode) {
-        print('⚠️ Failed to parse PostGIS point: $pointStr, using default location');
+        appLog('⚠️ Failed to parse PostGIS point: $pointStr, using default location');
       }
       return const LatLng(35.2034, 139.0315);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error parsing PostGIS point: $e');
+        appLog('❌ Error parsing PostGIS point: $e');
       }
       return const LatLng(35.2034, 139.0315);
     }

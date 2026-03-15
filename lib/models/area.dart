@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
+import '../utils/logger.dart';
 
 /// エリアマスタモデル
 /// 箱根、横浜、鎌倉などの観光・都市エリア
@@ -23,7 +24,7 @@ class Area {
   /// Supabaseから取得したJSONをAreaオブジェクトに変換
   factory Area.fromJson(Map<String, dynamic> json) {
     if (kDebugMode) {
-      print('🔵 Area.fromJson: $json');
+      appLog('🔵 Area.fromJson: $json');
     }
     
     // RPC関数から直接longitude/latitudeを取得
@@ -31,7 +32,7 @@ class Area {
     final longitude = (json['longitude'] as num?)?.toDouble() ?? 139.6503;
     
     if (kDebugMode) {
-      print('📍 Location: lat=$latitude, lon=$longitude');
+      appLog('📍 Location: lat=$latitude, lon=$longitude');
     }
     
     return Area(

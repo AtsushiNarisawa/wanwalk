@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
+import '../utils/logger.dart';
 
 /// ホーム画面の統計とおすすめルートを取得するサービス
 class HomeStatsService {
@@ -50,7 +51,7 @@ class HomeStatsService {
       }).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching recommended routes: $e');
+        appLog('Error fetching recommended routes: $e');
       }
       return [];
     }
@@ -97,7 +98,7 @@ class HomeStatsService {
       }).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching trending routes: $e');
+        appLog('Error fetching trending routes: $e');
       }
       return [];
     }
@@ -131,7 +132,7 @@ class HomeStatsService {
       return data.map((item) => RecentMemory.fromJson(item)).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching recent memories: $e');
+        appLog('Error fetching recent memories: $e');
       }
       return [];
     }
@@ -153,7 +154,7 @@ class HomeStatsService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching areas: $e');
+        appLog('Error fetching areas: $e');
       }
       return [];
     }
@@ -205,7 +206,7 @@ class HomeStatsService {
       }).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching routes by area: $e');
+        appLog('Error fetching routes by area: $e');
       }
       return [];
     }

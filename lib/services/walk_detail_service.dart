@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/route_pin.dart';
 import 'package:latlong2/latlong.dart';
+import '../utils/logger.dart';
 
 /// お出かけ散歩詳細を取得するサービス
 class WalkDetailService {
@@ -140,7 +141,7 @@ class WalkDetailService {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching walk detail: $e');
+        appLog('Error fetching walk detail: $e');
       }
       return null;
     }

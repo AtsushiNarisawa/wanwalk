@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/spot_review_model.dart';
+import '../utils/logger.dart';
 
 /// スポット評価・レビューサービス
 /// Supabaseとの連携を担当
@@ -11,7 +12,7 @@ class SpotReviewService {
   Future<List<SpotReviewModel>> getReviewsBySpotId(String spotId) async {
     try {
       if (kDebugMode) {
-        print('📝 レビュー取得開始: spotId=$spotId');
+        appLog('📝 レビュー取得開始: spotId=$spotId');
       }
 
       final response = await _supabase
@@ -21,7 +22,7 @@ class SpotReviewService {
           .order('created_at', ascending: false);
 
       if (kDebugMode) {
-        print('📝 レビュー取得成功: ${(response as List).length}件');
+        appLog('📝 レビュー取得成功: ${(response as List).length}件');
       }
 
       return (response as List)
@@ -29,7 +30,7 @@ class SpotReviewService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('❌ レビュー取得エラー: $e');
+        appLog('❌ レビュー取得エラー: $e');
       }
       rethrow;
     }
@@ -39,7 +40,7 @@ class SpotReviewService {
   Future<List<SpotReviewModel>> getReviewsByUserId(String userId) async {
     try {
       if (kDebugMode) {
-        print('📝 ユーザーレビュー取得開始: userId=$userId');
+        appLog('📝 ユーザーレビュー取得開始: userId=$userId');
       }
 
       final response = await _supabase
@@ -49,7 +50,7 @@ class SpotReviewService {
           .order('created_at', ascending: false);
 
       if (kDebugMode) {
-        print('📝 ユーザーレビュー取得成功: ${(response as List).length}件');
+        appLog('📝 ユーザーレビュー取得成功: ${(response as List).length}件');
       }
 
       return (response as List)
@@ -57,7 +58,7 @@ class SpotReviewService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('❌ ユーザーレビュー取得エラー: $e');
+        appLog('❌ ユーザーレビュー取得エラー: $e');
       }
       rethrow;
     }
@@ -70,7 +71,7 @@ class SpotReviewService {
   }) async {
     try {
       if (kDebugMode) {
-        print('📝 ユーザー個別レビュー取得: userId=$userId, spotId=$spotId');
+        appLog('📝 ユーザー個別レビュー取得: userId=$userId, spotId=$spotId');
       }
 
       final response = await _supabase
@@ -82,19 +83,19 @@ class SpotReviewService {
 
       if (response == null) {
         if (kDebugMode) {
-          print('📝 レビュー未投稿');
+          appLog('📝 レビュー未投稿');
         }
         return null;
       }
 
       if (kDebugMode) {
-        print('📝 ユーザー個別レビュー取得成功');
+        appLog('📝 ユーザー個別レビュー取得成功');
       }
 
       return SpotReviewModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ ユーザー個別レビュー取得エラー: $e');
+        appLog('❌ ユーザー個別レビュー取得エラー: $e');
       }
       rethrow;
     }
@@ -104,7 +105,7 @@ class SpotReviewService {
   Future<SpotReviewModel> createReview(SpotReviewModel review) async {
     try {
       if (kDebugMode) {
-        print('📝 レビュー作成開始: spotId=${review.spotId}, rating=${review.rating}');
+        appLog('📝 レビュー作成開始: spotId=${review.spotId}, rating=${review.rating}');
       }
 
       final response = await _supabase
@@ -114,13 +115,13 @@ class SpotReviewService {
           .single();
 
       if (kDebugMode) {
-        print('📝 レビュー作成成功: id=${response['id']}');
+        appLog('📝 レビュー作成成功: id=${response['id']}');
       }
 
       return SpotReviewModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ レビュー作成エラー: $e');
+        appLog('❌ レビュー作成エラー: $e');
       }
       rethrow;
     }
@@ -133,7 +134,7 @@ class SpotReviewService {
   }) async {
     try {
       if (kDebugMode) {
-        print('📝 レビュー更新開始: reviewId=$reviewId');
+        appLog('📝 レビュー更新開始: reviewId=$reviewId');
       }
 
       // updated_atは自動更新されるため、明示的に設定不要
@@ -145,13 +146,13 @@ class SpotReviewService {
           .single();
 
       if (kDebugMode) {
-        print('📝 レビュー更新成功');
+        appLog('📝 レビュー更新成功');
       }
 
       return SpotReviewModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ レビュー更新エラー: $e');
+        appLog('❌ レビュー更新エラー: $e');
       }
       rethrow;
     }
@@ -161,7 +162,7 @@ class SpotReviewService {
   Future<void> deleteReview(String reviewId) async {
     try {
       if (kDebugMode) {
-        print('📝 レビュー削除開始: reviewId=$reviewId');
+        appLog('📝 レビュー削除開始: reviewId=$reviewId');
       }
 
       await _supabase
@@ -170,11 +171,11 @@ class SpotReviewService {
           .eq('id', reviewId);
 
       if (kDebugMode) {
-        print('📝 レビュー削除成功');
+        appLog('📝 レビュー削除成功');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ レビュー削除エラー: $e');
+        appLog('❌ レビュー削除エラー: $e');
       }
       rethrow;
     }
@@ -184,7 +185,7 @@ class SpotReviewService {
   Future<double?> getAverageRating(String spotId) async {
     try {
       if (kDebugMode) {
-        print('📊 平均評価取得開始: spotId=$spotId');
+        appLog('📊 平均評価取得開始: spotId=$spotId');
       }
 
       final response = await _supabase
@@ -194,7 +195,7 @@ class SpotReviewService {
 
       if ((response as List).isEmpty) {
         if (kDebugMode) {
-          print('📊 レビューなし（平均評価なし）');
+          appLog('📊 レビューなし（平均評価なし）');
         }
         return null;
       }
@@ -206,13 +207,13 @@ class SpotReviewService {
       final average = ratings.reduce((a, b) => a + b) / ratings.length;
 
       if (kDebugMode) {
-        print('📊 平均評価: ${average.toStringAsFixed(1)} (${ratings.length}件)');
+        appLog('📊 平均評価: ${average.toStringAsFixed(1)} (${ratings.length}件)');
       }
 
       return average;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 平均評価取得エラー: $e');
+        appLog('❌ 平均評価取得エラー: $e');
       }
       rethrow;
     }
@@ -222,7 +223,7 @@ class SpotReviewService {
   Future<int> getReviewCount(String spotId) async {
     try {
       if (kDebugMode) {
-        print('📊 レビュー数取得開始: spotId=$spotId');
+        appLog('📊 レビュー数取得開始: spotId=$spotId');
       }
 
       final response = await _supabase
@@ -234,13 +235,13 @@ class SpotReviewService {
       final count = response.count;
 
       if (kDebugMode) {
-        print('📊 レビュー数: $count件');
+        appLog('📊 レビュー数: $count件');
       }
 
       return count;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ レビュー数取得エラー: $e');
+        appLog('❌ レビュー数取得エラー: $e');
       }
       rethrow;
     }
@@ -253,7 +254,7 @@ class SpotReviewService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🌟 高評価スポット取得開始: limit=$limit, minRating=$minRating');
+        appLog('🌟 高評価スポット取得開始: limit=$limit, minRating=$minRating');
       }
 
       // spot_idごとにグループ化して平均評価を計算
@@ -264,7 +265,7 @@ class SpotReviewService {
 
       if ((response as List).isEmpty) {
         if (kDebugMode) {
-          print('🌟 レビューデータなし');
+          appLog('🌟 レビューデータなし');
         }
         return [];
       }
@@ -297,13 +298,13 @@ class SpotReviewService {
           .toList();
 
       if (kDebugMode) {
-        print('🌟 高評価スポット取得成功: ${topSpots.length}件');
+        appLog('🌟 高評価スポット取得成功: ${topSpots.length}件');
       }
 
       return topSpots;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 高評価スポット取得エラー: $e');
+        appLog('❌ 高評価スポット取得エラー: $e');
       }
       rethrow;
     }
@@ -320,7 +321,7 @@ class SpotReviewService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔍 設備フィルタリング開始');
+        appLog('🔍 設備フィルタリング開始');
       }
 
       var query = _supabase.from('spot_reviews').select();
@@ -347,7 +348,7 @@ class SpotReviewService {
       final response = await query.order('created_at');
 
       if (kDebugMode) {
-        print('🔍 フィルタリング結果: ${(response as List).length}件');
+        appLog('🔍 フィルタリング結果: ${(response as List).length}件');
       }
 
       return (response as List)
@@ -355,7 +356,7 @@ class SpotReviewService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('❌ フィルタリングエラー: $e');
+        appLog('❌ フィルタリングエラー: $e');
       }
       rethrow;
     }

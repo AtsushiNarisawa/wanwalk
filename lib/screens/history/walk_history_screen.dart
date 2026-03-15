@@ -76,14 +76,35 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
 
     if (userId == null) {
       return Scaffold(
-        body: Center(
-          child: Text(
-            'ログインが必要です',
-            style: WanWalkTypography.bodyLarge.copyWith(
-              color: isDark
-                  ? WanWalkColors.textSecondaryDark
-                  : WanWalkColors.textSecondaryLight,
+        backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            '散歩履歴',
+            style: WanWalkTypography.headlineSmall.copyWith(
+              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+              fontWeight: FontWeight.bold,
             ),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.history,
+                size: 64,
+                color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+              ),
+              const SizedBox(height: WanWalkSpacing.lg),
+              Text(
+                'ログインすると散歩履歴を確認できます',
+                style: WanWalkTypography.bodyLarge.copyWith(
+                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -355,12 +376,12 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
               final item = histories[index];
 
               if (item.type == WalkHistoryType.outing) {
-                // お出かけ散歩
+                // お出かけ散歩（nullフィールドは安全なデフォルト値を使用）
                 final outing = OutingWalkHistory(
                   walkId: item.walkId,
-                  routeId: item.routeId!,
-                  routeName: item.routeName!,
-                  areaName: item.areaName!,
+                  routeId: item.routeId ?? '',
+                  routeName: item.routeName ?? '不明なルート',
+                  areaName: item.areaName ?? '不明なエリア',
                   walkedAt: item.walkedAt,
                   distanceMeters: item.distanceMeters,
                   durationSeconds: item.durationSeconds,

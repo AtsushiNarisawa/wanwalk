@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
+import '../utils/logger.dart';
 
 /// ペット情報（愛犬家向け情報）
 class PetInfo {
@@ -25,16 +26,30 @@ class PetInfo {
   });
 
   /// JSONからPetInfoを生成
+  /// 旧形式（文字列）と新形式（真偽値）の両方に対応
   factory PetInfo.fromJson(Map<String, dynamic> json) {
+    // 文字列または真偽値を文字列に変換（旧形式・新形式の両方対応）
+    String? parseField(String key) {
+      final value = json[key];
+      if (value == null) return null;
+      if (value is String) return value.isEmpty ? null : value;
+      if (value is bool) return value ? 'あり' : null;
+      return null;
+    }
+
     return PetInfo(
-      parking: json['parking'] as String?,
-      surface: json['surface'] as String?,
-      stairs: json['stairs'] as String?,
-      slope: json['slope'] as String?,
-      restroom: json['restroom'] as String?,
-      waterStation: json['water_station'] as String?,
-      petFacilities: json['pet_facilities'] as String?,
-      others: json['others'] as String?,
+      parking: parseField('parking'),
+      surface: parseField('surface'),
+      stairs: parseField('stairs'),
+      slope: parseField('slope'),
+      // 旧: restroom / 新: rest_areas (bool)
+      restroom: parseField('restroom') ?? (json['rest_areas'] == true ? 'あり' : null),
+      // 旧: water_station (str) / 新: water_available (bool)
+      waterStation: parseField('water_station') ?? (json['water_available'] == true ? 'あり' : null),
+      // 旧: pet_facilities (str) / 新: pet_friendly_cafes (bool)
+      petFacilities: parseField('pet_facilities') ?? (json['pet_friendly_cafes'] == true ? 'あり' : null),
+      // 旧: others / 新: notes
+      others: parseField('others') ?? parseField('notes'),
     );
   }
 
@@ -209,7 +224,7 @@ class OfficialRoute {
             (coords[0] as num).toDouble(), // 経度
           );
         } catch (e) {
-          print('❌ Failed to parse GeoJSON string: $e');
+          appLog('❌ Failed to parse GeoJSON string: $e');
         }
       }
       
@@ -305,7 +320,7 @@ class OfficialRoute {
             );
           }).toList();
         } catch (e) {
-          print('❌ Failed to parse GeoJSON LineString: $e');
+          appLog('❌ Failed to parse GeoJSON LineString: $e');
           return null;
         }
       }
@@ -342,7 +357,7 @@ class OfficialRoute {
       for (int i = 0; i < numPoints; i++) {
         final offset = 26 + (i * 32);
         if (offset + 32 > wkbHex.length) {
-          print('❌ WKB LineString: データ不足（offset=$offset, length=${wkbHex.length}）');
+          appLog('❌ WKB LineString: データ不足（offset=$offset, length=${wkbHex.length}）');
           break;
         }
         
@@ -356,7 +371,7 @@ class OfficialRoute {
       
       return points;
     } catch (e) {
-      print('❌ Failed to parse WKB LineString: $e');
+      appLog('❌ Failed to parse WKB LineString: $e');
       return [];
     }
   }

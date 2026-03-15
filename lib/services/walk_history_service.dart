@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/walk_history.dart';
+import '../utils/logger.dart';
 
 /// 散歩履歴を取得するサービス
 /// お出かけ散歩と日常散歩の両方に対応
@@ -22,7 +23,7 @@ class WalkHistoryService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔍 Fetching outing walk history for user: $userId');
+        appLog('🔍 Fetching outing walk history for user: $userId');
       }
       
       final response = await _supabase.rpc(
@@ -35,19 +36,19 @@ class WalkHistoryService {
       );
 
       if (kDebugMode) {
-        print('📦 RPC response: $response');
+        appLog('📦 RPC response: $response');
       }
 
       if (response == null) return [];
 
       final List<dynamic> data = response as List<dynamic>;
       if (kDebugMode) {
-        print('✅ Found ${data.length} outing walks');
+        appLog('✅ Found ${data.length} outing walks');
       }
       return data.map((item) => OutingWalkHistory.fromJson(item)).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error fetching outing walk history: $e');
+        appLog('❌ Error fetching outing walk history: $e');
       }
       return [];
     }
@@ -82,7 +83,7 @@ class WalkHistoryService {
       return data.map((item) => DailyWalkHistory.fromJson(item)).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching daily walk history: $e');
+        appLog('Error fetching daily walk history: $e');
       }
       return [];
     }
@@ -113,7 +114,7 @@ class WalkHistoryService {
       return allWalks.take(limit).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching all walk history: $e');
+        appLog('Error fetching all walk history: $e');
       }
       return [];
     }
@@ -148,7 +149,7 @@ class WalkHistoryService {
       return walkCount.count;
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching monthly walk count: $e');
+        appLog('Error fetching monthly walk count: $e');
       }
       return 0;
     }
@@ -182,7 +183,7 @@ class WalkHistoryService {
       return areaIds.toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching visited areas: $e');
+        appLog('Error fetching visited areas: $e');
       }
       return [];
     }

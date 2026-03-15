@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/spot_review_model.dart';
 import '../services/spot_review_service.dart';
+import '../utils/logger.dart';
 
 /// スポット評価・レビューの状態クラス
 class SpotReviewState {
@@ -54,7 +55,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
   /// スポットIDでレビュー一覧を読み込み
   Future<void> loadReviewsBySpotId(String spotId, {String? userId}) async {
     if (kDebugMode) {
-      print('📝 Loading reviews for spot: $spotId');
+      appLog('📝 Loading reviews for spot: $spotId');
     }
     state = state.copyWith(isLoading: true, errorMessage: null, clearError: true);
 
@@ -76,7 +77,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       }
 
       if (kDebugMode) {
-        print('📝 Reviews loaded: ${reviews.length} reviews, avg: $averageRating');
+        appLog('📝 Reviews loaded: ${reviews.length} reviews, avg: $averageRating');
       }
 
       state = state.copyWith(
@@ -88,7 +89,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error loading reviews: $e');
+        appLog('❌ Error loading reviews: $e');
       }
       state = state.copyWith(
         errorMessage: 'レビューの取得に失敗しました: ${e.toString()}',
@@ -100,14 +101,14 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
   /// ユーザーIDでレビュー一覧を読み込み（マイレビュー用）
   Future<void> loadReviewsByUserId(String userId) async {
     if (kDebugMode) {
-      print('📝 Loading reviews by user: $userId');
+      appLog('📝 Loading reviews by user: $userId');
     }
     state = state.copyWith(isLoading: true, errorMessage: null, clearError: true);
 
     try {
       final reviews = await _reviewService.getReviewsByUserId(userId);
       if (kDebugMode) {
-        print('📝 User reviews loaded: ${reviews.length} reviews');
+        appLog('📝 User reviews loaded: ${reviews.length} reviews');
       }
       state = state.copyWith(
         reviews: reviews,
@@ -116,7 +117,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error loading user reviews: $e');
+        appLog('❌ Error loading user reviews: $e');
       }
       state = state.copyWith(
         errorMessage: 'マイレビューの取得に失敗しました: ${e.toString()}',
@@ -128,7 +129,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
   /// レビューを作成
   Future<SpotReviewModel?> createReview(SpotReviewModel review) async {
     if (kDebugMode) {
-      print('📝 Creating review for spot: ${review.spotId}, rating: ${review.rating}');
+      appLog('📝 Creating review for spot: ${review.spotId}, rating: ${review.rating}');
     }
     state = state.copyWith(isLoading: true, errorMessage: null, clearError: true);
 
@@ -143,7 +144,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       final reviewCount = await _reviewService.getReviewCount(review.spotId);
 
       if (kDebugMode) {
-        print('📝 Review created successfully: id=${newReview.id}');
+        appLog('📝 Review created successfully: id=${newReview.id}');
       }
 
       state = state.copyWith(
@@ -157,7 +158,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       return newReview;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error creating review: $e');
+        appLog('❌ Error creating review: $e');
       }
       state = state.copyWith(
         errorMessage: 'レビューの投稿に失敗しました: ${e.toString()}',
@@ -174,7 +175,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
     required Map<String, dynamic> updates,
   }) async {
     if (kDebugMode) {
-      print('📝 Updating review: $reviewId');
+      appLog('📝 Updating review: $reviewId');
     }
     state = state.copyWith(isLoading: true, errorMessage: null, clearError: true);
 
@@ -198,7 +199,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       final averageRating = await _reviewService.getAverageRating(spotId);
 
       if (kDebugMode) {
-        print('📝 Review updated successfully');
+        appLog('📝 Review updated successfully');
       }
 
       state = state.copyWith(
@@ -211,7 +212,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       return updatedReview;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error updating review: $e');
+        appLog('❌ Error updating review: $e');
       }
       state = state.copyWith(
         errorMessage: 'レビューの更新に失敗しました: ${e.toString()}',
@@ -227,7 +228,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
     required String spotId,
   }) async {
     if (kDebugMode) {
-      print('📝 Deleting review: $reviewId');
+      appLog('📝 Deleting review: $reviewId');
     }
     state = state.copyWith(isLoading: true, errorMessage: null, clearError: true);
 
@@ -247,7 +248,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       final reviewCount = await _reviewService.getReviewCount(spotId);
 
       if (kDebugMode) {
-        print('📝 Review deleted successfully');
+        appLog('📝 Review deleted successfully');
       }
 
       state = state.copyWith(
@@ -261,7 +262,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error deleting review: $e');
+        appLog('❌ Error deleting review: $e');
       }
       state = state.copyWith(
         errorMessage: 'レビューの削除に失敗しました: ${e.toString()}',
@@ -281,7 +282,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
     String? dogSizeSuitable,
   }) async {
     if (kDebugMode) {
-      print('🔍 Filtering reviews by facilities');
+      appLog('🔍 Filtering reviews by facilities');
     }
     state = state.copyWith(isLoading: true, errorMessage: null, clearError: true);
 
@@ -296,7 +297,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       );
 
       if (kDebugMode) {
-        print('🔍 Filtered reviews: ${reviews.length}');
+        appLog('🔍 Filtered reviews: ${reviews.length}');
       }
 
       state = state.copyWith(
@@ -306,7 +307,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error filtering reviews: $e');
+        appLog('❌ Error filtering reviews: $e');
       }
       state = state.copyWith(
         errorMessage: 'レビューのフィルタリングに失敗しました: ${e.toString()}',
@@ -318,7 +319,7 @@ class SpotReviewNotifier extends StateNotifier<SpotReviewState> {
   /// 状態をリセット
   void reset() {
     if (kDebugMode) {
-      print('📝 Resetting SpotReviewState');
+      appLog('📝 Resetting SpotReviewState');
     }
     state = SpotReviewState();
   }

@@ -6,6 +6,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../providers/area_provider.dart';
 import 'route_list_screen.dart';
+import '../../utils/logger.dart';
 
 /// 箱根サブエリア選択画面
 class HakoneSubAreaScreen extends ConsumerWidget {
@@ -49,8 +50,8 @@ class HakoneSubAreaScreen extends ConsumerWidget {
                   height: 140,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    print('❌ Banner image error: $error');
-                    print('❌ Stack trace: $stackTrace');
+                    appLog('❌ Banner image error: $error');
+                    appLog('❌ Stack trace: $stackTrace');
                     return Container(
                       height: 180,
                       decoration: BoxDecoration(

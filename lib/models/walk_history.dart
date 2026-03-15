@@ -26,22 +26,41 @@ class OutingWalkHistory {
 
   factory OutingWalkHistory.fromJson(Map<String, dynamic> json) {
     return OutingWalkHistory(
-      walkId: (json['walk_id'] as String?) ?? '',
-      routeId: (json['route_id'] as String?) ?? '',
-      routeName: (json['route_title'] as String?) ?? (json['route_name'] as String?) ?? '不明なルート',
-      areaName: (json['route_area'] as String?) ?? (json['area_name'] as String?) ?? '不明なエリア',
+      walkId: json['walk_id']?.toString() ?? '',
+      routeId: json['route_id']?.toString() ?? '',
+      routeName: (json['route_title'] ?? json['route_name'])?.toString() ?? '不明なルート',
+      areaName: (json['route_area'] ?? json['area_name'])?.toString() ?? '不明なエリア',
       walkedAt: json['walked_at'] != null
-          ? DateTime.parse(json['walked_at'] as String)
+          ? DateTime.parse(json['walked_at'].toString())
           : DateTime.now(),
-      distanceMeters: (json['distance_meters'] as num?)?.toDouble() ?? 0.0,
-      durationSeconds: (json['duration_seconds'] as int?) ?? 0,
-      photoCount: (json['photo_count'] as int?) ?? 0,
-      pinCount: (json['pin_count'] as int?) ?? 0,
-      photoUrls: (json['photo_urls'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
+      distanceMeters: _parseDouble(json['distance_meters']),
+      durationSeconds: _parseInt(json['duration_seconds']),
+      photoCount: _parseInt(json['photo_count']),
+      pinCount: _parseInt(json['pin_count']),
+      photoUrls: _parseStringList(json['photo_urls']),
     );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  static List<String> _parseStringList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) return value.whereType<String>().toList();
+    return [];
   }
 
   /// 距離のフォーマット済み文字列
@@ -88,13 +107,29 @@ class DailyWalkHistory {
 
   factory DailyWalkHistory.fromJson(Map<String, dynamic> json) {
     return DailyWalkHistory(
-      walkId: (json['walk_id'] as String?) ?? '',
+      walkId: json['walk_id']?.toString() ?? '',
       walkedAt: json['walked_at'] != null
-          ? DateTime.parse(json['walked_at'] as String)
+          ? DateTime.parse(json['walked_at'].toString())
           : DateTime.now(),
-      distanceMeters: (json['distance_meters'] as num?)?.toDouble() ?? 0.0,
-      durationSeconds: json['duration_seconds'] as int? ?? 0,
+      distanceMeters: _parseDouble(json['distance_meters']),
+      durationSeconds: _parseInt(json['duration_seconds']),
     );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
   }
 
   /// 距離のフォーマット済み文字列

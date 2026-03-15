@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
+import '../utils/logger.dart';
 
 /// Supabase Storage 写真アップロードサービス
 class StorageService {
@@ -27,7 +28,7 @@ class StorageService {
       
       if (!await file.exists()) {
         if (kDebugMode) {
-          print('❌ ファイルが存在しません: $filePath');
+          appLog('❌ ファイルが存在しません: $filePath');
         }
         return null;
       }
@@ -40,7 +41,7 @@ class StorageService {
       final fileName = '$userId/${pinId}_$timestamp$extension';
 
       if (kDebugMode) {
-        print('🔵 写真アップロード開始: $fileName');
+        appLog('🔵 写真アップロード開始: $fileName');
       }
 
       // ファイルをバイト配列として読み込み
@@ -59,7 +60,7 @@ class StorageService {
           );
 
       if (kDebugMode) {
-        print('✅ アップロード成功: $uploadPath');
+        appLog('✅ アップロード成功: $uploadPath');
       }
 
       // 公開URLを取得
@@ -68,13 +69,13 @@ class StorageService {
           .getPublicUrl(fileName);
 
       if (kDebugMode) {
-        print('✅ 公開URL取得: $publicUrl');
+        appLog('✅ 公開URL取得: $publicUrl');
       }
 
       return publicUrl;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 写真アップロードエラー: $e');
+        appLog('❌ 写真アップロードエラー: $e');
       }
       return null;
     }
@@ -107,7 +108,7 @@ class StorageService {
     }
 
     if (kDebugMode) {
-      print('✅ 複数写真アップロード完了: ${uploadedUrls.length}/${filePaths.length}枚');
+      appLog('✅ 複数写真アップロード完了: ${uploadedUrls.length}/${filePaths.length}枚');
     }
     return uploadedUrls;
   }
@@ -145,7 +146,7 @@ class StorageService {
       // 最後のセグメントがファイル名
       if (pathSegments.length < 2) {
         if (kDebugMode) {
-          print('❌ 無効なURL: $photoUrl');
+          appLog('❌ 無効なURL: $photoUrl');
         }
         return false;
       }
@@ -154,7 +155,7 @@ class StorageService {
       final bucketIndex = pathSegments.indexOf(pinPhotosBucket);
       if (bucketIndex == -1) {
         if (kDebugMode) {
-          print('❌ バケット名が見つかりません: $photoUrl');
+          appLog('❌ バケット名が見つかりません: $photoUrl');
         }
         return false;
       }
@@ -162,7 +163,7 @@ class StorageService {
       final filePath = pathSegments.sublist(bucketIndex + 1).join('/');
 
       if (kDebugMode) {
-        print('🔵 写真削除開始: $filePath');
+        appLog('🔵 写真削除開始: $filePath');
       }
 
       // Supabase Storageから削除
@@ -171,12 +172,12 @@ class StorageService {
           .remove([filePath]);
 
       if (kDebugMode) {
-        print('✅ 写真削除成功: $filePath');
+        appLog('✅ 写真削除成功: $filePath');
       }
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 写真削除エラー: $e');
+        appLog('❌ 写真削除エラー: $e');
       }
       return false;
     }

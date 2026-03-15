@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_pin.dart';
 import '../services/storage_service.dart';
+import '../utils/logger.dart';
 
 /// Supabaseクライアントのインスタンス取得
 final _supabase = Supabase.instance.client;
@@ -39,7 +40,7 @@ final pinsByRouteProvider = FutureProvider.family<List<RoutePin>, String>(
           pins.add(RoutePin.fromJson(json));
         } catch (e) {
           if (kDebugMode) {
-            print('Failed to parse pin: $e');
+            appLog('Failed to parse pin: $e');
           }
         }
       }
@@ -62,7 +63,7 @@ final pinsByRouteProvider = FutureProvider.family<List<RoutePin>, String>(
           pins[index] = pin.copyWith(photoUrls: photoUrls);
         } catch (e) {
           if (kDebugMode) {
-            print('Failed to fetch photos for pin ${pin.id}: $e');
+            appLog('Failed to fetch photos for pin ${pin.id}: $e');
           }
         }
       }
@@ -87,7 +88,7 @@ final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
 
       if (response == null) {
         if (kDebugMode) {
-          print('❌ Pin not found: $pinId');
+          appLog('❌ Pin not found: $pinId');
         }
         return null;
       }
@@ -106,12 +107,12 @@ final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
           response['pin_lon'] = locationData['longitude'];
         } else {
           if (kDebugMode) {
-            print('⚠️ Location not found for pin $pinId');
+            appLog('⚠️ Location not found for pin $pinId');
           }
         }
       } catch (e) {
         if (kDebugMode) {
-          print('❌ Failed to fetch location for pin $pinId: $e');
+          appLog('❌ Failed to fetch location for pin $pinId: $e');
         }
       }
 
@@ -130,19 +131,19 @@ final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
             .toList();
 
         if (kDebugMode) {
-          print('✅ Pin loaded successfully: ${pin.title} (${photoUrls.length} photos)');
+          appLog('✅ Pin loaded successfully: ${pin.title} (${photoUrls.length} photos)');
         }
 
         return pin.copyWith(photoUrls: photoUrls);
       } catch (e) {
         if (kDebugMode) {
-          print('⚠️ Failed to fetch photos for pin $pinId: $e');
+          appLog('⚠️ Failed to fetch photos for pin $pinId: $e');
         }
         return pin;
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Failed to fetch pin $pinId: $e');
+        appLog('❌ Failed to fetch pin $pinId: $e');
       }
       throw Exception('Failed to fetch pin: $e');
     }
@@ -168,7 +169,7 @@ class CreatePinUseCase {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔵 ピン作成開始: routeId=$routeId, userId=$userId');
+        appLog('🔵 ピン作成開始: routeId=$routeId, userId=$userId');
       }
       
       // 1. ピンレコードを作成
@@ -198,7 +199,7 @@ class CreatePinUseCase {
       }
 
       if (kDebugMode) {
-        print('✅ ピンレコード作成成功: ${pinResponse['id']}');
+        appLog('✅ ピンレコード作成成功: ${pinResponse['id']}');
       }
 
       final pin = RoutePin.fromJson(pinResponse);
@@ -206,7 +207,7 @@ class CreatePinUseCase {
       // 2. 写真があればアップロード
       if (photoFilePaths != null && photoFilePaths.isNotEmpty) {
         if (kDebugMode) {
-          print('🔵 写真アップロード開始: ${photoFilePaths.length}枚');
+          appLog('🔵 写真アップロード開始: ${photoFilePaths.length}枚');
         }
         
         final photoUrls = await _storageService.uploadMultiplePinPhotos(
@@ -216,7 +217,7 @@ class CreatePinUseCase {
         );
 
         if (kDebugMode) {
-          print('✅ 写真アップロード完了: ${photoUrls.length}枚');
+          appLog('✅ 写真アップロード完了: ${photoUrls.length}枚');
         }
 
         // 3. route_pin_photosテーブルに登録
@@ -228,11 +229,11 @@ class CreatePinUseCase {
               'display_order': i + 1,
             });
             if (kDebugMode) {
-              print('✅ 写真レコード登録成功: ${i + 1}枚目');
+              appLog('✅ 写真レコード登録成功: ${i + 1}枚目');
             }
           } catch (e) {
             if (kDebugMode) {
-              print('❌ 写真レコード登録失敗: $e');
+              appLog('❌ 写真レコード登録失敗: $e');
             }
           }
         }
@@ -241,12 +242,12 @@ class CreatePinUseCase {
       }
 
       if (kDebugMode) {
-        print('✅ ピン作成完了（写真なし）');
+        appLog('✅ ピン作成完了（写真なし）');
       }
       return pin;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ ピン作成エラー: $e');
+        appLog('❌ ピン作成エラー: $e');
       }
       throw Exception('Failed to create pin: $e');
     }
@@ -331,7 +332,7 @@ final userPinsProvider = FutureProvider.family<List<RoutePin>, String>(
           pins.add(RoutePin.fromJson(json));
         } catch (e) {
           if (kDebugMode) {
-            print('Failed to parse pin: $e');
+            appLog('Failed to parse pin: $e');
           }
         }
       }
@@ -354,7 +355,7 @@ final userPinsProvider = FutureProvider.family<List<RoutePin>, String>(
           pins[index] = pin.copyWith(photoUrls: photoUrls);
         } catch (e) {
           if (kDebugMode) {
-            print('Failed to fetch photos for pin ${pin.id}: $e');
+            appLog('Failed to fetch photos for pin ${pin.id}: $e');
           }
         }
       }
@@ -398,7 +399,7 @@ final allPinsProvider = FutureProvider<List<RoutePin>>(
           pins.add(RoutePin.fromJson(json));
         } catch (e) {
           if (kDebugMode) {
-            print('Failed to parse pin: $e');
+            appLog('Failed to parse pin: $e');
           }
         }
       }
@@ -421,19 +422,19 @@ final allPinsProvider = FutureProvider<List<RoutePin>>(
           pins[index] = pin.copyWith(photoUrls: photoUrls);
         } catch (e) {
           if (kDebugMode) {
-            print('Failed to fetch photos for pin ${pin.id}: $e');
+            appLog('Failed to fetch photos for pin ${pin.id}: $e');
           }
         }
       }
 
       if (kDebugMode) {
-        print('✅ 地図表示用ピン取得完了: ${pins.length}件');
+        appLog('✅ 地図表示用ピン取得完了: ${pins.length}件');
       }
 
       return pins;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 地図表示用ピン取得失敗: $e');
+        appLog('❌ 地図表示用ピン取得失敗: $e');
       }
       throw Exception('Failed to fetch all pins: $e');
     }

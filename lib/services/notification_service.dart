@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_statistics.dart';
+import '../utils/logger.dart';
 
 /// 通知サービス
 class NotificationService {
@@ -32,7 +33,7 @@ class NotificationService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting notifications: $e');
+        appLog('Error getting notifications: $e');
       }
       return [];
     }
@@ -50,7 +51,7 @@ class NotificationService {
       return (response as List).length;
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting unread count: $e');
+        appLog('Error getting unread count: $e');
       }
       return 0;
     }
@@ -69,7 +70,7 @@ class NotificationService {
           .eq('user_id', userId);
     } catch (e) {
       if (kDebugMode) {
-        print('Error marking notification as read: $e');
+        appLog('Error marking notification as read: $e');
       }
       rethrow;
     }
@@ -85,7 +86,7 @@ class NotificationService {
           .eq('is_read', false);
     } catch (e) {
       if (kDebugMode) {
-        print('Error marking all notifications as read: $e');
+        appLog('Error marking all notifications as read: $e');
       }
       rethrow;
     }
@@ -104,7 +105,7 @@ class NotificationService {
           .eq('user_id', userId);
     } catch (e) {
       if (kDebugMode) {
-        print('Error deleting notification: $e');
+        appLog('Error deleting notification: $e');
       }
       rethrow;
     }
@@ -120,7 +121,7 @@ class NotificationService {
           .eq('is_read', true);
     } catch (e) {
       if (kDebugMode) {
-        print('Error deleting all read notifications: $e');
+        appLog('Error deleting all read notifications: $e');
       }
       rethrow;
     }
@@ -151,7 +152,7 @@ class NotificationService {
               onNotification(notification);
             } catch (e) {
               if (kDebugMode) {
-                print('Error processing notification: $e');
+                appLog('Error processing notification: $e');
               }
             }
           },

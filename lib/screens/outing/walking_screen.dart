@@ -19,6 +19,7 @@ import '../../widgets/zoom_control_widget.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'pin_create_screen.dart';
+import '../../utils/logger.dart';
 
 /// 散歩中画面（公式ルートを歩いている時）
 /// - リアルタイムGPS追跡
@@ -49,16 +50,16 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     super.initState();
     
     // デバッグ：ルートライン情報を出力
-    print('🚶 WalkingScreen initialized for route: ${widget.route.id}');
-    print('🛣️ route.routeLine: ${widget.route.routeLine?.length ?? 0} points');
+    appLog('🚶 WalkingScreen initialized for route: ${widget.route.id}');
+    appLog('🛣️ route.routeLine: ${widget.route.routeLine?.length ?? 0} points');
     if (widget.route.routeLine != null && widget.route.routeLine!.isNotEmpty) {
-      print('🛣️ First 3 points:');
+      appLog('🛣️ First 3 points:');
       for (var i = 0; i < widget.route.routeLine!.length && i < 3; i++) {
         final point = widget.route.routeLine![i];
-        print('  Point $i: lat=${point.latitude}, lon=${point.longitude}');
+        appLog('  Point $i: lat=${point.latitude}, lon=${point.longitude}');
       }
     } else {
-      print('⚠️ route.routeLine is null or empty!');
+      appLog('⚠️ route.routeLine is null or empty!');
     }
     
     // 自動的に記録開始しない（スタートボタンを待つ）
@@ -138,12 +139,21 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     final userId = Supabase.instance.client.auth.currentUser?.id;
 
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ユーザー情報が取得できませんでした'),
-          backgroundColor: Colors.red,
-        ),
+      // GPS記録を停止してから画面を閉じる
+      gpsNotifier.stopRecording(
+        userId: 'anonymous',
+        title: '${widget.route.name}を歩きました',
+        description: 'おでかけ散歩',
       );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('ログインしていないため記録を保存できません'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        Navigator.of(context).pop();
+      }
       return;
     }
 
@@ -178,13 +188,13 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         }
 
         if (kDebugMode) {
-          print('✅ 散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
+          appLog('✅ 散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
         }
 
         // 2. 写真をアップロード
         if (_photoFiles.isNotEmpty) {
           if (kDebugMode) {
-            print('📸 写真アップロード開始: ${_photoFiles.length}枚');
+            appLog('📸 写真アップロード開始: ${_photoFiles.length}枚');
           }
           for (int i = 0; i < _photoFiles.length; i++) {
             final file = _photoFiles[i];
@@ -196,11 +206,11 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
             );
             if (photoUrl != null) {
               if (kDebugMode) {
-                print('✅ 写真${i + 1}/${_photoFiles.length}アップロード成功');
+                appLog('✅ 写真${i + 1}/${_photoFiles.length}アップロード成功');
               }
             } else {
               if (kDebugMode) {
-                print('❌ 写真${i + 1}/${_photoFiles.length}アップロード失敗');
+                appLog('❌ 写真${i + 1}/${_photoFiles.length}アップロード失敗');
               }
             }
           }
@@ -239,20 +249,20 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   Future<void> _takePhoto() async {
     try {
       if (kDebugMode) {
-        print('📷 写真撮影開始...');
+        appLog('📷 写真撮影開始...');
       }
       
       final file = await _photoService.takePhoto();
       
       if (file == null) {
         if (kDebugMode) {
-          print('❌ 写真選択がキャンセルされました');
+          appLog('❌ 写真選択がキャンセルされました');
         }
         return;
       }
 
       if (kDebugMode) {
-        print('✅ 写真選択成功: ${file.path}');
+        appLog('✅ 写真選択成功: ${file.path}');
       }
 
       setState(() {
@@ -269,7 +279,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 写真撮影エラー: $e');
+        appLog('❌ 写真撮影エラー: $e');
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -349,21 +359,21 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       final centerLat = (minLat + maxLat) / 2;
       final centerLng = (minLng + maxLng) / 2;
       
-      print('🗺️ Map center calculated from routeLine:');
-      print('  Center: ($centerLat, $centerLng)');
-      print('  Bounds: lat[$minLat, $maxLat], lng[$minLng, $maxLng]');
+      appLog('🗺️ Map center calculated from routeLine:');
+      appLog('  Center: ($centerLat, $centerLng)');
+      appLog('  Bounds: lat[$minLat, $maxLat], lng[$minLng, $maxLng]');
       
       return LatLng(centerLat, centerLng);
     }
     
     // 2. 現在地が存在する場合
     if (gpsState.currentLocation != null) {
-      print('🗺️ Map center: using current location');
+      appLog('🗺️ Map center: using current location');
       return gpsState.currentLocation!;
     }
     
     // 3. startLocation をフォールバック
-    print('🗺️ Map center: using startLocation');
+    appLog('🗺️ Map center: using startLocation');
     return widget.route.startLocation;
   }
 

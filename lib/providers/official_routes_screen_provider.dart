@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/route_service.dart';
 import '../models/official_route.dart';
+import '../utils/logger.dart';
 
 /// ソート順の選択肢
 enum RouteSortOption {
@@ -43,8 +44,8 @@ final officialRoutesProvider = FutureProvider.autoDispose<List<OfficialRoute>>((
     try {
       return OfficialRoute.fromJson(json as Map<String, dynamic>);
     } catch (e) {
-      print('❌ OfficialRoute.fromJson エラー: $e');
-      print('❌ 問題のJSON: $json');
+      appLog('❌ OfficialRoute.fromJson エラー: $e');
+      appLog('❌ 問題のJSON: $json');
       rethrow;
     }
   }).toList();

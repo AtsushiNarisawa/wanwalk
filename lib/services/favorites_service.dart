@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_statistics.dart';
+import '../utils/logger.dart';
 
 /// お気に入り・ブックマークサービス
 class FavoritesService {
@@ -30,7 +31,7 @@ class FavoritesService {
       return data.map((item) => FavoriteRoute.fromMap(item as Map<String, dynamic>)).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting favorite routes: $e');
+        appLog('Error getting favorite routes: $e');
       }
       rethrow;
     }
@@ -58,7 +59,7 @@ class FavoritesService {
       return data.map((item) => BookmarkedPin.fromMap(item as Map<String, dynamic>)).toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting bookmarked pins: $e');
+        appLog('Error getting bookmarked pins: $e');
       }
       rethrow;
     }
@@ -76,7 +77,7 @@ class FavoritesService {
       });
     } catch (e) {
       if (kDebugMode) {
-        print('Error adding pin bookmark: $e');
+        appLog('Error adding pin bookmark: $e');
       }
       rethrow;
     }
@@ -95,7 +96,7 @@ class FavoritesService {
           .eq('pin_id', pinId);
     } catch (e) {
       if (kDebugMode) {
-        print('Error removing pin bookmark: $e');
+        appLog('Error removing pin bookmark: $e');
       }
       rethrow;
     }
@@ -130,7 +131,7 @@ class FavoritesService {
       return response != null;
     } catch (e) {
       if (kDebugMode) {
-        print('Error checking pin bookmark status: $e');
+        appLog('Error checking pin bookmark status: $e');
       }
       return false;
     }

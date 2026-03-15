@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_statistics.dart';
+import '../utils/logger.dart';
 
 /// ユーザー統計サービス
 class UserStatisticsService {
@@ -33,7 +34,7 @@ class UserStatisticsService {
       return UserStatistics.empty;
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting user statistics: $e');
+        appLog('Error getting user statistics: $e');
       }
       return UserStatistics.empty;
     }

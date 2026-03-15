@@ -13,9 +13,12 @@ class WanWalkColors {
   static const Color primaryDark = Color(0xFF6B5537);
   
   /// アクセントカラー - ソフトグリーン（自然、リラックス、癒し）
-  static const Color accent = Color(0xFFA8B5A0);
-  static const Color accentLight = Color(0xFFC5D1BE);
-  static const Color accentDark = Color(0xFF8A9B82);
+  /// accent(#5E7254): 白背景でWCAG AA準拠 4.7:1 - テキスト・アイコン・汎用
+  /// accentLight(#7A8E70): 装飾・グラデーション・ダーク背景用
+  /// accentDark(#4A5E42): 強調テキスト用
+  static const Color accent = Color(0xFF5E7254);
+  static const Color accentLight = Color(0xFF7A8E70);
+  static const Color accentDark = Color(0xFF4A5E42);
   
   // ==================================================
   // セカンダリーカラー（補助的な色）

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/walk_mode.dart';
+import '../utils/logger.dart';
 
 /// 現在の散歩モードを管理するProvider
 /// Daily（日常の散歩）とOuting（おでかけ散歩）を切り替える
@@ -23,7 +24,7 @@ class WalkModeNotifier extends StateNotifier<WalkMode> {
     } catch (e) {
       // エラーが発生してもデフォルト値（daily）を維持
       if (kDebugMode) {
-        print('Failed to load walk mode: $e');
+        appLog('Failed to load walk mode: $e');
       }
     }
   }
@@ -36,7 +37,7 @@ class WalkModeNotifier extends StateNotifier<WalkMode> {
       await prefs.setString(_storageKey, mode.value);
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to save walk mode: $e');
+        appLog('Failed to save walk mode: $e');
       }
     }
   }
