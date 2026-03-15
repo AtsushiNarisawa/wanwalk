@@ -14,6 +14,7 @@ import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
 import '../../widgets/zoom_control_widget.dart';
+import '../../utils/logger.dart';
 
 /// 日常散歩中画面
 /// - リアルタイムGPS追跡
@@ -183,12 +184,21 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     final userId = Supabase.instance.client.auth.currentUser?.id;
 
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ユーザー情報が取得できませんでした'),
-          backgroundColor: Colors.red,
-        ),
+      // GPS記録を停止してから画面を閉じる
+      gpsNotifier.stopRecording(
+        userId: 'anonymous',
+        title: '日常の散歩',
+        description: '日常散歩',
       );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('ログインしていないため記録を保存できません'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        Navigator.of(context).pop();
+      }
       return;
     }
 
@@ -222,13 +232,13 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
         }
 
         if (kDebugMode) {
-          print('✅ 日常散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
+          appLog('✅ 日常散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
         }
 
         // 2. 散歩中に撮影した写真をアップロード
         if (_photoFiles.isNotEmpty) {
           if (kDebugMode) {
-            print('📸 写真アップロード開始: ${_photoFiles.length}枚');
+            appLog('📸 写真アップロード開始: ${_photoFiles.length}枚');
           }
           for (int i = 0; i < _photoFiles.length; i++) {
             final file = _photoFiles[i];
@@ -240,11 +250,11 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
             );
             if (photoUrl != null) {
               if (kDebugMode) {
-                print('✅ 写真${i + 1}/${_photoFiles.length}アップロード成功');
+                appLog('✅ 写真${i + 1}/${_photoFiles.length}アップロード成功');
               }
             } else {
               if (kDebugMode) {
-                print('❌ 写真${i + 1}/${_photoFiles.length}アップロード失敗');
+                appLog('❌ 写真${i + 1}/${_photoFiles.length}アップロード失敗');
               }
             }
           }
@@ -293,7 +303,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
   Future<void> _selectPhotos() async {
     try {
       if (kDebugMode) {
-        print('📷 写真選択開始...');
+        appLog('📷 写真選択開始...');
       }
       
       // ギャラリーから写真を選択
@@ -301,13 +311,13 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       
       if (file == null) {
         if (kDebugMode) {
-          print('❌ 写真選択がキャンセルされました');
+          appLog('❌ 写真選択がキャンセルされました');
         }
         return;
       }
 
       if (kDebugMode) {
-        print('✅ 写真選択成功: ${file.path}');
+        appLog('✅ 写真選択成功: ${file.path}');
       }
 
       // 写真をローカルリストに追加
@@ -316,11 +326,11 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       });
 
       if (kDebugMode) {
-        print('✅ 写真追加成功: ${_photoFiles.length}枚');
+        appLog('✅ 写真追加成功: ${_photoFiles.length}枚');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ 写真選択エラー: $e');
+        appLog('❌ 写真選択エラー: $e');
       }
     }
   }
