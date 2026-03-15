@@ -38,6 +38,17 @@
 	<string>散歩の写真を保存するためにフォトライブラリへの追加権限が必要です</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>散歩の写真を選択・保存するためにフォトライブラリを使用します</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.189396519045-18om4g967fe03mmktes8gasnem6rlbml</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

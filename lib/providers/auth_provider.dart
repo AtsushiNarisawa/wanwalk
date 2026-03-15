@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
+import '../utils/logger.dart';
 
 /// 認証状態クラス
 class AuthState {
@@ -44,7 +45,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = authState.session?.user;
       state = state.copyWith(currentUser: user);
       if (kDebugMode) {
-        print('🔐 Auth state changed: userId=${user?.id ?? "null"}');
+        appLog('🔐 Auth state changed: userId=${user?.id ?? "null"}');
       }
     });
 
@@ -52,7 +53,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final currentUser = Supabase.instance.client.auth.currentUser;
     state = state.copyWith(currentUser: currentUser);
     if (kDebugMode) {
-      print('🔐 Initial auth state: userId=${currentUser?.id ?? "null"}');
+      appLog('🔐 Initial auth state: userId=${currentUser?.id ?? "null"}');
     }
   }
 
@@ -89,6 +90,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
         email: email,
         password: password,
       );
+      state = state.copyWith(currentUser: response.user, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
+      rethrow;
+    }
+  }
+
+  /// Apple Sign In
+  Future<void> signInWithApple() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final response = await _authService.signInWithApple();
+      state = state.copyWith(currentUser: response.user, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
+      rethrow;
+    }
+  }
+
+  /// Google Sign In
+  Future<void> signInWithGoogle() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final response = await _authService.signInWithGoogle();
       state = state.copyWith(currentUser: response.user, isLoading: false);
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString(), isLoading: false);

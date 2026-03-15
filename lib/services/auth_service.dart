@@ -1,6 +1,13 @@
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:crypto/crypto.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/env.dart';
 import '../config/supabase_config.dart';
+import '../utils/logger.dart';
 
 /// 認証サービス
 /// 
@@ -34,18 +41,18 @@ class AuthService {
     required String displayName,
   }) async {
     if (kDebugMode) {
-      print('🔵 [AuthService] signUp開始');
+      appLog('🔵 [AuthService] signUp開始');
     }
     if (kDebugMode) {
-      print('🔵 [AuthService] email: $email');
+      appLog('🔵 [AuthService] email: $email');
     }
     if (kDebugMode) {
-      print('🔵 [AuthService] displayName: $displayName');
+      appLog('🔵 [AuthService] displayName: $displayName');
     }
     
     try {
       if (kDebugMode) {
-        print('🔵 [AuthService] Supabase signUp呼び出し中...');
+        appLog('🔵 [AuthService] Supabase signUp呼び出し中...');
       }
       
       // Supabase Authでサインアップ
@@ -58,13 +65,13 @@ class AuthService {
       );
 
       if (kDebugMode) {
-        print('🟢 [AuthService] signUp成功！');
+        appLog('🟢 [AuthService] signUp成功！');
       }
       if (kDebugMode) {
-        print('🟢 [AuthService] user.id: ${response.user?.id}');
+        appLog('🟢 [AuthService] user.id: ${response.user?.id}');
       }
       if (kDebugMode) {
-        print('🟢 [AuthService] user.email: ${response.user?.email}');
+        appLog('🟢 [AuthService] user.email: ${response.user?.email}');
       }
 
       // サインアップ成功時、usersテーブルにプロフィール作成
@@ -81,18 +88,18 @@ class AuthService {
       return response;
     } on AuthException catch (e) {
       if (kDebugMode) {
-        print('🔴 [AuthService] AuthException: ${e.message}');
+        appLog('🔴 [AuthService] AuthException: ${e.message}');
       }
       if (kDebugMode) {
-        print('🔴 [AuthService] statusCode: ${e.statusCode}');
+        appLog('🔴 [AuthService] statusCode: ${e.statusCode}');
       }
       throw AuthException(e.message);
     } catch (e) {
       if (kDebugMode) {
-        print('🔴 [AuthService] Exception: $e');
+        appLog('🔴 [AuthService] Exception: $e');
       }
       if (kDebugMode) {
-        print('🔴 [AuthService] Type: ${e.runtimeType}');
+        appLog('🔴 [AuthService] Type: ${e.runtimeType}');
       }
       throw Exception('サインアップに失敗しました: $e');
     }
@@ -110,15 +117,15 @@ class AuthService {
     required String password,
   }) async {
     if (kDebugMode) {
-      print('🔵 [AuthService] signIn開始');
+      appLog('🔵 [AuthService] signIn開始');
     }
     if (kDebugMode) {
-      print('🔵 [AuthService] email: $email');
+      appLog('🔵 [AuthService] email: $email');
     }
     
     try {
       if (kDebugMode) {
-        print('🔵 [AuthService] Supabase signIn呼び出し中...');
+        appLog('🔵 [AuthService] Supabase signIn呼び出し中...');
       }
       
       final response = await _supabase.auth.signInWithPassword(
@@ -127,31 +134,191 @@ class AuthService {
       );
       
       if (kDebugMode) {
-        print('🟢 [AuthService] signIn成功！');
+        appLog('🟢 [AuthService] signIn成功！');
       }
       if (kDebugMode) {
-        print('🟢 [AuthService] user.id: ${response.user?.id}');
+        appLog('🟢 [AuthService] user.id: ${response.user?.id}');
       }
       
       return response;
     } on AuthException catch (e) {
       if (kDebugMode) {
-        print('🔴 [AuthService] AuthException: ${e.message}');
+        appLog('🔴 [AuthService] AuthException: ${e.message}');
       }
       if (kDebugMode) {
-        print('🔴 [AuthService] statusCode: ${e.statusCode}');
+        appLog('🔴 [AuthService] statusCode: ${e.statusCode}');
       }
       throw AuthException(e.message);
     } catch (e) {
       if (kDebugMode) {
-        print('🔴 [AuthService] Exception: $e');
+        appLog('🔴 [AuthService] Exception: $e');
       }
       throw Exception('ログインに失敗しました: $e');
     }
   }
 
+  /// Apple IDでサインイン
+  Future<AuthResponse> signInWithApple() async {
+    if (kDebugMode) {
+      appLog('🔵 [AuthService] Apple Sign In開始');
+    }
+
+    try {
+      final rawNonce = _generateNonce();
+      final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: hashedNonce,
+      );
+
+      final idToken = credential.identityToken;
+      if (idToken == null) {
+        throw Exception('Apple Sign Inに失敗しました');
+      }
+
+      final response = await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: idToken,
+        nonce: rawNonce,
+      );
+
+      if (kDebugMode) {
+        appLog('🟢 [AuthService] Apple Sign In成功！ user.id: ${response.user?.id}');
+      }
+
+      // プロフィール作成（初回のみ）
+      if (response.user != null) {
+        await _ensureProfileExists(
+          userId: response.user!.id,
+          email: response.user!.email ?? credential.email ?? '',
+          displayName: _getAppleDisplayName(credential) ?? 'WanWalkユーザー',
+        );
+      }
+
+      return response;
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        throw Exception('キャンセルされました');
+      }
+      if (kDebugMode) {
+        appLog('🔴 [AuthService] Apple Sign In Error: ${e.message}');
+      }
+      throw Exception('Apple Sign Inに失敗しました: ${e.message}');
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('🔴 [AuthService] Apple Sign In Exception: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Google アカウントでサインイン
+  Future<AuthResponse> signInWithGoogle() async {
+    if (kDebugMode) {
+      appLog('🔵 [AuthService] Google Sign In開始');
+    }
+
+    try {
+      final googleSignIn = GoogleSignIn(
+        clientId: Environment.googleIosClientId,
+        serverClientId: Environment.googleWebClientId,
+      );
+
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception('キャンセルされました');
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      final accessToken = googleAuth.accessToken;
+
+      if (idToken == null) {
+        throw Exception('Google Sign Inに失敗しました');
+      }
+
+      final response = await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      if (kDebugMode) {
+        appLog('🟢 [AuthService] Google Sign In成功！ user.id: ${response.user?.id}');
+      }
+
+      // プロフィール作成（初回のみ）
+      if (response.user != null) {
+        await _ensureProfileExists(
+          userId: response.user!.id,
+          email: response.user!.email ?? googleUser.email,
+          displayName: googleUser.displayName ?? 'WanWalkユーザー',
+        );
+      }
+
+      return response;
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('🔴 [AuthService] Google Sign In Exception: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// ソーシャルログイン時のプロフィール作成（既に存在する場合はスキップ）
+  Future<void> _ensureProfileExists({
+    required String userId,
+    required String email,
+    required String displayName,
+  }) async {
+    try {
+      final existing = await _supabase
+          .from(SupabaseTables.users)
+          .select('id')
+          .eq('id', userId)
+          .maybeSingle();
+
+      if (existing == null) {
+        await _supabase.from(SupabaseTables.users).insert({
+          'id': userId,
+          'email': email,
+          'display_name': displayName,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+        if (kDebugMode) {
+          appLog('🟢 [AuthService] 新規プロフィール作成: $displayName');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('⚠️ [AuthService] プロフィール作成エラー（無視）: $e');
+      }
+    }
+  }
+
+  /// Apple認証情報から表示名を取得
+  String? _getAppleDisplayName(AuthorizationCredentialAppleID credential) {
+    final givenName = credential.givenName;
+    final familyName = credential.familyName;
+    if (givenName != null || familyName != null) {
+      return [familyName, givenName].where((s) => s != null).join(' ').trim();
+    }
+    return null;
+  }
+
+  /// ランダムなnonce文字列を生成
+  String _generateNonce([int length = 32]) {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
+  }
+
   /// ログアウト
-  /// 
+  ///
   /// 例外: AuthException（ログアウト失敗時）
   Future<void> signOut() async {
     try {
@@ -197,7 +364,7 @@ class AuthService {
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print('ユーザープロフィール取得エラー: $e');
+        appLog('ユーザープロフィール取得エラー: $e');
       }
       return null;
     }

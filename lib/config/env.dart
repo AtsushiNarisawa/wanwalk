@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../utils/logger.dart';
 
 /// 環境変数設定
 /// 
@@ -17,6 +18,10 @@ class Environment {
   static String get appName => dotenv.get('APP_NAME', fallback: 'WanWalk');
   static String get appVersion => dotenv.get('APP_VERSION', fallback: '1.0.0');
   
+  // Google Sign In
+  static String get googleWebClientId => dotenv.get('GOOGLE_WEB_CLIENT_ID', fallback: '');
+  static String get googleIosClientId => dotenv.get('GOOGLE_IOS_CLIENT_ID', fallback: '');
+
   // デバッグモード
   static bool get isDebugMode => dotenv.get('DEBUG_MODE', fallback: 'true') == 'true';
   
@@ -44,7 +49,7 @@ class Environment {
     }
     if (thunderforestApiKey.isEmpty || thunderforestApiKey == 'your-api-key-here') {
       if (kDebugMode) {
-        print('⚠️ Warning: THUNDERFOREST_API_KEY環境変数が設定されていません。地図タイルが表示されない可能性があります。');
+        appLog('⚠️ Warning: THUNDERFOREST_API_KEY環境変数が設定されていません。地図タイルが表示されない可能性があります。');
       }
     }
   }
