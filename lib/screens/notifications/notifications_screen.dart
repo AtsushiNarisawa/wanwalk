@@ -6,6 +6,7 @@ import '../../config/wanwalk_spacing.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/notifications/notification_item.dart';
+import '../outing/pin_detail_screen.dart';
 
 /// 通知センター画面
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -160,8 +161,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       case 'pin_liked':
       case 'pin_commented':
         if (notification.targetId != null) {
-          // ピン詳細画面へ遷移
-          // TODO: ピン詳細画面実装後に追加
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PinDetailScreen(pinId: notification.targetId!),
+            ),
+          );
         }
         break;
       case 'new_pin':

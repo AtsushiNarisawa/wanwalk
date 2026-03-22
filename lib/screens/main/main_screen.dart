@@ -13,6 +13,7 @@ import 'tabs/profile_tab.dart';
 import 'tabs/walk_type_bottom_sheet.dart';
 import '../daily/daily_walk_landing_screen.dart';
 import '../routes/public_routes_screen.dart';
+import '../pin/pin_route_picker_screen.dart';
 import '../../providers/official_routes_screen_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/auth_selection_screen.dart';
@@ -231,7 +232,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         );
         break;
       case 'pin_only':
-        // TODO: ピン投稿のみフロー
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PinRoutePickerScreen()),
+        );
         break;
     }
   }

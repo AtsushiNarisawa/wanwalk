@@ -5,6 +5,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../providers/user_statistics_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/profile_provider.dart';
 
 
 /// ユーザープロフィール画面
@@ -21,8 +22,9 @@ class UserProfileScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentUser = ref.watch(currentUserProvider);
     final isOwnProfile = currentUser?.id == userId;
-    
+
     final statisticsAsync = ref.watch(userStatisticsProvider(userId));
+    final profileAsync = ref.watch(profileProvider(userId));
 
     return Scaffold(
       backgroundColor: isDark
@@ -57,6 +59,7 @@ class UserProfileScreen extends ConsumerWidget {
                   isDark,
                   statistics,
                   isOwnProfile,
+                  profileAsync.valueOrNull,
                 ),
                 const SizedBox(height: WanWalkSpacing.medium),
                 _buildStatisticsSection(isDark, statistics),
@@ -78,6 +81,7 @@ class UserProfileScreen extends ConsumerWidget {
     bool isDark,
     dynamic statistics,
     bool isOwnProfile,
+    ProfileData? profile,
   ) {
     return Container(
       padding: const EdgeInsets.all(WanWalkSpacing.large),
@@ -90,24 +94,29 @@ class UserProfileScreen extends ConsumerWidget {
           CircleAvatar(
             radius: 50,
             backgroundColor: WanWalkColors.accent.withOpacity(0.2),
-            child: const Icon(
-              Icons.person,
-              size: 50,
-              color: WanWalkColors.accent,
-            ),
+            backgroundImage: profile?.avatarUrl != null
+                ? NetworkImage(profile!.avatarUrl!)
+                : null,
+            child: profile?.avatarUrl == null
+                ? const Icon(
+                    Icons.person,
+                    size: 50,
+                    color: WanWalkColors.accent,
+                  )
+                : null,
           ),
           const SizedBox(height: WanWalkSpacing.medium),
           
           // ユーザー名
-          const Text(
-            'ユーザー名', // TODO: 実際のユーザー名を表示
+          Text(
+            profile?.displayName ?? 'ユーザー',
             style: WanWalkTypography.heading2,
           ),
           const SizedBox(height: WanWalkSpacing.tiny),
-          
+
           // Bio
           Text(
-            '愛犬と一緒に散歩を楽しんでいます！',
+            profile?.bio ?? '愛犬と一緒に散歩を楽しんでいます！',
             style: WanWalkTypography.body.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),

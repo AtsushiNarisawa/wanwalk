@@ -167,16 +167,16 @@ class WalkHistoryService {
     try {
       final response = await _supabase
           .from('walks')
-          .select('routes!inner(area)')
+          .select('official_routes!inner(area_id)')
           .eq('user_id', userId)
           .eq('walk_type', 'outing')
           .not('route_id', 'is', null);
 
       final Set<String> areaIds = {};
       for (var item in response) {
-        final route = item['routes'];
-        if (route != null && route['area'] != null) {
-          areaIds.add(route['area'] as String);
+        final route = item['official_routes'];
+        if (route != null && route['area_id'] != null) {
+          areaIds.add(route['area_id'] as String);
         }
       }
 

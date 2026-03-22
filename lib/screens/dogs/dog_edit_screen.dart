@@ -31,6 +31,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
   
   DateTime? _birthDate;
   DogSize? _selectedSize;
+  DogGender? _selectedGender;
   bool _isSaving = false;
   bool _isUploadingPhoto = false;
   String? _localPhotoPath;
@@ -46,6 +47,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
       _weightController.text = widget.dog!.weight?.toString() ?? '';
       _birthDate = widget.dog!.birthDate;
       _selectedSize = widget.dog!.size;
+      _selectedGender = widget.dog!.gender;
     }
   }
 
@@ -86,6 +88,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
         weight: _weightController.text.trim().isEmpty
             ? null
             : double.tryParse(_weightController.text.trim()),
+        gender: _selectedGender,
         photoUrl: widget.dog?.photoUrl,
       );
 
@@ -471,7 +474,34 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: WanWalkSpacing.medium),
-                
+
+                // 性別選択
+                const Text('性別', style: WanWalkTypography.heading3),
+                const SizedBox(height: WanWalkSpacing.small),
+                Wrap(
+                  spacing: 8,
+                  children: DogGender.values.map((gender) {
+                    final isSelected = _selectedGender == gender;
+                    return ChoiceChip(
+                      label: Text(
+                        gender.displayName,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : (isDark ? Colors.white : Colors.black87),
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() => _selectedGender = selected ? gender : null);
+                      },
+                      selectedColor: WanWalkColors.accent,
+                      backgroundColor: isDark ? WanWalkColors.cardDark : Colors.grey[200],
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: WanWalkSpacing.medium),
+
                 // 誕生日選択
                 const Text('誕生日', style: WanWalkTypography.heading3),
                 const SizedBox(height: WanWalkSpacing.small),

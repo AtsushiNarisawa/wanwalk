@@ -57,5 +57,5 @@ class SupabaseTables {
 class SupabaseBuckets {
   static const String dogPhotos = 'dog-photos';
   static const String routePhotos = 'route-photos';
-  static const String userAvatars = 'user-avatars';
+  static const String userAvatars = 'profile-avatars';
 }

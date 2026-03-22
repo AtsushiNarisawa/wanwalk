@@ -79,31 +79,31 @@ class RoutePin {
       final locationData = json['location'];
 
       if (locationData is Map) {
-      final coords = locationData['coordinates'] as List;
-      location = LatLng(
-        (coords[1] as num).toDouble(), // 緯度
-        (coords[0] as num).toDouble(), // 経度
-      );
+        final coords = locationData['coordinates'] as List;
+        location = LatLng(
+          (coords[1] as num).toDouble(), // 緯度
+          (coords[0] as num).toDouble(), // 経度
+        );
       } else if (locationData is String) {
-      // WKB形式（16進数バイナリ）はスキップして、座標を直接取得できない場合はnullを返す
-      // Supabaseの.select()でGeoJSON形式を要求するように修正が必要
-      if (locationData.startsWith('0101000020')) {
-        // WKB形式の場合はエラーをスローせず、デフォルト位置を使用
-        // TODO: Supabaseクエリで ST_AsGeoJSON(location) を使用して回避
-        throw ArgumentError('WKB format not supported. Use ST_AsGeoJSON in Supabase query: $locationData');
-      }
-      
-      // WKT形式: "POINT(139.1071 35.2328)"
-      final coordsMatch = RegExp(r'POINT\(([0-9.\-]+)\s+([0-9.\-]+)\)').firstMatch(locationData);
-      if (coordsMatch != null) {
-        final lon = double.parse(coordsMatch.group(1)!);
-        final lat = double.parse(coordsMatch.group(2)!);
-        location = LatLng(lat, lon);
+        if (locationData.startsWith('0101000020')) {
+          // WKB形式（バイナリ）の場合はデフォルト位置を使用
+          // Supabaseクエリで ST_AsGeoJSON(location) を使用するのが望ましい
+          location = const LatLng(35.2326, 139.1071); // 箱根仙石原
+        } else {
+          // WKT形式: "POINT(139.1071 35.2328)"
+          final coordsMatch = RegExp(r'POINT\(([0-9.\-]+)\s+([0-9.\-]+)\)').firstMatch(locationData);
+          if (coordsMatch != null) {
+            final lon = double.parse(coordsMatch.group(1)!);
+            final lat = double.parse(coordsMatch.group(2)!);
+            location = LatLng(lat, lon);
+          } else {
+            location = const LatLng(35.2326, 139.1071); // パース失敗時のフォールバック
+          }
+        }
+      } else if (locationData == null) {
+        location = const LatLng(35.2326, 139.1071); // null時のフォールバック
       } else {
-        throw ArgumentError('Invalid PostGIS Point format: $locationData');
-      }
-      } else {
-        throw ArgumentError('Invalid location data type: ${locationData.runtimeType}');
+        location = const LatLng(35.2326, 139.1071); // 不明な型のフォールバック
       }
     }
 

@@ -7,6 +7,7 @@ class DogModel {
   final DogSize? size;
   final DateTime? birthDate;
   final double? weight; // kg
+  final DogGender? gender;
   final String? photoUrl;
   final String? rabiesVaccinePhotoUrl;
   final DateTime? rabiesVaccineDate;
@@ -23,6 +24,7 @@ class DogModel {
     this.size,
     this.birthDate,
     this.weight,
+    this.gender,
     this.photoUrl,
     this.rabiesVaccinePhotoUrl,
     this.rabiesVaccineDate,
@@ -78,6 +80,7 @@ class DogModel {
       size: json['size'] != null ? DogSizeExtension.fromString(json['size'] as String) : null,
       birthDate: json['birth_date'] != null ? DateTime.parse(json['birth_date'] as String) : null,
       weight: (json['weight'] as num?)?.toDouble(),
+      gender: json['gender'] != null ? DogGenderExtension.fromString(json['gender'] as String) : null,
       photoUrl: json['photo_url'] as String?,
       rabiesVaccinePhotoUrl: json['rabies_vaccine_photo_url'] as String?,
       rabiesVaccineDate: json['rabies_vaccine_date'] != null ? DateTime.parse(json['rabies_vaccine_date'] as String) : null,
@@ -98,6 +101,7 @@ class DogModel {
       'size': size?.value,
       'birth_date': birthDate?.toIso8601String().split('T')[0], // YYYY-MM-DD形式
       'weight': weight,
+      'gender': gender?.value,
       'photo_url': photoUrl,
       'rabies_vaccine_photo_url': rabiesVaccinePhotoUrl,
       'rabies_vaccine_date': rabiesVaccineDate?.toIso8601String().split('T')[0],
@@ -117,6 +121,7 @@ class DogModel {
       if (size != null) 'size': size!.value,
       if (birthDate != null) 'birth_date': birthDate!.toIso8601String().split('T')[0],
       if (weight != null) 'weight': weight,
+      if (gender != null) 'gender': gender!.value,
       if (photoUrl != null) 'photo_url': photoUrl,
       if (rabiesVaccinePhotoUrl != null) 'rabies_vaccine_photo_url': rabiesVaccinePhotoUrl,
       if (rabiesVaccineDate != null) 'rabies_vaccine_date': rabiesVaccineDate!.toIso8601String().split('T')[0],
@@ -134,6 +139,7 @@ class DogModel {
     DogSize? size,
     DateTime? birthDate,
     double? weight,
+    DogGender? gender,
     String? photoUrl,
     String? rabiesVaccinePhotoUrl,
     DateTime? rabiesVaccineDate,
@@ -150,6 +156,7 @@ class DogModel {
       size: size ?? this.size,
       birthDate: birthDate ?? this.birthDate,
       weight: weight ?? this.weight,
+      gender: gender ?? this.gender,
       photoUrl: photoUrl ?? this.photoUrl,
       rabiesVaccinePhotoUrl: rabiesVaccinePhotoUrl ?? this.rabiesVaccinePhotoUrl,
       rabiesVaccineDate: rabiesVaccineDate ?? this.rabiesVaccineDate,
@@ -158,6 +165,50 @@ class DogModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+}
+
+/// 犬の性別
+enum DogGender {
+  male,
+  female,
+  unknown,
+}
+
+extension DogGenderExtension on DogGender {
+  String get value {
+    switch (this) {
+      case DogGender.male:
+        return 'male';
+      case DogGender.female:
+        return 'female';
+      case DogGender.unknown:
+        return 'unknown';
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case DogGender.male:
+        return 'オス';
+      case DogGender.female:
+        return 'メス';
+      case DogGender.unknown:
+        return '不明';
+    }
+  }
+
+  static DogGender? fromString(String value) {
+    switch (value) {
+      case 'male':
+        return DogGender.male;
+      case 'female':
+        return DogGender.female;
+      case 'unknown':
+        return DogGender.unknown;
+      default:
+        return null;
+    }
   }
 }
 

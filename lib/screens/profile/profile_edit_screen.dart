@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../config/supabase_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/logger.dart';
 
@@ -204,12 +205,12 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       final filePath = '$userId/$fileName';
 
       await Supabase.instance.client.storage
-          .from('profile-avatars')
+          .from(SupabaseBuckets.userAvatars)
           .upload(filePath, File(image.path));
 
       // 公開URLを取得
       final publicUrl = Supabase.instance.client.storage
-          .from('profile-avatars')
+          .from(SupabaseBuckets.userAvatars)
           .getPublicUrl(filePath);
 
       if (kDebugMode) {

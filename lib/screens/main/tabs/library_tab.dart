@@ -13,6 +13,8 @@ import '../../../providers/route_pin_provider.dart';
 import '../../history/outing_walk_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../auth/auth_selection_screen.dart';
+import '../../../providers/timeline_provider.dart';
+import '../../../services/timeline_service.dart';
 import '../../../utils/logger.dart';
 
 /// LibraryTab - 愛犬との散歩の思い出アルバム
@@ -124,7 +126,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               isScrollable: false,
               tabs: const [
-                Tab(icon: Icon(Icons.view_list, size: 20), text: 'すべて'),
+                Tab(icon: Icon(Icons.newspaper, size: 20), text: 'みんな'),
                 Tab(icon: Icon(Icons.photo_library, size: 20), text: 'アルバム'),
                 Tab(icon: Icon(Icons.luggage, size: 20), text: 'お出かけ'),
                 Tab(icon: Icon(Icons.pets, size: 20), text: '日常'),
@@ -138,7 +140,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildWalkList(null, isDark), // タイムライン（全て）
+                _buildCommunityTimeline(isDark), // コミュニティタイムライン
                 _buildAlbumTab(isDark), // アルバム
                 _buildWalkList(WalkHistoryType.outing, isDark), // お出かけ
                 _buildWalkList(WalkHistoryType.daily, isDark), // 日常
@@ -847,7 +849,90 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
     return {'type': 'walk', 'data': groupedWalks.values.first.first};
   }
 
+  /// コミュニティタイムライン
+  Widget _buildCommunityTimeline(bool isDark) {
+    final userId = ref.watch(currentUserIdProvider);
+    final timelineAsync = ref.watch(
+      communityTimelineProvider(TimelineParams(userId: userId)),
+    );
 
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(communityTimelineProvider);
+      },
+      child: timelineAsync.when(
+        data: (items) {
+          if (items.isEmpty) {
+            return ListView(
+              children: [
+                SizedBox(
+                  height: 400,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.newspaper,
+                          size: 64,
+                          color: isDark
+                              ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
+                              : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: WanWalkSpacing.lg),
+                        Text(
+                          'まだ投稿がありません',
+                          style: WanWalkTypography.headlineSmall.copyWith(
+                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: WanWalkSpacing.sm),
+                        Text(
+                          '散歩中にピンを投稿すると\nここに表示されます',
+                          style: WanWalkTypography.bodyMedium.copyWith(
+                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(WanWalkSpacing.md),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              return _TimelineCard(
+                item: items[index],
+                isDark: isDark,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PinDetailScreen(pinId: items[index].pinId),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Text(
+            'データの取得に失敗しました',
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// 散歩カード
@@ -1352,5 +1437,198 @@ class _UnauthFeatureItem extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// タイムラインカードウィジェット
+class _TimelineCard extends StatelessWidget {
+  final TimelineItem item;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _TimelineCard({
+    required this.item,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: WanWalkSpacing.md),
+        decoration: BoxDecoration(
+          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(WanWalkSpacing.md),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: WanWalkColors.accent.withOpacity(0.2),
+                    backgroundImage: item.userAvatarUrl != null
+                        ? NetworkImage(item.userAvatarUrl!)
+                        : null,
+                    child: item.userAvatarUrl == null
+                        ? const Icon(Icons.person, size: 18, color: WanWalkColors.accent)
+                        : null,
+                  ),
+                  const SizedBox(width: WanWalkSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.userName,
+                          style: WanWalkTypography.bodyMedium.copyWith(
+                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${item.areaName} · ${item.routeName}',
+                          style: WanWalkTypography.caption.copyWith(
+                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    item.relativeTime,
+                    style: WanWalkTypography.caption.copyWith(
+                      color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (item.hasPhotos)
+              SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.md),
+                  itemCount: item.photoUrls.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: 200,
+                      margin: EdgeInsets.only(
+                        right: index < item.photoUrls.length - 1 ? WanWalkSpacing.sm : 0,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          item.photoUrls[index],
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+                            child: const Center(child: Icon(Icons.broken_image, size: 32)),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(WanWalkSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: _pinTypeColor.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          item.pinTypeLabel,
+                          style: WanWalkTypography.caption.copyWith(
+                            color: _pinTypeColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: WanWalkSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          style: WanWalkTypography.bodyLarge.copyWith(
+                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (item.comment.isNotEmpty) ...[
+                    const SizedBox(height: WanWalkSpacing.xs),
+                    Text(
+                      item.comment,
+                      style: WanWalkTypography.bodyMedium.copyWith(
+                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  const SizedBox(height: WanWalkSpacing.sm),
+                  Row(
+                    children: [
+                      Icon(
+                        item.isLiked ? Icons.favorite : Icons.favorite_border,
+                        size: 18,
+                        color: item.isLiked ? Colors.red : (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight),
+                      ),
+                      const SizedBox(width: 4),
+                      Text('${item.likesCount}', style: WanWalkTypography.caption.copyWith(
+                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                      )),
+                      const SizedBox(width: WanWalkSpacing.md),
+                      Icon(Icons.chat_bubble_outline, size: 18,
+                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                      ),
+                      const SizedBox(width: 4),
+                      Text('${item.commentsCount}', style: WanWalkTypography.caption.copyWith(
+                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                      )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color get _pinTypeColor {
+    switch (item.pinType) {
+      case 'scenery': return Colors.blue;
+      case 'shop': return Colors.orange;
+      case 'encounter': return Colors.green;
+      case 'facility': return Colors.purple;
+      default: return Colors.grey;
+    }
   }
 }
