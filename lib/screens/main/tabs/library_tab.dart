@@ -39,7 +39,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this); // 5タブに変更
+    _tabController = TabController(length: 4, vsync: this); // 4タブ（みんなタブはホームフィードに統合）
   }
 
   @override
@@ -126,7 +126,6 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               isScrollable: false,
               tabs: const [
-                Tab(icon: Icon(Icons.newspaper, size: 20), text: 'みんな'),
                 Tab(icon: Icon(Icons.photo_library, size: 20), text: 'アルバム'),
                 Tab(icon: Icon(Icons.luggage, size: 20), text: 'お出かけ'),
                 Tab(icon: Icon(Icons.pets, size: 20), text: '日常'),
@@ -140,7 +139,6 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildCommunityTimeline(isDark), // コミュニティタイムライン
                 _buildAlbumTab(isDark), // アルバム
                 _buildWalkList(WalkHistoryType.outing, isDark), // お出かけ
                 _buildWalkList(WalkHistoryType.daily, isDark), // 日常
