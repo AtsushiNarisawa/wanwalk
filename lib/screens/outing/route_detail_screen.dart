@@ -462,6 +462,12 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
   /// 説明
   Widget _buildDescription(OfficialRoute route, bool isDark) {
+    // 体験ストーリーを段落に分割
+    final paragraphs = route.description
+        .split('\n')
+        .where((p) => p.trim().isNotEmpty)
+        .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -485,14 +491,39 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                route.description,
-                style: WanWalkTypography.bodyMedium.copyWith(
-                  color: isDark
-                      ? WanWalkColors.textPrimaryDark
-                      : WanWalkColors.textPrimaryLight,
+              // 段落ごとに表示（段落間に区切り線）
+              for (int i = 0; i < paragraphs.length; i++) ...[
+                if (i > 0) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: WanWalkSpacing.sm),
+                    child: Row(
+                      children: [
+                        Icon(
+                          i == 1 ? Icons.hiking : Icons.flag,
+                          size: 14,
+                          color: WanWalkColors.accent.withOpacity(0.5),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            color: (isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight).withOpacity(0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                Text(
+                  paragraphs[i],
+                  style: WanWalkTypography.bodyMedium.copyWith(
+                    color: isDark
+                        ? WanWalkColors.textPrimaryDark
+                        : WanWalkColors.textPrimaryLight,
+                    height: 1.6,
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: WanWalkSpacing.md),
               _DifficultyBadge(
                 level: route.difficultyLevel,

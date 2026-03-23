@@ -14,6 +14,7 @@ import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
 import '../../widgets/zoom_control_widget.dart';
+import '../../widgets/walk_completion_card.dart';
 import '../../utils/logger.dart';
 
 /// 日常散歩中画面
@@ -268,16 +269,17 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
           durationMinutes: durationMinutes,
         );
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '散歩記録を保存しました！\n${gpsState.formattedDistance} / ${gpsState.formattedDuration}'
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
+        // 散歩完了シートを表示
+        await showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => WalkCompletionSheet(
+            formattedDistance: gpsState.formattedDistance,
+            formattedDuration: gpsState.formattedDuration,
           ),
         );
-        Navigator.of(context).pop(route);
+        if (mounted) Navigator.of(context).pop(route);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

@@ -9,7 +9,9 @@ import '../../models/route_pin.dart';
 import '../../models/spot_review_model.dart';
 
 import '../../providers/route_pin_provider.dart';
+import '../../providers/official_route_provider.dart';
 import '../../providers/spot_review_provider.dart';
+import 'route_detail_screen.dart';
 import 'spot_review_form_screen.dart';
 
 /// ピン詳細画面
@@ -124,6 +126,11 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                     const SizedBox(height: WanWalkSpacing.xl),
                   ],
 
+                      // このピンがあるルート
+                      _buildRouteLink(pin, isDark),
+
+                      const SizedBox(height: WanWalkSpacing.xl),
+
                       // 位置情報
                       Text(
                         '位置',
@@ -179,7 +186,116 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
     );
   }
 
-  /// コメント入力欄
+  /// このピンがあるルートへのリンク
+  Widget _buildRouteLink(RoutePin pin, bool isDark) {
+    final routeAsync = ref.watch(routeByIdProvider(pin.routeId));
+
+    return routeAsync.when(
+      data: (route) {
+        if (route == null) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'このピンがあるルート',
+              style: WanWalkTypography.headlineSmall.copyWith(
+                color: isDark
+                    ? WanWalkColors.textPrimaryDark
+                    : WanWalkColors.textPrimaryLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: WanWalkSpacing.sm),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RouteDetailScreen(
+                      routeId: route.id,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(WanWalkSpacing.md),
+                decoration: BoxDecoration(
+                  color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: WanWalkColors.accent.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    // サムネイル
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: route.thumbnailUrl != null
+                          ? Image.network(
+                              route.thumbnailUrl!,
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                width: 60,
+                                height: 60,
+                                color: WanWalkColors.accent.withOpacity(0.1),
+                                child: Icon(Icons.map, color: WanWalkColors.accent),
+                              ),
+                            )
+                          : Container(
+                              width: 60,
+                              height: 60,
+                              color: WanWalkColors.accent.withOpacity(0.1),
+                              child: Icon(Icons.map, color: WanWalkColors.accent),
+                            ),
+                    ),
+                    const SizedBox(width: WanWalkSpacing.md),
+                    // ルート情報
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            route.name,
+                            style: WanWalkTypography.bodyMedium.copyWith(
+                              color: isDark
+                                  ? WanWalkColors.textPrimaryDark
+                                  : WanWalkColors.textPrimaryLight,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${(route.distanceMeters / 1000).toStringAsFixed(1)}km・約${route.estimatedMinutes}分',
+                            style: WanWalkTypography.bodySmall.copyWith(
+                              color: isDark
+                                  ? WanWalkColors.textSecondaryDark
+                                  : WanWalkColors.textSecondaryLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      color: WanWalkColors.accent,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
 
   /// 写真ギャラリー
   Widget _buildPhotoGallery(RoutePin pin, bool isDark) {

@@ -14,6 +14,7 @@ import '../../../providers/pin_like_provider.dart';
 import '../../../providers/pin_comment_provider.dart';
 import '../../../providers/spot_review_provider.dart';
 import '../../../providers/route_pin_provider.dart';
+import '../../../providers/home_feed_provider.dart';
 import '../../../models/recent_pin_post.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
@@ -24,6 +25,10 @@ import '../../routes/public_routes_screen.dart';
 import '../../outing/route_list_screen.dart';
 import '../../../models/area.dart';
 import '../../../widgets/shimmer/wanwalk_shimmer.dart';
+import '../../../widgets/feed/walk_summary_card.dart';
+import '../../../widgets/feed/route_feed_card.dart';
+import '../../../widgets/feed/pin_feed_card.dart';
+import '../../../widgets/feed/area_feature_card.dart';
 import '../../../utils/logger.dart';
 
 /// HomeTab - 発見・閲覧のホーム画面
@@ -79,49 +84,160 @@ class HomeTab extends ConsumerWidget {
         // フォロー機能削除: 通知ボタンを非表示
         actions: [],
       ),
-      body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. おすすめエリア（箱根が最初に目に入る）
-            _buildRecommendedAreas(context, isDark, areasAsync),
+      body: _buildFeed(context, ref, isDark),
+    );
+  }
 
-            const SizedBox(height: WanWalkSpacing.xl),
+  /// 統合フィード
+  Widget _buildFeed(BuildContext context, WidgetRef ref, bool isDark) {
+    final feedAsync = ref.watch(homeFeedProvider);
 
-            // 2. 今月の人気ルート
-            _buildPopularRoutes(context, isDark),
-
-            const SizedBox(height: WanWalkSpacing.xl),
-
-            // 3. 高評価スポット
-            _buildTopRatedSpots(context, isDark),
-
-            const SizedBox(height: WanWalkSpacing.xl),
-
-            // 4. 最新のピン投稿
-            _buildRecentPinPosts(context, isDark),
-
-            const SizedBox(height: WanWalkSpacing.xl),
-
-            // 5. 箱根観光バナー（提携）
-            _buildHakoneBannerSection(context, isDark),
-
-            const SizedBox(height: WanWalkSpacing.lg),
-
-            // 6. Supported by フッター
-            Center(
-              child: Text(
-                'Supported by 箱根DMO',
-                style: WanWalkTypography.caption.copyWith(
-                  color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
-                  fontSize: 11,
-                  letterSpacing: 0.5,
-                ),
+    return feedAsync.when(
+      data: (items) {
+        if (items.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(WanWalkSpacing.xxxl),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.explore, size: 64, color: WanWalkColors.accent.withValues(alpha: 0.5)),
+                  const SizedBox(height: WanWalkSpacing.md),
+                  Text(
+                    'ルートを探索しよう',
+                    style: WanWalkTypography.bodyLarge.copyWith(
+                      color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                    ),
+                  ),
+                ],
               ),
             ),
+          );
+        }
 
-            const SizedBox(height: WanWalkSpacing.xxxl),
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(homeFeedProvider);
+          },
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: WanWalkSpacing.sm, bottom: WanWalkSpacing.xxxl),
+            itemCount: items.length + 1, // +1 for footer
+            itemBuilder: (context, index) {
+              if (index == items.length) {
+                // フッター
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: WanWalkSpacing.lg),
+                  child: Center(
+                    child: Text(
+                      'Supported by 箱根DMO',
+                      style: WanWalkTypography.caption.copyWith(
+                        color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+                        fontSize: 11,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              final item = items[index];
+              switch (item.type) {
+                case FeedItemType.walkSummary:
+                  return WalkSummaryCard(
+                    walkCount: item.extra?['walkCount'] ?? 0,
+                    totalDistanceKm: item.extra?['totalDistanceKm'] ?? '0',
+                    totalMinutes: item.extra?['totalMinutes'] ?? 0,
+                    isDark: isDark,
+                  );
+
+                case FeedItemType.officialRoute:
+                case FeedItemType.seasonalRoute:
+                  if (item.route == null) return const SizedBox.shrink();
+                  return RouteFeedCard(
+                    route: item.route!,
+                    isDark: isDark,
+                    isNew: item.extra?['isNew'] == true,
+                    isSeasonal: item.type == FeedItemType.seasonalRoute,
+                    seasonLabel: item.extra?['season'] != null
+                        ? '${item.extra!['season']}のおすすめ'
+                        : null,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RouteDetailScreen(routeId: item.route!.id),
+                        ),
+                      );
+                    },
+                  );
+
+                case FeedItemType.communityPin:
+                  if (item.pin == null) return const SizedBox.shrink();
+                  return PinFeedCard(
+                    pin: item.pin!,
+                    isDark: isDark,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PinDetailScreen(pinId: item.pin!.pinId),
+                        ),
+                      );
+                    },
+                    onRouteTap: item.pin!.routeId != null
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RouteDetailScreen(routeId: item.pin!.routeId!),
+                              ),
+                            );
+                          }
+                        : null,
+                  );
+
+                case FeedItemType.areaFeature:
+                  final subAreaNames = (item.extra?['subAreas'] as List?)?.cast<String>() ?? [];
+                  return AreaFeatureCard(
+                    areaName: item.extra?['areaName'] ?? '',
+                    routeCount: item.extra?['routeCount'] ?? 0,
+                    subAreas: subAreaNames,
+                    isDark: isDark,
+                    onTap: () {
+                      // エリア一覧画面へ遷移
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AreaListScreen(),
+                        ),
+                      );
+                    },
+                  );
+              }
+            },
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48,
+                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight),
+            const SizedBox(height: WanWalkSpacing.md),
+            Text(
+              '読み込みに失敗しました',
+              style: WanWalkTypography.bodyMedium.copyWith(
+                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+              ),
+            ),
+            const SizedBox(height: WanWalkSpacing.md),
+            ElevatedButton(
+              onPressed: () => ref.invalidate(homeFeedProvider),
+              child: const Text('再試行'),
+            ),
           ],
         ),
       ),

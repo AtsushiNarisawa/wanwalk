@@ -13,6 +13,7 @@ class PetInfo {
   final String? waterStation;    // 水飲み場
   final String? petFacilities;   // ペット施設
   final String? others;          // その他
+  final String? bestSeason;     // おすすめ季節
 
   const PetInfo({
     this.parking,
@@ -23,6 +24,7 @@ class PetInfo {
     this.waterStation,
     this.petFacilities,
     this.others,
+    this.bestSeason,
   });
 
   /// JSONからPetInfoを生成
@@ -50,6 +52,7 @@ class PetInfo {
       petFacilities: parseField('pet_facilities') ?? (json['pet_friendly_cafes'] == true ? 'あり' : null),
       // 旧: others / 新: notes
       others: parseField('others') ?? parseField('notes'),
+      bestSeason: parseField('best_season'),
     );
   }
 
