@@ -29,6 +29,7 @@ import '../../../widgets/feed/walk_summary_card.dart';
 import '../../../widgets/feed/route_feed_card.dart';
 import '../../../widgets/feed/pin_feed_card.dart';
 import '../../../widgets/feed/area_feature_card.dart';
+import '../../../widgets/banners/hakone_tourism_banner.dart';
 import '../../../utils/logger.dart';
 
 /// HomeTab - 発見・閲覧のホーム画面
@@ -122,9 +123,13 @@ class HomeTab extends ConsumerWidget {
           child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(top: WanWalkSpacing.sm, bottom: WanWalkSpacing.xxxl),
-            itemCount: items.length + 1, // +1 for footer
+            itemCount: items.length + 2, // +1 for banner, +1 for footer
             itemBuilder: (context, index) {
               if (index == items.length) {
+                // 箱根観光バナー（フィード末尾）
+                return HakoneTourismBanner(isDark: isDark);
+              }
+              if (index == items.length + 1) {
                 // フッター
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: WanWalkSpacing.lg),

@@ -8,6 +8,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../providers/official_route_provider.dart';
+import '../../widgets/banners/doghub_banner.dart';
 import '../../providers/route_pin_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/pin_like_provider.dart';
@@ -125,6 +126,12 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                   if (route.petInfo != null && route.petInfo!.hasAnyInfo) ...[
                     _buildPetInfoSection(route.petInfo!, isDark),
                     const SizedBox(height: WanWalkSpacing.xl),
+                  ],
+
+                  // DogHubバナー（箱根エリアのルートのみ表示）
+                  if (route.areaId.startsWith('a1111111-1111-1111-1111-11111111111')) ...[
+                    const SizedBox(height: WanWalkSpacing.md),
+                    DogHubBanner(isDark: isDark),
                   ],
 
                   const SizedBox(height: WanWalkSpacing.xl),
