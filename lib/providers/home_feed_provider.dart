@@ -171,7 +171,35 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
   // ソート（sortDate降順）
   items.sort((a, b) => b.sortDate.compareTo(a.sortDate));
 
-  return items;
+  // フィードのバランス調整：ルートが多すぎないよう制限し、
+  // ピンやエリアカードが確実に表示されるようインターリーブ
+  final balanced = <FeedItem>[];
+  final routeItems = items.where((i) => i.type == FeedItemType.officialRoute || i.type == FeedItemType.seasonalRoute).toList();
+  final nonRouteItems = items.where((i) => i.type != FeedItemType.officialRoute && i.type != FeedItemType.seasonalRoute).toList();
+
+  // ルートは最大10件に制限
+  final limitedRoutes = routeItems.take(10).toList();
+
+  // walkSummaryは先頭
+  balanced.addAll(nonRouteItems.where((i) => i.type == FeedItemType.walkSummary));
+
+  // ルート2〜3件ごとにピン/エリアを挟む
+  int routeIdx = 0;
+  int nonRouteIdx = 0;
+  final otherNonRoute = nonRouteItems.where((i) => i.type != FeedItemType.walkSummary).toList();
+
+  while (routeIdx < limitedRoutes.length || nonRouteIdx < otherNonRoute.length) {
+    // ルート2件追加
+    for (int i = 0; i < 2 && routeIdx < limitedRoutes.length; i++) {
+      balanced.add(limitedRoutes[routeIdx++]);
+    }
+    // 非ルート1件挟む
+    if (nonRouteIdx < otherNonRoute.length) {
+      balanced.add(otherNonRoute[nonRouteIdx++]);
+    }
+  }
+
+  return balanced;
 });
 
 String _getSeason(int month) {
