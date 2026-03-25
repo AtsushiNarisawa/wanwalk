@@ -89,12 +89,86 @@ class HomeTab extends ConsumerWidget {
           child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(top: WanWalkSpacing.sm, bottom: WanWalkSpacing.xxxl),
-            itemCount: items.length + 2, // +1 for banner, +1 for footer
+            itemCount: items.length + 3, // +1 for explore areas, +1 for banner, +1 for footer
             itemBuilder: (context, index) {
               if (index == items.length) {
-                return HakoneTourismBanner(isDark: isDark);
+                // エリアから探すセクション
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: WanWalkSpacing.lg,
+                    vertical: WanWalkSpacing.sm,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AreaListScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(WanWalkSpacing.md),
+                      decoration: BoxDecoration(
+                        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: (isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: WanWalkColors.accent.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.explore, color: WanWalkColors.accent, size: 22),
+                          ),
+                          const SizedBox(width: WanWalkSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'エリアから探す',
+                                  style: WanWalkTypography.bodyMedium.copyWith(
+                                    color: isDark
+                                        ? WanWalkColors.textPrimaryDark
+                                        : WanWalkColors.textPrimaryLight,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '箱根・鎌倉・横浜など全エリアのルート一覧',
+                                  style: WanWalkTypography.bodySmall.copyWith(
+                                    color: isDark
+                                        ? WanWalkColors.textSecondaryDark
+                                        : WanWalkColors.textSecondaryLight,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: WanWalkColors.accent,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               }
               if (index == items.length + 1) {
+                return HakoneTourismBanner(isDark: isDark);
+              }
+              if (index == items.length + 2) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: WanWalkSpacing.lg),
                   child: Center(
