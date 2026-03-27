@@ -314,6 +314,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         builder: (context) => PinCreateScreen(
           routeId: widget.route.id,
           location: currentLocation,
+          fromWalking: true,
         ),
       ),
     );
