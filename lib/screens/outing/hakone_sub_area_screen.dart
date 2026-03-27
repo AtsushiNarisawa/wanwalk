@@ -6,7 +6,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../providers/area_provider.dart';
 import 'route_list_screen.dart';
-import '../../utils/logger.dart';
+
 
 /// 箱根サブエリア選択画面
 class HakoneSubAreaScreen extends ConsumerWidget {
@@ -32,75 +32,63 @@ class HakoneSubAreaScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // DogHubバナー
+          // 箱根の犬連れ情報
           Padding(
-            padding: const EdgeInsets.all(WanWalkSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(WanWalkSpacing.lg, WanWalkSpacing.lg, WanWalkSpacing.lg, WanWalkSpacing.sm),
             child: GestureDetector(
               onTap: () async {
-                final uri = Uri.parse('https://www.dog-hub.shop/');
+                final uri = Uri.parse('https://dog-hub.shop/hotel/');
                 if (await canLaunchUrl(uri)) {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);
                 }
               },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  'assets/images/doghub_banner.jpg',
-                  width: double.infinity,
-                  height: 140,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    appLog('❌ Banner image error: $error');
-                    appLog('❌ Stack trace: $stackTrace');
-                    return Container(
-                      height: 180,
+              child: Container(
+                padding: const EdgeInsets.all(WanWalkSpacing.md),
+                decoration: BoxDecoration(
+                  color: isDark ? WanWalkColors.cardDark : const Color(0xFFFFF8F0),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: const Color(0xFFE8D5C0).withValues(alpha: 0.6),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF8B7355),
-                            Color(0xFFD4AF37),
-                            Color(0xFF6B8E23),
-                          ],
-                        ),
+                        color: WanWalkColors.accent.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: Colors.white,
+                      child: const Icon(Icons.pets, color: WanWalkColors.accent, size: 22),
+                    ),
+                    const SizedBox(width: WanWalkSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '箱根の散歩拠点',
+                            style: WanWalkTypography.bodySmall.copyWith(
+                              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
                             ),
-                            const SizedBox(height: WanWalkSpacing.sm),
-                            Text(
-                              'DogHub ペットホテル&カフェ',
-                              style: WanWalkTypography.titleMedium.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'DogHub仙石原 — カフェ・ドッグラン・一時預かり',
+                            style: WanWalkTypography.bodySmall.copyWith(
+                              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                              fontSize: 11,
                             ),
-                            const SizedBox(height: WanWalkSpacing.xs),
-                            Text(
-                              '📍箱根',
-                              style: WanWalkTypography.bodyMedium.copyWith(
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: WanWalkSpacing.xs),
-                            Text(
-                              '画像読み込みエラー',
-                              style: WanWalkTypography.bodySmall.copyWith(
-                                color: Colors.white70,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                    Icon(Icons.chevron_right, size: 18,
+                      color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight),
+                  ],
                 ),
               ),
             ),
