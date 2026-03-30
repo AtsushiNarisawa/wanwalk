@@ -100,6 +100,11 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                     ),
                   ),
 
+                  const SizedBox(height: WanWalkSpacing.md),
+
+                  // コミュニティメッセージ + フィードバック導線
+                  _buildCommunityNote(isDark),
+
                   const SizedBox(height: WanWalkSpacing.xl),
 
                   // 統計情報
@@ -1547,6 +1552,57 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  /// ルート名の下に表示するコミュニティメッセージ
+  Widget _buildCommunityNote(bool isDark) {
+    final noteColor = isDark
+        ? WanWalkColors.textSecondaryDark
+        : WanWalkColors.textSecondaryLight;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark
+            ? WanWalkColors.cardDark
+            : const Color(0xFFF9F7F4),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'このルートの情報は最新でない場合があります。'
+            'お気づきの点があれば、ぜひ教えてください。'
+            'みなさんの声でルート情報を一緒に育てていきます。',
+            style: WanWalkTypography.bodySmall.copyWith(
+              color: noteColor,
+              fontSize: 12,
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => _showFeedbackSheet(context),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.edit_note, size: 16, color: WanWalkColors.accent),
+                const SizedBox(width: 4),
+                Text(
+                  '情報の修正を提案する',
+                  style: WanWalkTypography.bodySmall.copyWith(
+                    color: WanWalkColors.accent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
