@@ -4,8 +4,10 @@ import '../../../config/wanwalk_colors.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/home_feed_provider.dart';
+import '../../../providers/area_provider.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
+import '../../outing/route_list_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../../widgets/feed/walk_summary_card.dart';
 import '../../../widgets/feed/route_feed_card.dart';
@@ -17,11 +19,13 @@ import '../../../widgets/banners/hakone_tourism_banner.dart';
 ///
 /// 構成:
 /// 1. 散歩サマリー（ログイン時のみ・先頭固定）
-/// 2. 公式ルートカード（NEW/季節バッジ付き）
-/// 3. コミュニティピンカード
-/// 4. エリア特集カード
-/// 5. 箱根観光バナー
-/// 6. フッター
+/// 2. エリアから探す（横スクロール・箱根メイン）
+/// 3. 「最新のルート」セクションタイトル
+/// 4. 公式ルートカード（NEW/季節バッジ付き）
+/// 5. コミュニティピンカード
+/// 6. エリア特集カード
+/// 7. 箱根観光バナー
+/// 8. フッター
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
 
@@ -73,6 +77,7 @@ class HomeTab extends ConsumerWidget {
 
   Widget _buildFeed(BuildContext context, WidgetRef ref, bool isDark) {
     final feedAsync = ref.watch(homeFeedProvider);
+    final areasAsync = ref.watch(areasProvider);
 
     return feedAsync.when(
       data: (items) {
@@ -97,93 +102,68 @@ class HomeTab extends ConsumerWidget {
           );
         }
 
+        // 散歩サマリーがあるかどうかでオフセットを計算
+        final hasSummary = items.isNotEmpty && items.first.type == FeedItemType.walkSummary;
+        final summaryCount = hasSummary ? 1 : 0;
+        // 挿入アイテム: エリアカード(1) + セクションタイトル(1) = 2
+        const insertedCount = 2;
+        // フッター: バナー(1) + Supported(1) = 2
+        const footerCount = 2;
+        final totalCount = items.length + insertedCount + footerCount;
+
         return RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(homeFeedProvider);
+            ref.invalidate(areasProvider);
           },
           child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(top: WanWalkSpacing.sm, bottom: WanWalkSpacing.xxxl),
-            itemCount: items.length + 3, // +1 for explore areas, +1 for banner, +1 for footer
+            itemCount: totalCount,
             itemBuilder: (context, index) {
-              if (index == items.length) {
-                // エリアから探すセクション
+              // 散歩サマリー（先頭）
+              if (hasSummary && index == 0) {
+                final item = items[0];
+                return WalkSummaryCard(
+                  walkCount: item.extra?['walkCount'] ?? 0,
+                  totalDistanceKm: item.extra?['totalDistanceKm'] ?? '0',
+                  totalMinutes: item.extra?['totalMinutes'] ?? 0,
+                  isDark: isDark,
+                );
+              }
+
+              // エリアから探す（散歩サマリーの直後）
+              if (index == summaryCount) {
+                return _buildAreaCards(context, ref, areasAsync, isDark);
+              }
+
+              // 「最新のルート」セクションタイトル
+              if (index == summaryCount + 1) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: WanWalkSpacing.lg,
-                    vertical: WanWalkSpacing.sm,
+                  padding: const EdgeInsets.only(
+                    left: WanWalkSpacing.lg,
+                    right: WanWalkSpacing.lg,
+                    top: WanWalkSpacing.md,
+                    bottom: WanWalkSpacing.sm,
                   ),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AreaListScreen(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(WanWalkSpacing.md),
-                      decoration: BoxDecoration(
-                        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: (isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: WanWalkColors.accent.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(Icons.explore, color: WanWalkColors.accent, size: 22),
-                          ),
-                          const SizedBox(width: WanWalkSpacing.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'エリアから探す',
-                                  style: WanWalkTypography.bodyMedium.copyWith(
-                                    color: isDark
-                                        ? WanWalkColors.textPrimaryDark
-                                        : WanWalkColors.textPrimaryLight,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '箱根・鎌倉・横浜など全エリアのルート一覧',
-                                  style: WanWalkTypography.bodySmall.copyWith(
-                                    color: isDark
-                                        ? WanWalkColors.textSecondaryDark
-                                        : WanWalkColors.textSecondaryLight,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            color: WanWalkColors.accent,
-                            size: 20,
-                          ),
-                        ],
-                      ),
+                  child: Text(
+                    '最新のルート',
+                    style: WanWalkTypography.headlineSmall.copyWith(
+                      color: isDark
+                          ? WanWalkColors.textPrimaryDark
+                          : WanWalkColors.textPrimaryLight,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 );
               }
-              if (index == items.length + 1) {
+
+              // フッター: バナー
+              if (index == totalCount - 2) {
                 return HakoneTourismBanner(isDark: isDark);
               }
-              if (index == items.length + 2) {
+              // フッター: Supported
+              if (index == totalCount - 1) {
                 return Padding(
                   padding: const EdgeInsets.only(
                     top: WanWalkSpacing.xl,
@@ -204,15 +184,21 @@ class HomeTab extends ConsumerWidget {
                 );
               }
 
-              final item = items[index];
+              // フィードアイテム（挿入分のオフセットを引く）
+              final itemIndex = index - insertedCount - summaryCount + summaryCount;
+              // summaryは上で処理済みなのでスキップ
+              final feedIndex = index - insertedCount;
+              if (feedIndex < 0 || feedIndex >= items.length) {
+                return const SizedBox.shrink();
+              }
+              // summaryは既に上で処理済み
+              if (hasSummary && feedIndex == 0) {
+                return const SizedBox.shrink();
+              }
+              final item = items[feedIndex];
               switch (item.type) {
                 case FeedItemType.walkSummary:
-                  return WalkSummaryCard(
-                    walkCount: item.extra?['walkCount'] ?? 0,
-                    totalDistanceKm: item.extra?['totalDistanceKm'] ?? '0',
-                    totalMinutes: item.extra?['totalMinutes'] ?? 0,
-                    isDark: isDark,
-                  );
+                  return const SizedBox.shrink(); // 上で処理済み
 
                 case FeedItemType.officialRoute:
                 case FeedItemType.seasonalRoute:
@@ -303,6 +289,136 @@ class HomeTab extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// エリアから探す（横スクロールカード）
+  Widget _buildAreaCards(BuildContext context, WidgetRef ref, AsyncValue areasAsync, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: WanWalkSpacing.lg,
+            right: WanWalkSpacing.lg,
+            top: WanWalkSpacing.md,
+            bottom: WanWalkSpacing.sm,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'エリアから探す',
+                style: WanWalkTypography.headlineSmall.copyWith(
+                  color: isDark
+                      ? WanWalkColors.textPrimaryDark
+                      : WanWalkColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AreaListScreen(),
+                    ),
+                  );
+                },
+                child: Text(
+                  'すべて見る',
+                  style: WanWalkTypography.bodySmall.copyWith(
+                    color: WanWalkColors.accent,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 80,
+          child: areasAsync.when(
+            data: (areas) {
+              // 箱根エリアを先頭、それ以外はルート数順
+              final hakoneAreas = areas.where((a) => a.name.startsWith('箱根')).toList();
+              final otherAreas = areas.where((a) => !a.name.startsWith('箱根')).toList();
+              final sorted = [...hakoneAreas, ...otherAreas];
+
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
+                itemCount: sorted.length,
+                itemBuilder: (context, i) {
+                  final area = sorted[i];
+                  final isHakone = area.name.startsWith('箱根');
+                  return Padding(
+                    padding: EdgeInsets.only(right: i < sorted.length - 1 ? 10 : 0),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RouteListScreen(
+                              areaId: area.id,
+                              areaName: area.name,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: isHakone ? 130 : 110,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: isHakone
+                              ? WanWalkColors.accent.withValues(alpha: 0.08)
+                              : (isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isHakone
+                                ? WanWalkColors.accent.withValues(alpha: 0.2)
+                                : (isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              area.name,
+                              style: WanWalkTypography.bodySmall.copyWith(
+                                color: isDark
+                                    ? WanWalkColors.textPrimaryDark
+                                    : WanWalkColors.textPrimaryLight,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              area.prefecture,
+                              style: WanWalkTypography.caption.copyWith(
+                                color: isDark
+                                    ? WanWalkColors.textSecondaryDark
+                                    : WanWalkColors.textSecondaryLight,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            loading: () => const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+        ),
+      ],
     );
   }
 }
