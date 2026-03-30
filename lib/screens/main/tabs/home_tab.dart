@@ -40,13 +40,28 @@ class HomeTab extends ConsumerWidget {
           children: [
             const Icon(Icons.pets, color: WanWalkColors.accent, size: 28),
             const SizedBox(width: WanWalkSpacing.sm),
-            Text(
-              'WanWalk',
-              style: WanWalkTypography.headlineMedium.copyWith(
-                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                fontWeight: FontWeight.bold,
-                height: 1.0,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'WanWalk',
+                  style: WanWalkTypography.headlineMedium.copyWith(
+                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                    fontWeight: FontWeight.bold,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '次の休日、どこ歩く？',
+                  style: WanWalkTypography.caption.copyWith(
+                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                    fontSize: 10,
+                    height: 1.0,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
