@@ -6,6 +6,7 @@ import '../models/recent_pin_post.dart';
 /// フィードアイテムの種別
 enum FeedItemType {
   walkSummary,    // 自分の散歩サマリー
+  featuredRoute,  // おすすめピックアップ
   officialRoute,  // 公式ルート紹介
   communityPin,   // コミュニティピン
   areaFeature,    // エリア特集
@@ -18,7 +19,7 @@ class FeedItem {
   final DateTime sortDate;
   final OfficialRoute? route;
   final RecentPinPost? pin;
-  final Map<String, dynamic>? extra; // walkSummary, areaFeature用
+  final Map<String, dynamic>? extra;
 
   const FeedItem({
     required this.type,
@@ -28,6 +29,28 @@ class FeedItem {
     this.extra,
   });
 }
+
+/// おすすめピックアップルートプロバイダー
+final featuredRouteProvider = FutureProvider<OfficialRoute?>((ref) async {
+  final supabase = Supabase.instance.client;
+  try {
+    final response = await supabase
+        .from('featured_routes')
+        .select('route_id, label, official_routes(*)')
+        .eq('is_active', true)
+        .order('display_order')
+        .limit(1);
+
+    final list = response as List;
+    if (list.isEmpty) return null;
+
+    final routeJson = list.first['official_routes'];
+    if (routeJson == null) return null;
+    return OfficialRoute.fromJson(routeJson);
+  } catch (_) {
+    return null;
+  }
+});
 
 /// ホームフィードプロバイダー
 final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
@@ -56,7 +79,7 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
         }
         items.add(FeedItem(
           type: FeedItemType.walkSummary,
-          sortDate: now.add(const Duration(days: 1)), // 常に先頭
+          sortDate: now.add(const Duration(days: 1)),
           extra: {
             'walkCount': walks.length,
             'totalDistanceKm': (totalDistance / 1000).toStringAsFixed(1),
@@ -64,12 +87,24 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
           },
         ));
       }
-    } catch (_) {
-      // サマリー取得失敗は無視
-    }
+    } catch (_) {}
   }
 
-  // 2. 公式ルート（新着 + 季節おすすめ）
+  // 2. ピックアップルートのIDを取得（フィードから重複排除用）
+  String? featuredRouteId;
+  try {
+    final featuredResponse = await supabase
+        .from('featured_routes')
+        .select('route_id')
+        .eq('is_active', true)
+        .limit(1);
+    final featuredList = featuredResponse as List;
+    if (featuredList.isNotEmpty) {
+      featuredRouteId = featuredList.first['route_id'] as String;
+    }
+  } catch (_) {}
+
+  // 3. 公式ルート（最新順）
   try {
     final routesResponse = await supabase
         .from('official_routes')
@@ -82,48 +117,20 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
         .map((json) => OfficialRoute.fromJson(json))
         .toList();
 
-    final currentMonth = now.month;
-    final currentSeason = _getSeason(currentMonth);
-
     for (final route in routes) {
+      // ピックアップルートはフィードから除外（上部に別枠で表示するため）
+      if (featuredRouteId != null && route.id == featuredRouteId) continue;
+
       final createdAt = route.createdAt ?? now.subtract(const Duration(days: 30));
-      final daysSinceCreated = now.difference(createdAt).inDays;
-
-      // 新着ルート（7日以内）→ブースト
-      if (daysSinceCreated <= 7) {
-        items.add(FeedItem(
-          type: FeedItemType.officialRoute,
-          sortDate: createdAt.add(const Duration(hours: 12)), // 少しブースト
-          route: route,
-          extra: {'isNew': true},
-        ));
-        continue;
-      }
-
-      // 季節おすすめルート
-      final bestSeason = route.petInfo?.bestSeason ?? '';
-      if (_matchesSeason(bestSeason, currentSeason)) {
-        items.add(FeedItem(
-          type: FeedItemType.seasonalRoute,
-          sortDate: now.subtract(Duration(hours: routes.indexOf(route) * 3)),
-          route: route,
-          extra: {'season': currentSeason},
-        ));
-        continue;
-      }
-
-      // 通常のルート
       items.add(FeedItem(
         type: FeedItemType.officialRoute,
         sortDate: createdAt,
         route: route,
       ));
     }
-  } catch (_) {
-    // ルート取得失敗は無視
-  }
+  } catch (_) {}
 
-  // 3. コミュニティピン（RPC経由で最新10件）
+  // 4. コミュニティピン（最新10件）
   try {
     final pinsResponse = await supabase
         .rpc('get_recent_pins', params: {'limit_count': 10});
@@ -136,64 +143,34 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
           sortDate: pin.createdAt,
           pin: pin,
         ));
-      } catch (_) {
-        // 個別ピンのパースエラーは無視
-      }
+      } catch (_) {}
     }
-  } catch (_) {
-    // ピン取得失敗は無視
-  }
+  } catch (_) {}
 
-  // 4. エリア特集（箱根を常に含む）
-  try {
-    final areasResponse = await supabase
-        .from('areas')
-        .select('id, name, image_url');
-
-    final areas = areasResponse as List;
-    // 箱根グループを1つにまとめる
-    final hakoneAreas = areas.where((a) => (a['name'] as String).startsWith('箱根')).toList();
-    if (hakoneAreas.isNotEmpty) {
-      items.add(FeedItem(
-        type: FeedItemType.areaFeature,
-        sortDate: now.subtract(const Duration(hours: 6)),
-        extra: {
-          'areaName': '箱根',
-          'routeCount': hakoneAreas.length,
-          'subAreas': hakoneAreas.map((a) => a['name']).toList(),
-        },
-      ));
-    }
-  } catch (_) {
-    // エリア取得失敗は無視
-  }
-
-  // ソート（sortDate降順）
+  // ソート（sortDate降順 = 最新順）
   items.sort((a, b) => b.sortDate.compareTo(a.sortDate));
 
-  // フィードのバランス調整：ルートが多すぎないよう制限し、
-  // ピンやエリアカードが確実に表示されるようインターリーブ
+  // バランス調整: ルート最大10件、ルート2件ごとにピンを1件挟む
   final balanced = <FeedItem>[];
-  final routeItems = items.where((i) => i.type == FeedItemType.officialRoute || i.type == FeedItemType.seasonalRoute).toList();
-  final nonRouteItems = items.where((i) => i.type != FeedItemType.officialRoute && i.type != FeedItemType.seasonalRoute).toList();
-
-  // ルートは最大10件に制限
-  final limitedRoutes = routeItems.take(10).toList();
+  final routeItems = items.where((i) =>
+    i.type == FeedItemType.officialRoute || i.type == FeedItemType.seasonalRoute
+  ).take(10).toList();
+  final nonRouteItems = items.where((i) =>
+    i.type != FeedItemType.officialRoute && i.type != FeedItemType.seasonalRoute
+  ).toList();
 
   // walkSummaryは先頭
   balanced.addAll(nonRouteItems.where((i) => i.type == FeedItemType.walkSummary));
 
-  // ルート2〜3件ごとにピン/エリアを挟む
+  // ルートとピン/エリアをインターリーブ
   int routeIdx = 0;
   int nonRouteIdx = 0;
   final otherNonRoute = nonRouteItems.where((i) => i.type != FeedItemType.walkSummary).toList();
 
-  while (routeIdx < limitedRoutes.length || nonRouteIdx < otherNonRoute.length) {
-    // ルート2件追加
-    for (int i = 0; i < 2 && routeIdx < limitedRoutes.length; i++) {
-      balanced.add(limitedRoutes[routeIdx++]);
+  while (routeIdx < routeItems.length || nonRouteIdx < otherNonRoute.length) {
+    for (int i = 0; i < 2 && routeIdx < routeItems.length; i++) {
+      balanced.add(routeItems[routeIdx++]);
     }
-    // 非ルート1件挟む
     if (nonRouteIdx < otherNonRoute.length) {
       balanced.add(otherNonRoute[nonRouteIdx++]);
     }
@@ -201,15 +178,3 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
 
   return balanced;
 });
-
-String _getSeason(int month) {
-  if (month >= 3 && month <= 5) return '春';
-  if (month >= 6 && month <= 8) return '夏';
-  if (month >= 9 && month <= 11) return '秋';
-  return '冬';
-}
-
-bool _matchesSeason(String bestSeason, String currentSeason) {
-  if (bestSeason.contains('通年')) return false; // 通年はブーストしない
-  return bestSeason.contains(currentSeason);
-}

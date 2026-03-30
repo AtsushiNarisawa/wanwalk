@@ -6,6 +6,7 @@ import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/home_feed_provider.dart';
 import '../../../providers/area_provider.dart';
 import '../../../models/area.dart';
+import '../../../models/official_route.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../outing/route_list_screen.dart';
@@ -103,11 +104,13 @@ class HomeTab extends ConsumerWidget {
           );
         }
 
+        final featuredAsync = ref.watch(featuredRouteProvider);
+
         // 散歩サマリーがあるかどうかでオフセットを計算
         final hasSummary = items.isNotEmpty && items.first.type == FeedItemType.walkSummary;
         final summaryCount = hasSummary ? 1 : 0;
-        // 挿入アイテム: エリアカード(1) + セクションタイトル(1) = 2
-        const insertedCount = 2;
+        // 挿入: エリアカード(1) + ピックアップ(1) + 最新ルートタイトル(1) = 3
+        const insertedCount = 3;
         // フッター: バナー(1) + Supported(1) = 2
         const footerCount = 2;
         final totalCount = items.length + insertedCount + footerCount;
@@ -116,6 +119,7 @@ class HomeTab extends ConsumerWidget {
           onRefresh: () async {
             ref.invalidate(homeFeedProvider);
             ref.invalidate(areasProvider);
+            ref.invalidate(featuredRouteProvider);
           },
           child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -133,13 +137,18 @@ class HomeTab extends ConsumerWidget {
                 );
               }
 
-              // エリアから探す（散歩サマリーの直後）
+              // エリアから探す
               if (index == summaryCount) {
                 return _buildAreaCards(context, ref, areasAsync, isDark);
               }
 
-              // 「最新のルート」セクションタイトル
+              // おすすめピックアップ
               if (index == summaryCount + 1) {
+                return _buildFeaturedPickup(context, featuredAsync, isDark);
+              }
+
+              // 「最新のルート」セクションタイトル
+              if (index == summaryCount + 2) {
                 return Padding(
                   padding: const EdgeInsets.only(
                     left: WanWalkSpacing.lg,
@@ -185,21 +194,19 @@ class HomeTab extends ConsumerWidget {
                 );
               }
 
-              // フィードアイテム（挿入分のオフセットを引く）
-              final itemIndex = index - insertedCount - summaryCount + summaryCount;
-              // summaryは上で処理済みなのでスキップ
+              // フィードアイテム
               final feedIndex = index - insertedCount;
               if (feedIndex < 0 || feedIndex >= items.length) {
                 return const SizedBox.shrink();
               }
-              // summaryは既に上で処理済み
               if (hasSummary && feedIndex == 0) {
                 return const SizedBox.shrink();
               }
               final item = items[feedIndex];
               switch (item.type) {
                 case FeedItemType.walkSummary:
-                  return const SizedBox.shrink(); // 上で処理済み
+                case FeedItemType.featuredRoute:
+                  return const SizedBox.shrink();
 
                 case FeedItemType.officialRoute:
                 case FeedItemType.seasonalRoute:
@@ -290,6 +297,123 @@ class HomeTab extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// おすすめピックアップ
+  Widget _buildFeaturedPickup(BuildContext context, AsyncValue<OfficialRoute?> featuredAsync, bool isDark) {
+    return featuredAsync.when(
+      data: (route) {
+        if (route == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: WanWalkSpacing.lg,
+            vertical: WanWalkSpacing.sm,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'おすすめピックアップ',
+                style: WanWalkTypography.headlineSmall.copyWith(
+                  color: isDark
+                      ? WanWalkColors.textPrimaryDark
+                      : WanWalkColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: WanWalkSpacing.sm),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RouteDetailScreen(routeId: route.id),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: WanWalkColors.accent.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // サムネイル
+                      if (route.thumbnailUrl != null)
+                        AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Image.network(
+                            route.thumbnailUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: isDark ? WanWalkColors.cardDark : const Color(0xFFF0EDE8),
+                              child: const Center(child: Icon(Icons.landscape, size: 48, color: Colors.grey)),
+                            ),
+                          ),
+                        ),
+                      // 情報
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        color: isDark ? WanWalkColors.cardDark : Colors.white,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              route.name,
+                              style: WanWalkTypography.bodyLarge.copyWith(
+                                color: isDark
+                                    ? WanWalkColors.textPrimaryDark
+                                    : WanWalkColors.textPrimaryLight,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(Icons.straighten, size: 14, color: WanWalkColors.accent),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${(route.distanceMeters / 1000).toStringAsFixed(1)}km',
+                                  style: WanWalkTypography.bodySmall.copyWith(
+                                    color: isDark
+                                        ? WanWalkColors.textSecondaryDark
+                                        : WanWalkColors.textSecondaryLight,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Icon(Icons.schedule, size: 14, color: WanWalkColors.accent),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '約${route.estimatedMinutes}分',
+                                  style: WanWalkTypography.bodySmall.copyWith(
+                                    color: isDark
+                                        ? WanWalkColors.textSecondaryDark
+                                        : WanWalkColors.textSecondaryLight,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 
