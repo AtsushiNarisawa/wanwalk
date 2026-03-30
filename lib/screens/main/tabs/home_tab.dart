@@ -170,12 +170,17 @@ class HomeTab extends ConsumerWidget {
               }
               if (index == items.length + 2) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: WanWalkSpacing.lg),
+                  padding: const EdgeInsets.only(
+                    top: WanWalkSpacing.xl,
+                    bottom: WanWalkSpacing.xl,
+                  ),
                   child: Center(
                     child: Text(
                       'Supported by 箱根DMO',
                       style: WanWalkTypography.caption.copyWith(
-                        color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+                        color: isDark
+                            ? WanWalkColors.textTertiaryDark
+                            : WanWalkColors.textTertiaryLight,
                         fontSize: 11,
                         letterSpacing: 0.5,
                       ),
