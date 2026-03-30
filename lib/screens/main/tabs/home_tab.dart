@@ -5,6 +5,7 @@ import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/home_feed_provider.dart';
 import '../../../providers/area_provider.dart';
+import '../../../models/area.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../outing/route_list_screen.dart';
@@ -293,7 +294,7 @@ class HomeTab extends ConsumerWidget {
   }
 
   /// エリアから探す（横スクロールカード）
-  Widget _buildAreaCards(BuildContext context, WidgetRef ref, AsyncValue areasAsync, bool isDark) {
+  Widget _buildAreaCards(BuildContext context, WidgetRef ref, AsyncValue<List<Area>> areasAsync, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
