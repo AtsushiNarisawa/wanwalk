@@ -43,8 +43,8 @@ class RouteSpot {
   final String name;
   final String? description;
   final LatLng location;
-  final int distanceFromStart; // メートル
-  final int estimatedTimeFromStart; // 分
+  final int? distanceFromStart; // メートル（未入力の場合はnull）
+  final int? estimatedTimeFromStart; // 分（未入力の場合はnull）
   final String? landscapeFeature; // 景観の特徴
   final List<String>? activitySuggestions; // できること（複数選択肢）
   final Map<String, dynamic>? seasonalNotes; // 季節の見どころ
@@ -64,8 +64,8 @@ class RouteSpot {
     required this.name,
     this.description,
     required this.location,
-    required this.distanceFromStart,
-    required this.estimatedTimeFromStart,
+    this.distanceFromStart,
+    this.estimatedTimeFromStart,
     this.landscapeFeature,
     this.activitySuggestions,
     this.seasonalNotes,
@@ -89,8 +89,8 @@ class RouteSpot {
       name: json['name'] as String,
       description: json['description'] as String?,
       location: _parsePostGISPoint(json['location']),
-      distanceFromStart: json['distance_from_start'] as int,
-      estimatedTimeFromStart: json['estimated_time_from_start'] as int,
+      distanceFromStart: json['distance_from_start'] as int?,
+      estimatedTimeFromStart: json['estimated_time_from_start'] as int?,
       landscapeFeature: json['landscape_feature'] as String?,
       activitySuggestions: json['activity_suggestions'] != null
           ? (json['activity_suggestions'] as List).map((e) => e as String).toList()
@@ -227,27 +227,31 @@ class RouteSpot {
     };
   }
 
-  /// 距離をフォーマット（例：400m）
+  /// 距離をフォーマット（例：400m）。未設定時は空文字。
   String get formattedDistance {
-    if (distanceFromStart >= 1000) {
-      return '${(distanceFromStart / 1000).toStringAsFixed(1)}km';
+    final d = distanceFromStart;
+    if (d == null) return '';
+    if (d >= 1000) {
+      return '${(d / 1000).toStringAsFixed(1)}km';
     } else {
-      return '${distanceFromStart}m';
+      return '${d}m';
     }
   }
 
-  /// 所要時間をフォーマット（例：8分）
+  /// 所要時間をフォーマット（例：8分）。未設定時は空文字。
   String get formattedTime {
-    if (estimatedTimeFromStart >= 60) {
-      final hours = estimatedTimeFromStart ~/ 60;
-      final minutes = estimatedTimeFromStart % 60;
+    final t = estimatedTimeFromStart;
+    if (t == null) return '';
+    if (t >= 60) {
+      final hours = t ~/ 60;
+      final minutes = t % 60;
       if (minutes > 0) {
         return '$hours時間$minutes分';
       } else {
         return '$hours時間';
       }
     } else {
-      return '$estimatedTimeFromStart分';
+      return '$t分';
     }
   }
 
