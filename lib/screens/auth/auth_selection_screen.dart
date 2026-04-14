@@ -57,10 +57,12 @@ class _AuthSelectionScreenState extends ConsumerState<AuthSelectionScreen> {
       }
     } catch (e) {
       if (mounted && !e.toString().contains('キャンセル')) {
+        final errorDetail = e.toString();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('サインインに失敗しました'),
+            content: Text('サインイン失敗: $errorDetail'),
             backgroundColor: WanWalkColors.error,
+            duration: const Duration(seconds: 8),
           ),
         );
       }
