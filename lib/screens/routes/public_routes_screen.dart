@@ -60,7 +60,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: WanWalkColors.textSecondary),
             onPressed: () {
               ref.invalidate(officialRoutesProvider);
             },
@@ -701,31 +701,38 @@ class _OfficialRouteCard extends StatelessWidget {
     );
   }
 
+  /// 難易度バッジ（DESIGN_TOKENS.md §2 — Wildboundsトーン3段階）
   Widget _buildDifficultyChip(DifficultyLevel difficulty) {
-    Color chipColor;
+    Color bg;
+    Color fg;
     switch (difficulty) {
       case DifficultyLevel.easy:
-        chipColor = const Color(0xFF4CAF50);
+        bg = WanWalkColors.levelEasy;
+        fg = Colors.white;
         break;
       case DifficultyLevel.moderate:
-        chipColor = WanWalkColors.routeOrange;
+        bg = WanWalkColors.bgTertiary;
+        fg = WanWalkColors.textSecondary;
         break;
       case DifficultyLevel.hard:
-        chipColor = WanWalkColors.error;
+        bg = WanWalkColors.accentPrimaryHover;
+        fg = Colors.white;
         break;
     }
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: chipColor.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(8),
+        color: bg,
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         difficulty.label,
-        style: WanWalkTypography.caption.copyWith(
-          color: chipColor,
-          fontWeight: FontWeight.bold,
+        style: TextStyle(
+          fontFamily: 'NotoSansJP',
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+          color: fg,
+          height: 1.2,
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -281,8 +282,8 @@ class HelpScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.pets,
+              Icon(
+  PhosphorIcons.dog(),
                 color: WanWalkColors.accent,
                 size: 32,
               ),

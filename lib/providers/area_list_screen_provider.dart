@@ -145,7 +145,7 @@ List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
     
     appLog('📊 箱根グループ合計ルート数: $totalRoutes');
     
-    // 箱根親エリアを作成
+    // 箱根親エリアを作成（hero_image_url: 平和の鳥居+富士+芦ノ湖）
     final hakoneParent = {
       'id': 'hakone_group', // 特殊ID
       'name': '箱根',
@@ -154,6 +154,8 @@ List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
       'route_count': totalRoutes,
       'is_hakone_group': true, // 箱根グループフラグ
       'sub_areas': hakoneAreas, // サブエリア一覧
+      'hero_image_url':
+          'https://jkpenklhrlbctebkpvax.supabase.co/storage/v1/object/public/route-photos/ashinoko_west/01.jpg',
     };
     
     appLog('✅ 箱根グループ作成完了: sub_areas=${hakoneAreas.length}件');

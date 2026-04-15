@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../config/wanwalk_colors.dart';
-import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../config/wanwalk_typography.dart';
 import '../../providers/area_provider.dart';
 import 'route_list_screen.dart';
 
-
-/// 箱根サブエリア選択画面
+/// 箱根サブエリア選択画面（Build 28 Wildboundsトーン刷新）
 class HakoneSubAreaScreen extends ConsumerWidget {
   final List<Map<String, dynamic>> subAreas;
 
@@ -19,112 +20,133 @@ class HakoneSubAreaScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: isDark
-          ? WanWalkColors.backgroundDark
-          : WanWalkColors.backgroundLight,
+      backgroundColor: WanWalkColors.bgPrimary,
       appBar: AppBar(
-        title: const Text('箱根エリアを選ぶ'),
-        backgroundColor: Colors.transparent,
+        backgroundColor: WanWalkColors.bgPrimary,
         elevation: 0,
-      ),
-      body: Column(
-        children: [
-          // 箱根の犬連れ情報
-          Padding(
-            padding: const EdgeInsets.fromLTRB(WanWalkSpacing.lg, WanWalkSpacing.lg, WanWalkSpacing.lg, WanWalkSpacing.sm),
-            child: GestureDetector(
-              onTap: () async {
-                final uri = Uri.parse('https://dog-hub.shop/hotel/');
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.all(WanWalkSpacing.md),
-                decoration: BoxDecoration(
-                  color: isDark ? WanWalkColors.cardDark : const Color(0xFFFFF8F0),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: const Color(0xFFE8D5C0).withValues(alpha: 0.6),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: WanWalkColors.accent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.pets, color: WanWalkColors.accent, size: 22),
-                    ),
-                    const SizedBox(width: WanWalkSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '箱根の散歩拠点',
-                            style: WanWalkTypography.bodySmall.copyWith(
-                              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'DogHub仙石原 — カフェ・ドッグラン・一時預かり',
-                            style: WanWalkTypography.bodySmall.copyWith(
-                              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.chevron_right, size: 18,
-                      color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight),
-                  ],
-                ),
-              ),
-            ),
+        scrolledUnderElevation: 0,
+        iconTheme: const IconThemeData(color: WanWalkColors.textPrimary),
+        title: const Text(
+          '箱根エリアを選ぶ',
+          style: TextStyle(
+            fontFamily: 'NotoSerifJP',
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: WanWalkColors.textPrimary,
           ),
-          // サブエリア一覧
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
-              itemCount: subAreas.length,
-              itemBuilder: (context, index) {
-                final area = subAreas[index];
-                return Padding(
-                  padding: EdgeInsets.only(
-                    bottom: index < subAreas.length - 1 ? WanWalkSpacing.md : WanWalkSpacing.lg,
-                  ),
-                  child: _HakoneSubAreaCard(
-                    areaData: area,
-                    isDark: isDark,
-                    onTap: () {
-                      ref.read(selectedAreaIdProvider.notifier).selectArea(area['id']);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RouteListScreen(
-                            areaId: area['id'],
-                            areaName: area['name'],
-                          ),
-                        ),
-                      );
-                    },
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          WanWalkSpacing.s4,
+          WanWalkSpacing.s2,
+          WanWalkSpacing.s4,
+          WanWalkSpacing.s8,
+        ),
+        children: [
+          // 箱根の散歩拠点（DogHub）バナー
+          _DogHubBanner(),
+          const SizedBox(height: WanWalkSpacing.s6),
+          // サブエリアカード一覧
+          for (int i = 0; i < subAreas.length; i++) ...[
+            _HakoneSubAreaCard(
+              areaData: subAreas[i],
+              onTap: () {
+                ref
+                    .read(selectedAreaIdProvider.notifier)
+                    .selectArea(subAreas[i]['id']);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RouteListScreen(
+                      areaId: subAreas[i]['id'],
+                      areaName: subAreas[i]['name'],
+                    ),
                   ),
                 );
               },
             ),
-          ),
+            if (i < subAreas.length - 1)
+              const SizedBox(height: WanWalkSpacing.s3),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// 箱根の散歩拠点（DogHub）バナー
+class _DogHubBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        final uri = Uri.parse('https://dog-hub.shop/hotel/');
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      },
+      borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(WanWalkSpacing.s5),
+        decoration: BoxDecoration(
+          color: WanWalkColors.bgSecondary,
+          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+          border: Border.all(color: WanWalkColors.borderSubtle),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: WanWalkColors.accentPrimarySoft,
+                borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                PhosphorIcons.dog(),
+                color: WanWalkColors.accentPrimary,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: WanWalkSpacing.s4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '箱根の散歩拠点',
+                    style: WanWalkTypography.wwLabel.copyWith(
+                      color: WanWalkColors.accentPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'DogHub仙石原',
+                    style: TextStyle(
+                      fontFamily: 'NotoSerifJP',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      height: 1.3,
+                      color: WanWalkColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    'カフェ・ドッグラン・一時預かり',
+                    style: WanWalkTypography.wwCaption,
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              PhosphorIcons.arrowUpRight(),
+              size: 16,
+              color: WanWalkColors.textSecondary,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -133,12 +155,10 @@ class HakoneSubAreaScreen extends ConsumerWidget {
 /// 箱根サブエリアカード
 class _HakoneSubAreaCard extends StatelessWidget {
   final Map<String, dynamic> areaData;
-  final bool isDark;
   final VoidCallback onTap;
 
   const _HakoneSubAreaCard({
     required this.areaData,
-    required this.isDark,
     required this.onTap,
   });
 
@@ -147,152 +167,69 @@ class _HakoneSubAreaCard extends StatelessWidget {
     final name = areaData['name'] as String;
     final description = areaData['description'] as String?;
     final routeCount = areaData['route_count'] as int? ?? 0;
-
-    // エリア名から「箱根・」を除去してサブエリア名を取得
     final subAreaName = name.replaceFirst('箱根・', '');
 
-    // エリアごとのアイコンとカラー
-    final iconData = _getAreaIcon(subAreaName);
-    final accentColor = _getAreaColor(subAreaName);
-
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
       child: Container(
-        padding: const EdgeInsets.all(WanWalkSpacing.lg),
+        padding: const EdgeInsets.all(WanWalkSpacing.s5),
         decoration: BoxDecoration(
-          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: accentColor.withOpacity(0.3),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: WanWalkColors.bgPrimary,
+          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+          border: Border.all(color: WanWalkColors.borderSubtle),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                // エリアアイコン
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        accentColor,
-                        accentColor.withOpacity(0.7),
-                      ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    subAreaName,
+                    style: const TextStyle(
+                      fontFamily: 'NotoSerifJP',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      height: 1.3,
+                      color: WanWalkColors.textPrimary,
                     ),
-                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    iconData,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: WanWalkSpacing.md),
-                // エリア名とルート数
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        subAreaName,
-                        style: WanWalkTypography.titleLarge.copyWith(
-                          color: isDark
-                              ? WanWalkColors.textPrimaryDark
-                              : WanWalkColors.textPrimaryLight,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  if (routeCount > 0) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      '$routeCount コース',
+                      style: WanWalkTypography.wwNumeric.copyWith(
+                        fontSize: 13,
+                        color: WanWalkColors.textSecondary,
+                        letterSpacing: 0.3,
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.route,
-                            size: 16,
-                            color: accentColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$routeCount件のルート',
-                            style: WanWalkTypography.bodySmall.copyWith(
-                              color: accentColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                    ),
+                  ],
+                  if (description != null && description.isNotEmpty) ...[
+                    const SizedBox(height: WanWalkSpacing.s3),
+                    Text(
+                      description,
+                      style: WanWalkTypography.wwBodySm.copyWith(
+                        color: WanWalkColors.textSecondary,
                       ),
-                    ],
-                  ),
-                ),
-                // 矢印
-                Icon(
-                  Icons.chevron_right,
-                  color: isDark
-                      ? WanWalkColors.textSecondaryDark
-                      : WanWalkColors.textSecondaryLight,
-                ),
-              ],
-            ),
-            if (description != null && description.isNotEmpty) ...[
-              const SizedBox(height: WanWalkSpacing.md),
-              Text(
-                description,
-                style: WanWalkTypography.bodySmall.copyWith(
-                  color: isDark
-                      ? WanWalkColors.textSecondaryDark
-                      : WanWalkColors.textSecondaryLight,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
               ),
-            ],
+            ),
+            const SizedBox(width: WanWalkSpacing.s4),
+            Icon(
+              PhosphorIcons.caretRight(),
+              size: 18,
+              color: WanWalkColors.textTertiary,
+            ),
           ],
         ),
       ),
     );
-  }
-
-  /// エリアごとのアイコンを返す
-  IconData _getAreaIcon(String subAreaName) {
-    if (subAreaName.contains('仙石原')) {
-      return Icons.grass; // DogHub所在地、高原
-    } else if (subAreaName.contains('芦ノ湖')) {
-      return Icons.water; // 湖
-    } else if (subAreaName.contains('湯本')) {
-      return Icons.hot_tub; // 温泉
-    } else if (subAreaName.contains('宮ノ下')) {
-      return Icons.museum; // 美術館・文化
-    } else if (subAreaName.contains('強羅')) {
-      return Icons.terrain; // 高原・山
-    }
-    return Icons.location_city;
-  }
-
-  /// エリアごとのカラーを返す
-  Color _getAreaColor(String subAreaName) {
-    if (subAreaName.contains('仙石原')) {
-      return const Color(0xFF4CAF50); // 緑（高原）
-    } else if (subAreaName.contains('芦ノ湖')) {
-      return const Color(0xFF2196F3); // 青（湖）
-    } else if (subAreaName.contains('湯本')) {
-      return const Color(0xFFFF9800); // オレンジ（温泉）
-    } else if (subAreaName.contains('宮ノ下')) {
-      return const Color(0xFF9C27B0); // 紫（文化）
-    } else if (subAreaName.contains('強羅')) {
-      return const Color(0xFF795548); // 茶（山）
-    }
-    return WanWalkColors.accent;
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -120,8 +121,8 @@ class _AuthSelectionScreenState extends ConsumerState<AuthSelectionScreen> {
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.pets,
+                          child: Icon(
+  PhosphorIcons.dog(),
                             size: 56,
                             color: Colors.white,
                           ),

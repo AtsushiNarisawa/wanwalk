@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:math' show asin, cos, sin, sqrt;
+import '../../../widgets/location_permission_dialog.dart';
 import '../../../config/wanwalk_colors.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
@@ -94,7 +95,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   }
 
   /// 現在地に移動
-  void _moveToCurrentLocation() {
+  Future<void> _moveToCurrentLocation() async {
     final gpsState = ref.read(gpsProviderRiverpod);
     if (gpsState.currentLocation != null) {
       _mapController.move(gpsState.currentLocation!, 15.0);
@@ -102,9 +103,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
         _currentLocation = gpsState.currentLocation;
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('現在地を取得できませんでした')),
-      );
+      if (mounted) await showLocationPermissionDialog(context);
     }
   }
 

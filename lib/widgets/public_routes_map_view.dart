@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/route_model.dart';
@@ -276,8 +277,8 @@ class _PublicRoutesMapViewState extends State<PublicRoutesMapView> {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.pets,
+                child: Icon(
+  PhosphorIcons.dog(),
                   color: Colors.white,
                   size: 20,
                 ),

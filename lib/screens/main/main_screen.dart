@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -98,7 +99,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         identify: 'walk',
         title: 'お散歩',
         description: 'ここから散歩を始められます！\n日常散歩・お出かけ散歩を選べます',
-        icon: Icons.pets,
+        icon: PhosphorIcons.dog(),
         isHighlight: true,
       ),
       // Step 4: ライブラリタブ
@@ -345,8 +346,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             label: 'マップ',
           ),
           BottomNavigationBarItem(
-            icon: SizedBox(key: _keyNavWalk, child: const Icon(Icons.pets_outlined, size: 32)),
-            activeIcon: const Icon(Icons.pets, size: 32),
+            icon: SizedBox(key: _keyNavWalk, child: Icon(PhosphorIcons.personSimpleWalk(), size: 30)),
+            activeIcon: Icon(PhosphorIcons.personSimpleWalk(PhosphorIconsStyle.fill), size: 30),
             label: 'お散歩',
           ),
           BottomNavigationBarItem(

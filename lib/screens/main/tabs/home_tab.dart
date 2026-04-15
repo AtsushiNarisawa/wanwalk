@@ -10,6 +10,7 @@ import '../../../models/official_route.dart';
 import '../../outing/area_list_screen.dart';
 import '../../outing/route_detail_screen.dart';
 import '../../outing/route_list_screen.dart';
+import '../../outing/hakone_sub_area_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../../widgets/feed/walk_summary_card.dart';
 import '../../../widgets/feed/route_feed_card.dart';
@@ -44,8 +45,6 @@ class HomeTab extends ConsumerWidget {
         elevation: 0,
         title: Row(
           children: [
-            const Icon(Icons.pets, color: WanWalkColors.accent, size: 28),
-            const SizedBox(width: WanWalkSpacing.sm),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -72,6 +71,7 @@ class HomeTab extends ConsumerWidget {
           ],
         ),
         actions: const [],
+        iconTheme: const IconThemeData(color: WanWalkColors.textPrimary),
       ),
       body: _buildFeed(context, ref, isDark),
     );
@@ -453,7 +453,7 @@ class HomeTab extends ConsumerWidget {
                 child: Text(
                   'すべて見る',
                   style: WanWalkTypography.bodySmall.copyWith(
-                    color: WanWalkColors.accent,
+                    color: WanWalkColors.accentPrimary,
                     fontSize: 12,
                   ),
                 ),
@@ -465,44 +465,76 @@ class HomeTab extends ConsumerWidget {
           height: 80,
           child: areasAsync.when(
             data: (areas) {
-              // 箱根エリアを先頭、それ以外はルート数順
-              final hakoneAreas = areas.where((a) => a.name.startsWith('箱根')).toList();
+              // 箱根サブエリア(箱根・XX)を1つの"箱根"親チップに統合
+              final hakoneSubs = areas.where((a) => a.name.startsWith('箱根・')).toList();
               final otherAreas = areas.where((a) => !a.name.startsWith('箱根')).toList();
-              final sorted = [...hakoneAreas, ...otherAreas];
+
+              final chips = <_HomeAreaChipData>[];
+              if (hakoneSubs.isNotEmpty) {
+                chips.add(_HomeAreaChipData(
+                  name: '箱根',
+                  prefecture: '神奈川県',
+                  isHakone: true,
+                  hakoneSubs: hakoneSubs,
+                ));
+              }
+              for (final a in otherAreas) {
+                chips.add(_HomeAreaChipData(
+                  name: a.name,
+                  prefecture: a.prefecture,
+                  area: a,
+                ));
+              }
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
-                itemCount: sorted.length,
+                itemCount: chips.length,
                 itemBuilder: (context, i) {
-                  final area = sorted[i];
-                  final isHakone = area.name.startsWith('箱根');
+                  final chip = chips[i];
                   return Padding(
-                    padding: EdgeInsets.only(right: i < sorted.length - 1 ? 10 : 0),
+                    padding: EdgeInsets.only(right: i < chips.length - 1 ? 10 : 0),
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RouteListScreen(
-                              areaId: area.id,
-                              areaName: area.name,
+                        if (chip.isHakone) {
+                          final subAreaMaps = chip.hakoneSubs!
+                              .map((a) => <String, dynamic>{
+                                    'id': a.id,
+                                    'name': a.name,
+                                    'prefecture': a.prefecture,
+                                    'description': a.description,
+                                  })
+                              .toList();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HakoneSubAreaScreen(subAreas: subAreaMaps),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RouteListScreen(
+                                areaId: chip.area!.id,
+                                areaName: chip.area!.name,
+                              ),
+                            ),
+                          );
+                        }
                       },
                       child: Container(
-                        width: isHakone ? 130 : 110,
+                        width: chip.isHakone ? 130 : 110,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
-                          color: isHakone
-                              ? WanWalkColors.accent.withValues(alpha: 0.08)
-                              : (isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight),
-                          borderRadius: BorderRadius.circular(12),
+                          color: chip.isHakone
+                              ? WanWalkColors.accentPrimarySoft
+                              : (isDark ? WanWalkColors.cardDark : WanWalkColors.bgSecondary),
+                          borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isHakone
-                                ? WanWalkColors.accent.withValues(alpha: 0.2)
-                                : (isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight),
+                            color: chip.isHakone
+                                ? WanWalkColors.accentPrimary.withValues(alpha: 0.3)
+                                : WanWalkColors.borderSubtle,
                           ),
                         ),
                         child: Column(
@@ -510,25 +542,23 @@ class HomeTab extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              area.name,
-                              style: WanWalkTypography.bodySmall.copyWith(
-                                color: isDark
-                                    ? WanWalkColors.textPrimaryDark
-                                    : WanWalkColors.textPrimaryLight,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                              chip.name,
+                              style: const TextStyle(
+                                fontFamily: 'NotoSerifJP',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                height: 1.2,
+                                color: WanWalkColors.textPrimary,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 3),
                             Text(
-                              area.prefecture,
-                              style: WanWalkTypography.caption.copyWith(
-                                color: isDark
-                                    ? WanWalkColors.textSecondaryDark
-                                    : WanWalkColors.textSecondaryLight,
+                              chip.prefecture,
+                              style: WanWalkTypography.wwLabel.copyWith(
                                 fontSize: 10,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ],
@@ -546,4 +576,20 @@ class HomeTab extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// ホーム画面のエリアチップ用データ
+class _HomeAreaChipData {
+  final String name;
+  final String prefecture;
+  final bool isHakone;
+  final Area? area; // 非箱根のとき
+  final List<Area>? hakoneSubs; // 箱根の時のサブエリア
+  _HomeAreaChipData({
+    required this.name,
+    required this.prefecture,
+    this.isHakone = false,
+    this.area,
+    this.hakoneSubs,
+  });
 }

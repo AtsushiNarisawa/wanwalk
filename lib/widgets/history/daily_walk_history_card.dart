@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:intl/intl.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -47,7 +48,7 @@ class DailyWalkHistoryCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                Icons.pets,
+                PhosphorIcons.dog(),
                 color: isDark
                     ? WanWalkColors.textSecondaryDark
                     : WanWalkColors.textSecondaryLight,

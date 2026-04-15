@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanwalk_colors.dart';
 import '../../../config/wanwalk_typography.dart';
@@ -125,11 +126,11 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
               ),
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               isScrollable: false,
-              tabs: const [
-                Tab(icon: Icon(Icons.photo_library, size: 20), text: 'アルバム'),
-                Tab(icon: Icon(Icons.luggage, size: 20), text: 'お出かけ'),
-                Tab(icon: Icon(Icons.pets, size: 20), text: '日常'),
-                Tab(icon: Icon(Icons.location_on, size: 20), text: 'ピン'),
+              tabs: [
+                const Tab(icon: Icon(Icons.photo_library, size: 20), text: 'アルバム'),
+                const Tab(icon: Icon(Icons.luggage, size: 20), text: 'お出かけ'),
+                Tab(icon: Icon(PhosphorIcons.dog(), size: 20), text: '日常'),
+                const Tab(icon: Icon(Icons.location_on, size: 20), text: 'ピン'),
               ],
             ),
           ),
@@ -1332,7 +1333,7 @@ class _PinHistoryCard extends StatelessWidget {
         break;
       case PinType.encounter:
         badgeColor = Colors.green;
-        badgeIcon = Icons.pets;
+        badgeIcon = PhosphorIcons.dog();
         break;
       case PinType.facility:
         badgeColor = Colors.purple;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../services/onboarding_service.dart';
@@ -17,15 +18,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
 
-  static const _slides = [
-    _SlideData(
+  static final _slides = [
+    const _SlideData(
       icon: Icons.route,
       iconColor: WanWalkColors.accent,
       title: '新しい散歩コースを発見',
       description: '公式ルートで愛犬との散歩が\nもっと楽しくなります',
       subText: '箱根・湘南・鎌倉など人気エリアのルートを収録',
     ),
-    _SlideData(
+    const _SlideData(
       icon: Icons.add_location_alt,
       iconColor: WanWalkColors.routeOrange,
       title: 'おすすめスポットを共有',
@@ -33,7 +34,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       subText: 'ピン投稿で素敵な場所を教え合おう',
     ),
     _SlideData(
-      icon: Icons.pets,
+      icon: PhosphorIcons.dog(),
       iconColor: WanWalkColors.primary,
       title: '散歩の思い出を記録',
       description: '日常散歩もお出かけ散歩も\nルートと写真で振り返れます',

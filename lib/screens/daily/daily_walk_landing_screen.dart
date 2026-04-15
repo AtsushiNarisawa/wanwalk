@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
@@ -58,8 +59,8 @@ class DailyWalkLandingScreen extends StatelessWidget {
                   color: WanWalkColors.accent.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.pets,
+                child: Icon(
+  PhosphorIcons.dog(),
                   size: 80,
                   color: WanWalkColors.accent,
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -294,7 +295,7 @@ class DailyWalkView extends ConsumerWidget {
               child: Column(
                 children: [
                   Icon(
-                    Icons.pets,
+                    PhosphorIcons.dog(),
                     size: 48,
                     color: isDark
                         ? WanWalkColors.textSecondaryDark

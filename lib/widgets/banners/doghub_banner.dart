@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -42,8 +43,8 @@ class DogHubBanner extends StatelessWidget {
                 color: WanWalkColors.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.pets,
+              child: Icon(
+  PhosphorIcons.dog(),
                 color: WanWalkColors.accent,
                 size: 24,
               ),

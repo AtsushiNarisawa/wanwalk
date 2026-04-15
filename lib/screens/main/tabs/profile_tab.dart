@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../config/wanwalk_colors.dart';
 import '../../../config/wanwalk_typography.dart';
@@ -120,8 +121,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
               const SizedBox(height: WanWalkSpacing.xl),
               // 機能紹介
               _UnauthProfileFeature(
-                icon: Icons.pets,
-                color: WanWalkColors.accent,
+                icon: PhosphorIcons.dog(),
+                color: WanWalkColors.accentPrimary,
                 title: '愛犬プロフィール',
                 description: '愛犬の情報を登録して管理',
                 isDark: isDark,
@@ -436,7 +437,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           padding: const EdgeInsets.only(left: WanWalkSpacing.xs, bottom: WanWalkSpacing.sm),
           child: Row(
             children: [
-              Icon(Icons.pets, color: WanWalkColors.accent, size: 20),
+              Icon(PhosphorIcons.dog(), color: WanWalkColors.accentPrimary, size: 20),
               const SizedBox(width: WanWalkSpacing.xs),
               Text(
                 '愛犬情報',
@@ -478,15 +479,24 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.pets_outlined,
-                      size: 64,
-                      color: isDark ? Colors.grey[700] : Colors.grey[300],
+                      PhosphorIcons.dog(),
+                      size: 56,
+                      color: WanWalkColors.textTertiary,
                     ),
                     const SizedBox(height: WanWalkSpacing.md),
                     Text(
-                      '愛犬が登録されていません',
+                      'まだ愛犬が登録されていません',
                       style: WanWalkTypography.bodyMedium.copyWith(
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: isDark
+                            ? WanWalkColors.textSecondaryDark
+                            : WanWalkColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: WanWalkSpacing.xs),
+                    Text(
+                      '右上の＋ボタンから追加できます',
+                      style: WanWalkTypography.caption.copyWith(
+                        color: WanWalkColors.textTertiary,
                       ),
                     ),
                   ],
@@ -678,7 +688,7 @@ class _DogCard extends StatelessWidget {
                             width: 64,
                             height: 64,
                             color: isDark ? Colors.grey[800] : Colors.grey[300],
-                            child: const Icon(Icons.pets, size: 28, color: Colors.grey),
+                            child: Icon(PhosphorIcons.dog(), size: 28, color: Colors.grey),
                           );
                         },
                       )
@@ -686,7 +696,7 @@ class _DogCard extends StatelessWidget {
                         width: 64,
                         height: 64,
                         color: isDark ? Colors.grey[800] : Colors.grey[300],
-                        child: const Icon(Icons.pets, size: 28, color: Colors.grey),
+                        child: Icon(PhosphorIcons.dog(), size: 28, color: Colors.grey),
                       ),
               ),
               const SizedBox(width: WanWalkSpacing.md),
@@ -831,16 +841,16 @@ class _MenuItem extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        color: isDestructive
-            ? Colors.red
-            : (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight),
+        color: isDark
+            ? WanWalkColors.textSecondaryDark
+            : WanWalkColors.textSecondary,
       ),
       title: Text(
         label,
         style: WanWalkTypography.bodyMedium.copyWith(
-          color: isDestructive
-              ? Colors.red
-              : (isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight),
+          color: isDark
+              ? WanWalkColors.textSecondaryDark
+              : WanWalkColors.textSecondary,
           fontWeight: FontWeight.w500,
         ),
       ),

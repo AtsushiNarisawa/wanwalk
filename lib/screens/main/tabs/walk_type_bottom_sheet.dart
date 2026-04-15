@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../config/wanwalk_colors.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../config/wanwalk_typography.dart';
@@ -59,8 +60,8 @@ class WalkTypeBottomSheet extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    Icons.directions_walk,
-                    color: WanWalkColors.primary,
+                    PhosphorIcons.personSimpleWalk(),
+                    color: WanWalkColors.accentPrimary,
                     size: 24,
                   ),
                   const SizedBox(width: WanWalkSpacing.xs),
@@ -77,13 +78,13 @@ class WalkTypeBottomSheet extends StatelessWidget {
 
               // お出かけ散歩（メイン）
               _WalkTypeCard(
-                icon: Icons.map_outlined,
+                icon: PhosphorIcons.mapTrifold(),
                 title: 'お出かけ散歩',
                 description: '公式ルートに沿って散歩',
                 detail: 'おすすめコースをナビで案内',
-                gradientColors: [
-                  WanWalkColors.routeOrange,
-                  WanWalkColors.routeOrangeLight,
+                gradientColors: const [
+                  WanWalkColors.accentPrimary,
+                  WanWalkColors.accentPrimaryHover,
                 ],
                 onTap: () => Navigator.pop(context, 'outing'),
               ),
@@ -91,13 +92,13 @@ class WalkTypeBottomSheet extends StatelessWidget {
 
               // 日常散歩
               _WalkTypeCard(
-                icon: Icons.pets,
+                icon: PhosphorIcons.houseSimple(),
                 title: '日常散歩',
                 description: 'いつものお散歩を記録',
                 detail: '自由なルートで散歩を楽しむ',
-                gradientColors: [
-                  WanWalkColors.accent,
-                  WanWalkColors.accentLight,
+                gradientColors: const [
+                  WanWalkColors.accentPrimary,
+                  WanWalkColors.accentPrimaryHover,
                 ],
                 onTap: () => Navigator.pop(context, 'daily'),
               ),
@@ -105,13 +106,13 @@ class WalkTypeBottomSheet extends StatelessWidget {
 
               // ピン投稿のみ
               _WalkTypeCard(
-                icon: Icons.add_location_alt_outlined,
+                icon: PhosphorIcons.mapPin(),
                 title: 'ピン投稿のみ',
                 description: 'お気に入りスポットを共有',
                 detail: '散歩せずにピンだけ投稿',
-                gradientColors: [
-                  WanWalkColors.secondary,
-                  WanWalkColors.secondaryLight,
+                gradientColors: const [
+                  WanWalkColors.accentPrimary,
+                  WanWalkColors.accentPrimaryHover,
                 ],
                 isCompact: true,
                 onTap: () => Navigator.pop(context, 'pin_only'),

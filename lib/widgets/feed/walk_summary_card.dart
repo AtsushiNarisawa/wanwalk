@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
@@ -49,7 +50,7 @@ class WalkSummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.pets, color: Colors.white, size: 20),
+              Icon(PhosphorIcons.dog(), color: Colors.white, size: 20),
               const SizedBox(width: 8),
               Text(
                 '今週のお散歩',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../config/wanwalk_colors.dart';
@@ -301,7 +302,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
                 if (histories.isEmpty && _dailyOffset == 0) {
                   return _buildEmptyState(
                     isDark,
-                    Icons.pets,
+                    PhosphorIcons.dog(),
                     'まだ日常散歩の記録がありません',
                     '毎日の散歩を記録してみましょう',
                   );
