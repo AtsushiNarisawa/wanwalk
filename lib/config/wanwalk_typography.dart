@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'wanwalk_colors.dart';
 
 /// WanWalk デザインシステム - タイポグラフィ
 /// DogHub風の柔らかく読みやすいタイポグラフィ
@@ -211,4 +212,96 @@ class WanWalkTypography {
   static TextStyle withOpacity(TextStyle style, Color color, double opacity) {
     return style.copyWith(color: color.withOpacity(opacity));
   }
+
+  // ==================================================
+  // Phase 1 (2026-04-15) — Wildboundsトーン
+  // 仕様: DESIGN_TOKENS.md / Noto Serif JP(見出し) + Inter / Noto Sans JP(本文)
+  // 使用: Phase 1 の新規/刷新画面から段階的に採用。
+  // ==================================================
+
+  static const String wwSerifFamily = 'NotoSerifJP';
+  static const String wwSansFamily = 'NotoSansJP';
+  static const String wwInterFamily = 'Inter';
+
+  static const TextStyle wwDisplay = TextStyle(
+    fontFamily: wwSerifFamily,
+    fontWeight: FontWeight.w700,
+    fontSize: 48,
+    height: 1.3,
+    letterSpacing: 0.8,
+    color: WanWalkColors.textPrimary,
+  );
+
+  static const TextStyle wwH1 = TextStyle(
+    fontFamily: wwSerifFamily,
+    fontWeight: FontWeight.w700,
+    fontSize: 28,
+    height: 1.35,
+    color: WanWalkColors.textPrimary,
+  );
+
+  static const TextStyle wwH2 = TextStyle(
+    fontFamily: wwSerifFamily,
+    fontWeight: FontWeight.w600,
+    fontSize: 22,
+    height: 1.4,
+    color: WanWalkColors.textPrimary,
+  );
+
+  static const TextStyle wwH3 = TextStyle(
+    fontFamily: wwSansFamily,
+    fontWeight: FontWeight.w600,
+    fontSize: 18,
+    height: 1.5,
+    color: WanWalkColors.textPrimary,
+  );
+
+  static const TextStyle wwBodyLg = TextStyle(
+    fontFamily: wwSansFamily,
+    fontWeight: FontWeight.w400,
+    fontSize: 18,
+    height: 1.75,
+    color: WanWalkColors.textPrimary,
+  );
+
+  static const TextStyle wwBody = TextStyle(
+    fontFamily: wwSansFamily,
+    fontWeight: FontWeight.w400,
+    fontSize: 16,
+    height: 1.75,
+    color: WanWalkColors.textPrimary,
+  );
+
+  static const TextStyle wwBodySm = TextStyle(
+    fontFamily: wwSansFamily,
+    fontWeight: FontWeight.w400,
+    fontSize: 14,
+    height: 1.6,
+    color: WanWalkColors.textPrimary,
+  );
+
+  static const TextStyle wwCaption = TextStyle(
+    fontFamily: wwSansFamily,
+    fontWeight: FontWeight.w400,
+    fontSize: 13,
+    height: 1.5,
+    color: WanWalkColors.textSecondary,
+  );
+
+  static const TextStyle wwLabel = TextStyle(
+    fontFamily: wwInterFamily,
+    fontWeight: FontWeight.w500,
+    fontSize: 12,
+    height: 1.4,
+    letterSpacing: 1.0,
+    color: WanWalkColors.textSecondary,
+  );
+
+  /// 数値用（距離・時間・高低差）。tabular-nums 相当
+  static const TextStyle wwNumeric = TextStyle(
+    fontFamily: wwInterFamily,
+    fontWeight: FontWeight.w500,
+    fontFeatures: [FontFeature.tabularFigures()],
+    color: WanWalkColors.textPrimary,
+  );
 }

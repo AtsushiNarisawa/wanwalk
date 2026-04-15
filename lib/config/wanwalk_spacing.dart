@@ -210,4 +210,28 @@ class WanWalkSpacing {
       offset: const Offset(0, 12),
     ),
   ];
+
+  // ==================================================
+  // Phase 1 (2026-04-15) — Wildboundsトーン 8pxベース
+  // 仕様: /Users/atsushinarisawa/projects/wanwalk/DESIGN_TOKENS.md
+  // ==================================================
+
+  static const double s1 = 4;
+  static const double s2 = 8;
+  static const double s3 = 12;
+  static const double s4 = 16;
+  static const double s5 = 24;
+  static const double s6 = 32;
+  static const double s7 = 40;
+  static const double s8 = 48;
+  static const double s9 = 64;
+  static const double s10 = 80;
+
+  static const double radiusSm = 4;
+  static const double radiusMd = 8;
+  static const double radiusLg = 12;
+
+  static const double containerPadMobile = 16;
+  static const double containerPadTablet = 32;
+  static const double containerPadDesktop = 40;
 }

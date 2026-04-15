@@ -16,6 +16,10 @@ import '../../providers/pin_like_provider.dart';
 import '../../providers/pin_bookmark_provider.dart';
 import '../../providers/pin_comment_provider.dart';
 import '../../providers/route_spots_provider.dart';
+import '../../widgets/phase1/spec_bar.dart';
+import '../../widgets/phase1/pin_card.dart';
+import '../../widgets/phase1/pet_info_grid.dart';
+import '../../widgets/phase1/route_actions.dart';
 
 import '../../models/official_route.dart';
 import '../../models/route_spot.dart';
@@ -67,6 +71,24 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         title: const Text('ルート詳細'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          routeAsync.maybeWhen(
+            data: (route) => route != null
+                ? Row(
+                    children: [
+                      BookmarkButton(routeId: route.id),
+                      ShareButton(
+                        routeName: route.name,
+                        areaName: null,
+                        slug: null,
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+            orElse: () => const SizedBox.shrink(),
+          ),
+        ],
       ),
       floatingActionButton: routeAsync.maybeWhen(
         data: (route) => route != null ? _buildFAB(context, isDark, route) : null,
@@ -431,50 +453,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       ),
     ];
   }
-  /// 統計情報（1行4列のコンパクト表示）
+  /// Phase 1: SpecBar（距離・所要時間・高低差・難易度）
   Widget _buildStats(OfficialRoute route, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: _StatCard(
-              icon: Icons.straighten,
-              label: '距離',
-              value: route.formattedDistance,
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: _StatCard(
-              icon: Icons.timer,
-              label: '時間',
-              value: route.formattedDuration,
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: _StatCard(
-              icon: Icons.push_pin,
-              label: 'ピン',
-              value: '${route.totalPins}',
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: _StatCard(
-              icon: Icons.directions_walk,
-              label: '散歩',
-              value: '${route.totalWalks}',
-              isDark: isDark,
-            ),
-          ),
-        ],
-      ),
-    );
+    return SpecBar.fromRoute(route);
   }
 
   /// 説明
@@ -620,54 +601,55 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     }
   }
 
-  /// ルートタイムラインセクション（スポット情報）
+  /// Phase 1: みどころセクション（B案: route_spots 全件 + gallery_images フォールバック + 番号タイル）
   Widget _buildRouteTimelineSection(String routeId, bool isDark) {
     final spotsAsync = ref.watch(routeSpotsProvider(routeId));
+    final routeAsync = ref.watch(routeByIdProvider(routeId));
 
     return spotsAsync.when(
       data: (spots) {
         if (spots.isEmpty) {
           return const SizedBox.shrink();
         }
+        final sortedSpots = [...spots]
+          ..sort((a, b) => a.spotOrder.compareTo(b.spotOrder));
+
+        final gallery = routeAsync.maybeWhen(
+          data: (route) => route?.galleryImages ?? const <String>[],
+          orElse: () => const <String>[],
+        );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'ルートタイムライン',
-              style: WanWalkTypography.headlineSmall.copyWith(
-                color: isDark
-                    ? WanWalkColors.textPrimaryDark
-                    : WanWalkColors.textPrimaryLight,
-                fontWeight: FontWeight.bold,
+            const Text(
+              'みどころ',
+              style: TextStyle(
+                fontFamily: 'NotoSerifJP',
+                fontWeight: FontWeight.w600,
+                fontSize: 22,
+                height: 1.4,
+                color: WanWalkColors.textPrimary,
               ),
             ),
-            const SizedBox(height: WanWalkSpacing.sm),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(WanWalkSpacing.lg),
-              decoration: BoxDecoration(
-                color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: spots.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final spot = entry.value;
-                  final isLast = index == spots.length - 1;
-
-                  return _buildSpotCard(spot, index, isLast, isDark);
-                }).toList(),
-              ),
-            ),
+            const SizedBox(height: WanWalkSpacing.s5),
+            ...sortedSpots.map((spot) {
+              String? photoUrl;
+              final idx = spot.spotOrder - 1;
+              if (idx >= 0 && idx < gallery.length && gallery[idx].isNotEmpty) {
+                photoUrl = gallery[idx];
+              }
+              return PinCard(spot: spot, photoUrl: photoUrl);
+            }),
           ],
         );
       },
       loading: () => const Center(
         child: Padding(
           padding: EdgeInsets.all(WanWalkSpacing.lg),
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: WanWalkColors.accentPrimary,
+          ),
         ),
       ),
       error: (error, stack) {
@@ -1095,126 +1077,47 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  /// 愛犬家向け情報セクション
-  /// 愛犬家向け情報セクション
+  /// Phase 1: 犬連れメモ（PetInfoGrid）+ 情報フィードバック
   Widget _buildPetInfoSection(PetInfo petInfo, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '愛犬家向け情報',
-          style: WanWalkTypography.headlineSmall.copyWith(
-            color: isDark
-                ? WanWalkColors.textPrimaryDark
-                : WanWalkColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
+        const Text(
+          '犬連れメモ',
+          style: TextStyle(
+            fontFamily: 'NotoSerifJP',
+            fontWeight: FontWeight.w600,
+            fontSize: 22,
+            height: 1.4,
+            color: WanWalkColors.textPrimary,
           ),
         ),
-        const SizedBox(height: WanWalkSpacing.sm),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(WanWalkSpacing.lg),
-          decoration: BoxDecoration(
-            color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 駐車場
-              if (petInfo.parking != null) ...[
-                _buildPetInfoItem(
-                  icon: Icons.local_parking,
-                  label: '駐車場',
-                  value: petInfo.parking!,
-                  isDark: isDark,
+        const SizedBox(height: WanWalkSpacing.s5),
+        PetInfoGrid(info: petInfo),
+        const SizedBox(height: WanWalkSpacing.s3),
+        InkWell(
+          onTap: () => _showFeedbackSheet(context),
+          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: WanWalkSpacing.s3,
+                vertical: WanWalkSpacing.s3),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.edit_note,
+                  size: 18,
+                  color: WanWalkColors.textSecondary,
                 ),
-                const SizedBox(height: WanWalkSpacing.md),
-              ],
-              // 道の状態
-              if (petInfo.surface != null) ...[
-                _buildPetInfoItem(
-                  icon: Icons.landscape,
-                  label: '道の状態',
-                  value: petInfo.surface!,
-                  isDark: isDark,
-                ),
-                const SizedBox(height: WanWalkSpacing.md),
-              ],
-              // 水飲み場
-              if (petInfo.waterStation != null) ...[
-                _buildPetInfoItem(
-                  icon: Icons.water_drop,
-                  label: '水飲み場',
-                  value: petInfo.waterStation!,
-                  isDark: isDark,
-                ),
-                const SizedBox(height: WanWalkSpacing.md),
-              ],
-              // トイレ
-              if (petInfo.restroom != null) ...[
-                _buildPetInfoItem(
-                  icon: Icons.wc,
-                  label: 'トイレ',
-                  value: petInfo.restroom!,
-                  isDark: isDark,
-                ),
-                const SizedBox(height: WanWalkSpacing.md),
-              ],
-              // ペット施設
-              if (petInfo.petFacilities != null) ...[
-                _buildPetInfoItem(
-                  icon: Icons.store,
-                  label: 'ペット施設',
-                  value: petInfo.petFacilities!,
-                  isDark: isDark,
-                ),
-                const SizedBox(height: WanWalkSpacing.md),
-              ],
-              // その他
-              if (petInfo.others != null) ...[
-                _buildPetInfoItem(
-                  icon: Icons.info_outline,
-                  label: 'その他',
-                  value: petInfo.others!,
-                  isDark: isDark,
-                ),
-              ],
-              // 情報フィードバックリンク
-              const SizedBox(height: WanWalkSpacing.md),
-              Divider(
-                color: isDark
-                    ? WanWalkColors.textSecondaryDark.withOpacity(0.2)
-                    : WanWalkColors.textSecondaryLight.withOpacity(0.2),
-              ),
-              InkWell(
-                onTap: () => _showFeedbackSheet(context),
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.edit_note,
-                        size: 20,
-                        color: isDark
-                            ? WanWalkColors.textSecondaryDark
-                            : WanWalkColors.textSecondaryLight,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '情報の修正を提案する',
-                        style: WanWalkTypography.bodySmall.copyWith(
-                          color: isDark
-                              ? WanWalkColors.textSecondaryDark
-                              : WanWalkColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
+                const SizedBox(width: 6),
+                Text(
+                  '情報の修正を提案する',
+                  style: WanWalkTypography.wwBodySm.copyWith(
+                    color: WanWalkColors.textSecondary,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
