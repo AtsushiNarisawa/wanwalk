@@ -10,6 +10,7 @@ class Area {
   final String prefecture;
   final String description;
   final LatLng centerLocation;
+  final String? heroImageUrl;
   final DateTime createdAt;
 
   Area({
@@ -18,6 +19,7 @@ class Area {
     required this.prefecture,
     required this.description,
     required this.centerLocation,
+    this.heroImageUrl,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -41,6 +43,7 @@ class Area {
       prefecture: json['prefecture'] as String? ?? '',
       description: json['description'] as String? ?? '',
       centerLocation: LatLng(latitude, longitude),
+      heroImageUrl: json['hero_image_url'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
@@ -66,6 +69,7 @@ class Area {
     String? prefecture,
     String? description,
     LatLng? centerLocation,
+    String? heroImageUrl,
     DateTime? createdAt,
   }) {
     return Area(
@@ -74,6 +78,7 @@ class Area {
       prefecture: prefecture ?? this.prefecture,
       description: description ?? this.description,
       centerLocation: centerLocation ?? this.centerLocation,
+      heroImageUrl: heroImageUrl ?? this.heroImageUrl,
       createdAt: createdAt ?? this.createdAt,
     );
   }
