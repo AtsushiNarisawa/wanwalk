@@ -212,14 +212,14 @@ class _RouteCard extends StatelessWidget {
     required this.onTap,
   });
 
-  Color _getDifficultyColor() {
+  ({Color bg, Color fg}) _getDifficultyStyle() {
     switch (route.difficultyLevel) {
       case DifficultyLevel.easy:
-        return Colors.green;
+        return (bg: WanWalkColors.levelEasy, fg: Colors.white);
       case DifficultyLevel.moderate:
-        return Colors.orange;
+        return (bg: WanWalkColors.bgTertiary, fg: WanWalkColors.textSecondary);
       case DifficultyLevel.hard:
-        return Colors.red;
+        return (bg: WanWalkColors.accentPrimaryHover, fg: Colors.white);
     }
   }
 
@@ -283,23 +283,26 @@ class _RouteCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: WanWalkSpacing.sm),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: WanWalkSpacing.sm,
-                    vertical: WanWalkSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getDifficultyColor().withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    route.difficultyLevel.label,
-                    style: WanWalkTypography.caption.copyWith(
-                      color: _getDifficultyColor(),
-                      fontWeight: FontWeight.bold,
+                Builder(builder: (_) {
+                  final s = _getDifficultyStyle();
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: WanWalkSpacing.sm,
+                      vertical: WanWalkSpacing.xs,
                     ),
-                  ),
-                ),
+                    decoration: BoxDecoration(
+                      color: s.bg,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      route.difficultyLevel.label,
+                      style: WanWalkTypography.caption.copyWith(
+                        color: s.fg,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                }),
               ],
             ),
             const SizedBox(height: WanWalkSpacing.sm),

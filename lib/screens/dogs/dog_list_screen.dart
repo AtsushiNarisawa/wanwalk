@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -90,7 +91,7 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.pets,
+            PhosphorIcons.dog(),
             size: 80,
             color: isDark ? Colors.white24 : Colors.black12,
           ),
@@ -190,8 +191,8 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
                         ? NetworkImage(dog.photoUrl!)
                         : null,
                     child: dog.photoUrl == null
-                        ? const Icon(
-                            Icons.pets,
+                        ? Icon(
+  PhosphorIcons.dog(),
                             size: 40,
                             color: WanWalkColors.accent,
                           )

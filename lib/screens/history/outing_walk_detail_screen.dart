@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -933,7 +934,7 @@ class _WalkPinCard extends StatelessWidget {
         break;
       case PinType.encounter:
         badgeColor = Colors.green;
-        badgeIcon = Icons.pets;
+        badgeIcon = PhosphorIcons.dog();
         break;
       case PinType.facility:
         badgeColor = Colors.purple;

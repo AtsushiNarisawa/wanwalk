@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/area_info.dart';
@@ -272,7 +273,7 @@ class PhotoRouteCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.pets,
+            PhosphorIcons.dog(),
             size: 60,
             color: Theme.of(context).primaryColor.withOpacity(0.3),
           ),

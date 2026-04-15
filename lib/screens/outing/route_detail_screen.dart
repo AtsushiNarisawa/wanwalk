@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
@@ -274,25 +275,29 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           // スタート/ゴールマーカー（スポットがない場合のフォールバック）
           if (spots.isEmpty)
             MarkerLayer(markers: _buildMarkers(route)),
-          // ピンマーカー
+          // ピンマーカー（愛犬家のおすすめ）— DESIGN_TOKENS §12-A
           if (pins.isNotEmpty)
             MarkerLayer(
               markers: pins.map<Marker>((pin) {
                 return Marker(
                   point: pin.location,
-                  width: 40,
-                  height: 40,
-                  child: Icon(
-                    Icons.location_on,
-                    color: WanWalkColors.accent,
-                    size: 40,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                  width: 24,
+                  height: 24,
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: WanWalkColors.secondary, // accent-secondary #B8905C (pubspec で維持)
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      PhosphorIcons.mapPin(),
+                      size: 14,
+                      color: Colors.white,
+                    ),
                   ),
                 );
               }).toList(),
@@ -317,50 +322,42 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                            actualStart.longitude == actualEnd.longitude;
 
     if (isSameLocation) {
-      // スタート=ゴール: accent-primary 1色の単一マーカー
       return [
         Marker(
           alignment: Alignment.center,
           point: actualStart,
-          width: 32,
-          height: 32,
-          child: Container(
-            decoration: BoxDecoration(
-              color: WanWalkColors.accentPrimary,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-            ),
+          width: 28,
+          height: 28,
+          child: _buildLabeledMarker(
+            label: 'S/G',
+            bg: WanWalkColors.accentPrimary,
+            fontSize: 11,
           ),
         ),
       ];
     }
 
-    // スタート≠ゴール: スタート accent-primary / ゴール accent-primary-hover
     return [
       Marker(
         alignment: Alignment.center,
         point: actualStart,
-        width: 32,
-        height: 32,
-        child: Container(
-          decoration: BoxDecoration(
-            color: WanWalkColors.accentPrimary,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
-          ),
+        width: 28,
+        height: 28,
+        child: _buildLabeledMarker(
+          label: 'S',
+          bg: WanWalkColors.accentPrimary,
+          fontSize: 13,
         ),
       ),
       Marker(
         alignment: Alignment.center,
         point: actualEnd,
-        width: 32,
-        height: 32,
-        child: Container(
-          decoration: BoxDecoration(
-            color: WanWalkColors.accentPrimaryHover,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
-          ),
+        width: 28,
+        height: 28,
+        child: _buildLabeledMarker(
+          label: 'G',
+          bg: WanWalkColors.accentPrimaryHover,
+          fontSize: 13,
         ),
       ),
     ];
@@ -804,12 +801,11 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         );
         
         if (goalIndex != -1) {
-          // スタート=ゴールの場合、半分緑・半分赤のマーカーを作成
           appLog('🎯 Start=Goal detected at ${spot.name}');
           markers.add(Marker(
             point: spot.location,
-            width: 60.0,
-            height: 60.0,
+            width: 28.0,
+            height: 28.0,
             alignment: Alignment.center,
             child: _buildStartGoalMarker(isDark),
           ));
@@ -832,8 +828,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       
       // 通常のマーカー
       final isStartOrEnd = isStart || isEnd;
-      final markerSize = isStartOrEnd ? 50.0 : 35.0; // サイズを小さく
-      
+      final markerSize = isStartOrEnd ? 28.0 : 22.0;
+
       markers.add(Marker(
         point: spot.location,
         width: markerSize,
@@ -854,65 +850,82 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
            (loc1.longitude - loc2.longitude).abs() < threshold;
   }
   
-  /// スタート=ゴールの統合マーカー（accent-primary 1色、影なし）
+  /// S/G 統合マーカー（DESIGN_TOKENS.md §12-A）
   Widget _buildStartGoalMarker(bool isDark) {
+    return _buildLabeledMarker(
+      label: 'S/G',
+      bg: WanWalkColors.accentPrimary,
+      fontSize: 11,
+    );
+  }
+
+  /// Inter Bold 白文字入りの丸マーカー（スタート/ゴール/統合共通）
+  Widget _buildLabeledMarker({
+    required String label,
+    required Color bg,
+    required double fontSize,
+  }) {
     return Container(
-      width: 32.0,
-      height: 32.0,
+      width: 28.0,
+      height: 28.0,
       decoration: BoxDecoration(
-        color: WanWalkColors.accentPrimary,
+        color: bg,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 2.0),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w700,
+          fontSize: fontSize,
+          color: Colors.white,
+          height: 1.0,
+          letterSpacing: 0.2,
+        ),
       ),
     );
   }
 
+  /// スポットマップアイコン（DESIGN_TOKENS §12-A）
+  /// start/end はラベル付き深緑丸、中間は白背景+グレー枠+グレー数字
   Widget _buildSpotMapIcon(RouteSpotType spotType, int index, bool isDark, bool isStartOrEnd) {
-    Color color;
-    bool showNumber = false;
-    int? spotNumber;
-
-    switch (spotType) {
-      case RouteSpotType.start:
-        color = WanWalkColors.accentPrimary;
-        break;
-      case RouteSpotType.end:
-        color = WanWalkColors.accentPrimaryHover;
-        break;
-      case RouteSpotType.landscape:
-      case RouteSpotType.photoSpot:
-      case RouteSpotType.facility:
-        color = WanWalkColors.textSecondary;
-        showNumber = true;
-        spotNumber = index;
-        break;
+    if (spotType == RouteSpotType.start) {
+      return _buildLabeledMarker(
+        label: 'S',
+        bg: WanWalkColors.accentPrimary,
+        fontSize: 13,
+      );
+    }
+    if (spotType == RouteSpotType.end) {
+      return _buildLabeledMarker(
+        label: 'G',
+        bg: WanWalkColors.accentPrimaryHover,
+        fontSize: 13,
+      );
     }
 
-    final containerSize = isStartOrEnd ? 32.0 : 28.0;
-    final borderWidth = 2.0;
-    const numberFontSize = 13.0;
-
+    // 中間スポット（landscape / photoSpot / facility）: 脇役
     return Container(
-      width: containerSize,
-      height: containerSize,
+      width: 22.0,
+      height: 22.0,
       decoration: BoxDecoration(
-        color: color,
+        color: WanWalkColors.bgPrimary,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: borderWidth),
+        border: Border.all(color: WanWalkColors.textSecondary, width: 2.0),
       ),
-      child: showNumber
-          ? Center(
-              child: Text(
-                '$spotNumber',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  color: Colors.white,
-                  fontSize: numberFontSize,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )
-          : null,
+      alignment: Alignment.center,
+      child: Text(
+        '$index',
+        style: const TextStyle(
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+          color: WanWalkColors.textSecondary,
+          height: 1.0,
+        ),
+      ),
     );
   }
 

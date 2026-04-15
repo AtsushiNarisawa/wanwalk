@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -344,7 +345,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
         break;
       case PinType.encounter:
         badgeColor = Colors.pink;
-        icon = Icons.pets;
+        icon = PhosphorIcons.dog();
         break;
       case PinType.facility:
         badgeColor = Colors.purple;
@@ -824,7 +825,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                 if (review.hasWaterFountain)
                   _buildFacilityChip('水飲み場', Icons.water_drop, isDark),
                 if (review.hasDogRun)
-                  _buildFacilityChip('ドッグラン', Icons.pets, isDark),
+                  _buildFacilityChip('ドッグラン', PhosphorIcons.dog(), isDark),
                 if (review.hasShade)
                   _buildFacilityChip('日陰', Icons.wb_sunny, isDark),
                 if (review.hasToilet)
@@ -1030,7 +1031,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
         // わんちゃん対応
         if (facilityInfo['dog_friendly'] != null)
           _buildInfoSection(
-            icon: Icons.pets,
+            icon: PhosphorIcons.dog(),
             title: 'わんちゃん対応',
             children: [
               _buildInfoRow(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../../widgets/location_permission_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -82,13 +83,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     final hasPermission = await gpsNotifier.checkPermission();
     if (!hasPermission) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('位置情報の権限が必要です'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        Navigator.of(context).pop();
+        await showLocationPermissionDialog(context);
+        if (mounted) Navigator.of(context).pop();
       }
       return;
     }
@@ -97,13 +93,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     final success = await gpsNotifier.startRecording();
     if (!success) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('GPS記録の開始に失敗しました'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        Navigator.of(context).pop();
+        await showLocationPermissionDialog(context);
+        if (mounted) Navigator.of(context).pop();
       }
     }
   }

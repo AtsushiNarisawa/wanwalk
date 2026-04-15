@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -379,7 +380,7 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
             _hasWaterFountain = value ?? false;
           });
         }, isDark),
-        _buildCheckboxTile('ドッグラン', Icons.pets, _hasDogRun, (value) {
+        _buildCheckboxTile('ドッグラン', PhosphorIcons.dog(), _hasDogRun, (value) {
           setState(() {
             _hasDogRun = value ?? false;
           });

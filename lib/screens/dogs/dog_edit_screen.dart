@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
@@ -369,8 +370,8 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                           backgroundColor: WanWalkColors.accent.withOpacity(0.2),
                           backgroundImage: _getAvatarImage(),
                           child: _getAvatarImage() == null
-                              ? const Icon(
-                                  Icons.pets,
+                              ? Icon(
+  PhosphorIcons.dog(),
                                   size: 60,
                                   color: WanWalkColors.accent,
                                 )
