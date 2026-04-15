@@ -62,6 +62,12 @@ dependencies:
   flutter_local_notifications: ^17.0.0
   timezone: ^0.9.2
 
+  # Phase 1 — Phosphor Icons（Wildboundsトーンの統一アイコンセット）
+  phosphor_flutter: ^2.1.0
+
+  # Phase 1 — 共有シート（ルート共有ボタン用）
+  share_plus: ^10.0.0
+
   path: any
 dev_dependencies:
   flutter_test:
@@ -81,6 +87,20 @@ flutter:
     - assets/icons/
     - assets/icon/
     - .env
+
+  # Phase 1 — Wildboundsトーン用フォント（DESIGN_TOKENS.md）
+  # 可変フォント版TTFを採用。全ウェイト1ファイルで収録（容量最適）。
+  # サブセット化は TestFlight ビルド24 提出前に別タスクで実施予定。
+  fonts:
+    - family: NotoSerifJP
+      fonts:
+        - asset: assets/fonts/NotoSerifJP-VF.ttf
+    - family: NotoSansJP
+      fonts:
+        - asset: assets/fonts/NotoSansJP-VF.ttf
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-VF.ttf
 
 flutter_launcher_icons:
   android: true

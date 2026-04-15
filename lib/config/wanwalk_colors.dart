@@ -153,4 +153,42 @@ class WanWalkColors {
     Color(0xFFC17B6B), // テラコッタ
     Color(0xFFA89B7E), // ライトウッド
   ];
+
+  // ==================================================
+  // Phase 1 (2026-04-15) — Wildboundsトーンのデザインシステム
+  // 仕様: /Users/atsushinarisawa/projects/wanwalk/DESIGN_TOKENS.md
+  // 使用: Phase 1 の新規/刷新画面から段階的に採用。
+  // ==================================================
+
+  /// 背景
+  static const Color bgPrimary = Color(0xFFFFFFFF);
+  static const Color bgSecondary = Color(0xFFF8F6F2);
+  static const Color bgTertiary = Color(0xFFEFECE5);
+
+  /// テキスト
+  static const Color textPrimary = Color(0xFF2A2A2A);
+  static const Color textSecondary = Color(0xFF6B6B6B);
+  static const Color textTertiary = Color(0xFFA0A0A0);
+  static const Color textInverse = Color(0xFFFFFFFF);
+
+  /// ボーダー
+  static const Color borderSubtle = Color(0xFFE8E4DE);
+  static const Color borderStrong = Color(0xFFD4CFC4);
+
+  /// アクセント（深緑）
+  static const Color accentPrimary = Color(0xFF6B7F5B);
+  static const Color accentPrimaryHover = Color(0xFF556649);
+  static const Color accentPrimarySoft = Color(0xFFE8EDE1);
+  static const Color accentGold = Color(0xFFB8905C);
+
+  /// セマンティック
+  static const Color semanticSuccess = Color(0xFF5B7F6B);
+  static const Color semanticWarning = Color(0xFFB8905C);
+  static const Color semanticError = Color(0xFFA84A3D);
+  static const Color semanticInfo = Color(0xFF5B728A);
+
+  /// 難易度（ルートカード用）
+  static const Color levelEasy = Color(0xFF8BA885);
+  static const Color levelModerate = Color(0xFFB8905C);
+  static const Color levelHard = Color(0xFFA84A3D);
 }
