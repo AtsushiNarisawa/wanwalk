@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'dart:ui' as ui;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
@@ -191,21 +190,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
   /// 地図セクション
   Widget _buildMapSection(OfficialRoute route, AsyncValue pinsAsync, bool isDark) {
     final spotsAsync = ref.watch(routeSpotsProvider(route.id));
-    
-    // スポットデータとピンデータを取得
-    final spots = spotsAsync.maybeWhen(
-      data: (data) {
-        // スポットデータ取得後、地図の中心とズームを調整
-        if (data.isNotEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final center = _calculateCenter(route);
-            final zoom = _calculateZoom(route);
-            _mapController.move(center, zoom);
-          });
-        }
 
-        return data;
-      },
+    final spots = spotsAsync.maybeWhen(
+      data: (data) => data,
       orElse: () => <RouteSpot>[],
     );
 
@@ -213,15 +200,38 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       data: (data) => data,
       orElse: () => [],
     );
-    
+
+    // 全ポイント（ルートライン優先 + spots 補完）。fitCamera に渡す。
+    final allPoints = <LatLng>[
+      if (route.routeLine != null) ...route.routeLine!,
+      ...spots.map((s) => s.location),
+    ];
+
+    if (allPoints.isNotEmpty) {
+      final bounds = LatLngBounds.fromPoints(allPoints);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: bounds,
+            padding: const EdgeInsets.all(40),
+          ),
+        );
+      });
+    }
+
+    final initialCenter = allPoints.isNotEmpty
+        ? allPoints.first
+        : route.startLocation;
+
     return Container(
       height: 300,
       color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
       child: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          initialCenter: _calculateCenter(route),
-          initialZoom: _calculateZoom(route),
+          initialCenter: initialCenter,
+          initialZoom: 15.0,
           minZoom: 10.0,
           maxZoom: 18.0,
         ),
@@ -230,15 +240,15 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'com.doghub.wanwalk',
           ),
-          // ルートライン
+          // ルートライン（DESIGN_TOKENS.md §12-A）
           if (route.routeLine != null && route.routeLine!.isNotEmpty)
             PolylineLayer(
               polylines: [
                 Polyline(
                   points: route.routeLine!,
-                  strokeWidth: 8.0,
-                  color: Colors.red,
-                  borderStrokeWidth: 3.0,
+                  strokeWidth: 6.0,
+                  color: WanWalkColors.accentPrimary,
+                  borderStrokeWidth: 2.0,
                   borderColor: Colors.white,
                 ),
               ],
@@ -248,10 +258,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
               polylines: [
                 Polyline(
                   points: spots.map((spot) => spot.location).toList(),
-                  strokeWidth: 5.0,
-                  color: const Color(0xFFFF6B35),
+                  strokeWidth: 6.0,
+                  color: WanWalkColors.accentPrimary,
                   borderStrokeWidth: 2.0,
-                  borderColor: Colors.white.withOpacity(0.8),
+                  borderColor: Colors.white,
                 ),
               ],
             ),
@@ -291,70 +301,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       ),
     );
   }
-  /// 全ポイント（スポット＋ルートライン）の境界を計算
-  ({double minLat, double maxLat, double minLon, double maxLon})? _calculateBounds(OfficialRoute route) {
-    final spotsAsync = ref.watch(routeSpotsProvider(route.id));
-    final spots = spotsAsync.maybeWhen(
-      data: (data) => data,
-      orElse: () => <RouteSpot>[],
-    );
-
-    // 全ポイントを集約
-    final allPoints = <LatLng>[
-      ...spots.map((s) => s.location),
-      if (route.routeLine != null) ...route.routeLine!,
-    ];
-
-    if (allPoints.isEmpty) return null;
-
-    double minLat = allPoints.first.latitude;
-    double maxLat = allPoints.first.latitude;
-    double minLon = allPoints.first.longitude;
-    double maxLon = allPoints.first.longitude;
-
-    for (var p in allPoints) {
-      if (p.latitude < minLat) minLat = p.latitude;
-      if (p.latitude > maxLat) maxLat = p.latitude;
-      if (p.longitude < minLon) minLon = p.longitude;
-      if (p.longitude > maxLon) maxLon = p.longitude;
-    }
-
-    return (minLat: minLat, maxLat: maxLat, minLon: minLon, maxLon: maxLon);
-  }
-
-  /// ルートの中心点を計算（スポット＋ルートラインの全体を考慮）
-  LatLng _calculateCenter(OfficialRoute route) {
-    final bounds = _calculateBounds(route);
-    if (bounds != null) {
-      return LatLng(
-        (bounds.minLat + bounds.maxLat) / 2,
-        (bounds.minLon + bounds.maxLon) / 2,
-      );
-    }
-    return route.startLocation;
-  }
-
-  /// ルートの境界に基づいて適切なズームレベルを計算（スポット＋ルートライン全体）
-  double _calculateZoom(OfficialRoute route) {
-    final bounds = _calculateBounds(route);
-    if (bounds != null) {
-      final latDiff = bounds.maxLat - bounds.minLat;
-      final lonDiff = bounds.maxLon - bounds.minLon;
-      final maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
-      // マージン40%で全体が余裕を持って表示
-      final adjustedDiff = maxDiff * 1.4;
-
-      if (adjustedDiff > 0.1) return 11.0;
-      if (adjustedDiff > 0.05) return 12.0;
-      if (adjustedDiff > 0.03) return 13.0;
-      if (adjustedDiff > 0.02) return 13.5;
-      if (adjustedDiff > 0.01) return 14.5;
-      if (adjustedDiff > 0.005) return 15.5;
-      return 16.0;
-    }
-    return 14.5;
-  }
-  /// マーカーを構築（スタート=ゴールの場合は特別表示）
+  /// マーカーを構築（スタート=ゴールの場合は1色の単一マーカー）
   List<Marker> _buildMarkers(OfficialRoute route) {
     
     // route_lineが存在する場合は、その最初と最後の点を使用
@@ -370,58 +317,26 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                            actualStart.longitude == actualEnd.longitude;
 
     if (isSameLocation) {
-      // スタート=ゴールの場合：緑と赤の半円マーカー
+      // スタート=ゴール: accent-primary 1色の単一マーカー
       return [
         Marker(
           alignment: Alignment.center,
           point: actualStart,
-          width: 40,
-          height: 40,
-          child: Stack(
-            children: [
-              // 左半分：緑（スタート）
-              Positioned(
-                left: 0,
-                child: Container(
-                  width: 20,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                    ),
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(Icons.flag, color: Colors.white, size: 16),
-                ),
-              ),
-              // 右半分：赤（ゴール）
-              Positioned(
-                right: 0,
-                child: Container(
-                  width: 20,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(Icons.sports_score, color: Colors.white, size: 16),
-                ),
-              ),
-            ],
+          width: 32,
+          height: 32,
+          child: Container(
+            decoration: BoxDecoration(
+              color: WanWalkColors.accentPrimary,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
           ),
         ),
       ];
     }
 
-    // スタート≠ゴールの場合：別々のマーカー
+    // スタート≠ゴール: スタート accent-primary / ゴール accent-primary-hover
     return [
-      // スタートマーカー
       Marker(
         alignment: Alignment.center,
         point: actualStart,
@@ -429,14 +344,12 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         height: 32,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.green,
+            color: WanWalkColors.accentPrimary,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 2),
           ),
-          child: const Icon(Icons.flag, color: Colors.white, size: 16),
         ),
       ),
-      // ゴールマーカー
       Marker(
         alignment: Alignment.center,
         point: actualEnd,
@@ -444,11 +357,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         height: 32,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.red,
+            color: WanWalkColors.accentPrimaryHover,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 2),
           ),
-          child: const Icon(Icons.sports_score, color: Colors.white, size: 16),
         ),
       ),
     ];
@@ -942,110 +854,43 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
            (loc1.longitude - loc2.longitude).abs() < threshold;
   }
   
-  /// スタート=ゴールの統合マーカー（半分緑・半分赤）
+  /// スタート=ゴールの統合マーカー（accent-primary 1色、影なし）
   Widget _buildStartGoalMarker(bool isDark) {
-    return Stack(
-      children: [
-        // 左半分：緑（スタート）
-        ClipPath(
-          clipper: _LeftHalfClipper(),
-          child: Container(
-            width: 60.0,
-            height: 60.0,
-            decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50), // 緑
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.6),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-          ),
-        ),
-        // 右半分：赤（ゴール）
-        ClipPath(
-          clipper: _RightHalfClipper(),
-          child: Container(
-            width: 60.0,
-            height: 60.0,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF44336), // 赤
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.6),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-          ),
-        ),
-        // 中央のボーダー
-        Center(
-          child: Container(
-            width: 60.0,
-            height: 60.0,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4.0),
-            ),
-          ),
-        ),
-        // アイコン（旗マーク）
-        Center(
-          child: Icon(
-            Icons.flag,
-            color: Colors.white,
-            size: 28.0,
-            shadows: [
-              Shadow(
-                color: Colors.black.withOpacity(0.5),
-                blurRadius: 2,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return Container(
+      width: 32.0,
+      height: 32.0,
+      decoration: BoxDecoration(
+        color: WanWalkColors.accentPrimary,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2.0),
+      ),
     );
   }
 
   Widget _buildSpotMapIcon(RouteSpotType spotType, int index, bool isDark, bool isStartOrEnd) {
-    IconData? icon;
     Color color;
     bool showNumber = false;
     int? spotNumber;
 
     switch (spotType) {
       case RouteSpotType.start:
-        icon = Icons.flag;
-        color = const Color(0xFF4CAF50); // 緑（スタート）
+        color = WanWalkColors.accentPrimary;
+        break;
+      case RouteSpotType.end:
+        color = WanWalkColors.accentPrimaryHover;
         break;
       case RouteSpotType.landscape:
       case RouteSpotType.photoSpot:
       case RouteSpotType.facility:
-        // 中間スポットは番号で表示
-        color = Colors.grey; // グレー
+        color = WanWalkColors.textSecondary;
         showNumber = true;
         spotNumber = index;
         break;
-      case RouteSpotType.end:
-        icon = Icons.sports_score;
-        color = const Color(0xFFF44336); // 赤（ゴール）
-        break;
     }
 
-    // スタート/ゴールは大きく、中間スポットは小さく
-    final containerSize = isStartOrEnd ? 50.0 : 35.0;
-    final iconSize = isStartOrEnd ? 24.0 : 16.0;
-    final borderWidth = isStartOrEnd ? 4.0 : 3.0;
-    final numberFontSize = 16.0;
+    final containerSize = isStartOrEnd ? 32.0 : 28.0;
+    final borderWidth = 2.0;
+    const numberFontSize = 13.0;
 
     return Container(
       width: containerSize,
@@ -1054,26 +899,20 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         color: color,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: borderWidth),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.6),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
       child: showNumber
           ? Center(
               child: Text(
                 '$spotNumber',
-                style: TextStyle(
+                style: const TextStyle(
+                  fontFamily: 'Inter',
                   color: Colors.white,
                   fontSize: numberFontSize,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             )
-          : Icon(icon, color: Colors.white, size: iconSize),
+          : null,
     );
   }
 
@@ -2119,38 +1958,3 @@ class _PinCommentButtonState extends ConsumerState<_PinCommentButton> {
   }
 }
 
-/// 左半分をクリップするClipper
-class _LeftHalfClipper extends CustomClipper<ui.Path> {
-  @override
-  ui.Path getClip(Size size) {
-    final path = ui.Path();
-    path.addOval(Rect.fromCircle(
-      center: Offset(size.width / 2, size.height / 2),
-      radius: size.width / 2,
-    ));
-    path.addRect(Rect.fromLTWH(size.width / 2, 0, size.width / 2, size.height));
-    path.fillType = ui.PathFillType.evenOdd;
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<ui.Path> oldClipper) => false;
-}
-
-/// 右半分をクリップするClipper
-class _RightHalfClipper extends CustomClipper<ui.Path> {
-  @override
-  ui.Path getClip(Size size) {
-    final path = ui.Path();
-    path.addOval(Rect.fromCircle(
-      center: Offset(size.width / 2, size.height / 2),
-      radius: size.width / 2,
-    ));
-    path.addRect(Rect.fromLTWH(0, 0, size.width / 2, size.height));
-    path.fillType = ui.PathFillType.evenOdd;
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<ui.Path> oldClipper) => false;
-}
