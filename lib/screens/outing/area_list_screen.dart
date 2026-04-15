@@ -101,7 +101,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
                       crossAxisCount: 2,
                       mainAxisSpacing: WanWalkSpacing.s5,
                       crossAxisSpacing: WanWalkSpacing.s4,
-                      childAspectRatio: 0.72,
+                      childAspectRatio: 0.64,
                     ),
                     itemCount: areas.length,
                     itemBuilder: (context, index) {
