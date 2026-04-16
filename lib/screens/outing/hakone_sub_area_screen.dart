@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/wanwalk_colors.dart';
@@ -9,8 +10,8 @@ import '../../config/wanwalk_typography.dart';
 import '../../providers/area_provider.dart';
 import 'route_list_screen.dart';
 
-/// 箱根サブエリア選択画面（Build 28 Wildboundsトーン刷新）
-class HakoneSubAreaScreen extends ConsumerWidget {
+/// 箱根サブエリア選択画面（Build 29: 0コースのサブエリア非表示）
+class HakoneSubAreaScreen extends ConsumerStatefulWidget {
   final List<Map<String, dynamic>> subAreas;
 
   const HakoneSubAreaScreen({
@@ -19,7 +20,53 @@ class HakoneSubAreaScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HakoneSubAreaScreen> createState() => _HakoneSubAreaScreenState();
+}
+
+class _HakoneSubAreaScreenState extends ConsumerState<HakoneSubAreaScreen> {
+  List<Map<String, dynamic>> _enrichedSubAreas = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRouteCounts();
+  }
+
+  Future<void> _loadRouteCounts() async {
+    final enriched = <Map<String, dynamic>>[];
+
+    for (final area in widget.subAreas) {
+      // route_countが既に含まれている場合（area_list_screen経由）はそのまま使う
+      if (area.containsKey('route_count') && area['route_count'] != null) {
+        enriched.add(area);
+        continue;
+      }
+
+      // route_countがない場合（home_tab経由）はSupabaseから取得
+      final response = await Supabase.instance.client
+          .from('official_routes')
+          .select('id')
+          .eq('area_id', area['id'])
+          .eq('is_published', true)
+          .count(CountOption.exact);
+
+      enriched.add({
+        ...area,
+        'route_count': response.count,
+      });
+    }
+
+    if (mounted) {
+      setState(() {
+        _enrichedSubAreas = enriched.where((a) => ((a['route_count'] as int?) ?? 0) > 0).toList();
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: WanWalkColors.bgPrimary,
       appBar: AppBar(
@@ -37,41 +84,41 @@ class HakoneSubAreaScreen extends ConsumerWidget {
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          WanWalkSpacing.s4,
-          WanWalkSpacing.s2,
-          WanWalkSpacing.s4,
-          WanWalkSpacing.s8,
-        ),
-        children: [
-          // 箱根の散歩拠点（DogHub）バナー
-          _DogHubBanner(),
-          const SizedBox(height: WanWalkSpacing.s6),
-          // サブエリアカード一覧
-          for (int i = 0; i < subAreas.length; i++) ...[
-            _HakoneSubAreaCard(
-              areaData: subAreas[i],
-              onTap: () {
-                ref
-                    .read(selectedAreaIdProvider.notifier)
-                    .selectArea(subAreas[i]['id']);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RouteListScreen(
-                      areaId: subAreas[i]['id'],
-                      areaName: subAreas[i]['name'],
-                    ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: WanWalkColors.accentPrimary))
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(
+                WanWalkSpacing.s4,
+                WanWalkSpacing.s2,
+                WanWalkSpacing.s4,
+                WanWalkSpacing.s8,
+              ),
+              children: [
+                _DogHubBanner(),
+                const SizedBox(height: WanWalkSpacing.s6),
+                for (int i = 0; i < _enrichedSubAreas.length; i++) ...[
+                  _HakoneSubAreaCard(
+                    areaData: _enrichedSubAreas[i],
+                    onTap: () {
+                      ref
+                          .read(selectedAreaIdProvider.notifier)
+                          .selectArea(_enrichedSubAreas[i]['id']);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RouteListScreen(
+                            areaId: _enrichedSubAreas[i]['id'],
+                            areaName: _enrichedSubAreas[i]['name'],
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                  if (i < _enrichedSubAreas.length - 1)
+                    const SizedBox(height: WanWalkSpacing.s3),
+                ],
+              ],
             ),
-            if (i < subAreas.length - 1)
-              const SizedBox(height: WanWalkSpacing.s3),
-          ],
-        ],
-      ),
     );
   }
 }

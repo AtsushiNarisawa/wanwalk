@@ -19,7 +19,7 @@ import '../../services/photo_service.dart';
 import '../../widgets/zoom_control_widget.dart';
 import '../../widgets/walk_completion_card.dart';
 import 'dart:io';
-import 'dart:ui' as ui;
+
 import 'pin_create_screen.dart';
 import '../../utils/logger.dart';
 
@@ -423,16 +423,16 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.doghub.wanwalk',
         ),
-        // 公式ルートライン（鮮やかなオレンジ色、太線）
+        // 公式ルートライン（DESIGN_TOKENS §12-A: accent-primary 深緑）
         if (widget.route.routeLine != null && widget.route.routeLine!.isNotEmpty)
           PolylineLayer(
             polylines: [
               Polyline(
                 points: widget.route.routeLine!,
-                strokeWidth: 6.0, // より太く
-                color: const Color(0xFFFF6B35), // 鮮やかなオレンジ色（不透明）
+                strokeWidth: 6.0,
+                color: WanWalkColors.accentPrimary,
                 borderStrokeWidth: 2.0,
-                borderColor: Colors.white.withOpacity(0.8), // 白い縁取り
+                borderColor: Colors.white.withOpacity(0.8),
               ),
             ],
           ),
@@ -604,7 +604,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                 ElevatedButton(
                   onPressed: _startWalking,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: WanWalkColors.accentPrimary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       vertical: WanWalkSpacing.md,
@@ -634,8 +634,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                             : _pauseRecording,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: gpsState.isPaused
-                              ? Colors.green
-                              : Colors.orange,
+                              ? WanWalkColors.accentPrimary
+                              : WanWalkColors.accentPrimaryHover,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             vertical: WanWalkSpacing.md,
@@ -712,7 +712,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
               FloatingActionButton(
                 heroTag: "camera_button",
                 onPressed: _takePhoto,
-                backgroundColor: Colors.green,
+                backgroundColor: WanWalkColors.accentPrimary,
                 child: Badge(
                   isLabelVisible: _photoFiles.isNotEmpty,
                   label: Text('${_photoFiles.length}'),
@@ -759,159 +759,136 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     );
   }
 
-  /// スポットマーカーを生成（スタート・ゴール・中間スポット）
+  /// スポットマーカーを生成（DESIGN_TOKENS §12-A: route_detail_screen と統一）
   List<Marker> _buildSpotMarkers(List<RouteSpot> spots) {
     if (spots.isEmpty) return [];
 
     final markers = <Marker>[];
-    
-    // スタートとゴールが同じ位置かチェック
-    final startSpot = spots.firstWhere((s) => s.spotType == RouteSpotType.start, orElse: () => spots.first);
-    final endSpot = spots.firstWhere((s) => s.spotType == RouteSpotType.end, orElse: () => spots.last);
-    
-    final isSameLocation = (startSpot.location.latitude - endSpot.location.latitude).abs() < 0.0001 &&
-                           (startSpot.location.longitude - endSpot.location.longitude).abs() < 0.0001;
+    final processedIndices = <int>{};
 
-    if (isSameLocation) {
-      // スタート=ゴールの場合：半分緑・半分赤のマーカー
-      markers.add(
-        Marker(
-          alignment: Alignment.center,
-          point: startSpot.location,
-          width: 50,
-          height: 50,
-          child: Stack(
-            children: [
-              // 左半分：緑（スタート）
-              ClipPath(
-                clipper: _LeftHalfClipper(),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
-                  ),
-                ),
-              ),
-              // 右半分：赤（ゴール）
-              ClipPath(
-                clipper: _RightHalfClipper(),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF44336),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
-                  ),
-                ),
-              ),
-              // 中央のアイコン
-              Center(
-                child: Icon(
-                  Icons.flag,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-      
-      // 中間スポットを追加（インデックス付き）
-      for (int i = 0; i < spots.length; i++) {
-        final spot = spots[i];
-        if (spot.spotType != RouteSpotType.start && spot.spotType != RouteSpotType.end) {
-          markers.add(_buildSpotMarker(spot, i, false));
+    for (int i = 0; i < spots.length; i++) {
+      if (processedIndices.contains(i)) continue;
+
+      final spot = spots[i];
+      final isStart = spot.spotType == RouteSpotType.start;
+      final isEnd = spot.spotType == RouteSpotType.end;
+
+      // スタート地点の場合、同じ位置にゴールがあるかチェック
+      if (isStart) {
+        final goalIndex = spots.indexWhere((s) =>
+          s.spotType == RouteSpotType.end &&
+          _isSameLocation(s.location, spot.location)
+        );
+
+        if (goalIndex != -1) {
+          markers.add(Marker(
+            point: spot.location,
+            width: 28.0,
+            height: 28.0,
+            alignment: Alignment.center,
+            child: _buildLabeledMarker(label: 'S/G', bg: WanWalkColors.accentPrimary, fontSize: 11),
+          ));
+          processedIndices.add(i);
+          processedIndices.add(goalIndex);
+          continue;
         }
       }
-    } else {
-      // スタートとゴールが別の場合：全スポットを表示（インデックス付き）
-      for (int i = 0; i < spots.length; i++) {
-        final spot = spots[i];
-        final isStartOrEnd = spot.spotType == RouteSpotType.start || spot.spotType == RouteSpotType.end;
-        markers.add(_buildSpotMarker(spot, i, isStartOrEnd));
+
+      // ゴール地点でスタートと同じ位置の場合はスキップ
+      if (isEnd) {
+        final startIndex = spots.indexWhere((s) =>
+          s.spotType == RouteSpotType.start &&
+          _isSameLocation(s.location, spot.location)
+        );
+        if (startIndex != -1 && processedIndices.contains(startIndex)) {
+          continue;
+        }
       }
+
+      final isStartOrEnd = isStart || isEnd;
+      final markerSize = isStartOrEnd ? 28.0 : 22.0;
+
+      markers.add(Marker(
+        point: spot.location,
+        width: markerSize,
+        height: markerSize,
+        alignment: Alignment.center,
+        child: _buildSpotMapIcon(spot.spotType, i),
+      ));
+      processedIndices.add(i);
     }
 
     return markers;
   }
 
-  /// 個別スポットマーカーを生成
-  Marker _buildSpotMarker(RouteSpot spot, int index, bool isStartOrEnd) {
-    final size = isStartOrEnd ? 50.0 : 35.0; // サイズを小さく
-    final iconSize = isStartOrEnd ? 24.0 : 16.0;
-    final borderWidth = isStartOrEnd ? 3.0 : 2.5;
+  bool _isSameLocation(LatLng loc1, LatLng loc2) {
+    const threshold = 0.0001;
+    return (loc1.latitude - loc2.latitude).abs() < threshold &&
+           (loc1.longitude - loc2.longitude).abs() < threshold;
+  }
 
-    Color backgroundColor;
-    IconData? icon;
-    bool showNumber = false;
-    int? spotNumber;
+  /// Inter Bold 白文字入りの丸マーカー（S/G/SG 共通）
+  Widget _buildLabeledMarker({
+    required String label,
+    required Color bg,
+    required double fontSize,
+  }) {
+    return Container(
+      width: 28.0,
+      height: 28.0,
+      decoration: BoxDecoration(
+        color: bg,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2.0),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w700,
+          fontSize: fontSize,
+          color: Colors.white,
+          height: 1.0,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
 
-    switch (spot.spotType) {
-      case RouteSpotType.start:
-        backgroundColor = const Color(0xFF4CAF50); // 緑
-        icon = Icons.flag;
-        break;
-      case RouteSpotType.end:
-        backgroundColor = const Color(0xFFF44336); // 赤
-        icon = Icons.sports_score;
-        break;
-      case RouteSpotType.landscape:
-      case RouteSpotType.photoSpot:
-      case RouteSpotType.facility:
-        backgroundColor = const Color(0xFF9E9E9E); // グレー
-        showNumber = true;
-        spotNumber = index;
-        break;
+  /// スポットマップアイコン（DESIGN_TOKENS §12-A）
+  Widget _buildSpotMapIcon(RouteSpotType spotType, int index) {
+    if (spotType == RouteSpotType.start) {
+      return _buildLabeledMarker(label: 'S', bg: WanWalkColors.accentPrimary, fontSize: 13);
+    }
+    if (spotType == RouteSpotType.end) {
+      return _buildLabeledMarker(label: 'G', bg: WanWalkColors.accentPrimaryHover, fontSize: 13);
     }
 
-    return Marker(
+    // 中間スポット: 白背景+グレー枠+グレー数字
+    return Container(
+      width: 22.0,
+      height: 22.0,
+      decoration: BoxDecoration(
+        color: WanWalkColors.bgPrimary,
+        shape: BoxShape.circle,
+        border: Border.all(color: WanWalkColors.textSecondary, width: 2.0),
+      ),
       alignment: Alignment.center,
-      point: spot.location,
-      width: size,
-      height: size,
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white,
-            width: borderWidth,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+      child: Text(
+        '$index',
+        style: const TextStyle(
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+          color: WanWalkColors.textSecondary,
+          height: 1.0,
         ),
-        child: showNumber
-            ? Center(
-                child: Text(
-                  '$spotNumber',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            : Icon(
-                icon,
-                color: Colors.white,
-                size: iconSize,
-              ),
       ),
     );
   }
 }
 
-/// 統計アイテム
 class _StatItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -956,30 +933,4 @@ class _StatItem extends StatelessWidget {
       ],
     );
   }
-}
-
-/// 左半分をクリップするClipper
-class _LeftHalfClipper extends CustomClipper<ui.Path> {
-  @override
-  ui.Path getClip(Size size) {
-    final path = ui.Path();
-    path.addRect(Rect.fromLTWH(0, 0, size.width / 2, size.height));
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<ui.Path> oldClipper) => false;
-}
-
-/// 右半分をクリップするClipper
-class _RightHalfClipper extends CustomClipper<ui.Path> {
-  @override
-  ui.Path getClip(Size size) {
-    final path = ui.Path();
-    path.addRect(Rect.fromLTWH(size.width / 2, 0, size.width / 2, size.height));
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<ui.Path> oldClipper) => false;
 }

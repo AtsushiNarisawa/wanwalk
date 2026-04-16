@@ -52,16 +52,16 @@ class DailyWalkLandingScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // イラスト（アイコン）
+              // イラスト（Phosphor Path アイコン）
               Container(
-                padding: const EdgeInsets.all(WanWalkSpacing.xxl),
+                padding: const EdgeInsets.all(WanWalkSpacing.xl),
                 decoration: BoxDecoration(
                   color: WanWalkColors.accent.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-  PhosphorIcons.dog(),
-                  size: 80,
+                  PhosphorIcons.path(),
+                  size: 48,
                   color: WanWalkColors.accent,
                 ),
               ),

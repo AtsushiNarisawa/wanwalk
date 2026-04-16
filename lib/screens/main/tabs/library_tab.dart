@@ -129,7 +129,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
               tabs: [
                 const Tab(icon: Icon(Icons.photo_library, size: 20), text: 'アルバム'),
                 const Tab(icon: Icon(Icons.luggage, size: 20), text: 'お出かけ'),
-                Tab(icon: Icon(PhosphorIcons.dog(), size: 20), text: '日常'),
+                Tab(icon: Icon(PhosphorIcons.house(), size: 20), text: '日常'),
                 const Tab(icon: Icon(Icons.location_on, size: 20), text: 'ピン'),
               ],
             ),
