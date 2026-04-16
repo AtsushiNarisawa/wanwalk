@@ -510,7 +510,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     }
   }
 
-  /// Phase 1: みどころセクション（B案: route_spots 全件 + gallery_images フォールバック + 番号タイル）
+  /// Phase 1: みどころセクション（route_spots 全件。写真は spot.photoUrl、なければ番号タイル）
   Widget _buildRouteTimelineSection(String routeId, bool isDark) {
     final spotsAsync = ref.watch(routeSpotsProvider(routeId));
     final routeAsync = ref.watch(routeByIdProvider(routeId));
@@ -522,11 +522,6 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         }
         final sortedSpots = [...spots]
           ..sort((a, b) => a.spotOrder.compareTo(b.spotOrder));
-
-        final gallery = routeAsync.maybeWhen(
-          data: (route) => route?.galleryImages ?? const <String>[],
-          orElse: () => const <String>[],
-        );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -543,12 +538,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             ),
             const SizedBox(height: WanWalkSpacing.s5),
             ...sortedSpots.map((spot) {
-              String? photoUrl;
-              final idx = spot.spotOrder - 1;
-              if (idx >= 0 && idx < gallery.length && gallery[idx].isNotEmpty) {
-                photoUrl = gallery[idx];
-              }
-              return PinCard(spot: spot, photoUrl: photoUrl);
+              return PinCard(spot: spot, photoUrl: spot.photoUrl);
             }),
           ],
         );

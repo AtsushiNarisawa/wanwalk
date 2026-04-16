@@ -51,6 +51,7 @@ class RouteSpot {
   final String? facilityType; // 施設タイプ（カフェ、トイレなど）
   final bool? petFriendly; // ペット同伴可能か
   final String? openingHours; // 営業時間
+  final String? photoUrl; // スポット写真URL
   final bool isOptional; // 立ち寄り任意
   final String? tips; // 参考情報
   final DateTime createdAt;
@@ -72,6 +73,7 @@ class RouteSpot {
     this.facilityType,
     this.petFriendly,
     this.openingHours,
+    this.photoUrl,
     required this.isOptional,
     this.tips,
     DateTime? createdAt,
@@ -101,6 +103,7 @@ class RouteSpot {
       facilityType: json['facility_type'] as String?,
       petFriendly: json['pet_friendly'] as bool?,
       openingHours: json['opening_hours'] as String?,
+      photoUrl: json['photo_url'] as String?,
       isOptional: json['is_optional'] as bool? ?? false,
       tips: json['tips'] as String?,
       createdAt: json['created_at'] != null
@@ -220,6 +223,7 @@ class RouteSpot {
       'facility_type': facilityType,
       'pet_friendly': petFriendly,
       'opening_hours': openingHours,
+      'photo_url': photoUrl,
       'is_optional': isOptional,
       'tips': tips,
       'created_at': createdAt.toIso8601String(),

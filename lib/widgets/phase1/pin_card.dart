@@ -35,20 +35,18 @@ class PinCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AspectRatio(
-            aspectRatio: 4 / 3,
-            child: photoUrl != null && photoUrl!.isNotEmpty
-                ? CachedNetworkImage(
-                    imageUrl: photoUrl!,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
-                      color: WanWalkColors.bgSecondary,
-                    ),
-                    errorWidget: (_, __, ___) =>
-                        _NumberTile(label: numberLabel),
-                  )
-                : _NumberTile(label: numberLabel),
-          ),
+          if (photoUrl != null && photoUrl!.isNotEmpty)
+            AspectRatio(
+              aspectRatio: 4 / 3,
+              child: CachedNetworkImage(
+                imageUrl: photoUrl!,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(
+                  color: WanWalkColors.bgSecondary,
+                ),
+                errorWidget: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.all(WanWalkSpacing.s5),
             child: Column(
