@@ -146,8 +146,8 @@ class ShareButton extends StatelessWidget {
       onTap: () {
         final areaText = areaName ?? '';
         final url = slug != null
-            ? 'https://dog-hub.shop/walks/routes/$slug'
-            : 'https://dog-hub.shop/walks/';
+            ? 'https://wanwalk.jp/routes/$slug'
+            : 'https://wanwalk.jp/';
         final body = areaText.isNotEmpty
             ? '$routeName - $areaTextの犬連れ散歩コース\n$url'
             : '$routeName\n$url';
