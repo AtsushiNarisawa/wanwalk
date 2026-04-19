@@ -20,6 +20,8 @@ import '../../widgets/phase1/spec_bar.dart';
 import '../../widgets/phase1/pin_card.dart';
 import '../../widgets/phase1/pet_info_grid.dart';
 import '../../widgets/phase1/route_actions.dart';
+import '../../widgets/route_detail/route_timeline.dart';
+import '../../widgets/route_detail/featured_spots.dart';
 
 import '../../models/official_route.dart';
 import '../../models/route_spot.dart';
@@ -62,6 +64,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final routeAsync = ref.watch(routeByIdProvider(widget.routeId));
     final pinsAsync = ref.watch(pinsByRouteProvider(widget.routeId));
+    final userPinsAsync = ref.watch(userPinsByRouteProvider(widget.routeId));
 
     return Scaffold(
       backgroundColor: isDark
@@ -150,6 +153,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
                   const SizedBox(height: WanWalkSpacing.xl),
 
+                  // おすすめスポット（spots + 公式pins 統合表示）
+                  _buildFeaturedSpotsSection(route.id, isDark),
+
                   // 愛犬家向け情報
                   if (route.petInfo != null && route.petInfo!.hasAnyInfo) ...[
                     _buildPetInfoSection(route.petInfo!, isDark),
@@ -168,8 +174,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
                   const SizedBox(height: WanWalkSpacing.xl),
 
-                  // ピンセクション
-                  _buildPinsSection(context, ref, pinsAsync, isDark),
+                  // ピンセクション（ユーザー投稿のみ）
+                  _buildPinsSection(context, ref, userPinsAsync, isDark),
                   
                   // FABの高さ分のスペース確保
                   const SizedBox(height: 80),
@@ -510,24 +516,20 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     }
   }
 
-  /// Phase 1: みどころセクション（route_spots 全件。写真は spot.photoUrl、なければ番号タイル）
+  /// コースガイド: route_spots を distance_from_start で番号付きタイムライン表示
   Widget _buildRouteTimelineSection(String routeId, bool isDark) {
     final spotsAsync = ref.watch(routeSpotsProvider(routeId));
-    final routeAsync = ref.watch(routeByIdProvider(routeId));
 
     return spotsAsync.when(
       data: (spots) {
         if (spots.isEmpty) {
           return const SizedBox.shrink();
         }
-        final sortedSpots = [...spots]
-          ..sort((a, b) => a.spotOrder.compareTo(b.spotOrder));
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'みどころ',
+              'コースガイド',
               style: TextStyle(
                 fontFamily: 'NotoSerifJP',
                 fontWeight: FontWeight.w600,
@@ -537,9 +539,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
               ),
             ),
             const SizedBox(height: WanWalkSpacing.s5),
-            ...sortedSpots.map((spot) {
-              return PinCard(spot: spot, photoUrl: spot.photoUrl);
-            }),
+            RouteTimeline(spots: spots),
           ],
         );
       },
@@ -555,6 +555,46 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         appLog('❌ スポット情報取得エラー: $error');
         return const SizedBox.shrink();
       },
+    );
+  }
+
+  /// おすすめスポット: route_spots と公式 route_pins を統合表示
+  Widget _buildFeaturedSpotsSection(String routeId, bool isDark) {
+    final spotsAsync = ref.watch(routeSpotsProvider(routeId));
+    final officialPinsAsync = ref.watch(officialPinsByRouteProvider(routeId));
+
+    return spotsAsync.when(
+      data: (spots) {
+        return officialPinsAsync.when(
+          data: (pins) {
+            if (spots.isEmpty && pins.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'おすすめスポット',
+                  style: TextStyle(
+                    fontFamily: 'NotoSerifJP',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 22,
+                    height: 1.4,
+                    color: WanWalkColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: WanWalkSpacing.s5),
+                FeaturedSpots(spots: spots, officialPins: pins),
+                const SizedBox(height: WanWalkSpacing.xl),
+              ],
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 
@@ -731,6 +771,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         icon = Icons.flag;
         color = const Color(0xFF4CAF50); // 緑（スタート）
         break;
+      case RouteSpotType.waypoint:
       case RouteSpotType.landscape:
       case RouteSpotType.photoSpot:
       case RouteSpotType.facility:
@@ -1053,8 +1094,17 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                       ),
                       const SizedBox(height: WanWalkSpacing.md),
                       Text(
-                        'まだピンがありません',
+                        'まだ投稿がありません',
                         style: WanWalkTypography.bodyLarge.copyWith(
+                          color: isDark
+                              ? WanWalkColors.textSecondaryDark
+                              : WanWalkColors.textSecondaryLight,
+                        ),
+                      ),
+                      const SizedBox(height: WanWalkSpacing.xs),
+                      Text(
+                        '愛犬との発見を最初に共有しませんか？',
+                        style: WanWalkTypography.bodySmall.copyWith(
                           color: isDark
                               ? WanWalkColors.textSecondaryDark
                               : WanWalkColors.textSecondaryLight,

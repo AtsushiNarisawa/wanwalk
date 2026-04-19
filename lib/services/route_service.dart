@@ -366,6 +366,7 @@ class RouteService {
           .from('route_spots')
           .select()
           .eq('route_id', routeId)
+          .order('distance_from_start', ascending: true, nullsFirst: false)
           .order('spot_order', ascending: true);
 
       if (kDebugMode) {

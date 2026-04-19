@@ -3,9 +3,10 @@ import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
 import '../utils/logger.dart';
 
-/// ルートスポットのタイプ
+/// ルートスポットのタイプ（旧フィールド spot_type 用）
 enum RouteSpotType {
   start('start', 'スタート'),
+  waypoint('waypoint', '中継地'),
   landscape('landscape', '景観'),
   photoSpot('photo_spot', 'フォトスポット'),
   facility('facility', '施設'),
@@ -20,6 +21,8 @@ enum RouteSpotType {
     switch (value) {
       case 'start':
         return RouteSpotType.start;
+      case 'waypoint':
+        return RouteSpotType.waypoint;
       case 'landscape':
         return RouteSpotType.landscape;
       case 'photo_spot':
@@ -29,8 +32,69 @@ enum RouteSpotType {
       case 'end':
         return RouteSpotType.end;
       default:
-        return RouteSpotType.start;
+        return RouteSpotType.waypoint;
     }
+  }
+}
+
+/// 9カテゴリのスポット分類（category フィールド）
+/// Web の SpotCategory と1対1対応
+enum SpotCategory {
+  viewpoint('viewpoint', '景観'),
+  cafe('cafe', 'カフェ'),
+  restaurant('restaurant', 'レストラン'),
+  park('park', '公園'),
+  shop('shop', 'ショップ'),
+  dogRun('dog_run', 'ドッグラン'),
+  waterStation('water_station', '給水'),
+  restroom('restroom', 'トイレ'),
+  parking('parking', '駐車場');
+
+  const SpotCategory(this.value, this.label);
+
+  final String value;
+  final String label;
+
+  static SpotCategory? fromString(String? value) {
+    if (value == null) return null;
+    for (final c in SpotCategory.values) {
+      if (c.value == value) return c;
+    }
+    return null;
+  }
+}
+
+/// 犬連れポリシー（dog_policy jsonb フィールド）
+class DogPolicy {
+  /// 'all' | 'small_medium' | 'small_only'
+  final String? size;
+  final bool? indoor;
+  final bool? terrace;
+  final bool? leashRequired;
+  final bool? carrierRequired;
+  final String? dogFee;
+  final String? notes;
+
+  const DogPolicy({
+    this.size,
+    this.indoor,
+    this.terrace,
+    this.leashRequired,
+    this.carrierRequired,
+    this.dogFee,
+    this.notes,
+  });
+
+  factory DogPolicy.fromJson(Map<String, dynamic> json) {
+    return DogPolicy(
+      size: json['size'] as String?,
+      indoor: json['indoor'] as bool?,
+      terrace: json['terrace'] as bool?,
+      leashRequired: json['leash_required'] as bool?,
+      carrierRequired: json['carrier_required'] as bool?,
+      dogFee: json['dog_fee'] as String?,
+      notes: json['notes'] as String?,
+    );
   }
 }
 
@@ -54,6 +118,8 @@ class RouteSpot {
   final String? photoUrl; // スポット写真URL
   final bool isOptional; // 立ち寄り任意
   final String? tips; // 参考情報
+  final SpotCategory? category; // 9カテゴリ分類
+  final DogPolicy? dogPolicy; // 犬連れポリシー
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -76,6 +142,8 @@ class RouteSpot {
     this.photoUrl,
     required this.isOptional,
     this.tips,
+    this.category,
+    this.dogPolicy,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -106,6 +174,10 @@ class RouteSpot {
       photoUrl: json['photo_url'] as String?,
       isOptional: json['is_optional'] as bool? ?? false,
       tips: json['tips'] as String?,
+      category: SpotCategory.fromString(json['category'] as String?),
+      dogPolicy: json['dog_policy'] != null
+          ? DogPolicy.fromJson(json['dog_policy'] as Map<String, dynamic>)
+          : null,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),

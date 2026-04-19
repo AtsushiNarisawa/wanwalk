@@ -8,7 +8,7 @@ import '../utils/logger.dart';
 /// Supabaseクライアントのインスタンス取得
 final _supabase = Supabase.instance.client;
 
-/// ルートIDでピン一覧を取得するProvider
+/// ルートIDでピン一覧を取得するProvider（公式・ユーザー投稿どちらも含む）
 final pinsByRouteProvider = FutureProvider.family<List<RoutePin>, String>(
   (ref, routeId) async {
     try {
@@ -74,6 +74,20 @@ final pinsByRouteProvider = FutureProvider.family<List<RoutePin>, String>(
     }
   },
 );
+
+/// 公式ピンのみを取得するProvider（おすすめスポット用）
+final officialPinsByRouteProvider =
+    FutureProvider.family<List<RoutePin>, String>((ref, routeId) async {
+  final all = await ref.watch(pinsByRouteProvider(routeId).future);
+  return all.where((p) => p.isOfficial).toList();
+});
+
+/// ユーザー投稿ピンのみを取得するProvider（みんなのピン用）
+final userPinsByRouteProvider =
+    FutureProvider.family<List<RoutePin>, String>((ref, routeId) async {
+  final all = await ref.watch(pinsByRouteProvider(routeId).future);
+  return all.where((p) => !p.isOfficial).toList();
+});
 
 /// ピンIDでピン詳細を取得するProvider
 final pinByIdProvider = FutureProvider.family<RoutePin?, String>(
