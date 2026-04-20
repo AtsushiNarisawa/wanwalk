@@ -70,13 +70,7 @@ class AreaCard extends StatelessWidget {
                   const SizedBox(height: WanWalkSpacing.s2),
                   Text(
                     name,
-                    style: const TextStyle(
-                      fontFamily: 'NotoSerifJP',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                      height: 1.4,
-                      color: WanWalkColors.textPrimary,
-                    ),
+                    style: WanWalkTypography.wwH4.copyWith(height: 1.4),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -377,16 +377,31 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final gpsState = ref.watch(gpsProviderRiverpod);
 
+    // CEO決定 案B: マップをSafeArea内に収め、上部はベージュ帯で塗る（Wildbounds哲学）
+    final topInset = MediaQuery.of(context).padding.top;
     return Scaffold(
-      backgroundColor: isDark
-          ? WanWalkColors.backgroundDark
-          : WanWalkColors.backgroundLight,
+      backgroundColor: WanWalkColors.bgSecondary,
       body: Stack(
         children: [
-          // マップ表示
-          _buildMap(gpsState),
+          // 上部: bg-secondary のステータスバー帯
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: topInset,
+            child: Container(color: WanWalkColors.bgSecondary),
+          ),
 
-          // 上部オーバーレイ
+          // マップ表示（ステータスバー下から描画）
+          Positioned(
+            top: topInset,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildMap(gpsState),
+          ),
+
+          // 上部オーバーレイ（タイトル・閉じるボタン）
           _buildTopOverlay(isDark),
 
           // 下部オーバーレイ（統計情報）

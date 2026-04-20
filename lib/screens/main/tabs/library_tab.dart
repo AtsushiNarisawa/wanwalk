@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanwalk_colors.dart';
+import '../../../config/wanwalk_icons.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../models/walk_history.dart';
@@ -56,23 +57,13 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
 
     if (userId == null) {
       return Scaffold(
-        backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+        backgroundColor: WanWalkColors.bgPrimary,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: WanWalkColors.bgPrimary,
+          foregroundColor: WanWalkColors.textPrimary,
           elevation: 0,
-          title: Row(
-            children: [
-              const Icon(Icons.collections, color: WanWalkColors.accent, size: 28),
-              const SizedBox(width: 8),
-              Text(
-                'ライブラリ',
-                style: WanWalkTypography.headlineMedium.copyWith(
-                  color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+          scrolledUnderElevation: 0,
+          title: const Text('ライブラリ', style: WanWalkTypography.wwH2),
         ),
         body: _buildUnauthenticatedState(context, isDark),
       );
@@ -81,23 +72,13 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
     final statisticsAsync = ref.watch(userStatisticsProvider(userId));
 
     return Scaffold(
-      backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+      backgroundColor: WanWalkColors.bgPrimary,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: WanWalkColors.bgPrimary,
+        foregroundColor: WanWalkColors.textPrimary,
         elevation: 0,
-        title: Row(
-          children: [
-            const Icon(Icons.collections, color: WanWalkColors.accent, size: 28),
-            const SizedBox(width: 8),
-            Text(
-              'ライブラリ',
-              style: WanWalkTypography.headlineMedium.copyWith(
-                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+        scrolledUnderElevation: 0,
+        title: const Text('ライブラリ', style: WanWalkTypography.wwH2),
       ),
       body: Column(
         children: [
@@ -110,27 +91,27 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
 
           // タブバー
           Container(
-            color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+            decoration: const BoxDecoration(
+              color: WanWalkColors.bgPrimary,
+              border: Border(
+                bottom: BorderSide(color: WanWalkColors.borderSubtle, width: 1),
+              ),
+            ),
             child: TabBar(
               controller: _tabController,
-              labelColor: WanWalkColors.primary,
-              unselectedLabelColor: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-              indicatorColor: WanWalkColors.primary,
-              indicatorWeight: 3,
-              labelStyle: WanWalkTypography.bodySmall.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-              unselectedLabelStyle: WanWalkTypography.bodySmall.copyWith(
-                fontSize: 11,
-              ),
+              labelColor: WanWalkColors.accentPrimary,
+              unselectedLabelColor: WanWalkColors.textSecondary,
+              indicatorColor: WanWalkColors.accentPrimary,
+              indicatorWeight: 2,
+              labelStyle: WanWalkTypography.wwBodySm.copyWith(fontWeight: FontWeight.w600),
+              unselectedLabelStyle: WanWalkTypography.wwBodySm,
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               isScrollable: false,
               tabs: [
-                const Tab(icon: Icon(Icons.photo_library, size: 20), text: 'アルバム'),
-                const Tab(icon: Icon(Icons.luggage, size: 20), text: 'お出かけ'),
-                Tab(icon: Icon(PhosphorIcons.house(), size: 20), text: '日常'),
-                const Tab(icon: Icon(Icons.location_on, size: 20), text: 'ピン'),
+                Tab(icon: Icon(WanWalkIcons.images, size: WanWalkIcons.sizeMd), text: 'アルバム'),
+                Tab(icon: Icon(PhosphorIcons.backpack(), size: WanWalkIcons.sizeMd), text: 'お出かけ'),
+                Tab(icon: Icon(PhosphorIcons.house(), size: WanWalkIcons.sizeMd), text: '日常'),
+                Tab(icon: Icon(WanWalkIcons.mapPin, size: WanWalkIcons.sizeMd), text: 'ピン'),
               ],
             ),
           ),
@@ -207,21 +188,14 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
     appLog('📊 お出かけ散歩=$thisMonthOuting回, 日常散歩=$thisMonthDaily回');
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg, vertical: WanWalkSpacing.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            WanWalkColors.accent.withOpacity(0.1),
-            WanWalkColors.accent.withOpacity(0.05),
-          ],
-        ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: WanWalkSpacing.s4,
+        vertical: WanWalkSpacing.s3,
+      ),
+      decoration: const BoxDecoration(
+        color: WanWalkColors.bgSecondary,
         border: Border(
-          bottom: BorderSide(
-            color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
-            width: 0.5,
-          ),
+          bottom: BorderSide(color: WanWalkColors.borderSubtle, width: 1),
         ),
       ),
       child: Row(
@@ -229,49 +203,47 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: WanWalkColors.accent.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
+              color: WanWalkColors.accentPrimarySoft,
+              borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
             ),
-            child: const Icon(
-              Icons.calendar_today,
-              size: 20,
-              color: WanWalkColors.accent,
+            child: Icon(
+              WanWalkIcons.calendar,
+              size: WanWalkIcons.sizeMd,
+              color: WanWalkColors.accentPrimary,
             ),
           ),
-          const SizedBox(width: WanWalkSpacing.md),
+          const SizedBox(width: WanWalkSpacing.s3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '今月の記録',
-                  style: WanWalkTypography.caption.copyWith(
-                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                  ),
-                ),
+                Text('今月の記録', style: WanWalkTypography.wwLabel),
                 const SizedBox(height: 2),
                 Row(
                   children: [
                     Text(
-                      '$monthlyWalkCount回',
-                      style: WanWalkTypography.titleMedium.copyWith(
-                        color: WanWalkColors.accent,
-                        fontWeight: FontWeight.bold,
+                      '$monthlyWalkCount',
+                      style: WanWalkTypography.wwNumeric.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: WanWalkColors.accentPrimary,
                       ),
                     ),
-                    const SizedBox(width: WanWalkSpacing.sm),
                     Text(
-                      '・',
-                      style: WanWalkTypography.bodyMedium.copyWith(
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                      '回',
+                      style: WanWalkTypography.wwBodySm.copyWith(
+                        color: WanWalkColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(width: WanWalkSpacing.xs),
+                    const SizedBox(width: WanWalkSpacing.s2),
+                    Container(width: 1, height: 12, color: WanWalkColors.borderStrong),
+                    const SizedBox(width: WanWalkSpacing.s2),
                     Text(
                       formattedDistance,
-                      style: WanWalkTypography.bodyMedium.copyWith(
-                        color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                      style: WanWalkTypography.wwNumeric.copyWith(
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: WanWalkColors.textPrimary,
                       ),
                     ),
                   ],
@@ -340,10 +312,10 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+                        color: WanWalkColors.bgPrimary,
                         child: Icon(
-                          Icons.broken_image,
-                          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                          WanWalkIcons.image,
+                          color: WanWalkColors.textSecondary,
                         ),
                       );
                     },
@@ -532,17 +504,15 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.directions_walk,
-              size: 64,
-              color: isDark
-                  ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                  : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+              WanWalkIcons.personWalk,
+              size: 48,
+              color: WanWalkColors.textTertiary,
             ),
             const SizedBox(height: WanWalkSpacing.lg),
             Text(
               message,
               style: WanWalkTypography.bodyMedium.copyWith(
-                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                color: WanWalkColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -561,17 +531,15 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.photo_library_outlined,
+              WanWalkIcons.images,
               size: 64,
-              color: isDark
-                  ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                  : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+              color: WanWalkColors.textTertiary,
             ),
             const SizedBox(height: WanWalkSpacing.lg),
             Text(
               'まだ写真がありません\nお出かけ散歩で写真を撮って\n思い出を残しましょう！',
               style: WanWalkTypography.bodyMedium.copyWith(
-                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                color: WanWalkColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -590,17 +558,15 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.push_pin_outlined,
+              WanWalkIcons.mapPin,
               size: 64,
-              color: isDark
-                  ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                  : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+              color: WanWalkColors.textTertiary,
             ),
             const SizedBox(height: WanWalkSpacing.lg),
             Text(
               'まだピン投稿がありません\n散歩中に素敵な場所を見つけたら\nピンを立ててみましょう！',
               style: WanWalkTypography.bodyMedium.copyWith(
-                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                color: WanWalkColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -626,23 +592,23 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  WanWalkColors.accent.withOpacity(0.15),
-                  WanWalkColors.accentLight.withOpacity(0.1),
+                  WanWalkColors.accentPrimary.withOpacity(0.15),
+                  WanWalkColors.accentPrimarySoft,
                 ],
               ),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.collections_bookmark_outlined,
-              size: 56,
-              color: WanWalkColors.accent,
+            child: Icon(
+              WanWalkIcons.images,
+              size: 48,
+              color: WanWalkColors.accentPrimary,
             ),
           ),
           const SizedBox(height: WanWalkSpacing.lg),
           Text(
             '散歩の思い出を記録しよう',
             style: WanWalkTypography.headlineSmall.copyWith(
-              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+              color: WanWalkColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -650,14 +616,14 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           Text(
             'ログインすると、散歩の記録や写真を\nライブラリに保存できます',
             style: WanWalkTypography.bodyMedium.copyWith(
-              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+              color: WanWalkColors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: WanWalkSpacing.xl),
           // 機能紹介カード
           _UnauthFeatureItem(
-            icon: Icons.route,
+            icon: WanWalkIcons.path,
             color: WanWalkColors.routeOrange,
             title: '散歩ルートを記録',
             description: '歩いたルートと距離を自動記録',
@@ -665,16 +631,16 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           ),
           const SizedBox(height: WanWalkSpacing.sm),
           _UnauthFeatureItem(
-            icon: Icons.photo_library_outlined,
-            color: WanWalkColors.accent,
+            icon: WanWalkIcons.images,
+            color: WanWalkColors.accentPrimary,
             title: '写真アルバム',
             description: '散歩中の写真を自動でまとめる',
             isDark: isDark,
           ),
           const SizedBox(height: WanWalkSpacing.sm),
           _UnauthFeatureItem(
-            icon: Icons.add_location_alt_outlined,
-            color: WanWalkColors.secondary,
+            icon: WanWalkIcons.plus,
+            color: WanWalkColors.accentGold,
             title: 'ピン投稿',
             description: 'お気に入りスポットを共有',
             isDark: isDark,
@@ -689,7 +655,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                 MaterialPageRoute(builder: (_) => const AuthSelectionScreen()),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: WanWalkColors.primary,
+                backgroundColor: WanWalkColors.accentPrimary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -710,7 +676,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           Text(
             'ログインなしでもマップの閲覧はできます',
             style: WanWalkTypography.caption.copyWith(
-              color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+              color: WanWalkColors.textTertiary,
             ),
           ),
         ],
@@ -753,13 +719,13 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            WanWalkColors.accent.withOpacity(0.15),
-            WanWalkColors.accent.withOpacity(0.05),
+            WanWalkColors.accentPrimary.withOpacity(0.15),
+            WanWalkColors.accentPrimary.withOpacity(0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: WanWalkColors.accent.withOpacity(0.3),
+          color: WanWalkColors.accentPrimary.withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -768,13 +734,13 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: WanWalkColors.accent.withOpacity(0.2),
+              color: WanWalkColors.accentPrimary.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
-              Icons.calendar_month,
+            child: Icon(
+              WanWalkIcons.calendar,
               size: 18,
-              color: WanWalkColors.accent,
+              color: WanWalkColors.accentPrimary,
             ),
           ),
           const SizedBox(width: WanWalkSpacing.md),
@@ -785,7 +751,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                 Text(
                   yearMonth,
                   style: WanWalkTypography.bodyLarge.copyWith(
-                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                    color: WanWalkColors.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -793,7 +759,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                 Text(
                   '${walks.length}回・$formattedDistance',
                   style: WanWalkTypography.bodySmall.copyWith(
-                    color: WanWalkColors.accent,
+                    color: WanWalkColors.accentPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -871,17 +837,15 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.newspaper,
+                          WanWalkIcons.image,
                           size: 64,
-                          color: isDark
-                              ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                              : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+                          color: WanWalkColors.textTertiary,
                         ),
                         const SizedBox(height: WanWalkSpacing.lg),
                         Text(
                           'まだ投稿がありません',
                           style: WanWalkTypography.headlineSmall.copyWith(
-                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            color: WanWalkColors.textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -889,7 +853,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                         Text(
                           '散歩中にピンを投稿すると\nここに表示されます',
                           style: WanWalkTypography.bodyMedium.copyWith(
-                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                            color: WanWalkColors.textSecondary,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -925,7 +889,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           child: Text(
             'データの取得に失敗しました',
             style: WanWalkTypography.bodyMedium.copyWith(
-              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+              color: WanWalkColors.textSecondary,
             ),
           ),
         ),
@@ -955,7 +919,7 @@ class _WalkCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+          color: WanWalkColors.bgPrimary,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -979,8 +943,8 @@ class _WalkCard extends StatelessWidget {
                     walk.photoUrls!.first, // 最初の写真を全幅表示
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
-                      child: const Icon(Icons.broken_image, size: 48),
+                      color: WanWalkColors.bgPrimary,
+                      child: Icon(WanWalkIcons.image, size: 48),
                     ),
                   ),
                 ),
@@ -1005,7 +969,7 @@ class _WalkCard extends StatelessWidget {
                         child: Text(
                           isOuting ? (walk.routeName ?? 'お出かけ散歩') : _formatDateTimeTitle(walk.walkedAt),
                           style: WanWalkTypography.bodyLarge.copyWith(
-                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            color: WanWalkColors.textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -1019,38 +983,38 @@ class _WalkCard extends StatelessWidget {
                     children: [
                       // エリア名（お出かけ散歩）
                       if (isOuting && walk.areaName != null) ...[
-                        Icon(Icons.location_on, size: 14, color: WanWalkColors.accent),
+                        Icon(WanWalkIcons.mapPin, size: 14, color: WanWalkColors.accentPrimary),
                         const SizedBox(width: WanWalkSpacing.xs),
                         Text(
                           walk.areaName!,
                           style: WanWalkTypography.bodySmall.copyWith(
-                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                            color: WanWalkColors.textSecondary,
                           ),
                         ),
                         const SizedBox(width: WanWalkSpacing.md),
                       ],
                       // 日常散歩の位置情報（現在地から取得）
                       if (!isOuting) ...[
-                        Icon(Icons.my_location, size: 14, color: WanWalkColors.accent),
+                        Icon(WanWalkIcons.mapPin, size: 14, color: WanWalkColors.accentPrimary),
                         const SizedBox(width: WanWalkSpacing.xs),
                         Text(
                           '現在地',
                           style: WanWalkTypography.bodySmall.copyWith(
-                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                            color: WanWalkColors.textSecondary,
                           ),
                         ),
                         const SizedBox(width: WanWalkSpacing.md),
                       ],
                       Icon(
-                        Icons.calendar_today,
+                        WanWalkIcons.calendar,
                         size: 14,
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       ),
                       const SizedBox(width: WanWalkSpacing.xs),
                       Text(
                         _formatDate(walk.walkedAt),
                         style: WanWalkTypography.bodySmall.copyWith(
-                          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                          color: WanWalkColors.textSecondary,
                         ),
                       ),
                     ],
@@ -1061,20 +1025,20 @@ class _WalkCard extends StatelessWidget {
                   Row(
                     children: [
                       _StatChip(
-                        icon: Icons.straighten,
+                        icon: WanWalkIcons.ruler,
                         label: walk.formattedDistance,
                         isDark: isDark,
                       ),
                       const SizedBox(width: WanWalkSpacing.sm),
                       _StatChip(
-                        icon: Icons.access_time,
+                        icon: WanWalkIcons.clock,
                         label: walk.formattedDuration,
                         isDark: isDark,
                       ),
                       if (isOuting && walk.pinCount != null && walk.pinCount! > 0) ...[
                         const SizedBox(width: WanWalkSpacing.sm),
                         _StatChip(
-                          icon: Icons.push_pin,
+                          icon: WanWalkIcons.pushpin,
                           label: '${walk.pinCount}個',
                           isDark: isDark,
                         ),
@@ -1155,18 +1119,18 @@ class _StatChip extends StatelessWidget {
         vertical: WanWalkSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: WanWalkColors.accent.withOpacity(0.1),
+        color: WanWalkColors.accentPrimary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: WanWalkColors.accent),
+          Icon(icon, size: 14, color: WanWalkColors.accentPrimary),
           const SizedBox(width: WanWalkSpacing.xs),
           Text(
             label,
             style: WanWalkTypography.caption.copyWith(
-              color: WanWalkColors.accent,
+              color: WanWalkColors.accentPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -1194,7 +1158,7 @@ class _PinHistoryCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+          color: WanWalkColors.bgPrimary,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -1218,8 +1182,8 @@ class _PinHistoryCard extends StatelessWidget {
                     pin.photoUrls.first, // 最初の写真を全幅表示
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
-                      child: const Icon(Icons.broken_image, size: 48),
+                      color: WanWalkColors.bgPrimary,
+                      child: Icon(WanWalkIcons.image, size: 48),
                     ),
                   ),
                 ),
@@ -1240,7 +1204,7 @@ class _PinHistoryCard extends StatelessWidget {
                         child: Text(
                           pin.title,
                           style: WanWalkTypography.bodyLarge.copyWith(
-                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            color: WanWalkColors.textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 2,
@@ -1256,7 +1220,7 @@ class _PinHistoryCard extends StatelessWidget {
                     Text(
                       pin.comment,
                       style: WanWalkTypography.bodyMedium.copyWith(
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -1269,41 +1233,41 @@ class _PinHistoryCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(
-                        Icons.access_time,
+                        WanWalkIcons.clock,
                         size: 14,
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       ),
                       const SizedBox(width: WanWalkSpacing.xs),
                       Text(
                         pin.relativeTime,
                         style: WanWalkTypography.caption.copyWith(
-                          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                          color: WanWalkColors.textSecondary,
                         ),
                       ),
                       const Spacer(),
                       Icon(
-                        Icons.favorite_border,
+                        WanWalkIcons.heart,
                         size: 16,
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       ),
                       const SizedBox(width: WanWalkSpacing.xs),
                       Text(
                         '${pin.likesCount}',
                         style: WanWalkTypography.caption.copyWith(
-                          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                          color: WanWalkColors.textSecondary,
                         ),
                       ),
                       const SizedBox(width: WanWalkSpacing.md),
                       Icon(
-                        Icons.chat_bubble_outline,
+                        PhosphorIcons.chatCircle(),
                         size: 16,
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       ),
                       const SizedBox(width: WanWalkSpacing.xs),
                       Text(
                         '${pin.commentsCount}',
                         style: WanWalkTypography.caption.copyWith(
-                          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                          color: WanWalkColors.textSecondary,
                         ),
                       ),
                     ],
@@ -1325,11 +1289,11 @@ class _PinHistoryCard extends StatelessWidget {
     switch (pin.pinType) {
       case PinType.scenery:
         badgeColor = Colors.blue;
-        badgeIcon = Icons.landscape;
+        badgeIcon = PhosphorIcons.mountains();
         break;
       case PinType.shop:
         badgeColor = Colors.orange;
-        badgeIcon = Icons.store;
+        badgeIcon = PhosphorIcons.storefront();
         break;
       case PinType.encounter:
         badgeColor = Colors.green;
@@ -1337,12 +1301,12 @@ class _PinHistoryCard extends StatelessWidget {
         break;
       case PinType.facility:
         badgeColor = Colors.purple;
-        badgeIcon = Icons.business;
+        badgeIcon = PhosphorIcons.buildings();
         break;
 
       case PinType.other:
         badgeColor = Colors.grey;
-        badgeIcon = Icons.more_horiz;
+        badgeIcon = WanWalkIcons.dotsThree;
         break;
     }
 
@@ -1394,10 +1358,10 @@ class _UnauthFeatureItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: isDark ? WanWalkColors.surfaceDark : Colors.white,
+        color: WanWalkColors.bgPrimary,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
+          color: WanWalkColors.borderSubtle,
         ),
       ),
       child: Row(
@@ -1419,7 +1383,7 @@ class _UnauthFeatureItem extends StatelessWidget {
                 Text(
                   title,
                   style: WanWalkTypography.bodyLarge.copyWith(
-                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                    color: WanWalkColors.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -1427,7 +1391,7 @@ class _UnauthFeatureItem extends StatelessWidget {
                 Text(
                   description,
                   style: WanWalkTypography.bodySmall.copyWith(
-                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                    color: WanWalkColors.textSecondary,
                   ),
                 ),
               ],
@@ -1458,7 +1422,7 @@ class _TimelineCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: WanWalkSpacing.md),
         decoration: BoxDecoration(
-          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+          color: WanWalkColors.bgPrimary,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -1477,12 +1441,12 @@ class _TimelineCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 18,
-                    backgroundColor: WanWalkColors.accent.withOpacity(0.2),
+                    backgroundColor: WanWalkColors.accentPrimary.withOpacity(0.2),
                     backgroundImage: item.userAvatarUrl != null
                         ? NetworkImage(item.userAvatarUrl!)
                         : null,
                     child: item.userAvatarUrl == null
-                        ? const Icon(Icons.person, size: 18, color: WanWalkColors.accent)
+                        ? Icon(WanWalkIcons.user, size: 18, color: WanWalkColors.accentPrimary)
                         : null,
                   ),
                   const SizedBox(width: WanWalkSpacing.sm),
@@ -1493,14 +1457,14 @@ class _TimelineCard extends StatelessWidget {
                         Text(
                           item.userName,
                           style: WanWalkTypography.bodyMedium.copyWith(
-                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            color: WanWalkColors.textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           '${item.areaName} · ${item.routeName}',
                           style: WanWalkTypography.caption.copyWith(
-                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                            color: WanWalkColors.textSecondary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1510,7 +1474,7 @@ class _TimelineCard extends StatelessWidget {
                   Text(
                     item.relativeTime,
                     style: WanWalkTypography.caption.copyWith(
-                      color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
+                      color: WanWalkColors.textTertiary,
                     ),
                   ),
                 ],
@@ -1535,8 +1499,8 @@ class _TimelineCard extends StatelessWidget {
                           item.photoUrls[index],
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Container(
-                            color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
-                            child: const Center(child: Icon(Icons.broken_image, size: 32)),
+                            color: WanWalkColors.bgPrimary,
+                            child: Center(child: Icon(WanWalkIcons.image, size: 32)),
                           ),
                         ),
                       ),
@@ -1570,7 +1534,7 @@ class _TimelineCard extends StatelessWidget {
                         child: Text(
                           item.title,
                           style: WanWalkTypography.bodyLarge.copyWith(
-                            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                            color: WanWalkColors.textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -1584,7 +1548,7 @@ class _TimelineCard extends StatelessWidget {
                     Text(
                       item.comment,
                       style: WanWalkTypography.bodyMedium.copyWith(
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -1594,21 +1558,21 @@ class _TimelineCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(
-                        item.isLiked ? Icons.favorite : Icons.favorite_border,
+                        item.isLiked ? WanWalkIcons.heartFill : WanWalkIcons.heart,
                         size: 18,
-                        color: item.isLiked ? Colors.red : (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight),
+                        color: item.isLiked ? Colors.red : (WanWalkColors.textSecondary),
                       ),
                       const SizedBox(width: 4),
                       Text('${item.likesCount}', style: WanWalkTypography.caption.copyWith(
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       )),
                       const SizedBox(width: WanWalkSpacing.md),
-                      Icon(Icons.chat_bubble_outline, size: 18,
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                      Icon(PhosphorIcons.chatCircle(), size: 18,
+                        color: WanWalkColors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Text('${item.commentsCount}', style: WanWalkTypography.caption.copyWith(
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       )),
                     ],
                   ),

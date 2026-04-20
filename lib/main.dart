@@ -81,8 +81,9 @@ class WanWalkApp extends StatelessWidget {
       title: 'WanWalk',
       debugShowCheckedModeBanner: false,
       theme: WanWalkTheme.lightTheme,
-      darkTheme: WanWalkTheme.darkTheme,
-      themeMode: ThemeMode.system, // システム設定に従う
+      // CEO決定 (2026-04-20): ライトモードのみ強制（Wildbounds哲学）。
+      // ダークモード対応は v1 スコープ外とし、DESIGN_TOKENS.md にダーク用トークンが定義されるまで一律ライト表示。
+      themeMode: ThemeMode.light,
       home: const SplashScreen(),
     );
   }

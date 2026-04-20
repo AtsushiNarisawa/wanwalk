@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:math' show asin, cos, sin, sqrt;
 import '../../../widgets/location_permission_dialog.dart';
 import '../../../config/wanwalk_colors.dart';
+import '../../../config/wanwalk_icons.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/gps_provider_riverpod.dart';
@@ -15,7 +17,6 @@ import '../../../models/area.dart';
 import '../../../providers/route_pin_provider.dart';
 
 import '../../../models/official_route.dart';
-import '../../../models/route_pin.dart';
 
 import '../../../widgets/zoom_control_widget.dart';
 import '../../outing/area_list_screen.dart';
@@ -140,7 +141,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     }
 
     return Scaffold(
-      backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+      backgroundColor: WanWalkColors.bgPrimary,
       body: Stack(
         children: [
           // 全画面地図
@@ -207,70 +208,67 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   Widget _buildTopBar(bool isDark) {
     return Positioned(
       top: MediaQuery.of(context).padding.top + 8,
-      left: WanWalkSpacing.md,
-      right: WanWalkSpacing.md,
-      child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(28),
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: isDark ? WanWalkColors.cardDark : Colors.white,
-            borderRadius: BorderRadius.circular(28),
-          ),
-          child: Row(
-            children: [
-              // 検索アイコン
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 8),
-                child: Icon(
-                  Icons.search,
-                  color: WanWalkColors.accent,
-                  size: 24,
-                ),
+      left: WanWalkSpacing.s4,
+      right: WanWalkSpacing.s4,
+      child: Container(
+        height: 52,
+        decoration: BoxDecoration(
+          color: WanWalkColors.bgPrimary,
+          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+          border: Border.all(color: WanWalkColors.borderSubtle, width: 1),
+        ),
+        child: Row(
+          children: [
+            // 検索アイコン
+            Padding(
+              padding: const EdgeInsets.only(left: 14, right: 8),
+              child: Icon(
+                WanWalkIcons.magnifyingGlass,
+                color: WanWalkColors.textSecondary,
+                size: WanWalkIcons.sizeMd,
               ),
-              // 検索入力欄
-              Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'ルート名で検索',
-                    hintStyle: WanWalkTypography.bodyMedium.copyWith(
-                      color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                    ),
-                    border: InputBorder.none,
+            ),
+            // 検索入力欄
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'ルート名で検索',
+                  hintStyle: WanWalkTypography.wwBody.copyWith(
+                    color: WanWalkColors.textTertiary,
                   ),
-                  style: WanWalkTypography.bodyMedium.copyWith(
-                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                  ),
-                  onSubmitted: (value) {
-                    setState(() {
-                      _searchKeyword = value.trim();
-                    });
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _searchKeyword = value.trim();
-                    });
-                  },
+                  border: InputBorder.none,
+                  isDense: true,
                 ),
-              ),
-              // エリア一覧ボタン
-              IconButton(
-                icon: Icon(
-                  Icons.list,
-                  color: WanWalkColors.accent,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AreaListScreen()),
-                  );
+                style: WanWalkTypography.wwBody,
+                onSubmitted: (value) {
+                  setState(() {
+                    _searchKeyword = value.trim();
+                  });
                 },
-                tooltip: 'エリア一覧',
+                onChanged: (value) {
+                  setState(() {
+                    _searchKeyword = value.trim();
+                  });
+                },
               ),
-            ],
-          ),
+            ),
+            // エリア一覧ボタン
+            IconButton(
+              icon: Icon(
+                WanWalkIcons.list,
+                color: WanWalkColors.textPrimary,
+                size: WanWalkIcons.sizeMd,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AreaListScreen()),
+                );
+              },
+              tooltip: 'エリア一覧',
+            ),
+          ],
         ),
       ),
     );
@@ -279,130 +277,112 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
 
   /// ルートカード（共通）
   Widget _buildRouteCard(OfficialRoute route, double distance, bool isDark, {bool isClosest = false}) {
-    return Material(
-      elevation: isClosest ? 8 : 4,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => RouteDetailScreen(routeId: route.id),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RouteDetailScreen(routeId: route.id),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(WanWalkSpacing.s4),
+        decoration: BoxDecoration(
+          color: WanWalkColors.bgPrimary,
+          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+          border: Border.all(
+            color: isClosest ? WanWalkColors.borderStrong : WanWalkColors.borderSubtle,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // サムネイル
+            ClipRRect(
+              borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
+              child: route.thumbnailUrl != null
+                  ? Image.network(
+                      route.thumbnailUrl!,
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildDefaultThumbnail(),
+                    )
+                  : _buildDefaultThumbnail(),
             ),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(WanWalkSpacing.md),
-          decoration: BoxDecoration(
-            color: isDark ? WanWalkColors.cardDark : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            gradient: isClosest
-                ? LinearGradient(
-                    colors: [
-                      WanWalkColors.accent.withOpacity(0.1),
-                      Colors.transparent,
+            const SizedBox(width: WanWalkSpacing.s4),
+            // ルート情報
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 最寄りバッジ
+                  if (isClosest)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: WanWalkColors.accentPrimarySoft,
+                        borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
+                      ),
+                      child: Text(
+                        '最寄り',
+                        style: WanWalkTypography.wwLabel.copyWith(
+                          color: WanWalkColors.accentPrimary,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  if (isClosest) const SizedBox(height: 6),
+                  // ルート名
+                  Text(
+                    route.name,
+                    style: WanWalkTypography.wwH4,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  // 距離情報
+                  Row(
+                    children: [
+                      Icon(
+                        WanWalkIcons.personWalk,
+                        size: WanWalkIcons.sizeXs,
+                        color: WanWalkColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        route.formattedDistance,
+                        style: WanWalkTypography.wwCaption,
+                      ),
+                      const SizedBox(width: WanWalkSpacing.s3),
+                      Icon(
+                        WanWalkIcons.mapPin,
+                        size: WanWalkIcons.sizeXs,
+                        color: WanWalkColors.accentPrimary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${distance.toStringAsFixed(1)}km',
+                        style: WanWalkTypography.wwNumeric.copyWith(
+                          fontSize: 13,
+                          color: WanWalkColors.accentPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-          ),
-          child: Row(
-            children: [
-              // サムネイル
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: route.thumbnailUrl != null
-                    ? Image.network(
-                        route.thumbnailUrl!,
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildDefaultThumbnail(),
-                      )
-                    : _buildDefaultThumbnail(),
+                  ),
+                ],
               ),
-              const SizedBox(width: WanWalkSpacing.md),
-              // ルート情報
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 最寄りバッジ
-                    if (isClosest)
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: WanWalkSpacing.sm,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: WanWalkColors.accent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '最寄り',
-                          style: WanWalkTypography.bodySmall.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    if (isClosest) const SizedBox(height: 4),
-                    // ルート名
-                    Text(
-                      route.name,
-                      style: WanWalkTypography.bodyLarge.copyWith(
-                        color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    // 距離情報
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.directions_walk,
-                          size: 14,
-                          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          route.formattedDistance,
-                          style: WanWalkTypography.bodySmall.copyWith(
-                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                          ),
-                        ),
-                        const SizedBox(width: WanWalkSpacing.sm),
-                        Icon(
-                          Icons.location_on,
-                          size: 14,
-                          color: WanWalkColors.accent,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${distance.toStringAsFixed(1)}km',
-                          style: WanWalkTypography.bodySmall.copyWith(
-                            color: WanWalkColors.accent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // 矢印アイコン
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: WanWalkColors.accent,
-              ),
-            ],
-          ),
+            ),
+            // 矢印アイコン
+            Icon(
+              WanWalkIcons.caretRight,
+              size: WanWalkIcons.sizeSm,
+              color: WanWalkColors.textSecondary,
+            ),
+          ],
         ),
       ),
     );
@@ -440,15 +420,13 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
           curve: Curves.easeOut,
           height: _bottomSheetHeight,
           decoration: BoxDecoration(
-            color: isDark ? WanWalkColors.cardDark : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, -4),
-              ),
-            ],
+            color: WanWalkColors.bgPrimary,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(WanWalkSpacing.radiusLg)),
+            border: Border(
+              top: BorderSide(color: WanWalkColors.borderSubtle, width: 1),
+              left: BorderSide(color: WanWalkColors.borderSubtle, width: 1),
+              right: BorderSide(color: WanWalkColors.borderSubtle, width: 1),
+            ),
           ),
           child: Column(
             children: [
@@ -458,36 +436,28 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                  color: WanWalkColors.borderStrong,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               // ヘッダー
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: WanWalkSpacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.s4),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.recommend,
-                      color: WanWalkColors.accent,
-                      size: 20,
-                    ),
-                    const SizedBox(width: WanWalkSpacing.xs),
                     Text(
                       '近くのおすすめルート',
-                      style: WanWalkTypography.headlineSmall.copyWith(
-                        color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: WanWalkTypography.wwH3,
                     ),
                     const Spacer(),
                     // 展開/折りたたみボタン
                     IconButton(
                       icon: Icon(
                         _bottomSheetHeight == _minHeight
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                        color: WanWalkColors.accent,
+                            ? WanWalkIcons.caretUp
+                            : WanWalkIcons.caretDown,
+                        color: WanWalkColors.textPrimary,
+                        size: WanWalkIcons.sizeMd,
                       ),
                       onPressed: _toggleBottomSheetHeight,
                     ),
@@ -518,16 +488,14 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.location_searching,
-            size: 48,
-            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+            WanWalkIcons.mapPin,
+            size: 40,
+            color: WanWalkColors.textSecondary,
           ),
-          const SizedBox(height: WanWalkSpacing.md),
+          const SizedBox(height: WanWalkSpacing.s3),
           Text(
             '現在地を取得中...',
-            style: WanWalkTypography.bodyMedium.copyWith(
-              color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-            ),
+            style: WanWalkTypography.wwCaption,
           ),
         ],
       ),
@@ -552,7 +520,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
 
         // Bottom Sheetには全ルートを表示（地図上のカードとは別UI）
         return ListView.builder(
-          padding: EdgeInsets.all(WanWalkSpacing.md),
+          padding: const EdgeInsets.all(WanWalkSpacing.s4),
           itemCount: filteredRoutes.length,
           itemBuilder: (context, index) {
             final routeData = filteredRoutes[index];
@@ -560,7 +528,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
             final distance = routeData['distance'] as double;
 
             return Padding(
-              padding: EdgeInsets.only(bottom: WanWalkSpacing.md),
+              padding: const EdgeInsets.only(bottom: WanWalkSpacing.s4),
               child: _buildRouteCard(route, distance, isDark),
             );
           },
@@ -576,26 +544,26 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
     return SingleChildScrollView(
       child: Center(
         child: Padding(
-          padding: EdgeInsets.all(WanWalkSpacing.lg),
+          padding: const EdgeInsets.all(WanWalkSpacing.s5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                isSearchResult ? Icons.search_off : Icons.explore_off,
-                size: 64,
-                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                isSearchResult ? WanWalkIcons.magnifyingGlass : WanWalkIcons.mapTrifold,
+                size: 48,
+                color: WanWalkColors.textSecondary,
               ),
-              const SizedBox(height: WanWalkSpacing.md),
+              const SizedBox(height: WanWalkSpacing.s4),
               Text(
-                isSearchResult 
+                isSearchResult
                     ? '「$_searchKeyword」に一致する\nルートが見つかりませんでした'
                     : '現在地から50km以内に\nおすすめルートがありません',
                 textAlign: TextAlign.center,
-                style: WanWalkTypography.bodyMedium.copyWith(
-                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                style: WanWalkTypography.wwBodySm.copyWith(
+                  color: WanWalkColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: WanWalkSpacing.lg),
+              const SizedBox(height: WanWalkSpacing.s5),
               if (isSearchResult)
                 ElevatedButton.icon(
                   onPressed: () {
@@ -605,14 +573,15 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: WanWalkColors.accent,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: WanWalkSpacing.lg,
-                      vertical: WanWalkSpacing.md,
+                    backgroundColor: WanWalkColors.accentPrimary,
+                    foregroundColor: WanWalkColors.textInverse,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
                     ),
                   ),
-                  icon: const Icon(Icons.clear),
+                  icon: Icon(WanWalkIcons.x, size: WanWalkIcons.sizeSm),
                   label: const Text('検索をクリア'),
                 )
               else
@@ -624,14 +593,15 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: WanWalkColors.accent,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: WanWalkSpacing.lg,
-                      vertical: WanWalkSpacing.md,
+                    backgroundColor: WanWalkColors.accentPrimary,
+                    foregroundColor: WanWalkColors.textInverse,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
                     ),
                   ),
-                  icon: const Icon(Icons.list),
+                  icon: Icon(WanWalkIcons.list, size: WanWalkIcons.sizeSm),
                   label: const Text('エリア一覧を見る'),
                 ),
             ],
@@ -644,21 +614,29 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   /// 地図コントロール（現在地 + ズーム）
   Widget _buildMapControls() {
     return Positioned(
-      right: WanWalkSpacing.md,
-      top: 160, // 上部バーの下に配置（検索バー + エリア一覧ボタンの高さ考慮）
+      right: WanWalkSpacing.s4,
+      top: MediaQuery.of(context).padding.top + 72,
       child: Column(
         children: [
           // 現在地ボタン
           FloatingActionButton(
             heroTag: 'map_current_location',
             mini: true,
-            backgroundColor: Colors.white,
-            foregroundColor: WanWalkColors.accent,
-            onPressed: _moveToCurrentLocation,
+            backgroundColor: WanWalkColors.bgPrimary,
+            foregroundColor: WanWalkColors.accentPrimary,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+              side: BorderSide(color: WanWalkColors.borderSubtle, width: 1),
+            ),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              _moveToCurrentLocation();
+            },
             tooltip: '現在地に移動',
-            child: const Icon(Icons.my_location, size: 20),
+            child: Icon(WanWalkIcons.mapPin, size: WanWalkIcons.sizeMd),
           ),
-          const SizedBox(height: WanWalkSpacing.sm),
+          const SizedBox(height: WanWalkSpacing.s2),
           // ズームコントロール
           ZoomControlWidget(
             mapController: _mapController,
@@ -673,15 +651,28 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   /// ピン投稿FAB(右下)
   Widget _buildPinPostFAB(bool isDark) {
     return Positioned(
-      right: WanWalkSpacing.md,
+      right: WanWalkSpacing.s4,
       bottom: _bottomSheetHeight + 80,
       child: FloatingActionButton.extended(
         heroTag: 'map_pin_post',
-        onPressed: () => _showPinTypeSelection(isDark),
-        backgroundColor: WanWalkColors.accent,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_location_alt),
-        label: const Text('ピンを投稿'),
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          _showPinTypeSelection(isDark);
+        },
+        backgroundColor: WanWalkColors.accentPrimary,
+        foregroundColor: WanWalkColors.textInverse,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+        ),
+        icon: Icon(WanWalkIcons.plus, size: WanWalkIcons.sizeSm),
+        label: Text(
+          'ピンを投稿',
+          style: WanWalkTypography.wwBodySm.copyWith(
+            color: WanWalkColors.textInverse,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
@@ -690,60 +681,45 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   void _showPinTypeSelection(bool isDark) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+      backgroundColor: WanWalkColors.bgPrimary,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(WanWalkSpacing.radiusLg)),
       ),
       builder: (context) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(WanWalkSpacing.s5),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ハンドル
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: WanWalkColors.borderStrong,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-                
-                const SizedBox(height: 24),
-                
+                const SizedBox(height: WanWalkSpacing.s5),
                 // タイトル
-                Text(
-                  'ピンを投稿',
-                  style: WanWalkTypography.headlineSmall.copyWith(
-                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                const SizedBox(height: 8),
-                
+                Text('ピンを投稿', style: WanWalkTypography.wwH2),
+                const SizedBox(height: 4),
                 Text(
                   '投稿タイプを選択してください',
-                  style: WanWalkTypography.bodyMedium.copyWith(
-                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                  ),
+                  style: WanWalkTypography.wwCaption,
                 ),
-                
-                const SizedBox(height: 32),
-                
+                const SizedBox(height: WanWalkSpacing.s6),
                 // ルートに投稿ボタン
                 _buildPinTypeButton(
-                  context: context,
-                  isDark: isDark,
-                  icon: Icons.route,
+                  icon: WanWalkIcons.path,
                   title: 'ルートに投稿',
                   description: 'みんなのピン',
-                  color: WanWalkColors.primary,
                   onTap: () {
                     Navigator.pop(context);
-                    // ルート選択画面へ遷移
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -752,20 +728,14 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                     );
                   },
                 ),
-                
-                const SizedBox(height: 16),
-                
+                const SizedBox(height: WanWalkSpacing.s3),
                 // 自由なスポットボタン
                 _buildPinTypeButton(
-                  context: context,
-                  isDark: isDark,
-                  icon: Icons.location_on,
+                  icon: WanWalkIcons.mapPin,
                   title: '自由なスポット',
                   description: '場所を自由に投稿',
-                  color: Colors.orange,
                   onTap: () {
                     Navigator.pop(context);
-                    // 場所選択画面へ遷移（route_idなし）
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -774,8 +744,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                     );
                   },
                 ),
-                
-                const SizedBox(height: 24),
+                const SizedBox(height: WanWalkSpacing.s4),
               ],
             ),
           ),
@@ -786,12 +755,9 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
 
   /// ピン投稿タイプボタン
   Widget _buildPinTypeButton({
-    required BuildContext context,
-    required bool isDark,
     required IconData icon,
     required String title,
     required String description,
-    required Color color,
     required VoidCallback onTap,
   }) {
     return SizedBox(
@@ -799,40 +765,33 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          foregroundColor: color,
-          side: BorderSide(color: color, width: 2),
+          foregroundColor: WanWalkColors.textPrimary,
+          side: BorderSide(color: WanWalkColors.borderStrong, width: 1),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 28, color: color),
-            const SizedBox(width: 16),
+            Icon(icon, size: WanWalkIcons.sizeLg, color: WanWalkColors.accentPrimary),
+            const SizedBox(width: WanWalkSpacing.s4),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: WanWalkTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                    ),
-                  ),
+                  Text(title, style: WanWalkTypography.wwH4),
                   const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: WanWalkTypography.bodySmall.copyWith(
-                      color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                    ),
-                  ),
+                  Text(description, style: WanWalkTypography.wwCaption),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 18, color: color),
+            Icon(
+              WanWalkIcons.caretRight,
+              size: WanWalkIcons.sizeSm,
+              color: WanWalkColors.textSecondary,
+            ),
           ],
         ),
       ),
@@ -840,27 +799,20 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   }
 
   /// 全エリアのルートマーカーを構築
+  /// DESIGN_TOKENS §12-A: ルートマーカー（スタート）は `accent-primary` + 中央に「S」
   Widget _buildAllRoutesMarkers(BuildContext context, WidgetRef ref, List<Area> areas) {
     List<Marker> allMarkers = [];
-    
-    final areaColors = {
-      '箱根': Colors.orange,
-      '横浜': Colors.blue,
-      '鎌倉': Colors.green,
-    };
 
     for (final area in areas) {
       final routesAsync = ref.watch(routesByAreaProvider(area.id));
-      
+
       routesAsync.whenData((routes) {
         for (final route in routes) {
-          final markerColor = areaColors[area.name] ?? WanWalkColors.accent;
-          
           allMarkers.add(
             Marker(
               point: route.startLocation,
-              width: 40,
-              height: 40,
+              width: 28,
+              height: 28,
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -872,21 +824,20 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: markerColor,
+                    color: WanWalkColors.accentPrimary,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    border: Border.all(color: WanWalkColors.textInverse, width: 2),
                   ),
-                  child: const Icon(
-                    Icons.route,
-                    color: Colors.white,
-                    size: 20,
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'S',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      height: 1.0,
+                      color: Color(0xFFFFFFFF),
+                    ),
                   ),
                 ),
               ),
@@ -902,16 +853,16 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   /// デフォルトのサムネイル画像
   Widget _buildDefaultThumbnail() {
     return Container(
-      width: 80,
-      height: 80,
+      width: 72,
+      height: 72,
       decoration: BoxDecoration(
-        color: WanWalkColors.accent.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
+        color: WanWalkColors.accentPrimarySoft,
+        borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
       ),
-      child: const Icon(
-        Icons.route,
-        size: 32,
-        color: WanWalkColors.accent,
+      child: Icon(
+        WanWalkIcons.path,
+        size: 28,
+        color: WanWalkColors.accentPrimary,
       ),
     );
   }
@@ -989,6 +940,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
   }
 
   /// ピンマーカーを構築
+  /// DESIGN_TOKENS §12-A: ピンは `accent-secondary` (#B8905C) + 中央 MapPin アイコン
   Widget _buildPinMarkers(BuildContext context, WidgetRef ref) {
     final pinsAsync = ref.watch(allPinsProvider);
 
@@ -1002,8 +954,8 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
           markers: pins.map((pin) {
             return Marker(
               point: pin.location,
-              width: 45,
-              height: 45,
+              width: 28,
+              height: 28,
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -1016,16 +968,20 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Icon(
-                      _getPinIcon(pin.pinType),
-                      color: _getPinColor(pin.pinType),
-                      size: 40,
-                      shadows: const [
-                        Shadow(
-                          blurRadius: 4,
-                          color: Colors.black26,
-                        ),
-                      ],
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: WanWalkColors.accentGold,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: WanWalkColors.textInverse, width: 2),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        WanWalkIcons.mapPin,
+                        color: WanWalkColors.textInverse,
+                        size: 14,
+                      ),
                     ),
                     if (pin.isOfficial)
                       Positioned(
@@ -1034,13 +990,13 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
                         child: Container(
                           padding: const EdgeInsets.all(2),
                           decoration: const BoxDecoration(
-                            color: Colors.white,
+                            color: Color(0xFFFFFFFF),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.verified,
-                            color: Colors.purple,
-                            size: 14,
+                          child: Icon(
+                            WanWalkIcons.sealCheck,
+                            color: WanWalkColors.accentPrimary,
+                            size: 12,
                           ),
                         ),
                       ),
@@ -1059,25 +1015,5 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
         return const SizedBox.shrink();
       },
     );
-  }
-
-  IconData _getPinIcon(PinType pinType) {
-    // すべてのピンを統一マーカー（location_on）で表示し、色で区別
-    return Icons.location_on;
-  }
-
-  Color _getPinColor(PinType pinType) {
-    switch (pinType) {
-      case PinType.scenery:
-        return Colors.blue;
-      case PinType.shop:
-        return Colors.orange;
-      case PinType.encounter:
-        return Colors.green;
-      case PinType.facility:
-        return Colors.purple;
-      case PinType.other:
-        return Colors.grey;
-    }
   }
 }

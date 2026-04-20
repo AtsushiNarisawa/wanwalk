@@ -74,15 +74,7 @@ class _HakoneSubAreaScreenState extends ConsumerState<HakoneSubAreaScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         iconTheme: const IconThemeData(color: WanWalkColors.textPrimary),
-        title: const Text(
-          '箱根エリアを選ぶ',
-          style: TextStyle(
-            fontFamily: 'NotoSerifJP',
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: WanWalkColors.textPrimary,
-          ),
-        ),
+        title: const Text('箱根エリアを選ぶ', style: WanWalkTypography.wwH2),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: WanWalkColors.accentPrimary))
@@ -170,16 +162,7 @@ class _DogHubBanner extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
-                    'DogHub仙石原',
-                    style: TextStyle(
-                      fontFamily: 'NotoSerifJP',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      height: 1.3,
-                      color: WanWalkColors.textPrimary,
-                    ),
-                  ),
+                  Text('DogHub仙石原', style: WanWalkTypography.wwH4),
                   Text(
                     'カフェ・ドッグラン・一時預かり',
                     style: WanWalkTypography.wwCaption,
@@ -235,13 +218,7 @@ class _HakoneSubAreaCard extends StatelessWidget {
                 children: [
                   Text(
                     subAreaName,
-                    style: const TextStyle(
-                      fontFamily: 'NotoSerifJP',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                      height: 1.3,
-                      color: WanWalkColors.textPrimary,
-                    ),
+                    style: WanWalkTypography.wwH4.copyWith(height: 1.3),
                   ),
                   if (routeCount > 0) ...[
                     const SizedBox(height: 6),

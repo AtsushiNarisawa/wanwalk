@@ -256,6 +256,16 @@ class WanWalkTypography {
     color: WanWalkColors.textPrimary,
   );
 
+  /// h4 — カードタイトル (Noto Sans JP 600 / 16px)
+  /// 使用例: ルート名・エリア名・スポット名
+  static const TextStyle wwH4 = TextStyle(
+    fontFamily: wwSansFamily,
+    fontWeight: FontWeight.w600,
+    fontSize: 16,
+    height: 1.5,
+    color: WanWalkColors.textPrimary,
+  );
+
   static const TextStyle wwBodyLg = TextStyle(
     fontFamily: wwSansFamily,
     fontWeight: FontWeight.w400,

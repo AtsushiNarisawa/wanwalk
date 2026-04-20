@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/wanwalk_colors.dart';
+import '../config/wanwalk_icons.dart';
 import '../config/wanwalk_typography.dart';
 import '../config/wanwalk_spacing.dart';
 import '../models/official_route.dart';
@@ -29,7 +30,7 @@ class WalkCompletionSheet extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(WanWalkSpacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+        color: WanWalkColors.bgPrimary,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -41,22 +42,22 @@ class WalkCompletionSheet extends ConsumerWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: WanWalkSpacing.lg),
             decoration: BoxDecoration(
-              color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
+              color: WanWalkColors.borderStrong,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
 
           // お疲れさまメッセージ
           Icon(
-            Icons.celebration,
+            WanWalkIcons.trophy,
             size: 48,
-            color: WanWalkColors.accent,
+            color: WanWalkColors.accentPrimary,
           ),
           const SizedBox(height: WanWalkSpacing.sm),
           Text(
             'お散歩おつかれさま！',
             style: WanWalkTypography.headlineMedium.copyWith(
-              color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+              color: WanWalkColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -69,20 +70,20 @@ class WalkCompletionSheet extends ConsumerWidget {
               vertical: WanWalkSpacing.md,
             ),
             decoration: BoxDecoration(
-              color: WanWalkColors.accent.withValues(alpha: 0.1),
+              color: WanWalkColors.accentPrimary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _SummaryItem(icon: Icons.straighten, value: formattedDistance, isDark: isDark),
+                _SummaryItem(icon: WanWalkIcons.ruler, value: formattedDistance, isDark: isDark),
                 Container(
                   width: 1,
                   height: 24,
                   margin: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
-                  color: WanWalkColors.accent.withValues(alpha: 0.3),
+                  color: WanWalkColors.accentPrimary.withValues(alpha: 0.3),
                 ),
-                _SummaryItem(icon: Icons.timer, value: formattedDuration, isDark: isDark),
+                _SummaryItem(icon: WanWalkIcons.clock, value: formattedDuration, isDark: isDark),
               ],
             ),
           ),
@@ -100,8 +101,8 @@ class WalkCompletionSheet extends ConsumerWidget {
                     '次はここを歩いてみませんか？',
                     style: WanWalkTypography.bodyMedium.copyWith(
                       color: isDark
-                          ? WanWalkColors.textSecondaryDark
-                          : WanWalkColors.textSecondaryLight,
+                          ? WanWalkColors.textSecondary
+                          : WanWalkColors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: WanWalkSpacing.sm),
@@ -133,7 +134,7 @@ class WalkCompletionSheet extends ConsumerWidget {
             child: ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: WanWalkColors.accent,
+                backgroundColor: WanWalkColors.accentPrimary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: WanWalkSpacing.md),
                 shape: RoundedRectangleBorder(
@@ -160,12 +161,12 @@ class _SummaryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: WanWalkColors.accent),
+        Icon(icon, size: 20, color: WanWalkColors.accentPrimary),
         const SizedBox(width: 6),
         Text(
           value,
           style: WanWalkTypography.bodyLarge.copyWith(
-            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+            color: WanWalkColors.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -193,10 +194,10 @@ class _RecommendedRouteCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: WanWalkSpacing.sm),
         padding: const EdgeInsets.all(WanWalkSpacing.md),
         decoration: BoxDecoration(
-          color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
+          color: WanWalkColors.bgPrimary,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: WanWalkColors.accent.withValues(alpha: 0.2),
+            color: WanWalkColors.accentPrimary.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -234,14 +235,14 @@ class _RecommendedRouteCard extends StatelessWidget {
                     '${(route.distanceMeters / 1000).toStringAsFixed(1)}km・約${route.estimatedMinutes}分',
                     style: WanWalkTypography.bodySmall.copyWith(
                       color: isDark
-                          ? WanWalkColors.textSecondaryDark
-                          : WanWalkColors.textSecondaryLight,
+                          ? WanWalkColors.textSecondary
+                          : WanWalkColors.textSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: WanWalkColors.accent),
+            Icon(WanWalkIcons.caretRight, color: WanWalkColors.accentPrimary),
           ],
         ),
       ),
@@ -252,8 +253,8 @@ class _RecommendedRouteCard extends StatelessWidget {
     return Container(
       width: 56,
       height: 56,
-      color: WanWalkColors.accent.withValues(alpha: 0.1),
-      child: Icon(Icons.map, color: WanWalkColors.accent, size: 24),
+      color: WanWalkColors.accentPrimary.withValues(alpha: 0.1),
+      child: Icon(WanWalkIcons.mapTrifold, color: WanWalkColors.accentPrimary, size: 24),
     );
   }
 }

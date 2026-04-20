@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanwalk_colors.dart';
+import '../../../config/wanwalk_icons.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/home_feed_provider.dart';
@@ -37,40 +38,27 @@ class HomeTab extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? WanWalkColors.backgroundDark
-          : WanWalkColors.backgroundLight,
+      backgroundColor: WanWalkColors.bgPrimary,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: WanWalkColors.bgPrimary,
         elevation: 0,
-        title: Row(
+        scrolledUnderElevation: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'WanWalk',
-                  style: WanWalkTypography.headlineMedium.copyWith(
-                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                    fontWeight: FontWeight.bold,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '次の休日、どこ歩く？',
-                  style: WanWalkTypography.caption.copyWith(
-                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                    fontSize: 10,
-                    height: 1.0,
-                  ),
-                ),
-              ],
+            Text('WanWalk', style: WanWalkTypography.wwH2.copyWith(height: 1.1)),
+            const SizedBox(height: 2),
+            Text(
+              '次の休日、どこ歩く？',
+              style: WanWalkTypography.wwLabel.copyWith(
+                fontSize: 10,
+                height: 1.0,
+                color: WanWalkColors.textSecondary,
+              ),
             ),
           ],
         ),
-        actions: const [],
         iconTheme: const IconThemeData(color: WanWalkColors.textPrimary),
       ),
       body: _buildFeed(context, ref, isDark),
@@ -86,17 +74,19 @@ class HomeTab extends ConsumerWidget {
         if (items.isEmpty) {
           return Center(
             child: Padding(
-              padding: const EdgeInsets.all(WanWalkSpacing.xxxl),
+              padding: const EdgeInsets.all(WanWalkSpacing.s8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.explore, size: 64, color: WanWalkColors.accent.withValues(alpha: 0.5)),
-                  const SizedBox(height: WanWalkSpacing.md),
+                  Icon(
+                    WanWalkIcons.mapTrifold,
+                    size: 48,
+                    color: WanWalkColors.accentPrimary,
+                  ),
+                  const SizedBox(height: WanWalkSpacing.s4),
                   Text(
                     'ルートを探索しよう',
-                    style: WanWalkTypography.bodyLarge.copyWith(
-                      color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                    ),
+                    style: WanWalkTypography.wwBody.copyWith(color: WanWalkColors.textSecondary),
                   ),
                 ],
               ),
@@ -116,6 +106,7 @@ class HomeTab extends ConsumerWidget {
         final totalCount = items.length + insertedCount + footerCount;
 
         return RefreshIndicator(
+          color: WanWalkColors.accentPrimary,
           onRefresh: () async {
             ref.invalidate(homeFeedProvider);
             ref.invalidate(areasProvider);
@@ -123,7 +114,7 @@ class HomeTab extends ConsumerWidget {
           },
           child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(top: WanWalkSpacing.sm, bottom: WanWalkSpacing.xxxl),
+            padding: const EdgeInsets.only(top: WanWalkSpacing.s2, bottom: WanWalkSpacing.s9),
             itemCount: totalCount,
             itemBuilder: (context, index) {
               // 散歩サマリー（先頭）
@@ -149,22 +140,14 @@ class HomeTab extends ConsumerWidget {
 
               // 「最新のルート」セクションタイトル
               if (index == summaryCount + 2) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    left: WanWalkSpacing.lg,
-                    right: WanWalkSpacing.lg,
-                    top: WanWalkSpacing.md,
-                    bottom: WanWalkSpacing.sm,
+                return const Padding(
+                  padding: EdgeInsets.only(
+                    left: WanWalkSpacing.s4,
+                    right: WanWalkSpacing.s4,
+                    top: WanWalkSpacing.s4,
+                    bottom: WanWalkSpacing.s2,
                   ),
-                  child: Text(
-                    '最新のルート',
-                    style: WanWalkTypography.headlineSmall.copyWith(
-                      color: isDark
-                          ? WanWalkColors.textPrimaryDark
-                          : WanWalkColors.textPrimaryLight,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: Text('最新のルート', style: WanWalkTypography.wwH3),
                 );
               }
 
@@ -176,16 +159,14 @@ class HomeTab extends ConsumerWidget {
               if (index == totalCount - 1) {
                 return Padding(
                   padding: const EdgeInsets.only(
-                    top: WanWalkSpacing.xl,
-                    bottom: WanWalkSpacing.xl,
+                    top: WanWalkSpacing.s6,
+                    bottom: WanWalkSpacing.s6,
                   ),
                   child: Center(
                     child: Text(
                       'Supported by 箱根DMO',
-                      style: WanWalkTypography.caption.copyWith(
-                        color: isDark
-                            ? WanWalkColors.textTertiaryDark
-                            : WanWalkColors.textTertiaryLight,
+                      style: WanWalkTypography.wwLabel.copyWith(
+                        color: WanWalkColors.textTertiary,
                         fontSize: 11,
                         letterSpacing: 0.5,
                       ),
@@ -275,23 +256,31 @@ class HomeTab extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: WanWalkColors.accentPrimary),
+      ),
       error: (error, _) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48,
-                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight),
-            const SizedBox(height: WanWalkSpacing.md),
+            Icon(WanWalkIcons.warning, size: 48, color: WanWalkColors.semanticError),
+            const SizedBox(height: WanWalkSpacing.s3),
             Text(
               '読み込みに失敗しました',
-              style: WanWalkTypography.bodyMedium.copyWith(
-                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-              ),
+              style: WanWalkTypography.wwBody.copyWith(color: WanWalkColors.textSecondary),
             ),
-            const SizedBox(height: WanWalkSpacing.md),
+            const SizedBox(height: WanWalkSpacing.s3),
             ElevatedButton(
               onPressed: () => ref.invalidate(homeFeedProvider),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: WanWalkColors.accentPrimary,
+                foregroundColor: WanWalkColors.textInverse,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+                ),
+              ),
               child: const Text('再試行'),
             ),
           ],
@@ -307,22 +296,14 @@ class HomeTab extends ConsumerWidget {
         if (route == null) return const SizedBox.shrink();
         return Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: WanWalkSpacing.lg,
-            vertical: WanWalkSpacing.sm,
+            horizontal: WanWalkSpacing.s4,
+            vertical: WanWalkSpacing.s2,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'おすすめピックアップ',
-                style: WanWalkTypography.headlineSmall.copyWith(
-                  color: isDark
-                      ? WanWalkColors.textPrimaryDark
-                      : WanWalkColors.textPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: WanWalkSpacing.sm),
+              const Text('おすすめピックアップ', style: WanWalkTypography.wwH3),
+              const SizedBox(height: WanWalkSpacing.s2),
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -334,16 +315,14 @@ class HomeTab extends ConsumerWidget {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: WanWalkColors.accent.withValues(alpha: 0.2),
-                    ),
+                    color: WanWalkColors.bgPrimary,
+                    borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+                    border: Border.all(color: WanWalkColors.borderSubtle, width: 1),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // サムネイル
                       if (route.thumbnailUrl != null)
                         AspectRatio(
                           aspectRatio: 16 / 9,
@@ -351,52 +330,42 @@ class HomeTab extends ConsumerWidget {
                             route.thumbnailUrl!,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Container(
-                              color: isDark ? WanWalkColors.cardDark : const Color(0xFFF0EDE8),
-                              child: const Center(child: Icon(Icons.landscape, size: 48, color: Colors.grey)),
+                              color: WanWalkColors.accentPrimarySoft,
+                              alignment: Alignment.center,
+                              child: Icon(
+                                WanWalkIcons.path,
+                                size: 40,
+                                color: WanWalkColors.accentPrimary,
+                              ),
                             ),
                           ),
                         ),
-                      // 情報
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        color: isDark ? WanWalkColors.cardDark : Colors.white,
+                      Padding(
+                        padding: const EdgeInsets.all(WanWalkSpacing.s4),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              route.name,
-                              style: WanWalkTypography.bodyLarge.copyWith(
-                                color: isDark
-                                    ? WanWalkColors.textPrimaryDark
-                                    : WanWalkColors.textPrimaryLight,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Text(route.name, style: WanWalkTypography.wwH4),
                             const SizedBox(height: 6),
                             Row(
                               children: [
-                                Icon(Icons.straighten, size: 14, color: WanWalkColors.accent),
+                                Icon(WanWalkIcons.ruler, size: WanWalkIcons.sizeXs, color: WanWalkColors.accentPrimary),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${(route.distanceMeters / 1000).toStringAsFixed(1)}km',
-                                  style: WanWalkTypography.bodySmall.copyWith(
-                                    color: isDark
-                                        ? WanWalkColors.textSecondaryDark
-                                        : WanWalkColors.textSecondaryLight,
+                                  style: WanWalkTypography.wwNumeric.copyWith(
                                     fontSize: 12,
+                                    color: WanWalkColors.textSecondary,
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                Icon(Icons.schedule, size: 14, color: WanWalkColors.accent),
+                                Icon(WanWalkIcons.clock, size: WanWalkIcons.sizeXs, color: WanWalkColors.accentPrimary),
                                 const SizedBox(width: 4),
                                 Text(
                                   '約${route.estimatedMinutes}分',
-                                  style: WanWalkTypography.bodySmall.copyWith(
-                                    color: isDark
-                                        ? WanWalkColors.textSecondaryDark
-                                        : WanWalkColors.textSecondaryLight,
+                                  style: WanWalkTypography.wwNumeric.copyWith(
                                     fontSize: 12,
+                                    color: WanWalkColors.textSecondary,
                                   ),
                                 ),
                               ],
@@ -424,23 +393,15 @@ class HomeTab extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(
-            left: WanWalkSpacing.lg,
-            right: WanWalkSpacing.lg,
-            top: WanWalkSpacing.md,
-            bottom: WanWalkSpacing.sm,
+            left: WanWalkSpacing.s4,
+            right: WanWalkSpacing.s4,
+            top: WanWalkSpacing.s4,
+            bottom: WanWalkSpacing.s2,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'エリアから探す',
-                style: WanWalkTypography.headlineSmall.copyWith(
-                  color: isDark
-                      ? WanWalkColors.textPrimaryDark
-                      : WanWalkColors.textPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              const Text('エリアから探す', style: WanWalkTypography.wwH3),
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -450,12 +411,23 @@ class HomeTab extends ConsumerWidget {
                     ),
                   );
                 },
-                child: Text(
-                  'すべて見る',
-                  style: WanWalkTypography.bodySmall.copyWith(
-                    color: WanWalkColors.accentPrimary,
-                    fontSize: 12,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'すべて見る',
+                      style: WanWalkTypography.wwBodySm.copyWith(
+                        color: WanWalkColors.accentPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(
+                      WanWalkIcons.caretRight,
+                      size: WanWalkIcons.sizeXs,
+                      color: WanWalkColors.accentPrimary,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -488,7 +460,7 @@ class HomeTab extends ConsumerWidget {
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.lg),
+                padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.s4),
                 itemCount: chips.length,
                 itemBuilder: (context, i) {
                   final chip = chips[i];
@@ -529,12 +501,13 @@ class HomeTab extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: chip.isHakone
                               ? WanWalkColors.accentPrimarySoft
-                              : (isDark ? WanWalkColors.cardDark : WanWalkColors.bgSecondary),
-                          borderRadius: BorderRadius.circular(8),
+                              : WanWalkColors.bgSecondary,
+                          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
                           border: Border.all(
                             color: chip.isHakone
-                                ? WanWalkColors.accentPrimary.withValues(alpha: 0.3)
+                                ? WanWalkColors.accentPrimary
                                 : WanWalkColors.borderSubtle,
+                            width: 1,
                           ),
                         ),
                         child: Column(
@@ -543,12 +516,9 @@ class HomeTab extends ConsumerWidget {
                           children: [
                             Text(
                               chip.name,
-                              style: const TextStyle(
-                                fontFamily: 'NotoSerifJP',
-                                fontWeight: FontWeight.w600,
+                              style: WanWalkTypography.wwH4.copyWith(
                                 fontSize: 14,
                                 height: 1.2,
-                                color: WanWalkColors.textPrimary,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -569,7 +539,13 @@ class HomeTab extends ConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+            loading: () => const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: WanWalkColors.accentPrimary),
+              ),
+            ),
             error: (_, __) => const SizedBox.shrink(),
           ),
         ),

@@ -333,22 +333,28 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final gpsState = ref.watch(gpsProviderRiverpod);
 
+    // CEO決定 案B: マップをSafeArea内に収め、上部はベージュ帯で塗る
+    final topInset = MediaQuery.of(context).padding.top;
     return Scaffold(
-      backgroundColor: isDark
-          ? WanWalkColors.backgroundDark
-          : WanWalkColors.backgroundLight,
+      backgroundColor: WanWalkColors.bgSecondary,
       body: Stack(
         children: [
-          // マップ表示
-          _buildMap(gpsState),
-
-          // 上部オーバーレイ
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: topInset,
+            child: Container(color: WanWalkColors.bgSecondary),
+          ),
+          Positioned(
+            top: topInset,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildMap(gpsState),
+          ),
           _buildTopOverlay(isDark),
-
-          // 下部オーバーレイ（統計情報）
           if (_showRouteInfo) _buildBottomOverlay(isDark, gpsState),
-
-          // フローティングボタン（現在位置追従）
           _buildFloatingButton(gpsState),
         ],
       ),

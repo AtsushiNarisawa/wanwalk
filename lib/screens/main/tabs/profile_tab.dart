@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../config/wanwalk_colors.dart';
+import '../../../config/wanwalk_icons.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/auth_provider.dart';
@@ -22,12 +24,7 @@ import '../../dogs/dog_edit_screen.dart';
 import '../../settings/settings_screen.dart';
 import '../../../utils/logger.dart';
 
-/// ProfileTab - ユーザープロフィールとアカウント管理
-/// 
-/// 構成:
-/// 1. ユーザー情報カード（アバター、名前、レベル、XP）
-/// 2. ソーシャル統計（フォロワー/フォロー中）
-/// 3. メニューリスト（設定、編集、愛犬管理など）
+/// ProfileTab - プロフィール＋愛犬管理（Phase 2 Wildboundsトーン）
 class ProfileTab extends ConsumerStatefulWidget {
   const ProfileTab({super.key});
 
@@ -39,7 +36,6 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   @override
   void initState() {
     super.initState();
-    // 初回表示時に犬データをロード
     Future.microtask(() {
       final userId = ref.read(currentUserIdProvider);
       if (userId != null) {
@@ -55,283 +51,231 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final userId = ref.watch(currentUserIdProvider);
-    
+
     if (userId == null) {
-      return Scaffold(
-        backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Row(
-            children: [
-              const Icon(Icons.person, color: WanWalkColors.primary, size: 28),
-              const SizedBox(width: 8),
-              Text(
-                'マイページ',
-                style: WanWalkTypography.headlineMedium.copyWith(
-                  color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(WanWalkSpacing.lg),
-          child: Column(
-            children: [
-              const SizedBox(height: WanWalkSpacing.xl),
-              // アバター風アイコン
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      WanWalkColors.primary.withOpacity(0.15),
-                      WanWalkColors.primaryLight.withOpacity(0.1),
-                    ],
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.person_outline_rounded,
-                  size: 56,
-                  color: WanWalkColors.primary,
-                ),
-              ),
-              const SizedBox(height: WanWalkSpacing.lg),
-              Text(
-                '愛犬との散歩をもっと楽しく',
-                style: WanWalkTypography.headlineSmall.copyWith(
-                  color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: WanWalkSpacing.sm),
-              Text(
-                'ログインすると、プロフィール設定や\n愛犬の登録ができます',
-                style: WanWalkTypography.bodyMedium.copyWith(
-                  color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: WanWalkSpacing.xl),
-              // 機能紹介
-              _UnauthProfileFeature(
-                icon: PhosphorIcons.dog(),
-                color: WanWalkColors.accentPrimary,
-                title: '愛犬プロフィール',
-                description: '愛犬の情報を登録して管理',
-                isDark: isDark,
-              ),
-              const SizedBox(height: WanWalkSpacing.sm),
-              _UnauthProfileFeature(
-                icon: Icons.bar_chart_rounded,
-                color: WanWalkColors.routeOrange,
-                title: '散歩の統計',
-                description: '散歩回数や距離をグラフで確認',
-                isDark: isDark,
-              ),
-              const SizedBox(height: WanWalkSpacing.sm),
-              _UnauthProfileFeature(
-                icon: Icons.emoji_events_outlined,
-                color: WanWalkColors.secondary,
-                title: 'バッジ＆レベル',
-                description: '散歩するほどレベルアップ（今後対応）',
-                isDark: isDark,
-              ),
-              const SizedBox(height: WanWalkSpacing.xl),
-              // ログインボタン
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AuthSelectionScreen()),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: WanWalkColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    'ログイン / 新規登録',
-                    style: WanWalkTypography.titleMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: WanWalkSpacing.md),
-              Text(
-                'ログインなしでもマップの閲覧はできます',
-                style: WanWalkTypography.caption.copyWith(
-                  color: isDark ? WanWalkColors.textTertiaryDark : WanWalkColors.textTertiaryLight,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _buildUnauthScreen(context);
     }
 
     final profileAsync = ref.watch(profileProvider(userId));
     final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+      backgroundColor: WanWalkColors.bgPrimary,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: WanWalkColors.bgPrimary,
+        foregroundColor: WanWalkColors.textPrimary,
         elevation: 0,
-        title: Row(
+        scrolledUnderElevation: 0,
+        title: const Text('プロフィール', style: WanWalkTypography.wwH2),
+      ),
+      body: RefreshIndicator(
+        color: WanWalkColors.accentPrimary,
+        onRefresh: () async {
+          ref.invalidate(profileProvider(userId));
+          ref.invalidate(userStatisticsProvider(userId));
+          ref.read(dogProvider.notifier).loadUserDogs(userId);
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(WanWalkSpacing.s4),
+            child: Column(
+              children: [
+                profileAsync.when(
+                  data: (profile) => _buildUserInfoCard(context, isDark, profile, currentUser),
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(color: WanWalkColors.accentPrimary),
+                  ),
+                  error: (_, __) => _buildUserInfoCard(context, isDark, null, currentUser),
+                ),
+                const SizedBox(height: WanWalkSpacing.s4),
+                _buildStatisticsCard(context, userId),
+                const SizedBox(height: WanWalkSpacing.s4),
+                _buildDogCards(context, userId, ref),
+                const SizedBox(height: WanWalkSpacing.s4),
+                _buildMenuList(context, currentUser, ref),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 未ログイン画面
+  Widget _buildUnauthScreen(BuildContext context) {
+    return Scaffold(
+      backgroundColor: WanWalkColors.bgPrimary,
+      appBar: AppBar(
+        backgroundColor: WanWalkColors.bgPrimary,
+        foregroundColor: WanWalkColors.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: const Text('マイページ', style: WanWalkTypography.wwH2),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(WanWalkSpacing.s5),
+        child: Column(
           children: [
-            Icon(Icons.person, color: WanWalkColors.accent, size: 28),
-            const SizedBox(width: WanWalkSpacing.sm),
-            Text(
-              'プロフィール',
-              style: WanWalkTypography.headlineMedium.copyWith(
-                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                fontWeight: FontWeight.bold,
+            const SizedBox(height: WanWalkSpacing.s6),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: WanWalkColors.accentPrimarySoft,
+                shape: BoxShape.circle,
               ),
+              alignment: Alignment.center,
+              child: Icon(
+                WanWalkIcons.user,
+                size: 48,
+                color: WanWalkColors.accentPrimary,
+              ),
+            ),
+            const SizedBox(height: WanWalkSpacing.s5),
+            const Text(
+              '愛犬との散歩をもっと楽しく',
+              style: WanWalkTypography.wwH2,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: WanWalkSpacing.s2),
+            Text(
+              'ログインすると、プロフィール設定や\n愛犬の登録ができます',
+              style: WanWalkTypography.wwBody.copyWith(color: WanWalkColors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: WanWalkSpacing.s6),
+            _UnauthProfileFeature(
+              icon: PhosphorIcons.dog(),
+              title: '愛犬プロフィール',
+              description: '愛犬の情報を登録して管理',
+            ),
+            const SizedBox(height: WanWalkSpacing.s2),
+            _UnauthProfileFeature(
+              icon: WanWalkIcons.chartLineUp,
+              title: '散歩の統計',
+              description: '散歩回数や距離をグラフで確認',
+            ),
+            const SizedBox(height: WanWalkSpacing.s2),
+            _UnauthProfileFeature(
+              icon: WanWalkIcons.trophy,
+              title: 'バッジ＆レベル',
+              description: '散歩するほどレベルアップ（今後対応）',
+            ),
+            const SizedBox(height: WanWalkSpacing.s6),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AuthSelectionScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: WanWalkColors.accentPrimary,
+                  foregroundColor: WanWalkColors.textInverse,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+                  ),
+                ),
+                child: Text(
+                  'ログイン / 新規登録',
+                  style: WanWalkTypography.wwH4.copyWith(color: WanWalkColors.textInverse),
+                ),
+              ),
+            ),
+            const SizedBox(height: WanWalkSpacing.s3),
+            Text(
+              'ログインなしでもマップの閲覧はできます',
+              style: WanWalkTypography.wwCaption,
             ),
           ],
         ),
       ),
-      body: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(WanWalkSpacing.lg),
-            child: Column(
-              children: [
-                // ユーザー情報カード
-                profileAsync.when(
-                  data: (profile) => _buildUserInfoCard(context, isDark, profile, currentUser),
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (_, __) => _buildUserInfoCard(context, isDark, null, currentUser),
-                ),
-
-                const SizedBox(height: WanWalkSpacing.md),
-
-                // 散歩統計カード
-                _buildStatisticsCard(context, isDark, userId),
-
-                const SizedBox(height: WanWalkSpacing.md),
-
-                // 愛犬カード
-                _buildDogCards(context, isDark, userId, ref),
-                
-                const SizedBox(height: WanWalkSpacing.md),
-                
-                // メニューリスト
-                _buildMenuList(context, isDark, currentUser, ref),
-              ],
-            ),
-          ),
-        ),
     );
   }
 
   /// 散歩統計カード
-  Widget _buildStatisticsCard(BuildContext context, bool isDark, String userId) {
+  Widget _buildStatisticsCard(BuildContext context, String userId) {
     final statsAsync = ref.watch(userStatisticsProvider(userId));
 
     return statsAsync.when(
       data: (stats) {
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        return Container(
+          padding: const EdgeInsets.all(WanWalkSpacing.s4),
+          decoration: BoxDecoration(
+            color: WanWalkColors.bgPrimary,
+            borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+            border: Border.all(color: WanWalkColors.borderSubtle, width: 1),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(WanWalkSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.bar_chart, color: WanWalkColors.accent, size: 20),
-                    const SizedBox(width: WanWalkSpacing.xs),
-                    Text(
-                      '散歩の記録',
-                      style: WanWalkTypography.titleMedium.copyWith(
-                        color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                        fontWeight: FontWeight.bold,
-                      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('散歩の記録', style: WanWalkTypography.wwH3),
+              const SizedBox(height: WanWalkSpacing.s3),
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatTile(
+                      value: '${stats.totalWalks}',
+                      label: '散歩回数',
+                      icon: WanWalkIcons.personWalk,
                     ),
-                  ],
-                ),
-                const SizedBox(height: WanWalkSpacing.md),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatTile(
-                        value: '${stats.totalWalks}',
-                        label: '散歩回数',
-                        icon: Icons.directions_walk,
-                        isDark: isDark,
-                      ),
+                  ),
+                  Expanded(
+                    child: _StatTile(
+                      value: stats.formattedTotalDistance,
+                      label: '総距離',
+                      icon: WanWalkIcons.ruler,
                     ),
-                    Expanded(
-                      child: _StatTile(
-                        value: stats.formattedTotalDistance,
-                        label: '総距離',
-                        icon: Icons.straighten,
-                        isDark: isDark,
-                      ),
+                  ),
+                  Expanded(
+                    child: _StatTile(
+                      value: stats.formattedTotalDuration,
+                      label: '総時間',
+                      icon: WanWalkIcons.clock,
                     ),
-                    Expanded(
-                      child: _StatTile(
-                        value: stats.formattedTotalDuration,
-                        label: '総時間',
-                        icon: Icons.timer,
-                        isDark: isDark,
-                      ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: WanWalkSpacing.s3),
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatTile(
+                      value: '${stats.areasVisited}',
+                      label: 'エリア',
+                      icon: WanWalkIcons.mapPin,
                     ),
-                  ],
-                ),
-                const SizedBox(height: WanWalkSpacing.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatTile(
-                        value: '${stats.areasVisited}',
-                        label: 'エリア',
-                        icon: Icons.location_on,
-                        isDark: isDark,
-                      ),
+                  ),
+                  Expanded(
+                    child: _StatTile(
+                      value: '${stats.routesCompleted}',
+                      label: 'ルート',
+                      icon: WanWalkIcons.path,
                     ),
-                    Expanded(
-                      child: _StatTile(
-                        value: '${stats.routesCompleted}',
-                        label: 'ルート',
-                        icon: Icons.route,
-                        isDark: isDark,
-                      ),
+                  ),
+                  Expanded(
+                    child: _StatTile(
+                      value: '${stats.pinsCreated}',
+                      label: 'ピン投稿',
+                      icon: WanWalkIcons.pushpin,
                     ),
-                    Expanded(
-                      child: _StatTile(
-                        value: '${stats.pinsCreated}',
-                        label: 'ピン投稿',
-                        icon: Icons.push_pin,
-                        isDark: isDark,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
-      loading: () => const SizedBox(height: 80, child: Center(child: CircularProgressIndicator())),
+      loading: () => const SizedBox(
+        height: 80,
+        child: Center(child: CircularProgressIndicator(color: WanWalkColors.accentPrimary)),
+      ),
       error: (_, __) => const SizedBox.shrink(),
     );
   }
@@ -343,73 +287,58 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     ProfileData? profile,
     User? currentUser,
   ) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(WanWalkSpacing.sm),
-          child: Row(
-            children: [
-              // アバター（左側）
-              CircleAvatar(
-                radius: 32,
-                backgroundColor: WanWalkColors.accent.withOpacity(0.1),
-                backgroundImage: profile?.avatarUrl != null
-                    ? NetworkImage(profile!.avatarUrl!)
-                    : null,
-                child: profile?.avatarUrl == null
-                    ? const Icon(Icons.person, size: 36, color: WanWalkColors.accent)
-                    : null,
-              ),
-              
-              const SizedBox(width: WanWalkSpacing.md),
-              
-              // ユーザー情報（右側）
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 表示名
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+        );
+      },
+      borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(WanWalkSpacing.s4),
+        decoration: BoxDecoration(
+          color: WanWalkColors.bgPrimary,
+          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+          border: Border.all(color: WanWalkColors.borderSubtle, width: 1),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: WanWalkColors.accentPrimarySoft,
+              backgroundImage: profile?.avatarUrl != null
+                  ? NetworkImage(profile!.avatarUrl!)
+                  : null,
+              child: profile?.avatarUrl == null
+                  ? Icon(WanWalkIcons.user, size: 28, color: WanWalkColors.accentPrimary)
+                  : null,
+            ),
+            const SizedBox(width: WanWalkSpacing.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    profile?.displayName ?? 'ユーザー名未設定',
+                    style: WanWalkTypography.wwH4,
+                  ),
+                  const SizedBox(height: 2),
+                  if (currentUser?.email != null)
                     Text(
-                      profile?.displayName ?? 'ユーザー名未設定',
-                      style: WanWalkTypography.titleLarge.copyWith(
-                        color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      currentUser!.email!,
+                      style: WanWalkTypography.wwCaption,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    
-                    const SizedBox(height: WanWalkSpacing.xs),
-                    
-                    // メールアドレス
-                    if (currentUser?.email != null)
-                      Text(
-                        currentUser!.email!,
-                        style: WanWalkTypography.bodyMedium.copyWith(
-                          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                  ],
-                ),
+                ],
               ),
-              
-              // 編集アイコン
-              Icon(
-                Icons.edit,
-                color: (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight).withOpacity(0.6),
-                size: 24,
-              ),
-            ],
-          ),
+            ),
+            Icon(
+              WanWalkIcons.pencil,
+              color: WanWalkColors.textSecondary,
+              size: WanWalkIcons.sizeMd,
+            ),
+          ],
         ),
       ),
     );
@@ -418,107 +347,100 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   /// 愛犬カードセクション
   Widget _buildDogCards(
     BuildContext context,
-    bool isDark,
     String userId,
     WidgetRef ref,
   ) {
     final dogs = ref.watch(userDogsProvider(userId));
-    
-    if (kDebugMode) {
-      appLog('🐕 ProfileTab _buildDogCards: ${dogs.length} dogs');
-      appLog('🐕 Dogs: ${dogs.map((d) => d.name).join(", ")}');
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ヘッダー
         Padding(
-          padding: const EdgeInsets.only(left: WanWalkSpacing.xs, bottom: WanWalkSpacing.sm),
+          padding: const EdgeInsets.only(
+            left: WanWalkSpacing.s1,
+            bottom: WanWalkSpacing.s2,
+          ),
           child: Row(
             children: [
-              Icon(PhosphorIcons.dog(), color: WanWalkColors.accentPrimary, size: 20),
-              const SizedBox(width: WanWalkSpacing.xs),
-              Text(
-                '愛犬情報',
-                style: WanWalkTypography.titleMedium.copyWith(
-                  color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              const Text('愛犬情報', style: WanWalkTypography.wwH3),
               const Spacer(),
-              // 愛犬追加ボタン（ヘッダーに統合）
               IconButton(
                 onPressed: () async {
+                  HapticFeedback.lightImpact();
                   await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => DogEditScreen(userId: userId)),
                   );
                 },
                 icon: Icon(
-                  Icons.add_circle_outline,
-                  color: WanWalkColors.primary,
-                  size: 28,
+                  WanWalkIcons.plus,
+                  color: WanWalkColors.accentPrimary,
+                  size: WanWalkIcons.sizeLg,
                 ),
                 tooltip: '愛犬を追加',
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
               ),
             ],
           ),
         ),
-
-        // 愛犬リスト
         if (dogs.isEmpty)
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+          Container(
+            padding: const EdgeInsets.all(WanWalkSpacing.s6),
+            decoration: BoxDecoration(
+              color: WanWalkColors.bgPrimary,
+              borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+              border: Border.all(color: WanWalkColors.borderSubtle, width: 1),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(WanWalkSpacing.xl),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      PhosphorIcons.dog(),
-                      size: 56,
-                      color: WanWalkColors.textTertiary,
-                    ),
-                    const SizedBox(height: WanWalkSpacing.md),
-                    Text(
-                      'まだ愛犬が登録されていません',
-                      style: WanWalkTypography.bodyMedium.copyWith(
-                        color: isDark
-                            ? WanWalkColors.textSecondaryDark
-                            : WanWalkColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: WanWalkSpacing.xs),
-                    Text(
-                      '右上の＋ボタンから追加できます',
-                      style: WanWalkTypography.caption.copyWith(
-                        color: WanWalkColors.textTertiary,
-                      ),
-                    ),
-                  ],
+            child: Column(
+              children: [
+                Icon(
+                  PhosphorIcons.dog(),
+                  size: 40,
+                  color: WanWalkColors.textTertiary,
                 ),
-              ),
+                const SizedBox(height: WanWalkSpacing.s3),
+                Text(
+                  'まだ愛犬が登録されていません',
+                  style: WanWalkTypography.wwBody.copyWith(color: WanWalkColors.textSecondary),
+                ),
+                const SizedBox(height: WanWalkSpacing.s1),
+                Text(
+                  '右上の＋ボタンから追加できます',
+                  style: WanWalkTypography.wwCaption,
+                ),
+                const SizedBox(height: WanWalkSpacing.s4),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    HapticFeedback.lightImpact();
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => DogEditScreen(userId: userId)),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: WanWalkColors.accentPrimary,
+                    foregroundColor: WanWalkColors.textInverse,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+                    ),
+                  ),
+                  icon: Icon(WanWalkIcons.plus, size: WanWalkIcons.sizeSm),
+                  label: const Text('愛犬を追加'),
+                ),
+              ],
             ),
           )
         else
           ...dogs.asMap().entries.map((entry) {
-            final index = entry.key;
             final dog = entry.value;
-            if (kDebugMode) {
-              appLog('🐕 Building dog card #$index: ${dog.name}');
-            }
             return Padding(
-              padding: EdgeInsets.only(
-                bottom: WanWalkSpacing.xxs,
-              ),
+              padding: const EdgeInsets.only(bottom: WanWalkSpacing.s2),
               child: _DogCard(
                 dog: dog,
-                isDark: isDark,
                 onTap: () async {
+                  HapticFeedback.selectionClick();
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -531,7 +453,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                 },
               ),
             );
-          }).toList(),
+          }),
       ],
     );
   }
@@ -539,21 +461,20 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   /// メニューリスト
   Widget _buildMenuList(
     BuildContext context,
-    bool isDark,
     User? currentUser,
     WidgetRef ref,
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
-        borderRadius: BorderRadius.circular(16),
+        color: WanWalkColors.bgPrimary,
+        borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+        border: Border.all(color: WanWalkColors.borderSubtle, width: 1),
       ),
       child: Column(
         children: [
           _MenuItem(
-            icon: Icons.settings_outlined,
+            icon: WanWalkIcons.gear,
             label: '設定',
-            isDark: isDark,
             onTap: () {
               Navigator.push(
                 context,
@@ -561,31 +482,28 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
               );
             },
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: WanWalkColors.borderSubtle),
           _MenuItem(
-            icon: Icons.description_outlined,
+            icon: WanWalkIcons.info,
             label: '利用規約',
-            isDark: isDark,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const TermsOfServiceScreen()),
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: WanWalkColors.borderSubtle),
           _MenuItem(
-            icon: Icons.privacy_tip_outlined,
+            icon: WanWalkIcons.lock,
             label: 'プライバシーポリシー',
-            isDark: isDark,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: WanWalkColors.borderSubtle),
           _MenuItem(
-            icon: Icons.logout,
+            icon: WanWalkIcons.signOut,
             label: 'ログアウト',
-            isDark: isDark,
             isDestructive: true,
             onTap: () => _handleLogout(context, ref),
           ),
@@ -594,21 +512,22 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     );
   }
 
-  /// ログアウト処理
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ログアウト'),
-        content: const Text('ログアウトしますか？'),
+        backgroundColor: WanWalkColors.bgPrimary,
+        title: const Text('ログアウト', style: WanWalkTypography.wwH3),
+        content: const Text('ログアウトしますか？', style: WanWalkTypography.wwBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
+            style: TextButton.styleFrom(foregroundColor: WanWalkColors.textSecondary),
             child: const Text('キャンセル'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: WanWalkColors.semanticError),
             child: const Text('ログアウト'),
           ),
         ],
@@ -618,13 +537,10 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     if (result == true && context.mounted) {
       try {
         await Supabase.instance.client.auth.signOut();
-        
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('ログアウトしました')),
           );
-          
-          // ログアウト後もメイン画面を表示（未ログイン状態）
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -636,7 +552,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('ログアウトに失敗しました: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: WanWalkColors.semanticError,
             ),
           );
         }
@@ -645,139 +561,107 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   }
 }
 
-// 愛犬カードウィジェット
 class _DogCard extends StatelessWidget {
   final DogModel dog;
-  final bool isDark;
   final VoidCallback onTap;
 
-  const _DogCard({
-    required this.dog,
-    required this.isDark,
-    required this.onTap,
-  });
+  const _DogCard({required this.dog, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      appLog('🐕 _DogCard.build() called for: ${dog.name}');
-    }
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(WanWalkSpacing.sm),
-          child: Row(
-            children: [
-              // 犬の写真（左側）
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: dog.photoUrl != null && dog.photoUrl!.isNotEmpty
-                    ? Image.network(
-                        dog.photoUrl!,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 64,
-                            height: 64,
-                            color: isDark ? Colors.grey[800] : Colors.grey[300],
-                            child: Icon(PhosphorIcons.dog(), size: 28, color: Colors.grey),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: 64,
-                        height: 64,
-                        color: isDark ? Colors.grey[800] : Colors.grey[300],
-                        child: Icon(PhosphorIcons.dog(), size: 28, color: Colors.grey),
-                      ),
-              ),
-              const SizedBox(width: WanWalkSpacing.md),
-              
-              // 犬の情報（右側）
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 名前
-                    Text(
-                      dog.name,
-                      style: WanWalkTypography.titleLarge.copyWith(
-                        color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: WanWalkSpacing.xs),
-                    
-                    // 犬種
-                    Text(
-                      dog.breed ?? '犬種不明',
-                      style: WanWalkTypography.bodyMedium.copyWith(
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: WanWalkSpacing.sm),
-                    
-                    // 年齢とサイズ
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.cake_outlined,
-                          size: 18,
-                          color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                        ),
-                        const SizedBox(width: WanWalkSpacing.xxs),
-                        Text(
-                          dog.ageDisplay,
-                          style: WanWalkTypography.bodyMedium.copyWith(
-                            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                          ),
-                        ),
-                        const SizedBox(width: WanWalkSpacing.md),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: WanWalkSpacing.sm,
-                            vertical: WanWalkSpacing.xxs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: WanWalkColors.accent.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            dog.sizeDisplay,
-                            style: WanWalkTypography.bodySmall.copyWith(
-                              color: WanWalkColors.accent,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              
-              // 編集アイコン
-              Icon(
-                Icons.edit,
-                color: (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight).withOpacity(0.6),
-                size: 24,
-              ),
-            ],
-          ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(WanWalkSpacing.s3),
+        decoration: BoxDecoration(
+          color: WanWalkColors.bgPrimary,
+          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+          border: Border.all(color: WanWalkColors.borderSubtle, width: 1),
         ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
+              child: dog.photoUrl != null && dog.photoUrl!.isNotEmpty
+                  ? Image.network(
+                      dog.photoUrl!,
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => _buildDogPlaceholder(),
+                    )
+                  : _buildDogPlaceholder(),
+            ),
+            const SizedBox(width: WanWalkSpacing.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    dog.name,
+                    style: WanWalkTypography.wwH4,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    dog.breed ?? '犬種不明',
+                    style: WanWalkTypography.wwCaption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: WanWalkSpacing.s2),
+                  Row(
+                    children: [
+                      Icon(
+                        WanWalkIcons.calendar,
+                        size: WanWalkIcons.sizeXs,
+                        color: WanWalkColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(dog.ageDisplay, style: WanWalkTypography.wwBodySm),
+                      const SizedBox(width: WanWalkSpacing.s3),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: WanWalkColors.accentPrimarySoft,
+                          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
+                        ),
+                        child: Text(
+                          dog.sizeDisplay,
+                          style: WanWalkTypography.wwLabel.copyWith(
+                            color: WanWalkColors.accentPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              WanWalkIcons.caretRight,
+              color: WanWalkColors.textSecondary,
+              size: WanWalkIcons.sizeSm,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDogPlaceholder() {
+    return Container(
+      width: 64,
+      height: 64,
+      color: WanWalkColors.accentPrimarySoft,
+      alignment: Alignment.center,
+      child: Icon(
+        PhosphorIcons.dog(),
+        size: 28,
+        color: WanWalkColors.accentPrimary,
       ),
     );
   }
@@ -787,36 +671,33 @@ class _StatTile extends StatelessWidget {
   final String value;
   final String label;
   final IconData icon;
-  final bool isDark;
 
   const _StatTile({
     required this.value,
     required this.label,
     required this.icon,
-    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: WanWalkColors.accent, size: 22),
-        const SizedBox(height: WanWalkSpacing.xs),
-        Text(
-          value,
-          style: WanWalkTypography.titleMedium.copyWith(
-            color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        children: [
+          Icon(icon, color: WanWalkColors.accentPrimary, size: WanWalkIcons.sizeMd),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: WanWalkTypography.wwNumeric.copyWith(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: WanWalkColors.textPrimary,
+            ),
           ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: WanWalkTypography.caption.copyWith(
-            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-          ),
-        ),
-      ],
+          const SizedBox(height: 2),
+          Text(label, style: WanWalkTypography.wwCaption),
+        ],
+      ),
     );
   }
 }
@@ -824,102 +705,79 @@ class _StatTile extends StatelessWidget {
 class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final bool isDark;
   final bool isDestructive;
   final VoidCallback onTap;
 
   const _MenuItem({
     required this.icon,
     required this.label,
-    required this.isDark,
     this.isDestructive = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color = isDestructive ? WanWalkColors.semanticError : WanWalkColors.textPrimary;
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isDark
-            ? WanWalkColors.textSecondaryDark
-            : WanWalkColors.textSecondary,
-      ),
+      leading: Icon(icon, color: color, size: WanWalkIcons.sizeMd),
       title: Text(
         label,
-        style: WanWalkTypography.bodyMedium.copyWith(
-          color: isDark
-              ? WanWalkColors.textSecondaryDark
-              : WanWalkColors.textSecondary,
-          fontWeight: FontWeight.w500,
-        ),
+        style: WanWalkTypography.wwBody.copyWith(color: color),
       ),
       trailing: Icon(
-        Icons.chevron_right,
-        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+        WanWalkIcons.caretRight,
+        color: WanWalkColors.textSecondary,
+        size: WanWalkIcons.sizeSm,
       ),
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
     );
   }
 }
 
-/// 未ログイン状態の機能紹介アイテム
+/// 未ログイン時の機能紹介
 class _UnauthProfileFeature extends StatelessWidget {
   final IconData icon;
-  final Color color;
   final String title;
   final String description;
-  final bool isDark;
 
   const _UnauthProfileFeature({
     required this.icon,
-    required this.color,
     required this.title,
     required this.description,
-    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(WanWalkSpacing.md),
+      padding: const EdgeInsets.all(WanWalkSpacing.s3),
       decoration: BoxDecoration(
-        color: isDark ? WanWalkColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
-        ),
+        color: WanWalkColors.bgPrimary,
+        borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+        border: Border.all(color: WanWalkColors.borderSubtle, width: 1),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(12),
+              color: WanWalkColors.accentPrimarySoft,
+              borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
             ),
-            child: Icon(icon, color: color, size: 22),
+            alignment: Alignment.center,
+            child: Icon(icon, color: WanWalkColors.accentPrimary, size: WanWalkIcons.sizeMd),
           ),
-          const SizedBox(width: WanWalkSpacing.md),
+          const SizedBox(width: WanWalkSpacing.s3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: WanWalkTypography.bodyLarge.copyWith(
-                    color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(title, style: WanWalkTypography.wwH4),
                 const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: WanWalkTypography.bodySmall.copyWith(
-                    color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-                  ),
-                ),
+                Text(description, style: WanWalkTypography.wwCaption),
               ],
             ),
           ),

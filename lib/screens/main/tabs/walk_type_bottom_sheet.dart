@@ -32,7 +32,7 @@ class WalkTypeBottomSheet extends StatelessWidget {
           maxHeight: MediaQuery.of(context).size.height * 0.6,
         ),
         decoration: BoxDecoration(
-          color: isDark ? WanWalkColors.backgroundDark : WanWalkColors.backgroundLight,
+          color: WanWalkColors.bgPrimary,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SingleChildScrollView(
@@ -68,7 +68,7 @@ class WalkTypeBottomSheet extends StatelessWidget {
                   Text(
                     'お散歩を始めよう',
                     style: WanWalkTypography.headlineSmall.copyWith(
-                      color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                      color: WanWalkColors.textPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -133,7 +133,7 @@ class WalkTypeBottomSheet extends StatelessWidget {
                   child: Text(
                     'キャンセル',
                     style: WanWalkTypography.bodyMedium.copyWith(
-                      color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                      color: WanWalkColors.textSecondary,
                     ),
                   ),
                 ),
@@ -181,7 +181,7 @@ class _WalkTypeCard extends StatelessWidget {
             color: isDark ? WanWalkColors.surfaceDark : Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight,
+              color: WanWalkColors.borderSubtle,
               width: 1,
             ),
             boxShadow: [
@@ -222,7 +222,7 @@ class _WalkTypeCard extends StatelessWidget {
                     Text(
                       title,
                       style: WanWalkTypography.titleMedium.copyWith(
-                        color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
+                        color: WanWalkColors.textPrimary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -230,7 +230,7 @@ class _WalkTypeCard extends StatelessWidget {
                     Text(
                       description,
                       style: WanWalkTypography.bodyMedium.copyWith(
-                        color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
+                        color: WanWalkColors.textSecondary,
                       ),
                     ),
                     if (!isCompact) ...[
@@ -255,7 +255,7 @@ class _WalkTypeCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
-                  Icons.arrow_forward_ios,
+                  PhosphorIcons.caretRight(),
                   color: isDark ? Colors.grey[500] : Colors.grey[400],
                   size: 14,
                 ),

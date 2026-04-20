@@ -1,186 +1,185 @@
-// ==================================================
-// Privacy Policy Screen for WanWalk v2
-// ==================================================
-// Author: AI Assistant
-// Created: 2025-11-21
-// Purpose: Display privacy policy
-// ==================================================
-
 import 'package:flutter/material.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 
+/// プライバシーポリシー画面
+/// 最終更新: 2026-04-20（Build 31 Phase 2 改訂）
+/// - 運営事業者を DogHub（個人事業主・代表 成澤元子）として明記
+/// - 連絡先を info@dog-hub.shop に統一
+/// - Cookie 章を削除し ATT / IDFA 章に置換
+/// - 第三者 SDK 開示追加
+/// - 法定代理人同意（16歳未満）を明記
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: WanWalkColors.bgPrimary,
       appBar: AppBar(
-        title: const Text('プライバシーポリシー'),
-        backgroundColor: Colors.transparent,
+        title: const Text('プライバシーポリシー', style: WanWalkTypography.wwH2),
+        backgroundColor: WanWalkColors.bgPrimary,
+        foregroundColor: WanWalkColors.textPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: WanWalkSpacing.screenPadding,
+          padding: const EdgeInsets.all(WanWalkSpacing.s4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // タイトル
-              Text(
+              const Text(
                 'WanWalk プライバシーポリシー',
-                style: WanWalkTypography.headlineLarge.copyWith(
-                  color: WanWalkColors.textPrimaryLight,
-                ),
+                style: WanWalkTypography.wwH1,
               ),
-              const SizedBox(height: WanWalkSpacing.sm),
-
-              // 更新日
+              const SizedBox(height: WanWalkSpacing.s2),
               Text(
-                '最終更新日: 2025年11月21日',
-                style: WanWalkTypography.bodySmall.copyWith(
-                  color: WanWalkColors.textSecondaryLight,
-                ),
+                '最終更新日: 2026年4月20日',
+                style: WanWalkTypography.wwCaption,
               ),
-              const SizedBox(height: WanWalkSpacing.xl),
+              const SizedBox(height: WanWalkSpacing.s6),
 
               _buildSection(
-                '個人情報の収集',
-                'WanWalk（以下「当社」）は、本サービスの利用に際して、以下の個人情報を収集します。\n\n'
-                '• メールアドレス\n'
-                '• ユーザー名\n'
-                '• プロフィール情報（任意）\n'
-                '• GPS位置情報\n'
-                '• 散歩ルートデータ\n'
-                '• 投稿した写真・コメント\n'
-                '• デバイス情報（OS、機種名、アプリバージョン等）\n'
-                '• 利用状況データ（アクセス日時、閲覧履歴等）',
+                '1. 運営事業者',
+                'WanWalk（以下「本サービス」）は、以下の事業者が運営しています。\n\n'
+                '• 屋号: DogHub\n'
+                '• 代表: 成澤元子\n'
+                '• 事業形態: 個人事業主\n'
+                '• 所在地: 神奈川県足柄下郡箱根町仙石原\n'
+                '• お問い合わせ: info@dog-hub.shop',
               ),
 
               _buildSection(
-                '個人情報の利用目的',
-                '当社は、収集した個人情報を以下の目的で利用します。\n\n'
-                '1. 本サービスの提供・運営のため\n'
-                '2. ユーザーからのお問い合わせに回答するため\n'
-                '3. ユーザーが利用中のサービスの新機能、更新情報、キャンペーン等の案内のため\n'
-                '4. メンテナンス、重要なお知らせなど必要に応じたご連絡のため\n'
-                '5. 利用規約に違反したユーザーや、不正・不当な目的でサービスを利用しようとするユーザーの特定をし、ご利用をお断りするため\n'
-                '6. ユーザーにご自身の登録情報の閲覧や変更、削除、ご利用状況の閲覧を行っていただくため\n'
-                '7. サービスの改善や新サービスの開発のため\n'
-                '8. その他、上記利用目的に付随する目的',
+                '2. 取得する情報',
+                '本サービスの提供にあたり、以下の情報を取得します。\n\n'
+                '• メールアドレス・ユーザー名・プロフィール情報\n'
+                '• 愛犬情報（名前・犬種・年齢等／任意）\n'
+                '• GPS位置情報（散歩記録中のみ）\n'
+                '• 散歩ルートデータ（距離・時間・軌跡）\n'
+                '• ユーザーが投稿した写真・コメント・ピン\n'
+                '• デバイス情報（OS種別・機種名・アプリバージョン）\n'
+                '• 広告識別子（IDFA等。ATT許可時のみ）\n'
+                '• 利用状況データ（アクセス日時・画面遷移履歴）',
               ),
 
               _buildSection(
-                '個人情報の第三者提供',
-                '当社は、次に掲げる場合を除いて、あらかじめユーザーの同意を得ることなく、第三者に個人情報を提供することはありません。\n\n'
-                '1. 法令に基づく場合\n'
-                '2. 人の生命、身体または財産の保護のために必要がある場合であって、本人の同意を得ることが困難であるとき\n'
-                '3. 公衆衛生の向上または児童の健全な育成の推進のために特に必要がある場合であって、本人の同意を得ることが困難であるとき\n'
-                '4. 国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合であって、本人の同意を得ることにより当該事務の遂行に支障を及ぼすおそれがあるとき',
+                '3. 利用目的',
+                '取得した情報は以下の目的で利用します。\n\n'
+                '1. 本サービスの提供・運営・改善\n'
+                '2. 散歩ルート・ピンの記録と表示\n'
+                '3. ユーザーからのお問い合わせへの対応\n'
+                '4. 新機能・重要なお知らせの通知\n'
+                '5. 利用規約違反の調査・対応\n'
+                '6. 匿名化された統計情報の作成（利用分析）\n'
+                '7. その他、上記に付随する目的',
               ),
 
               _buildSection(
-                'GPS位置情報の取り扱い',
-                '本サービスでは、散歩ルートの記録機能を提供するため、ユーザーの位置情報を取得します。\n\n'
-                '• 位置情報は、ルート記録中のみ取得されます\n'
-                '• 位置情報は、ユーザーが明示的に記録を開始した場合のみ保存されます\n'
-                '• 公開設定を「非公開」にしたルートの位置情報は、他のユーザーには表示されません\n'
-                '• 位置情報の取得は、ユーザーがいつでも停止することができます\n'
-                '• 保存された位置情報は、ユーザー自身で削除することができます',
+                '4. 第三者提供',
+                '次の場合を除き、あらかじめ本人の同意を得ることなく個人情報を第三者に提供しません。\n\n'
+                '• 法令に基づく場合\n'
+                '• 人の生命・身体・財産の保護のために必要であり、本人の同意を得ることが困難なとき\n'
+                '• 公衆衛生・児童の健全育成のために特に必要があり、本人の同意を得ることが困難なとき\n'
+                '• 国・地方公共団体等の法令事務の遂行に協力する必要があるとき',
               ),
 
               _buildSection(
-                '写真・画像の取り扱い',
-                'ユーザーが投稿した写真・画像について、以下の点にご注意ください。\n\n'
-                '• 投稿された写真は、ルートと一緒に他のユーザーに公開される場合があります\n'
-                '• 写真には、Exif情報（撮影日時、位置情報等）が含まれる場合があります\n'
-                '• 当社は、不適切な写真を削除する権利を有します\n'
-                '• 著作権や肖像権を侵害する写真の投稿は禁止します',
+                '5. 利用する第三者サービス（SDK等）',
+                '本サービスは以下の外部サービスを利用しています。各サービスの取扱いは各社のプライバシーポリシーに従います。\n\n'
+                '• Supabase（データベース・認証） — 米国\n'
+                '• Apple Sign in with Apple（認証）\n'
+                '• Google Sign-In（認証）\n'
+                '• OpenStreetMap（地図タイル）\n'
+                '• Google Places API（スポット情報・写真取得）\n'
+                '• Apple Push Notification service（プッシュ通知）\n\n'
+                '一部の情報は上記サービスの所在国（米国等）のサーバーで処理される場合があります。',
               ),
 
               _buildSection(
-                'Cookie（クッキー）等の利用',
-                '本サービスでは、ユーザーの利便性向上およびサービスの改善のために、Cookieおよび類似の技術を使用することがあります。\n\n'
-                'Cookieによって収集される情報には、以下が含まれる場合があります：\n'
-                '• ブラウザの種類とバージョン\n'
-                '• オペレーティングシステム\n'
-                '• 参照元のウェブサイト\n'
-                '• アクセス日時\n'
-                '• IPアドレス\n\n'
-                'ユーザーは、ブラウザの設定によってCookieの受け入れを拒否することができますが、その場合、本サービスの一部機能が利用できなくなる可能性があります。',
+                '6. GPS位置情報の取り扱い',
+                '散歩記録機能のため、位置情報を取得します。\n\n'
+                '• 位置情報は、ユーザーが明示的に記録を開始した場合のみ取得・保存します\n'
+                '• バックグラウンド追跡は、散歩記録中のみ行います\n'
+                '• 非公開設定にした記録は他のユーザーには表示されません\n'
+                '• 位置情報の取得は、OS の設定からいつでも停止できます\n'
+                '• 保存済みの記録はアプリ内から削除できます',
               ),
 
               _buildSection(
-                '個人情報の安全管理',
-                '当社は、個人情報の漏えい、滅失またはき損の防止その他の個人情報の安全管理のために必要かつ適切な措置を講じます。\n\n'
-                '具体的には：\n'
-                '• SSL/TLSによる通信の暗号化\n'
-                '• ファイアウォールの設置\n'
-                '• アクセス制御の実施\n'
-                '• 定期的なセキュリティ監査\n'
-                '• 従業員への教育・研修',
+                '7. 写真・画像の取り扱い',
+                '投稿される写真・画像について以下にご注意ください。\n\n'
+                '• 投稿された写真は、ルート・ピンと共に他のユーザーに公開される場合があります\n'
+                '• 写真に含まれるExif情報（撮影日時・位置情報）は、投稿前に自動的に削除または匿名化します\n'
+                '• 他者が写り込んでいる写真を投稿する際は、必ずご本人の同意を得てください（肖像権）\n'
+                '• 著作権を侵害する写真の投稿は禁止します\n'
+                '• 不適切と判断した写真は、当方の判断で削除することがあります',
               ),
 
               _buildSection(
-                '個人情報の開示',
-                'ユーザーは、当社に対し、個人情報保護法の定めるところにより、自己の個人情報の開示を請求することができます。\n\n'
-                '開示請求は、以下の方法で受け付けます：\n'
-                '• アプリ内の「設定」→「個人情報の管理」\n'
-                '• 当社の問い合わせ窓口へのメール\n\n'
-                '開示請求には、本人確認のための書類の提出が必要な場合があります。',
+                '8. トラッキングと広告識別子（ATT）',
+                'iOS の App Tracking Transparency（ATT）により、他社アプリ・Webサイトをまたいだトラッキングを行う前に、ユーザーの許可を取得します。\n\n'
+                '• 現時点では本サービスはクロスアプリ・トラッキングを行っていません\n'
+                '• 広告配信・行動履歴に基づくパーソナライゼーションは行っていません\n'
+                '• 将来的に広告を導入する場合は、事前に本ポリシーを改訂し、アプリ内で通知します',
               ),
 
               _buildSection(
-                '個人情報の訂正および削除',
-                'ユーザーは、当社の保有する自己の個人情報が誤った情報である場合には、訂正、追加または削除を請求することができます。\n\n'
-                '• プロフィール情報は、アプリ内で随時変更可能です\n'
-                '• アカウント削除を希望する場合は、設定画面から実行できます\n'
-                '• アカウント削除後、個人情報は原則として速やかに削除されます\n'
-                '• ただし、法令に基づき保存が義務付けられているデータは、所定の期間保管されます',
+                '9. 情報の安全管理',
+                '当方は、個人情報の漏えい・滅失・毀損の防止のため、以下の対策を講じます。\n\n'
+                '• HTTPS（TLS）による通信の暗号化\n'
+                '• Supabase Row Level Security（RLS）によるデータアクセス制御\n'
+                '• 権限を持つ者以外がアクセスできない運用\n'
+                '• 定期的なセキュリティレビュー',
               ),
 
               _buildSection(
-                '個人情報の利用停止等',
-                'ユーザーは、当社が、個人情報を利用目的の範囲を超えて取り扱っている場合、または不正な手段により取得した場合には、利用の停止または消去を請求することができます。',
+                '10. 情報の開示・訂正・削除',
+                'ご自身の情報について、以下の対応が可能です。\n\n'
+                '• プロフィール・愛犬情報: アプリ内「プロフィール」→「編集」から変更\n'
+                '• 散歩記録・ピン・写真: アプリ内から個別に削除可能\n'
+                '• アカウント削除: アプリ内「設定」→「アカウントを削除」から実行\n'
+                '• アカウント削除後、個人情報は原則として速やかに削除します（法令で保存が義務付けられているものを除く）\n'
+                '• その他の開示・訂正請求は info@dog-hub.shop へメールでご連絡ください（本人確認のため書類提出をお願いする場合があります）',
               ),
 
               _buildSection(
-                '子供のプライバシー',
-                '当社は、13歳未満の子供から意図的に個人情報を収集することはありません。\n\n'
-                '保護者の方へ：\n'
-                'お子様が保護者の同意なく個人情報を提供したと思われる場合は、速やかに当社までご連絡ください。適切な措置を講じます。',
+                '11. 未成年の利用について',
+                '• 16歳未満の方が本サービスを利用する場合は、法定代理人（保護者）の同意を得てください\n'
+                '• 13歳未満の方から意図的に個人情報を収集することはありません\n'
+                '• 保護者の方で、お子様が同意なく情報を提供したとお気づきの場合は、info@dog-hub.shop までご連絡ください',
               ),
 
               _buildSection(
-                'プライバシーポリシーの変更',
-                '当社は、必要に応じて、本プライバシーポリシーを変更することがあります。\n\n'
-                '• 変更後のプライバシーポリシーは、本ページに掲載した時点から効力を生じます\n'
-                '• 重要な変更がある場合は、アプリ内通知等でお知らせします\n'
-                '• 変更後も本サービスを継続して利用する場合、変更後のプライバシーポリシーに同意したものとみなします',
+                '12. プライバシーポリシーの変更',
+                '• 当方は必要に応じて本ポリシーを変更することがあります\n'
+                '• 変更後の内容は本画面に掲載した時点から効力を生じます\n'
+                '• 重要な変更がある場合は、アプリ内通知または起動時の告知でお知らせします\n'
+                '• 変更後も本サービスを継続利用される場合、変更に同意したものとみなします',
               ),
 
               _buildSection(
-                'お問い合わせ窓口',
-                '本ポリシーに関するお問い合わせは、以下の窓口までお願いいたします。\n\n'
-                'サービス名: WanWalk\n'
-                'メールアドレス: privacy@wanwalk.app\n\n'
-                '※お問い合わせへの回答には、数日かかる場合があります。',
+                '13. お問い合わせ窓口',
+                '本ポリシー・個人情報の取扱いに関するお問い合わせは下記までお願いします。\n\n'
+                '• サービス名: WanWalk\n'
+                '• 運営: DogHub（代表 成澤元子）\n'
+                '• メール: info@dog-hub.shop\n\n'
+                '※回答までに数日いただく場合があります。',
               ),
 
-              const SizedBox(height: WanWalkSpacing.xl),
+              _buildSection(
+                '14. 改訂履歴',
+                '• 2026年4月20日: Build 31 Phase 2 改訂（運営事業者明記・連絡先更新・ATT章新設・第三者SDK開示・肖像権文言追加）\n'
+                '• 2025年11月21日: 初版公開',
+              ),
 
-              // 終わり
+              const SizedBox(height: WanWalkSpacing.s5),
+
               Center(
-                child: Text(
-                  '以上',
-                  style: WanWalkTypography.bodyMedium.copyWith(
-                    color: WanWalkColors.textSecondaryLight,
-                  ),
-                ),
+                child: Text('以上', style: WanWalkTypography.wwCaption),
               ),
-              const SizedBox(height: WanWalkSpacing.xxl),
+              const SizedBox(height: WanWalkSpacing.s8),
             ],
           ),
         ),
@@ -189,26 +188,19 @@ class PrivacyPolicyScreen extends StatelessWidget {
   }
 
   Widget _buildSection(String title, String content) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: WanWalkTypography.headlineSmall.copyWith(
-            color: WanWalkColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: WanWalkSpacing.s5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: WanWalkTypography.wwH3),
+          const SizedBox(height: WanWalkSpacing.s2),
+          Text(
+            content,
+            style: WanWalkTypography.wwBody.copyWith(height: 1.75),
           ),
-        ),
-        const SizedBox(height: WanWalkSpacing.sm),
-        Text(
-          content,
-          style: WanWalkTypography.bodyMedium.copyWith(
-            color: WanWalkColors.textSecondaryLight,
-            height: 1.6,
-          ),
-        ),
-        const SizedBox(height: WanWalkSpacing.lg),
-      ],
+        ],
+      ),
     );
   }
 }

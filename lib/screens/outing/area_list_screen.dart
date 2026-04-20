@@ -56,15 +56,7 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         iconTheme: const IconThemeData(color: WanWalkColors.textPrimary),
-        title: const Text(
-          'エリアを選ぶ',
-          style: TextStyle(
-            fontFamily: 'NotoSerifJP',
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: WanWalkColors.textPrimary,
-          ),
-        ),
+        title: const Text('エリアを選ぶ', style: WanWalkTypography.wwH2),
       ),
       body: Column(
         children: [
