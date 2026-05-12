@@ -7,6 +7,7 @@ import '../config/wanwalk_typography.dart';
 import '../config/wanwalk_spacing.dart';
 import '../models/official_route.dart';
 import '../screens/outing/route_detail_screen.dart';
+import '../utils/distance_formatter.dart';
 
 /// 散歩完了後に表示するおすすめルートカード
 /// 散歩完了ダイアログ内で使用
@@ -232,7 +233,7 @@ class _RecommendedRouteCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${(route.distanceMeters / 1000).toStringAsFixed(1)}km・約${route.estimatedMinutes}分',
+                    '${formatDistance(route.distanceMeters.toInt())}・約${route.estimatedMinutes}分',
                     style: WanWalkTypography.bodySmall.copyWith(
                       color: isDark
                           ? WanWalkColors.textSecondary

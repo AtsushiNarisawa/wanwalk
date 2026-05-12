@@ -10,17 +10,25 @@ import '../../widgets/zoom_control_widget.dart';
 import '../outing/pin_create_screen.dart';
 
 /// ピン投稿の場所選択画面
-/// 
+///
 /// マップ中央に十字マーカーを表示し、
 /// マップをドラッグして場所を選択する
+///
+/// 致命2 対応 (A1 / 2026-05-12):
+/// ルート選択経由で開かれた場合は `initialCenter` に選択ルートの
+/// `start_location` が渡される。これを **必ず初期表示** に使い、
+/// GPS 取得遅延中にデフォルト座標（横浜みなとみらい）が見える事故を防ぐ。
+/// ルート未選択モード（map_tab から直接）の場合は従来通り GPS 取得を試みる。
 class PinLocationPickerScreen extends ConsumerStatefulWidget {
   final String? routeId;
   final String? routeName;
+  final LatLng? initialCenter;
 
   const PinLocationPickerScreen({
     super.key,
     this.routeId,
     this.routeName,
+    this.initialCenter,
   });
 
   @override
@@ -29,23 +37,29 @@ class PinLocationPickerScreen extends ConsumerStatefulWidget {
 
 class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScreen> {
   late final MapController _mapController;
-  LatLng _currentLocation = const LatLng(35.4437, 139.6380); // デフォルト値を設定
+  static const LatLng _fallbackCenter = LatLng(35.4437, 139.6380);
+  late LatLng _currentLocation;
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
-    
-    // 現在地を取得
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeLocation();
-    });
+    _currentLocation = widget.initialCenter ?? _fallbackCenter;
+
+    // initialCenter が渡されていない（ルート未選択モード）場合のみ GPS 自動取得。
+    // 渡されている場合は start_location を維持し、ユーザーが「現在地ボタン」で
+    // 明示的に移動した場合のみ追随する（致命2 リスク欄の方針）。
+    if (widget.initialCenter == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _initializeLocation();
+      });
+    }
   }
 
-  /// 現在地を初期化
+  /// 現在地を初期化（ルート未選択モード時のみ呼ばれる）
   Future<void> _initializeLocation() async {
     final gpsState = ref.read(gpsProviderRiverpod);
-    
+
     if (gpsState.currentLocation != null && mounted) {
       setState(() {
         _currentLocation = gpsState.currentLocation!;

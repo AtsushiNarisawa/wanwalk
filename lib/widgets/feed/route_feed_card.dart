@@ -3,6 +3,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../models/official_route.dart';
+import '../../utils/distance_formatter.dart';
 
 /// 公式ルート紹介カード（大きな写真 + 体験ストーリー冒頭）
 class RouteFeedCard extends StatelessWidget {
@@ -112,7 +113,7 @@ class RouteFeedCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${(route.distanceMeters / 1000).toStringAsFixed(1)}km・約${route.estimatedMinutes}分',
+                      '${formatDistance(route.distanceMeters.toInt())}・約${route.estimatedMinutes}分',
                       style: WanWalkTypography.bodySmall.copyWith(
                         color: Colors.white,
                         fontSize: 11,

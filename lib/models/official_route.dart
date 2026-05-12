@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
+import '../utils/distance_formatter.dart';
 import '../utils/logger.dart';
 
 /// ペット情報（愛犬家向け情報）
@@ -426,14 +427,11 @@ class OfficialRoute {
     };
   }
 
-  /// 距離をフォーマット（例：1.5km）
-  String get formattedDistance {
-    if (distanceMeters >= 1000) {
-      return '${(distanceMeters / 1000).toStringAsFixed(1)}km';
-    } else {
-      return '${distanceMeters.toStringAsFixed(0)}m';
-    }
-  }
+  /// 距離をフォーマット（例：1.5km / 432m）
+  ///
+  /// A1 致命1 SSoT 化（2026-05-12）: `distance_formatter.formatDistance` に委譲。
+  /// 全カード / 詳細 / ピン投稿 / おすすめ / ホーム / Web で同一文字列。
+  String get formattedDistance => formatDistance(distanceMeters.toInt());
 
   /// 所要時間をフォーマット（例：1時間30分）
   String get formattedDuration {

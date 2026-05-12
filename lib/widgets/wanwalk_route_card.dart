@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import '../config/wanwalk_colors.dart';
 import '../config/wanwalk_typography.dart';
 import '../config/wanwalk_spacing.dart';
+import '../utils/distance_formatter.dart';
 
 /// WanWalk ルートカードウィジェット
 /// ルート一覧・詳細画面で使用する大きなカード
@@ -241,7 +242,7 @@ class WanWalkRouteCard extends StatelessWidget {
         // 距離
         _StatItem(
           icon: Icons.route,
-          value: '${distance.toStringAsFixed(1)}km',
+          value: formatDistance((distance * 1000).round()),
           color: secondaryTextColor,
         ),
         const SizedBox(width: WanWalkSpacing.lg),
@@ -427,7 +428,7 @@ class WanWalkRouteCardCompact extends StatelessWidget {
                       ),
                       const SizedBox(width: WanWalkSpacing.xxs),
                       Text(
-                        '${distance.toStringAsFixed(1)}km',
+                        formatDistance((distance * 1000).round()),
                         style: WanWalkTypography.labelSmall.copyWith(
                           color: secondaryTextColor,
                         ),

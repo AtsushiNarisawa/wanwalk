@@ -18,6 +18,7 @@ import '../../../widgets/feed/route_feed_card.dart';
 import '../../../widgets/feed/pin_feed_card.dart';
 import '../../../widgets/feed/area_feature_card.dart';
 import '../../../widgets/banners/hakone_tourism_banner.dart';
+import '../../../utils/distance_formatter.dart';
 
 /// HomeTab - 統合フィード画面
 ///
@@ -352,7 +353,7 @@ class HomeTab extends ConsumerWidget {
                                 Icon(WanWalkIcons.ruler, size: WanWalkIcons.sizeXs, color: WanWalkColors.accentPrimary),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${(route.distanceMeters / 1000).toStringAsFixed(1)}km',
+                                  formatDistance(route.distanceMeters.toInt()),
                                   style: WanWalkTypography.wwNumeric.copyWith(
                                     fontSize: 12,
                                     color: WanWalkColors.textSecondary,

@@ -5,6 +5,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../models/official_route.dart';
+import '../../utils/distance_formatter.dart';
 
 /// SpecBar — ルート詳細のヒーロー直下に置く4点スペック表示。
 /// モバイル: 2×2 グリッド。数値は Inter + tabular figures。null 時は em-dash。
@@ -48,7 +49,7 @@ class SpecBar extends StatelessWidget {
         icon: PhosphorIcons.path(),
         label: '距離',
         value: distanceKm != null
-            ? '${distanceKm!.toStringAsFixed(1)} km'
+            ? formatDistance((distanceKm! * 1000).round())
             : '—',
       ),
       _SpecItem(

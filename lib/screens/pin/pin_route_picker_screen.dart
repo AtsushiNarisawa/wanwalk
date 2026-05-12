@@ -6,6 +6,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../providers/official_routes_screen_provider.dart';
 import '../../providers/area_provider.dart';
 import '../../models/official_route.dart';
+import '../../utils/distance_formatter.dart';
 import '../pin/pin_location_picker_screen.dart';
 
 /// ピン投稿用のルート選択画面
@@ -261,6 +262,9 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
               builder: (_) => PinLocationPickerScreen(
                 routeId: route.id,
                 routeName: route.name,
+                // 致命2 (A1): 選択ルートの start_location を初期表示に使い、
+                // GPS 取得遅延中にデフォルト座標（横浜みなとみらい）が見える事故を防ぐ
+                initialCenter: route.startLocation,
               ),
             ),
           );
@@ -309,7 +313,7 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${(route.distanceMeters / 1000).toStringAsFixed(1)}km',
+                          formatDistance(route.distanceMeters.toInt()),
                           style: WanWalkTypography.bodySmall.copyWith(
                             color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
                           ),
