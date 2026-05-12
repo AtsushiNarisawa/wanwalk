@@ -8,6 +8,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../providers/push_notification_provider.dart';
 import '../../services/notification_permission_service.dart';
 import '../../utils/logger.dart';
+import 'morning_reminder_settings_screen.dart';
 
 /// 通知設定画面（B1 §3.2）。
 ///
@@ -113,19 +114,6 @@ class _NotificationSettingsScreenState
     }
   }
 
-  Future<void> _pickMorningTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _morningTime,
-      helpText: '朝の通知時刻',
-      cancelText: '閉じる',
-      confirmText: '決定',
-    );
-    if (picked == null) return;
-    setState(() => _morningTime = picked);
-    await _savePreferences(morningTime: picked);
-  }
-
   Future<void> _openSystemSettings() async {
     final uri = Uri.parse('app-settings:');
     try {
@@ -174,16 +162,26 @@ class _NotificationSettingsScreenState
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      title: const Text('時刻を変更',
+                      title: const Text('時刻とモードを変更',
                           style: WanWalkTypography.body),
-                      trailing: Text(
-                        _morningTime.format(context),
-                        style: WanWalkTypography.body.copyWith(
-                          color: WanWalkColors.primary,
-                        ),
+                      subtitle: const Text(
+                        '日の出に合わせる / 時刻指定 / 配信頻度',
+                        style: WanWalkTypography.caption,
                       ),
-                      onTap: _morningEnabled ? _pickMorningTime : null,
+                      trailing: const Icon(Icons.chevron_right),
                       enabled: _morningEnabled,
+                      onTap: _morningEnabled
+                          ? () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const MorningReminderSettingsScreen(),
+                                ),
+                              );
+                              if (mounted) _loadInitial();
+                            }
+                          : null,
                     ),
                     const Divider(height: 1),
                     SwitchListTile(

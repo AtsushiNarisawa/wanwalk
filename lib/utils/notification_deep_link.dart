@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../screens/outing/route_detail_screen.dart';
 
+/// 通知タップ後にホームの特定セクションへ auto-scroll させるためのキー名。
+/// HomeTab 側で対応する GlobalKey を [pendingHomeScrollSection] と突き合わせる。
+class HomeScrollSection {
+  static const String todayRecommend = 'today_recommend';
+}
+
 /// 通知 data ペイロード → 画面遷移ルーティング解決（B1 §6.1）。
 ///
 /// 設計書: docs/mvp_specs/B1_fcm_push_base.md
@@ -26,6 +32,10 @@ class NotificationDeepLink {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
+  /// B2 通知タップで「ホームのどのセクションへ scroll するか」を保持。
+  /// HomeTab が次回 build 時に読み取って消費する。
+  static String? pendingHomeScrollSection;
+
   /// 通知タップで届く RemoteMessage を画面遷移に変換。
   ///
   /// 不明な deep_link は無視（ホームのまま）。
@@ -36,6 +46,16 @@ class NotificationDeepLink {
 
     final navigator = navigatorKey.currentState;
     if (navigator == null) return;
+
+    if (deepLink.startsWith('wanwalk://home')) {
+      final uri = Uri.tryParse(deepLink);
+      final section = uri?.queryParameters['section'];
+      if (section != null && section.isNotEmpty) {
+        pendingHomeScrollSection = section;
+      }
+      navigator.popUntil((route) => route.isFirst);
+      return;
+    }
 
     switch (deepLink) {
       case 'route_detail':
@@ -49,6 +69,10 @@ class NotificationDeepLink {
         }
         break;
       case 'home':
+        final section = data['section']?.toString();
+        if (section != null && section.isNotEmpty) {
+          pendingHomeScrollSection = section;
+        }
         // 既にホーム想定。深い画面にいる場合だけ root まで戻す。
         navigator.popUntil((route) => route.isFirst);
         break;

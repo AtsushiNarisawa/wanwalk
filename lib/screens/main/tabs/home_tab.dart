@@ -19,7 +19,9 @@ import '../../../widgets/feed/pin_feed_card.dart';
 import '../../../widgets/feed/area_feature_card.dart';
 import '../../../widgets/banners/hakone_tourism_banner.dart';
 import '../../../widgets/notification_recovery_banner.dart';
+import '../../../widgets/home/today_recommend_section.dart';
 import '../../../utils/distance_formatter.dart';
+import '../../../utils/notification_deep_link.dart';
 
 /// HomeTab - 統合フィード画面
 ///
@@ -106,11 +108,19 @@ class HomeTab extends ConsumerWidget {
         // 散歩サマリーがあるかどうかでオフセットを計算
         final hasSummary = items.isNotEmpty && items.first.type == FeedItemType.walkSummary;
         final summaryCount = hasSummary ? 1 : 0;
-        // 挿入: エリアカード(1) + ピックアップ(1) + 最新ルートタイトル(1) = 3
-        const insertedCount = 3;
+        // 挿入: 今日のおすすめ(1) + エリアカード(1) + ピックアップ(1) + 最新ルートタイトル(1) = 4
+        const insertedCount = 4;
         // フッター: バナー(1) + Supported(1) = 2
         const footerCount = 2;
         final totalCount = items.length + insertedCount + footerCount;
+
+        // 通知タップ deep link 由来の scroll セクション要求を消費。
+        // 現状は home_tab がアクティブな限り最上位の TodayRecommendSection が
+        // 既に視界に入っているため、明示スクロールはせずフラグだけ消費する。
+        if (NotificationDeepLink.pendingHomeScrollSection ==
+            HomeScrollSection.todayRecommend) {
+          NotificationDeepLink.pendingHomeScrollSection = null;
+        }
 
         return RefreshIndicator(
           color: WanWalkColors.accentPrimary,
@@ -135,18 +145,23 @@ class HomeTab extends ConsumerWidget {
                 );
               }
 
-              // エリアから探す
+              // 今日のおすすめ（朝散歩リマインド deep link 着地点）
               if (index == summaryCount) {
+                return const TodayRecommendSection();
+              }
+
+              // エリアから探す
+              if (index == summaryCount + 1) {
                 return _buildAreaCards(context, ref, areasAsync, isDark);
               }
 
               // おすすめピックアップ
-              if (index == summaryCount + 1) {
+              if (index == summaryCount + 2) {
                 return _buildFeaturedPickup(context, featuredAsync, isDark);
               }
 
               // 「最新のルート」セクションタイトル
-              if (index == summaryCount + 2) {
+              if (index == summaryCount + 3) {
                 return const Padding(
                   padding: EdgeInsets.only(
                     left: WanWalkSpacing.s4,

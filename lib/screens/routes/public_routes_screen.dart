@@ -4,6 +4,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_icons.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../models/area.dart';
 import '../../models/official_route.dart';
 import '../../providers/official_routes_screen_provider.dart';
 import '../../providers/area_provider.dart';
@@ -142,7 +143,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
   Widget _buildFilterChips(
     BuildContext context,
     bool isDark,
-    AsyncValue areasAsync,
+    AsyncValue<List<Area>> areasAsync,
     String? selectedAreaId,
     RouteSortOption sortOption,
   ) {
@@ -187,7 +188,7 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
   }
 
   /// エリアフィルタ選択ダイアログ
-  void _showAreaFilter(BuildContext context, bool isDark, List<dynamic> areas, String? selectedAreaId) {
+  void _showAreaFilter(BuildContext context, bool isDark, List<Area> areas, String? selectedAreaId) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
