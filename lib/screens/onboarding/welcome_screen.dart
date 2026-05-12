@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
+import '../../providers/push_notification_provider.dart';
 import '../../services/onboarding_service.dart';
 import '../main/main_screen.dart';
+import 'pre_permission_screen.dart';
 
 /// ウェルカムスライド画面
 /// 初回起動時にアプリの価値を3枚のスライドで伝える
-class WelcomeScreen extends StatefulWidget {
+class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
 
@@ -53,8 +56,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     }
   }
 
-  void _completeWelcome() {
-    OnboardingService.markWelcomeCompleted();
+  Future<void> _completeWelcome() async {
+    await OnboardingService.markWelcomeCompleted();
+    if (!mounted) return;
+
+    // B1 §3.1: ウェルカム完了直後にプリ許可画面を 1 度だけ挟む。
+    // OS 既許可・拒否済・14 日以内に「あとで」した場合はスキップ。
+    final permService = ref.read(notificationPermissionServiceProvider);
+    final shouldShow = await permService.shouldShowPrePrompt();
+    if (!mounted) return;
+
+    if (shouldShow) {
+      await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => const PrePermissionScreen()),
+      );
+      if (!mounted) return;
+    }
+
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const MainScreen()),
     );

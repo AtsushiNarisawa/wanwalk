@@ -22,6 +22,9 @@ class Environment {
   static String get googleWebClientId => dotenv.get('GOOGLE_WEB_CLIENT_ID', fallback: '');
   static String get googleIosClientId => dotenv.get('GOOGLE_IOS_CLIENT_ID', fallback: '');
 
+  // Sentry エラートラッキング（A3 クラッシュゼロ化）
+  static String get sentryDsn => dotenv.get('SENTRY_DSN', fallback: '');
+
   // デバッグモード
   static bool get isDebugMode => dotenv.get('DEBUG_MODE', fallback: 'true') == 'true';
   

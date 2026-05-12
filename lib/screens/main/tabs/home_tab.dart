@@ -18,6 +18,7 @@ import '../../../widgets/feed/route_feed_card.dart';
 import '../../../widgets/feed/pin_feed_card.dart';
 import '../../../widgets/feed/area_feature_card.dart';
 import '../../../widgets/banners/hakone_tourism_banner.dart';
+import '../../../widgets/notification_recovery_banner.dart';
 import '../../../utils/distance_formatter.dart';
 
 /// HomeTab - 統合フィード画面
@@ -62,7 +63,12 @@ class HomeTab extends ConsumerWidget {
         ),
         iconTheme: const IconThemeData(color: WanWalkColors.textPrimary),
       ),
-      body: _buildFeed(context, ref, isDark),
+      body: Column(
+        children: [
+          const NotificationRecoveryBanner(),
+          Expanded(child: _buildFeed(context, ref, isDark)),
+        ],
+      ),
     );
   }
 

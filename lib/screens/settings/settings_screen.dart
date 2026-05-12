@@ -7,6 +7,7 @@ import '../../providers/theme_provider.dart';
 import 'change_password_screen.dart';
 import 'change_email_screen.dart';
 import 'help_screen.dart';
+import 'notification_settings_screen.dart';
 
 /// 設定画面
 class SettingsScreen extends ConsumerWidget {
@@ -237,8 +238,8 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Widget _buildNotificationSettings(BuildContext context, bool isDark) {
-    return SwitchListTile(
-      secondary: const Icon(
+    return ListTile(
+      leading: const Icon(
         Icons.notifications_outlined,
         color: WanWalkColors.accent,
       ),
@@ -247,15 +248,18 @@ class SettingsScreen extends ConsumerWidget {
         style: WanWalkTypography.body,
       ),
       subtitle: Text(
-        '散歩のリマインダーなど',
+        '朝の散歩リマインドなど',
         style: WanWalkTypography.caption.copyWith(
           color: isDark ? Colors.white54 : Colors.black45,
         ),
       ),
-      value: true, // TODO: 実際の通知設定状態を取得
-      onChanged: (value) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('通知設定機能は準備中です')),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const NotificationSettingsScreen(),
+          ),
         );
       },
     );

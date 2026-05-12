@@ -1,29 +1,45 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'config/supabase_config.dart';
 import 'config/wanwalk_theme.dart';
 import 'config/wanwalk_colors.dart';
 import 'config/env.dart';
+import 'providers/push_notification_provider.dart';
 import 'screens/main/main_screen.dart';
 import 'screens/onboarding/welcome_screen.dart';
+import 'services/notification_permission_service.dart';
 import 'services/onboarding_service.dart';
+import 'services/push_notification_service.dart';
 import 'utils/logger.dart';
+import 'utils/notification_deep_link.dart';
+
+/// Firebase Messaging のバックグラウンドハンドラ。
+///
+/// top-level / static でないと OS から呼べないため main.dart に置く。
+/// 中身は services/push_notification_service.dart に定義したものを呼ぶ。
+@pragma('vm:entry-point')
+Future<void> _firebaseBackgroundEntry(RemoteMessage message) async {
+  await firebaseMessagingBackgroundHandler(message);
+}
 
 void main() async {
   // Flutterバインディングの初期化
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // 日本語ロケールの初期化
   await initializeDateFormatting('ja', null);
-  
+
   // 開発中のオーバーフローエラーを非表示（デバッグビルドのみ）
   FlutterError.onError = (FlutterErrorDetails details) {
     final errorString = details.toString();
-    if (errorString.contains('overflowed') || 
+    if (errorString.contains('overflowed') ||
         errorString.contains('RenderFlex') ||
         details.exceptionAsString().contains('overflowed')) {
       // オーバーフローエラーは完全に無視
@@ -32,29 +48,34 @@ void main() async {
     }
     FlutterError.presentError(details);
   };
-  
+
   try {
     // 環境変数の読み込み
     await dotenv.load(fileName: ".env");
     if (kDebugMode) {
       appLog('✅ Environment variables loaded');
     }
-    
+
     // 環境変数のバリデーション
     Environment.validate();
     if (kDebugMode) {
       appLog('✅ Environment variables validated');
     }
-    
+
     // Supabaseの初期化
     await SupabaseConfig.initialize();
     if (kDebugMode) {
       appLog('✅ Supabase initialized successfully');
     }
-    
-    // 通知システムは各画面で必要に応じて初期化
-    if (kDebugMode) {
-      appLog('✅ Notification system ready');
+
+    // Firebase 初期化（B1: FCM プッシュ通知基盤）
+    // 設計書 §7.4: 初期化失敗してもアプリ起動は継続する。
+    try {
+      await Firebase.initializeApp();
+      FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundEntry);
+      if (kDebugMode) appLog('✅ Firebase initialized');
+    } catch (e) {
+      if (kDebugMode) appLog('⚠️ Firebase init failed (non-fatal): $e');
     }
   } catch (e) {
     if (kDebugMode) {
@@ -62,21 +83,33 @@ void main() async {
     }
     // エラーが発生しても起動を継続
   }
-  
-  // アプリを起動（Riverpod対応）
-  runApp(
-    const ProviderScope(
-      child: WanWalkApp(),
-    ),
-  );
+
+  // Sentry で wrap して runApp（A3 クラッシュゼロ化）。
+  // DSN 未設定（CI / 開発初期）でも起動できるよう、空文字なら素の runApp にフォールバック。
+  final dsn = Environment.sentryDsn;
+  if (dsn.isEmpty) {
+    if (kDebugMode) appLog('⚠️ SENTRY_DSN unset — Sentry disabled');
+    runApp(const ProviderScope(child: WanWalkApp()));
+  } else {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = dsn;
+        options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;
+        options.debug = kDebugMode;
+      },
+      appRunner: () => runApp(
+        const ProviderScope(child: WanWalkApp()),
+      ),
+    );
+  }
 }
 
 /// WanWalkアプリのメインウィジェット
-class WanWalkApp extends StatelessWidget {
+class WanWalkApp extends ConsumerWidget {
   const WanWalkApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'WanWalk',
       debugShowCheckedModeBanner: false,
@@ -84,44 +117,69 @@ class WanWalkApp extends StatelessWidget {
       // CEO決定 (2026-04-20): ライトモードのみ強制（Wildbounds哲学）。
       // ダークモード対応は v1 スコープ外とし、DESIGN_TOKENS.md にダーク用トークンが定義されるまで一律ライト表示。
       themeMode: ThemeMode.light,
+      // B1: 通知タップで送られる deep link を受けるための共通 navigatorKey
+      navigatorKey: NotificationDeepLink.navigatorKey,
       home: const SplashScreen(),
     );
   }
 }
 
 /// スプラッシュ画面
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // アニメーションの設定
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeIn,
       ),
     );
-    
+
     _animationController.forward();
-    
+
+    // FCM 初期化は起動クリティカルパスから外す（B1 §7.4 / A4 起動速度）
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initPushNotifications();
+    });
+
     // 認証状態をチェックして適切な画面に遷移
     _checkAuthAndNavigate();
+  }
+
+  Future<void> _initPushNotifications() async {
+    try {
+      final push = ref.read(pushNotificationServiceProvider);
+      await push.initialize();
+      push.onMessageOpened.listen(NotificationDeepLink.handle);
+
+      // 既に許可済なら APNs/FCM トークン登録（ログイン済時）
+      final permState =
+          await ref.read(notificationPermissionServiceProvider).syncFromOs();
+      if (permState == NotificationPermissionState.granted) {
+        await push.registerCurrentDeviceToken();
+      }
+    } catch (e) {
+      if (kDebugMode) appLog('[main] push init failed: $e');
+    }
   }
   
   /// 認証状態をチェックして画面遷移

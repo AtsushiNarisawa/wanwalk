@@ -310,7 +310,8 @@ class RouteService {
       // データベースの実際のカラム名を使用
       dynamic query = _supabase
           .from('official_routes')
-          .select();
+          .select()
+          .eq('is_published', true);
 
       // エリアフィルタ
       if (areaId != null && areaId.isNotEmpty) {
