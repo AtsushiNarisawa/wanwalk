@@ -96,3 +96,7 @@ lib/config/env_prod.dart
 *.backup
 *.backup2
 *.old
+
+# Firebase configuration (PUBLIC repo — must not commit FCM API keys)
+ios/Runner/GoogleService-Info.plist
+android/app/google-services.json
