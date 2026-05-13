@@ -89,6 +89,20 @@ dev_dependencies:
   json_serializable: ^6.8.0
   riverpod_generator: ^2.6.2
 
+  # W3 day 11 — Sentry Dart obfuscation symbol upload（dSYM は sentry-cli 直接 upload 済）
+  sentry_dart_plugin: ^3.3.0
+
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: false
+  upload_sources: false
+  project: flutter
+  org: wanwalk
+  url: https://sentry.io/
+  symbols_path: build/symbols/
+  # dart_symbol_map_path は ELF 形式の app.ios-arm64.symbols と非互換（plugin は JSON array を期待）
+  # raw Dart symbol が必要な場面は flutter symbolize -i build/symbols/app.ios-arm64.symbols でローカル解読
+
 flutter:
   uses-material-design: true
   
