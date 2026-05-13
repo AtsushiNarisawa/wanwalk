@@ -1,0 +1,18 @@
+[Sentry] [debug] [timeIntervalSince1970:1778639482.9904032] [SentrySDK:221] Starting SDK...
+  dsn: https://***REDACTED-DSN-KEY***@o4511375064629248.ingest.us.sentry.io/4511375077146624
+  releaseName: wanwalk@1.1.0+1
+  environment: debug
+[Sentry] [debug] [timeIntervalSince1970:1778639482.992374] [SentryHttpTransport:316] No envelopes left to send.
+[Sentry] [debug] [timeIntervalSince1970:1778639482.997587] [SentryHttpTransport:316] No envelopes left to send.
+[Sentry] [debug] [timeIntervalSince1970:1778639483.065254] [SentryFileManager:205] Writing envelope to path: /Users/atsushinarisawa/Library/Developer/CoreSimulator/Devices/E095685E-1FB1-476C-8695-B6DAF779CDDC/data/Containers/Data/Application/0BE67AB1-835C-44E5-95AA-63B87A1E9F1C/Library/Caches/io.sentry/d696a5d3f66a7dfeb6b1dee53183ba0fca885c3f/envelopes/1778639483.065240-00000-779260BB-8900-4888-A1E0-0AE0CD46EA33.json
+[Sentry] [debug] [timeIntervalSince1970:1778639483.066128] [SentryNSURLRequest:99] Constructed request: <SentryNSURLRequest: 0x108a44ac0> { URL: https://o4511375064629248.ingest.us.sentry.io/api/4511375077146624/envelope/ }
+[Sentry] [debug] [timeIntervalSince1970:1778639483.52824] [SentryHttpTransport:360] Deleting envelope and sending next.
+[Sentry] [debug] [timeIntervalSince1970:1778639483.629096] [SentryHttpTransport:316] No envelopes left to send.
+[Sentry] [debug] [timeIntervalSince1970:1778639483.728425] [SentryFileManager:205] Writing envelope to path: /Users/atsushinarisawa/Library/Developer/CoreSimulator/Devices/E095685E-1FB1-476C-8695-B6DAF779CDDC/data/Containers/Data/Application/0BE67AB1-835C-44E5-95AA-63B87A1E9F1C/Library/Caches/io.sentry/d696a5d3f66a7dfeb6b1dee53183ba0fca885c3f/envelopes/1778639483.728390-00001-8B964FEB-10CB-4016-BAD2-605832679AAE.json
+[Sentry] [debug] [timeIntervalSince1970:1778639483.729906] [SentryNSURLRequest:99] Constructed request: <SentryNSURLRequest: 0x1189c75a0> { URL: https://o4511375064629248.ingest.us.sentry.io/api/4511375077146624/envelope/ }
+[Sentry] [debug] [timeIntervalSince1970:1778639483.8373718] [SentryHttpTransport:360] Deleting envelope and sending next.
+[Sentry] [debug] [timeIntervalSince1970:1778639483.9418] [SentryHttpTransport:316] No envelopes left to send.
+[Sentry] [debug] [timeIntervalSince1970:1778639488.203189] [SentryFileManager:205] Writing envelope to path: /Users/atsushinarisawa/Library/Developer/CoreSimulator/Devices/E095685E-1FB1-476C-8695-B6DAF779CDDC/data/Containers/Data/Application/0BE67AB1-835C-44E5-95AA-63B87A1E9F1C/Library/Caches/io.sentry/d696a5d3f66a7dfeb6b1dee53183ba0fca885c3f/envelopes/1778639488.203162-00002-D0206F1E-63DD-4316-B2CF-2A02B70DCD4F.json
+[Sentry] [debug] [timeIntervalSince1970:1778639488.204427] [SentryNSURLRequest:99] Constructed request: <SentryNSURLRequest: 0x118a80400> { URL: https://o4511375064629248.ingest.us.sentry.io/api/4511375077146624/envelope/ }
+[Sentry] [debug] [timeIntervalSince1970:1778639488.30107] [SentryHttpTransport:360] Deleting envelope and sending next.
+[Sentry] [debug] [timeIntervalSince1970:1778639488.40905] [SentryHttpTransport:316] No envelopes left to send.
