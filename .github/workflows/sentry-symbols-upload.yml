@@ -69,6 +69,33 @@ jobs:
           DEBUG_MODE=false
           EOF
 
+      - name: Generate dummy GoogleService-Info.plist for CI build
+        # `ios/Runner/GoogleService-Info.plist` も .gitignore 除外（公開 repo 漏洩防止）。
+        # Xcode Build Phases で「ファイル存在」check されるためダミーで通過させる。
+        # ランタイム Firebase 初期化は dummy 値で失敗するが、本 workflow はビルド成果物の
+        # dSYM 抽出が目的のため実害なし。本物 plist は Supabase Storage `wanwalk-secrets` バケット参照。
+        run: |
+          cat > ios/Runner/GoogleService-Info.plist <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>API_KEY</key><string>ci-dummy</string>
+            <key>GCM_SENDER_ID</key><string>720664998327</string>
+            <key>PLIST_VERSION</key><string>1</string>
+            <key>BUNDLE_ID</key><string>com.doghub.wanwalk</string>
+            <key>PROJECT_ID</key><string>wanwalk-prod</string>
+            <key>STORAGE_BUCKET</key><string>wanwalk-prod.firebasestorage.app</string>
+            <key>IS_ADS_ENABLED</key><false/>
+            <key>IS_ANALYTICS_ENABLED</key><false/>
+            <key>IS_APPINVITE_ENABLED</key><true/>
+            <key>IS_GCM_ENABLED</key><true/>
+            <key>IS_SIGNIN_ENABLED</key><true/>
+            <key>GOOGLE_APP_ID</key><string>1:720664998327:ios:cidummy0000000000</string>
+          </dict>
+          </plist>
+          EOF
+
       - name: Build iOS release (obfuscate + split-debug-info)
         run: |
           flutter build ios --release --no-codesign \
