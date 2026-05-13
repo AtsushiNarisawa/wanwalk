@@ -1,0 +1,87 @@
+name: Sentry Symbols Upload
+
+# Build 30 提出ごとに dSYM upload を手動で繰り返すと事故率が高いため自動化する。
+# CTO ローカルの day 11 手順 (sentry-cli debug-files upload + dart run sentry_dart_plugin)
+# をそのまま macOS runner に移植。
+#
+# トリガー:
+#   - v* タグ push (例: `git tag v1.1.0+30 && git push --tags`)
+#   - GitHub UI からの手動起動 (workflow_dispatch)
+#
+# 必要な GitHub Secrets:
+#   - SENTRY_AUTH_TOKEN: Vault `00777a2d` の値を Settings → Secrets and variables → Actions に登録
+#
+# 出力:
+#   - Sentry に dSYM upload (debug_id ベース symbolication 有効化)
+#   - Sentry release `wanwalk@<version>+<build>` 作成 + commits 自動バインド
+#   - build/symbols/ を GitHub Actions Artifact として 90 日保管 (flutter symbolize 用)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual run (記録用・任意)'
+        required: false
+        default: 'manual upload'
+
+jobs:
+  upload-symbols:
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout (full history for sentry release commits)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.3'
+          channel: 'stable'
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Install sentry-cli
+        run: curl -sL https://sentry.io/get-cli/ | bash
+
+      - name: Build iOS release (obfuscate + split-debug-info)
+        run: |
+          flutter build ios --release --no-codesign \
+            --obfuscate --split-debug-info=build/symbols
+
+      - name: Upload dSYM via sentry-cli
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          sentry-cli debug-files upload \
+            --org wanwalk --project flutter \
+            build/ios/Release-iphoneos/
+
+      - name: Create Sentry release + bind commits
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: dart run sentry_dart_plugin
+
+      - name: Upload symbols as artifact (flutter symbolize 用)
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-symbols-${{ github.ref_name }}
+          path: build/symbols/
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Summary
+        run: |
+          echo "## Sentry Symbols Upload 完了" >> $GITHUB_STEP_SUMMARY
+          echo "- Org: wanwalk / Project: flutter" >> $GITHUB_STEP_SUMMARY
+          echo "- Ref: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Trigger: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Sentry: https://wanwalk.sentry.io/issues/" >> $GITHUB_STEP_SUMMARY
+          echo "- Symbols artifact: flutter-symbols-${{ github.ref_name }} (90 日保管)" >> $GITHUB_STEP_SUMMARY
