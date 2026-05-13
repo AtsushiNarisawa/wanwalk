@@ -4,6 +4,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../models/official_route.dart';
 import '../../utils/distance_formatter.dart';
+import '../../utils/route_description_formatter.dart';
 
 /// 公式ルート紹介カード（大きな写真 + 体験ストーリー冒頭）
 class RouteFeedCard extends StatelessWidget {
@@ -26,14 +27,8 @@ class RouteFeedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 体験ストーリーの最初の段落を取得
-    final firstParagraph = route.description
-        .split('\n')
-        .where((p) => p.trim().isNotEmpty)
-        .firstOrNull ?? route.description;
-    final preview = firstParagraph.length > 100
-        ? '${firstParagraph.substring(0, 100)}...'
-        : firstParagraph;
+    // L8 (2026-05-13): 体験ストーリーの「【出発】」等のマーカーを一覧用に除去。
+    final preview = RouteDescriptionFormatter.forCard(route.description);
 
     return GestureDetector(
       onTap: onTap,

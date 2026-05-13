@@ -1,0 +1,7 @@
+warning • The left operand can't be null, so the right operand is never executed • lib/providers/home_feed_provider.dart:124:44 • dead_null_aware_expression
+warning • The declaration '_buildCommunityTimeline' isn't referenced • lib/screens/main/tabs/library_tab.dart:839:10 • unused_element
+warning • Unused import: '../../widgets/phase1/pin_card.dart' • lib/screens/outing/route_detail_screen.dart:20:8 • unused_import
+warning • The declaration '_buildSpotCard' isn't referenced • lib/screens/outing/route_detail_screen.dart:602:10 • unused_element
+warning • The declaration '_buildPetInfoItem' isn't referenced • lib/screens/outing/route_detail_screen.dart:1007:10 • unused_element
+warning • The declaration '_StatCard' isn't referenced • lib/screens/outing/route_detail_screen.dart:1697:7 • unused_element
+warning • The declaration '_NumberTile' isn't referenced • lib/widgets/phase1/pin_card.dart:87:7 • unused_element

@@ -15,6 +15,7 @@ import '../../../providers/route_pin_provider.dart';
 import '../../history/outing_walk_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../auth/auth_selection_screen.dart';
+import '../../statistics/statistics_dashboard_screen.dart';
 import '../../../providers/timeline_provider.dart';
 import '../../../services/timeline_service.dart';
 import '../../../utils/logger.dart';
@@ -187,71 +188,91 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
     appLog('📊 月間統計: 今月の散歩回数=$monthlyWalkCount回, 総距離=$formattedDistance');
     appLog('📊 お出かけ散歩=$thisMonthOuting回, 日常散歩=$thisMonthDaily回');
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: WanWalkSpacing.s4,
-        vertical: WanWalkSpacing.s3,
-      ),
-      decoration: const BoxDecoration(
-        color: WanWalkColors.bgSecondary,
-        border: Border(
-          bottom: BorderSide(color: WanWalkColors.borderSubtle, width: 1),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: WanWalkColors.accentPrimarySoft,
-              borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
+    // L1 (2026-05-13): 「今月の記録」セクションをタップ可能化し、StatisticsDashboardScreen への動線を追加。
+    return Material(
+      color: WanWalkColors.bgSecondary,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const StatisticsDashboardScreen(),
             ),
-            child: Icon(
-              WanWalkIcons.calendar,
-              size: WanWalkIcons.sizeMd,
-              color: WanWalkColors.accentPrimary,
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: WanWalkSpacing.s4,
+            vertical: WanWalkSpacing.s3,
+          ),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: WanWalkColors.borderSubtle, width: 1),
             ),
           ),
-          const SizedBox(width: WanWalkSpacing.s3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('今月の記録', style: WanWalkTypography.wwLabel),
-                const SizedBox(height: 2),
-                Row(
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: WanWalkColors.accentPrimarySoft,
+                  borderRadius: BorderRadius.circular(WanWalkSpacing.radiusSm),
+                ),
+                child: Icon(
+                  WanWalkIcons.calendar,
+                  size: WanWalkIcons.sizeMd,
+                  color: WanWalkColors.accentPrimary,
+                ),
+              ),
+              const SizedBox(width: WanWalkSpacing.s3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '$monthlyWalkCount',
-                      style: WanWalkTypography.wwNumeric.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: WanWalkColors.accentPrimary,
-                      ),
-                    ),
-                    Text(
-                      '回',
-                      style: WanWalkTypography.wwBodySm.copyWith(
-                        color: WanWalkColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(width: WanWalkSpacing.s2),
-                    Container(width: 1, height: 12, color: WanWalkColors.borderStrong),
-                    const SizedBox(width: WanWalkSpacing.s2),
-                    Text(
-                      formattedDistance,
-                      style: WanWalkTypography.wwNumeric.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: WanWalkColors.textPrimary,
-                      ),
+                    Text('今月の記録', style: WanWalkTypography.wwLabel),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Text(
+                          '$monthlyWalkCount',
+                          style: WanWalkTypography.wwNumeric.copyWith(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: WanWalkColors.accentPrimary,
+                          ),
+                        ),
+                        Text(
+                          '回',
+                          style: WanWalkTypography.wwBodySm.copyWith(
+                            color: WanWalkColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: WanWalkSpacing.s2),
+                        Container(
+                            width: 1,
+                            height: 12,
+                            color: WanWalkColors.borderStrong),
+                        const SizedBox(width: WanWalkSpacing.s2),
+                        Text(
+                          formattedDistance,
+                          style: WanWalkTypography.wwNumeric.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: WanWalkColors.textPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              Icon(
+                PhosphorIcons.caretRight(),
+                size: 16,
+                color: WanWalkColors.textSecondary,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -494,7 +515,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
     } else if (filterType == WalkHistoryType.daily) {
       message = '日常散歩の記録がありません\nいつもの散歩を記録してみましょう';
     } else {
-      message = '散歩の記録がありません\nさっそく散歩に出かけましょう！';
+      message = '散歩の記録がありません\nさっそく散歩に出かけましょう';
     }
 
     return Center(
@@ -537,7 +558,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
             ),
             const SizedBox(height: WanWalkSpacing.lg),
             Text(
-              'まだ写真がありません\nお出かけ散歩で写真を撮って\n思い出を残しましょう！',
+              'まだ写真がありません\nお出かけ散歩で写真を撮って\n思い出を残しましょう',
               style: WanWalkTypography.bodyMedium.copyWith(
                 color: WanWalkColors.textSecondary,
               ),
@@ -564,7 +585,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
             ),
             const SizedBox(height: WanWalkSpacing.lg),
             Text(
-              'まだピン投稿がありません\n散歩中に素敵な場所を見つけたら\nピンを立ててみましょう！',
+              'まだピン投稿がありません\n散歩中に素敵な場所を見つけたら\nピンを立ててみましょう',
               style: WanWalkTypography.bodyMedium.copyWith(
                 color: WanWalkColors.textSecondary,
               ),

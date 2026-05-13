@@ -382,7 +382,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       TextFormField(
                         controller: _bioController,
                         decoration: InputDecoration(
-                          hintText: '愛犬と一緒に散歩を楽しんでいます！',
+                          hintText: '愛犬と一緒に散歩を楽しんでいます',
                           filled: true,
                           fillColor: isDark ? WanWalkColors.cardDark : Colors.white,
                           border: OutlineInputBorder(

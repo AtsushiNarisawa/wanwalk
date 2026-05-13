@@ -116,7 +116,7 @@ class UserProfileScreen extends ConsumerWidget {
 
           // Bio
           Text(
-            profile?.bio ?? '愛犬と一緒に散歩を楽しんでいます！',
+            profile?.bio ?? '愛犬と一緒に散歩を楽しんでいます',
             style: WanWalkTypography.body.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),

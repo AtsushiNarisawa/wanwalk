@@ -30,7 +30,7 @@ class DailyWalkLandingScreen extends StatelessWidget {
             color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
           ),
           onPressed: () => Navigator.pop(context),
-          tooltip: 'キャンセル',
+          tooltip: '閉じる',
         ),
         title: Row(
           children: [

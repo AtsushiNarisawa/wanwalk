@@ -7,6 +7,7 @@ import '../../config/wanwalk_spacing.dart';
 import '../../providers/official_route_provider.dart';
 import '../../providers/area_provider.dart';
 import '../../models/official_route.dart';
+import '../../utils/route_description_formatter.dart';
 import 'route_detail_screen.dart';
 
 /// ルート一覧画面
@@ -179,12 +180,14 @@ class _RouteCard extends StatelessWidget {
     required this.onTap,
   });
 
+  // M5 (2026-05-13 W3 day 7): easy の白文字は AA 不適合（~3.0:1）だったため
+  // textPrimary に切替えてコントラスト 5.7:1 を確保。moderate も統一して textPrimary。
   ({Color bg, Color fg}) _getDifficultyStyle() {
     switch (route.difficultyLevel) {
       case DifficultyLevel.easy:
-        return (bg: WanWalkColors.levelEasy, fg: WanWalkColors.textInverse);
+        return (bg: WanWalkColors.levelEasy, fg: WanWalkColors.textPrimary);
       case DifficultyLevel.moderate:
-        return (bg: WanWalkColors.bgTertiary, fg: WanWalkColors.textSecondary);
+        return (bg: WanWalkColors.bgTertiary, fg: WanWalkColors.textPrimary);
       case DifficultyLevel.hard:
         return (bg: WanWalkColors.accentPrimaryHover, fg: WanWalkColors.textInverse);
     }
@@ -248,7 +251,7 @@ class _RouteCard extends StatelessWidget {
                       route.difficultyLevel.label,
                       style: TextStyle(
                         fontFamily: 'NotoSansJP',
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         fontSize: 12,
                         color: s.fg,
                         height: 1.2,
@@ -260,7 +263,8 @@ class _RouteCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              route.description,
+              // L8 (2026-05-13): 一覧では 【出発】等のマーカーを除去。
+              RouteDescriptionFormatter.forCard(route.description),
               style: WanWalkTypography.wwCaption,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

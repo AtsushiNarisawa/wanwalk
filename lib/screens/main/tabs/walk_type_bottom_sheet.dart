@@ -77,11 +77,12 @@ class WalkTypeBottomSheet extends StatelessWidget {
               const SizedBox(height: WanWalkSpacing.lg + WanWalkSpacing.xs),
 
               // お出かけ散歩（メイン）
+              // M4 (CEO 2026-05-19 確定 A 案)
               _WalkTypeCard(
                 icon: PhosphorIcons.mapTrifold(),
                 title: 'お出かけ散歩',
-                description: '公式ルートに沿って散歩',
-                detail: 'おすすめコースをナビで案内',
+                description: '公式ルートで散歩',
+                detail: '地図でコースを確認しながら歩く',
                 gradientColors: const [
                   WanWalkColors.accentPrimary,
                   WanWalkColors.accentPrimaryHover,

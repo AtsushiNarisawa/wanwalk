@@ -977,29 +977,25 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         ),
         const SizedBox(height: WanWalkSpacing.s5),
         PetInfoGrid(info: petInfo),
-        const SizedBox(height: WanWalkSpacing.s3),
-        InkWell(
-          onTap: () => _showFeedbackSheet(context),
-          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
-          child: Padding(
+        const SizedBox(height: WanWalkSpacing.s4),
+        // L4 (2026-05-13): テキストリンクから明確な CTA ボタンへ昇格。
+        OutlinedButton.icon(
+          onPressed: () => _showFeedbackSheet(context),
+          icon: const Icon(Icons.edit_note, size: 18),
+          label: const Text('情報の修正を提案する'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: WanWalkColors.accentPrimary,
+            side: const BorderSide(color: WanWalkColors.accentPrimary),
             padding: const EdgeInsets.symmetric(
-                horizontal: WanWalkSpacing.s3,
-                vertical: WanWalkSpacing.s3),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.edit_note,
-                  size: 18,
-                  color: WanWalkColors.textSecondary,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '情報の修正を提案する',
-                  style: WanWalkTypography.wwBodySm.copyWith(
-                    color: WanWalkColors.textSecondary,
-                  ),
-                ),
-              ],
+              horizontal: WanWalkSpacing.md,
+              vertical: WanWalkSpacing.sm,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.circular(WanWalkSpacing.radiusMd),
+            ),
+            textStyle: WanWalkTypography.wwBodySm.copyWith(
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -1759,6 +1755,9 @@ class _StatCard extends StatelessWidget {
 }
 
 /// 難易度バッジ
+/// M5 (2026-05-13 W3 day 7): Colors.green/orange/red の DESIGN_TOKENS 完全違反を解消し、
+/// Wildbounds トーン 3 段階（levelEasy / bgTertiary / accentPrimaryHover）に統一。
+/// AA 4.5:1 を全段階で確保。
 class _DifficultyBadge extends StatelessWidget {
   final DifficultyLevel level;
   final bool isDark;
@@ -1768,53 +1767,63 @@ class _DifficultyBadge extends StatelessWidget {
     required this.isDark,
   });
 
-  Color _getColor() {
+  ({Color bg, Color fg, Color border}) _resolveColors() {
     switch (level) {
       case DifficultyLevel.easy:
-        return Colors.green;
+        return (
+          bg: WanWalkColors.levelEasy,
+          fg: WanWalkColors.textPrimary,
+          border: WanWalkColors.levelEasy,
+        );
       case DifficultyLevel.moderate:
-        return Colors.orange;
+        return (
+          bg: WanWalkColors.bgTertiary,
+          fg: WanWalkColors.textPrimary,
+          border: WanWalkColors.borderSubtle,
+        );
       case DifficultyLevel.hard:
-        return Colors.red;
+        return (
+          bg: WanWalkColors.accentPrimaryHover,
+          fg: WanWalkColors.textInverse,
+          border: WanWalkColors.accentPrimaryHover,
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = _resolveColors();
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: WanWalkSpacing.md,
         vertical: WanWalkSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: _getColor().withOpacity(0.1),
+        color: c.bg,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: _getColor(),
-          width: 2,
-        ),
+        border: Border.all(color: c.border, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             Icons.trending_up,
-            color: _getColor(),
+            color: c.fg,
             size: 20,
           ),
           const SizedBox(width: WanWalkSpacing.xs),
           Text(
             '難易度: ${level.label}',
             style: WanWalkTypography.bodyMedium.copyWith(
-              color: _getColor(),
-              fontWeight: FontWeight.bold,
+              color: c.fg,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(width: WanWalkSpacing.xs),
           Text(
             '(${level.description})',
             style: WanWalkTypography.caption.copyWith(
-              color: _getColor(),
+              color: c.fg.withValues(alpha: 0.85),
             ),
           ),
         ],

@@ -515,7 +515,7 @@ class _OutingWalkDetailScreenState extends ConsumerState<OutingWalkDetailScreen>
           ),
           const SizedBox(height: WanWalkSpacing.sm),
           Text(
-            '次の散歩で素敵な場所を見つけたら\nピンを立ててみましょう！',
+            '次の散歩で素敵な場所を見つけたら\nピンを立ててみましょう',
             style: WanWalkTypography.bodySmall.copyWith(
               color: isDark
                   ? WanWalkColors.textSecondaryDark.withOpacity(0.7)

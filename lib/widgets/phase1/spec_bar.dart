@@ -57,18 +57,22 @@ class SpecBar extends StatelessWidget {
         label: '所要時間',
         value: estimatedMinutes != null ? '約 $estimatedMinutes 分' : '—',
       ),
+      // L7 (2026-05-13): em-dash → 「データ準備中」の柔らかいプレースホルダに切替。
+      // SSoT 化（DB カラム + 自動算出）は公開後 Phase 3 で実施。
       _SpecItem(
         icon: PhosphorIcons.mountains(),
         label: '高低差',
         value: elevationMeters != null
             ? '${elevationMeters!.toStringAsFixed(0)} m'
-            : '—',
+            : 'データ準備中',
+        isPlaceholder: elevationMeters == null,
       ),
       _SpecItem(
         icon: PhosphorIcons.chartLineUp(),
         label: '難易度',
-        value: difficulty?.label ?? '—',
+        value: difficulty?.label ?? 'データ準備中',
         dotColor: _difficultyColor(difficulty),
+        isPlaceholder: difficulty == null,
       ),
     ];
 
@@ -122,12 +126,14 @@ class _SpecItem {
   final String label;
   final String value;
   final Color? dotColor;
+  final bool isPlaceholder;
 
   const _SpecItem({
     required this.icon,
     required this.label,
     required this.value,
     this.dotColor,
+    this.isPlaceholder = false,
   });
 }
 
@@ -172,9 +178,14 @@ class _SpecCell extends StatelessWidget {
                     child: Text(
                       item.value,
                       style: WanWalkTypography.wwNumeric.copyWith(
-                        fontSize: 16,
+                        fontSize: item.isPlaceholder ? 13 : 16,
                         height: 1.3,
-                        color: WanWalkColors.textPrimary,
+                        color: item.isPlaceholder
+                            ? WanWalkColors.textTertiary
+                            : WanWalkColors.textPrimary,
+                        fontStyle: item.isPlaceholder
+                            ? FontStyle.italic
+                            : FontStyle.normal,
                       ),
                     ),
                   ),

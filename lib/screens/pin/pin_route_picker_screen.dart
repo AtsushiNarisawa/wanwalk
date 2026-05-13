@@ -139,6 +139,8 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
       padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.md),
       child: TextField(
         controller: _searchController,
+        // L6 (2026-05-13): 画面遷移直後のフォーカス取得を抑制。
+        autofocus: false,
         decoration: InputDecoration(
           hintText: 'ルート名・説明文で検索',
           prefixIcon: const Icon(Icons.search),

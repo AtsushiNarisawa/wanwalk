@@ -99,6 +99,8 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
       ),
       child: TextField(
         controller: _searchController,
+        // L6 (2026-05-13): 画面遷移直後にフォーカスを取得しない（iOS の Paste/Scan Text を出さない）。
+        autofocus: false,
         style: WanWalkTypography.wwBody,
         decoration: InputDecoration(
           hintText: 'ルート名・説明文で検索',
@@ -623,17 +625,20 @@ class _OfficialRouteCard extends StatelessWidget {
   }
 
   /// 難易度バッジ（DESIGN_TOKENS.md §2 — Wildboundsトーン3段階）
+  /// M5 (2026-05-13 W3 day 7): easy の白文字は #8BA885 上で 3.0:1 と AA 不適合だったため、
+  /// 同じ DESIGN_TOKENS 内の textPrimary (#2A2A2A) に切替えコントラスト 5.7:1 を確保。
+  /// hard は深緑上の白文字でコントラスト 7.5:1（変更なし）。
   Widget _buildDifficultyChip(DifficultyLevel difficulty) {
     Color bg;
     Color fg;
     switch (difficulty) {
       case DifficultyLevel.easy:
         bg = WanWalkColors.levelEasy;
-        fg = Colors.white;
+        fg = WanWalkColors.textPrimary;
         break;
       case DifficultyLevel.moderate:
         bg = WanWalkColors.bgTertiary;
-        fg = WanWalkColors.textSecondary;
+        fg = WanWalkColors.textPrimary;
         break;
       case DifficultyLevel.hard:
         bg = WanWalkColors.accentPrimaryHover;
@@ -650,7 +655,7 @@ class _OfficialRouteCard extends StatelessWidget {
         difficulty.label,
         style: TextStyle(
           fontFamily: 'NotoSansJP',
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           fontSize: 12,
           color: fg,
           height: 1.2,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -17,8 +19,10 @@ import 'screens/onboarding/welcome_screen.dart';
 import 'services/notification_permission_service.dart';
 import 'services/onboarding_service.dart';
 import 'services/push_notification_service.dart';
+import 'utils/error_handler.dart';
 import 'utils/logger.dart';
 import 'utils/notification_deep_link.dart';
+import 'widgets/error_fallback_widget.dart';
 
 /// Firebase Messaging のバックグラウンドハンドラ。
 ///
@@ -29,79 +33,79 @@ Future<void> _firebaseBackgroundEntry(RemoteMessage message) async {
   await firebaseMessagingBackgroundHandler(message);
 }
 
-void main() async {
-  // Flutterバインディングの初期化
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  // A3 wrap 順序（設計書 §6.5 + W3 day 7 強化版）：
+  //   runZonedGuarded（最外）
+  //     └── ErrorHandler.register（FlutterError.onError + PlatformDispatcher）
+  //         └── dotenv / Supabase / Firebase 初期化（失敗しても継続）
+  //             └── SentryFlutter.init（DSN 設定時のみ）
+  //                 └── ErrorWidget.builder 置換
+  //                     └── runApp（ProviderScope > WanWalkApp）
+  //
+  // runZonedGuarded を最外に置くことで、SentryFlutter.init 中に発生した未捕捉例外も
+  // ErrorHandler 経由でバッファ→Sentry へ遅延送信できる。
+  runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      ErrorHandler.register();
 
-  // 日本語ロケールの初期化
-  await initializeDateFormatting('ja', null);
+      await initializeDateFormatting('ja', null);
 
-  // 開発中のオーバーフローエラーを非表示（デバッグビルドのみ）
-  FlutterError.onError = (FlutterErrorDetails details) {
-    final errorString = details.toString();
-    if (errorString.contains('overflowed') ||
-        errorString.contains('RenderFlex') ||
-        details.exceptionAsString().contains('overflowed')) {
-      // オーバーフローエラーは完全に無視
-      debugPrint('Overflow error suppressed in development');
-      return;
-    }
-    FlutterError.presentError(details);
-  };
+      try {
+        await dotenv.load(fileName: '.env');
+        if (kDebugMode) appLog('✅ Environment variables loaded');
+        Environment.validate();
+        if (kDebugMode) appLog('✅ Environment variables validated');
 
-  try {
-    // 環境変数の読み込み
-    await dotenv.load(fileName: ".env");
-    if (kDebugMode) {
-      appLog('✅ Environment variables loaded');
-    }
+        await SupabaseConfig.initialize();
+        if (kDebugMode) appLog('✅ Supabase initialized successfully');
 
-    // 環境変数のバリデーション
-    Environment.validate();
-    if (kDebugMode) {
-      appLog('✅ Environment variables validated');
-    }
+        // Firebase 初期化（B1: FCM プッシュ通知基盤）。失敗しても起動は継続。
+        try {
+          await Firebase.initializeApp();
+          FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundEntry);
+          if (kDebugMode) appLog('✅ Firebase initialized');
+        } catch (e, st) {
+          if (kDebugMode) appLog('⚠️ Firebase init failed (non-fatal): $e');
+          await ErrorHandler.recordNonFatal(e,
+              stack: st, extra: {'phase': 'firebase_init'});
+        }
+      } catch (e, st) {
+        if (kDebugMode) appLog('❌ Failed to initialize: $e');
+        await ErrorHandler.recordNonFatal(e,
+            stack: st, extra: {'phase': 'bootstrap'});
+        // 起動は継続
+      }
 
-    // Supabaseの初期化
-    await SupabaseConfig.initialize();
-    if (kDebugMode) {
-      appLog('✅ Supabase initialized successfully');
-    }
+      // A3: ビルド時例外のフォールバック画面を差し替え。
+      ErrorWidget.builder = wanwalkErrorWidgetBuilder;
 
-    // Firebase 初期化（B1: FCM プッシュ通知基盤）
-    // 設計書 §7.4: 初期化失敗してもアプリ起動は継続する。
-    try {
-      await Firebase.initializeApp();
-      FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundEntry);
-      if (kDebugMode) appLog('✅ Firebase initialized');
-    } catch (e) {
-      if (kDebugMode) appLog('⚠️ Firebase init failed (non-fatal): $e');
-    }
-  } catch (e) {
-    if (kDebugMode) {
-      appLog('❌ Failed to initialize: $e');
-    }
-    // エラーが発生しても起動を継続
-  }
-
-  // Sentry で wrap して runApp（A3 クラッシュゼロ化）。
-  // DSN 未設定（CI / 開発初期）でも起動できるよう、空文字なら素の runApp にフォールバック。
-  final dsn = Environment.sentryDsn;
-  if (dsn.isEmpty) {
-    if (kDebugMode) appLog('⚠️ SENTRY_DSN unset — Sentry disabled');
-    runApp(const ProviderScope(child: WanWalkApp()));
-  } else {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = dsn;
-        options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;
-        options.debug = kDebugMode;
-      },
-      appRunner: () => runApp(
-        const ProviderScope(child: WanWalkApp()),
-      ),
-    );
-  }
+      final dsn = Environment.sentryDsn;
+      if (dsn.isEmpty) {
+        if (kDebugMode) appLog('⚠️ SENTRY_DSN unset — Sentry disabled');
+        runApp(const ProviderScope(child: WanWalkApp()));
+      } else {
+        await SentryFlutter.init(
+          (options) {
+            options.dsn = dsn;
+            options.environment = kReleaseMode ? 'production' : 'debug';
+            options.release = 'wanwalk@1.1.0+1';
+            options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;
+            options.debug = kDebugMode;
+            options.attachScreenshot = false; // 個人情報配慮
+            options.maxBreadcrumbs = 30;
+          },
+          appRunner: () async {
+            await ErrorHandler.markSentryReady();
+            runApp(const ProviderScope(child: WanWalkApp()));
+          },
+        );
+      }
+    },
+    (Object error, StackTrace stack) {
+      ErrorHandler.captureZoneError(error, stack);
+    },
+  );
 }
 
 /// WanWalkアプリのメインウィジェット

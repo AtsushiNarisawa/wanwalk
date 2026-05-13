@@ -206,38 +206,57 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     });
   }
 
+  // M3: お散歩タブ二度押しでボトムシート/モーダル遷移が二重発火するのを抑制
+  bool _walkSelectionActive = false;
+
   /// 散歩タイプ選択ボトムシート（WalkTypeBottomSheetに統一）
   void _showWalkTypeSelection() async {
+    if (_walkSelectionActive) return;
+    _walkSelectionActive = true;
+
     // ログインチェック：散歩記録にはログインが必要
     final isLoggedIn = ref.read(authProvider).isLoggedIn;
     if (!isLoggedIn) {
       _showLoginRequiredDialog();
+      _walkSelectionActive = false;
       return;
     }
 
     final result = await WalkTypeBottomSheet.show(context);
-    if (result == null || !mounted) return;
+    if (!mounted) {
+      _walkSelectionActive = false;
+      return;
+    }
+    if (result == null) {
+      _walkSelectionActive = false;
+      return;
+    }
 
-    switch (result) {
-      case 'daily':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const DailyWalkLandingScreen()),
-        );
-        break;
-      case 'outing':
-        ref.read(sortOptionProvider.notifier).state = RouteSortOption.distanceAsc;
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const PublicRoutesScreen()),
-        );
-        break;
-      case 'pin_only':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const PinRoutePickerScreen()),
-        );
-        break;
+    try {
+      switch (result) {
+        case 'daily':
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const DailyWalkLandingScreen()),
+          );
+          break;
+        case 'outing':
+          ref.read(sortOptionProvider.notifier).state =
+              RouteSortOption.distanceAsc;
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PublicRoutesScreen()),
+          );
+          break;
+        case 'pin_only':
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PinRoutePickerScreen()),
+          );
+          break;
+      }
+    } finally {
+      _walkSelectionActive = false;
     }
   }
 
