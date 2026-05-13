@@ -54,6 +54,21 @@ jobs:
       - name: Install sentry-cli
         run: curl -sL https://sentry.io/get-cli/ | bash
 
+      - name: Generate dummy .env for CI build
+        # `.env` は .gitignore で除外されているが pubspec.yaml の assets で参照されているため、
+        # CI 側にダミーを生成しないと asset bundle が失敗する。
+        # dSYM 生成 + Sentry symbolication が目的・--no-codesign のため実行不可な ipa しか作らないので
+        # 値は何でも良い（実行時の Supabase 接続は発生しない）。
+        run: |
+          cat > .env <<'EOF'
+          SUPABASE_URL=https://ci-dummy.supabase.co
+          SUPABASE_ANON_KEY=ci-dummy-anon-key
+          THUNDERFOREST_API_KEY=ci-dummy
+          APP_NAME=WanWalk
+          APP_VERSION=1.0.0
+          DEBUG_MODE=false
+          EOF
+
       - name: Build iOS release (obfuscate + split-debug-info)
         run: |
           flutter build ios --release --no-codesign \
