@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../providers/package_info_provider.dart';
 import 'contact_support_screen.dart';
 
 /// ヘルプ・サポート画面
@@ -13,6 +14,7 @@ class HelpScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final versionLabel = formatVersionLabel(ref.watch(packageInfoProvider));
 
     return Scaffold(
       backgroundColor: isDark
@@ -120,7 +122,7 @@ class HelpScreen extends ConsumerWidget {
           // アプリ情報
           _buildSectionHeader('アプリ情報', isDark),
           const SizedBox(height: WanWalkSpacing.small),
-          _buildInfoCard(isDark),
+          _buildInfoCard(isDark, versionLabel),
         ],
       ),
     );
@@ -271,7 +273,7 @@ class HelpScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoCard(bool isDark) {
+  Widget _buildInfoCard(bool isDark, String versionLabel) {
     return Container(
       padding: const EdgeInsets.all(WanWalkSpacing.medium),
       decoration: BoxDecoration(
@@ -299,7 +301,7 @@ class HelpScreen extends ConsumerWidget {
           ),
           const SizedBox(height: WanWalkSpacing.medium),
           Text(
-            'Version 1.0.0',
+            versionLabel.isEmpty ? 'Version' : 'Version $versionLabel',
             style: WanWalkTypography.body.copyWith(
               color: isDark ? Colors.white70 : Colors.black54,
             ),

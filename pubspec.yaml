@@ -72,6 +72,9 @@ dependencies:
   # MVP — Universal Links / Deep Link（A2・W3 着手）
   app_links: ^6.3.2
 
+  # W3 day 18 — アプリ内バージョン表示の動的化（pubspec の version を SSoT 化）
+  package_info_plus: ^8.0.0
+
   # Phase 1 — Phosphor Icons（Wildboundsトーンの統一アイコンセット）
   phosphor_flutter: ^2.1.0
 

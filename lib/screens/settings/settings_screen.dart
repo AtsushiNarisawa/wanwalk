@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../providers/package_info_provider.dart';
 import '../../providers/theme_provider.dart';
 import 'change_password_screen.dart';
 import 'change_email_screen.dart';
@@ -17,6 +18,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeMode = ref.watch(themeProvider);
+    final versionLabel = formatVersionLabel(ref.watch(packageInfoProvider));
 
     return Scaffold(
       backgroundColor: isDark
@@ -105,12 +107,14 @@ class SettingsScreen extends ConsumerWidget {
                 isDark,
                 icon: Icons.info_outline,
                 title: 'アプリについて',
-                subtitle: 'WanWalk v1.0.0',
+                subtitle: versionLabel.isEmpty
+                    ? 'WanWalk'
+                    : 'WanWalk v$versionLabel',
                 onTap: () {
                   showAboutDialog(
                     context: context,
                     applicationName: 'WanWalk',
-                    applicationVersion: '1.0.0',
+                    applicationVersion: versionLabel,
                     applicationLegalese: '© 2024 WanWalk',
                   );
                 },
