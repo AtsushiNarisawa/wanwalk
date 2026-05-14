@@ -8,6 +8,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'config/supabase_config.dart';
 import 'config/wanwalk_theme.dart';
@@ -85,11 +86,22 @@ void main() {
         if (kDebugMode) appLog('⚠️ SENTRY_DSN unset — Sentry disabled');
         runApp(const ProviderScope(child: WanWalkApp()));
       } else {
+        // W3 day 20: pubspec.yaml の version を SSoT 化。
+        // 取得失敗時は 'wanwalk@unknown' フォールバックで Sentry 起動継続。
+        String releaseTag = 'wanwalk@unknown';
+        try {
+          final pkg = await PackageInfo.fromPlatform();
+          releaseTag = 'wanwalk@${pkg.version}+${pkg.buildNumber}';
+        } catch (e, st) {
+          await ErrorHandler.recordNonFatal(e,
+              stack: st, extra: {'phase': 'sentry_release_resolve'});
+        }
+
         await SentryFlutter.init(
           (options) {
             options.dsn = dsn;
             options.environment = kReleaseMode ? 'production' : 'debug';
-            options.release = 'wanwalk@1.1.0+1';
+            options.release = releaseTag;
             options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;
             options.debug = kDebugMode;
             options.attachScreenshot = false; // 個人情報配慮
