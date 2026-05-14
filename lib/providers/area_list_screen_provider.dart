@@ -79,6 +79,7 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
           .from('official_routes')
           .select('id')
           .eq('area_id', area['id'])
+          .eq('is_published', true)
           .count(CountOption.exact);
       
       final routeCount = routeCountResponse.count;
