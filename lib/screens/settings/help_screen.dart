@@ -76,7 +76,7 @@ class HelpScreen extends ConsumerWidget {
               isDark,
               question: 'アカウントの削除方法は？',
               answer:
-                  'プロフィール画面 → 設定 → 「アカウント削除」から手続きできます。削除後、投稿したルートやピンも全て削除されます。',
+                  'プロフィール画面 → 設定 → 「アカウントを削除」から手続きできます。削除後、投稿したルートやピンも全て削除されます。',
             ),
           ]),
           const SizedBox(height: WanWalkSpacing.large),

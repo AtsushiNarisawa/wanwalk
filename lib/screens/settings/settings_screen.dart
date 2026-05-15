@@ -5,6 +5,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../providers/package_info_provider.dart';
 import '../../providers/theme_provider.dart';
+import 'account_deletion_screen.dart';
 import 'change_password_screen.dart';
 import 'change_email_screen.dart';
 import 'help_screen.dart';
@@ -75,6 +76,22 @@ class SettingsScreen extends ConsumerWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const ChangeEmailScreen(),
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 1),
+              _buildSettingsTile(
+                context,
+                isDark,
+                icon: Icons.delete_forever_outlined,
+                title: 'アカウントを削除',
+                titleColor: Colors.red.shade700,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AccountDeletionScreen(),
                     ),
                   );
                 },
@@ -275,16 +292,19 @@ class SettingsScreen extends ConsumerWidget {
     required IconData icon,
     required String title,
     String? subtitle,
+    Color? titleColor,
     required VoidCallback onTap,
   }) {
     return ListTile(
       leading: Icon(
         icon,
-        color: WanWalkColors.accent,
+        color: titleColor ?? WanWalkColors.accent,
       ),
       title: Text(
         title,
-        style: WanWalkTypography.body,
+        style: titleColor != null
+            ? WanWalkTypography.body.copyWith(color: titleColor)
+            : WanWalkTypography.body,
       ),
       subtitle: subtitle != null
           ? Text(

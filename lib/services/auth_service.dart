@@ -371,7 +371,7 @@ class AuthService {
   }
 
   /// ユーザープロフィールを更新
-  /// 
+  ///
   /// [displayName] 表示名
   /// [bio] 自己紹介
   /// [avatarUrl] アバター画像URL
@@ -396,6 +396,90 @@ class AuthService {
           .eq('id', userId!);
     } catch (e) {
       throw Exception('プロフィール更新に失敗しました: $e');
+    }
+  }
+
+  /// 現在ログイン中ユーザーの認証プロバイダーを返す
+  /// 'email' / 'apple' / 'google' / null
+  String? get primaryProvider {
+    final user = currentUser;
+    if (user == null) return null;
+    final identities = user.identities;
+    if (identities == null || identities.isEmpty) {
+      return user.appMetadata['provider'] as String?;
+    }
+    // email 提供あれば最優先
+    for (final identity in identities) {
+      if (identity.provider == 'email') return 'email';
+    }
+    return identities.first.provider;
+  }
+
+  /// パスワード再認証
+  /// email/password ユーザー専用。Apple/Google ユーザーは呼び出さない。
+  /// 戻り値: 成功時 true、失敗時 false
+  Future<bool> reauthenticateWithPassword(String password) async {
+    final email = currentUser?.email;
+    if (email == null) return false;
+    try {
+      await _supabase.auth.signInWithPassword(email: email, password: password);
+      return true;
+    } on AuthException catch (e) {
+      if (kDebugMode) {
+        appLog('🔴 [AuthService] reauth failed: ${e.message}');
+      }
+      return false;
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('🔴 [AuthService] reauth exception: $e');
+      }
+      return false;
+    }
+  }
+
+  /// アカウントを削除（App Store Review Guideline 5.1.1(v)）
+  ///
+  /// Edge Function `delete-user` を呼び出して以下を実行:
+  ///   ① NO ACTION テーブル 4 種を明示削除
+  ///   ② Storage バケット 4 種から uid 配下を再帰削除
+  ///   ③ auth.admin.deleteUser(uid) で CASCADE 連鎖削除
+  ///
+  /// 成功時は signOut を実行（戻り値 true）
+  /// 失敗時は throw Exception
+  Future<bool> deleteAccount() async {
+    if (currentUser == null) {
+      throw Exception('ログインしていません');
+    }
+    try {
+      if (kDebugMode) {
+        appLog('🔵 [AuthService] deleteAccount: invoke delete-user');
+      }
+      final response = await _supabase.functions.invoke('delete-user');
+      final status = response.status;
+      final data = response.data;
+      if (kDebugMode) {
+        appLog('🟢 [AuthService] delete-user status=$status data=$data');
+      }
+      if (status != 200) {
+        throw Exception('アカウント削除に失敗しました (status: $status)');
+      }
+      if (data is Map && data['ok'] != true) {
+        throw Exception('アカウント削除に失敗しました: ${data['error'] ?? 'unknown'}');
+      }
+      // 成功 → signOut（local session クリア）。エラーが出てもユーザーは既に削除済みなので無視
+      try {
+        await _supabase.auth.signOut();
+      } catch (e) {
+        if (kDebugMode) {
+          appLog('⚠️ [AuthService] signOut after delete failed (ignored): $e');
+        }
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('🔴 [AuthService] deleteAccount Exception: $e');
+      }
+      rethrow;
     }
   }
 }
