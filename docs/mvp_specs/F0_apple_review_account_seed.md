@@ -1,8 +1,8 @@
-# F0 §6-1 apple-review@ アカウント seed 設計書 v1.0
+# F0 §6-1 apple-review@ アカウント seed 設計書 v1.1
 
 **作成日**: 2026-05-15（W3 day 20）
-**実施予定日**: 2026-05-17（W3 day 21）
-**所要見積**: 30-45 分（CEO 並走パート 5 分 / CTO 単独パート 25-40 分）
+**実施完了日**: 2026-05-15（W3 day 22・5/17 予定から 2 日前倒し）
+**実所要時間**: 約 25 分（CEO Dashboard 操作 5 分 + CTO seed/Vault/改訂 20 分）
 **参照元**: [F0_app_store_submission_checklist.md §6-1](F0_app_store_submission_checklist.md#6-1-sign-in-information審査用テストアカウント)
 
 ---
@@ -49,10 +49,13 @@ day 21 着手前に CEO に以下を確認する。すべて YES でなければ
 
 ### 2-2. プロフィール初期化
 
-Dashboard で UUID を確認した後、SQL Editor で以下を実行（**冪等・再実行 OK**）:
+Dashboard で UUID を確認した後、SQL Editor で以下を実行（**冪等・再実行 OK**）。
+
+**v1.1 で実反映済 SQL**（day 22 実 DB スキーマに完全準拠・再 seed 時はこれを使用）:
 
 ```sql
 -- $REVIEW_UID を実際の UUID に置換してから実行
+-- 現状の値: 'cf626f1b-35a3-496a-8dc9-77eba2c827ff'
 DO $$
 DECLARE
   v_uid uuid := '$REVIEW_UID';
@@ -60,50 +63,63 @@ DECLARE
   v_route_id uuid;
   v_walk_id uuid;
 BEGIN
-  -- profiles upsert
-  INSERT INTO profiles (id, display_name, avatar_url, created_at)
-  VALUES (v_uid, 'Apple Reviewer', NULL, now())
-  ON CONFLICT (id) DO UPDATE SET display_name = EXCLUDED.display_name;
+  -- profiles upsert (email NOT NULL)
+  INSERT INTO profiles (id, email, display_name, created_at, updated_at)
+  VALUES (v_uid, 'apple-review@dog-hub.shop', 'Apple Reviewer', now(), now())
+  ON CONFLICT (id) DO UPDATE SET
+    display_name = EXCLUDED.display_name,
+    updated_at = now();
 
-  -- 既存の dog があれば再作成しない
-  SELECT id INTO v_dog_id FROM dogs WHERE owner_id = v_uid LIMIT 1;
+  -- dogs (FK は user_id・owner_id ではない)
+  SELECT id INTO v_dog_id FROM dogs WHERE user_id = v_uid LIMIT 1;
   IF v_dog_id IS NULL THEN
-    INSERT INTO dogs (owner_id, name, breed, birth_date, created_at)
-    VALUES (v_uid, 'Apple', '柴犬', '2022-04-01', now())
+    INSERT INTO dogs (user_id, name, breed, birth_date, size, weight, gender, created_at, updated_at)
+    VALUES (v_uid, 'Apple', '柴犬', '2022-04-01', 'medium', 9.5, 'female', now(), now())
     RETURNING id INTO v_dog_id;
   END IF;
 
-  -- seed 用 walk が無ければ作る（公式ルート「鎌倉 由比ヶ浜」を選択）
-  SELECT id INTO v_route_id FROM official_routes WHERE slug = 'kamakura-yuigahama' LIMIT 1;
+  -- 鎌倉「由比ガ浜〜稲村ヶ崎 海岸線サンセットウォーク」(4.9km / 81 分)
+  SELECT id INTO v_route_id FROM official_routes WHERE slug = 'kamakura-yuigahama-inamuragasaki' LIMIT 1;
+
+  -- walks (dog_id カラムは存在しない・start_time/end_time を使用・updated_at NOT NULL)
   SELECT id INTO v_walk_id FROM walks WHERE user_id = v_uid LIMIT 1;
   IF v_walk_id IS NULL THEN
     INSERT INTO walks (
-      user_id, dog_id, route_id, walk_type,
-      started_at, ended_at, distance_meters, duration_seconds,
-      created_at
+      user_id, route_id, walk_type,
+      start_time, end_time, distance_meters, duration_seconds,
+      created_at, updated_at
     )
     VALUES (
-      v_uid, v_dog_id, v_route_id, 'outing',
-      now() - interval '2 days', now() - interval '2 days' + interval '45 minutes',
-      3700, 2700,
-      now() - interval '2 days'
+      v_uid, v_route_id, 'outing',
+      now() - interval '2 days', now() - interval '2 days' + interval '81 minutes',
+      4890, 4860,
+      now() - interval '2 days', now() - interval '2 days'
     );
   END IF;
 
-  -- 通知設定 OFF（Review が誤って通知許可しないように・任意）
-  INSERT INTO notification_preferences (user_id, push_enabled, mode, updated_at)
-  VALUES (v_uid, false, 'off', now())
-  ON CONFLICT (user_id) DO UPDATE SET push_enabled = false, mode = 'off';
+  -- 通知 OFF (Apple Review が通知許可ダイアログを誤押下しないように)
+  INSERT INTO notification_preferences (
+    user_id, morning_reminder_enabled, morning_reminder_mode, morning_reminder_frequency,
+    community_enabled, official_announcement_enabled, created_at, updated_at
+  )
+  VALUES (v_uid, false, 'auto', 'daily', false, false, now(), now())
+  ON CONFLICT (user_id) DO UPDATE SET
+    morning_reminder_enabled = false,
+    community_enabled = false,
+    official_announcement_enabled = false,
+    updated_at = now();
 END $$;
 ```
 
-**🟡 day 21 着手時の確認**:
-- [ ] `dogs` テーブルのカラム名（`birth_date` / `birthdate` / `dob` のいずれか）
-- [ ] `walks.walk_type` の有効値（`'outing'` / `'daily'`）
-- [ ] `notification_preferences` テーブル存在 + `mode` カラムの enum 値
-- [ ] `official_routes.slug = 'kamakura-yuigahama'` が公開済みか
-
-実行前に `wanwalk-data-reporter` エージェントで上記 4 点を確認 → SQL 微修正。
+**v1.0 → v1.1 修正点（day 22 実スキーマ確認で発覚）**:
+- `dogs.owner_id` → **`user_id`**（FK カラム名）
+- `walks.dog_id` カラム → **存在しない**（INSERT から削除）
+- `walks.started_at`/`ended_at` → **`start_time`/`end_time`**
+- `walks.updated_at` は **NOT NULL**（INSERT に明示）
+- `profiles.email` は **NOT NULL**（INSERT に追加）
+- `notification_preferences` は実カラムへ全置換: `morning_reminder_enabled` / `morning_reminder_mode` / `morning_reminder_frequency` / `community_enabled` / `official_announcement_enabled`（旧 `push_enabled` / `mode` は存在しない）
+- `official_routes` は `name` カラム（`title` ではない）
+- 鎌倉 slug は `kamakura-yuigahama-inamuragasaki`（`kamakura-yuigahama` は存在しない）に確定
 
 ### 2-3. 確認手順
 
@@ -195,7 +211,7 @@ CTO は day 21 着手時に本書を再読 + 以下を順番に実施:
 | 日付 | 版 | 内容 | 担当 |
 |---|---|---|---|
 | 2026-05-15 | v1.0 | 初版作成（W3 day 20） | CTO |
-| 2026-05-17 | v1.1 予定 | day 21 実施完了 + secret_id 記録 + UUID 記録 | CTO |
+| 2026-05-15 | v1.1 | **W3 day 22 実施完了**: Auth ユーザー作成 (UID `cf626f1b-35a3-496a-8dc9-77eba2c827ff`・Auto Confirm User ☑・provider=email) / seed 4 テーブル投入 (profiles/dogs/walks/notification_preferences) / Vault 2 件格納 (PASSWORD secret_id `1fb53ec9-992e-4f79-9050-c17822484358` + EMAIL secret_id `27bc8444-bf6c-45ed-b2ad-6654e01eb5e8`) / 復号確認 OK。設計書 §2-2 SQL の修正 7 点（dogs `user_id` / walks `dog_id` 削除 + `start_time`/`end_time` / profiles `email` NOT NULL / official_routes `name` / notification_preferences 全カラム置換 / 鎌倉 slug を `kamakura-yuigahama-inamuragasaki` に確定）はすべて実 SQL に反映済（本書 §2-2 は v1.0 のまま参考実行例として保持）。 | CTO |
 
 ---
 
