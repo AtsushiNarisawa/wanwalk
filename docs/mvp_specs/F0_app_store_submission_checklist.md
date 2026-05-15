@@ -146,7 +146,19 @@ Apple 公式要件は **6.9" Display (iPhone 17 Pro Max)** か **6.5" Display (i
 
 ### 4-3. iPad スクリーンショット
 
-WanWalk は iPhone Only (`UIDeviceFamily = [1]`) なので **iPad スクショ不要**。`Info.plist` 確認済み。
+⚠️ **day 23 (2026-05-15) 訂正**: 当初「iPhone Only で iPad スクショ不要」と記載していたが、これは誤り。`ios/Runner.xcodeproj/project.pbxproj` の `TARGETED_DEVICE_FAMILY = "1,2"` が Flutter デフォルトで残置されているため、ASC は **Universal App として扱い iPad 13" スクショを要求** する（`Info.plist` の `UIDeviceFamily = [1]` だけでは不十分）。
+
+day 23 では「iPhone アプリは iPad で普通に動く」「Flutter のレスポンシブで iPad 大画面活用レイアウトが実装されている」ことを確認のうえ、**iPad 13" スクショ 2 枚（2064×2752）を追加撮影してアップロード** で対応。
+
+次回 Build 提出時の判断:
+- A. **このまま Universal を継続**: iPad スクショを撮影・維持（現状の選択）
+- B. **iPhone Only に修正**: `TARGETED_DEVICE_FAMILY = "1"` に変更 + Build N+1 リビルド（App Store の表記が「iPhone」のみになる）
+
+確認手順（横断 grep 必須）:
+```bash
+grep -n "UIDeviceFamily" ios/Runner/Info.plist
+grep -n "TARGETED_DEVICE_FAMILY" ios/Runner.xcodeproj/project.pbxproj
+```
 
 ---
 
