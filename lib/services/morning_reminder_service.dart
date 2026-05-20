@@ -115,32 +115,43 @@ class MorningReminderService {
   }
 
   /// 今日のおすすめルート（B2 §5.6）。
-  /// MVP は `featured_routes` の先頭 1 件を返す。なければ最新公開ルート 1 件。
+  ///
+  /// 公開ルート全件から JST の日付シードで日替わりに 1 件選ぶ。
+  /// 「おすすめピックアップ」（featured_routes 先頭）と重複しないよう除外する。
+  /// 全ユーザー共通の表示（「今日はこれが推されてる」感を出すため）。
   Future<OfficialRoute?> loadTodayRecommend() async {
     try {
-      final featured = await _supabase
-          .from('featured_routes')
-          .select('route_id, official_routes(*)')
-          .eq('is_active', true)
-          .order('display_order')
-          .limit(1);
-      final list = featured as List;
-      if (list.isNotEmpty) {
-        final routeJson = list.first['official_routes'];
-        if (routeJson != null) {
-          return OfficialRoute.fromJson(routeJson);
+      String? excludeId;
+      try {
+        final featured = await _supabase
+            .from('featured_routes')
+            .select('route_id')
+            .eq('is_active', true)
+            .order('display_order')
+            .limit(1);
+        final featuredList = featured as List;
+        if (featuredList.isNotEmpty) {
+          excludeId = featuredList.first['route_id'] as String?;
         }
-      }
+      } catch (_) {}
 
-      final fallback = await _supabase
+      final routesResponse = await _supabase
           .from('official_routes')
           .select()
           .eq('is_published', true)
-          .order('created_at', ascending: false)
-          .limit(1);
-      final fbList = fallback as List;
-      if (fbList.isEmpty) return null;
-      return OfficialRoute.fromJson(fbList.first as Map<String, dynamic>);
+          .order('id', ascending: true);
+
+      final candidates = (routesResponse as List)
+          .map((j) => OfficialRoute.fromJson(j as Map<String, dynamic>))
+          .where((r) => r.id != excludeId)
+          .toList();
+
+      if (candidates.isEmpty) return null;
+
+      final nowJst = DateTime.now().toUtc().add(const Duration(hours: 9));
+      final seed = nowJst.year * 10000 + nowJst.month * 100 + nowJst.day;
+      final index = seed % candidates.length;
+      return candidates[index];
     } catch (e) {
       appLog('[MorningReminderService] loadTodayRecommend failed: $e');
       return null;
