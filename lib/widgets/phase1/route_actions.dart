@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -6,7 +8,9 @@ import 'package:share_plus/share_plus.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../config/wanwalk_typography.dart';
+import '../../providers/analytics_provider.dart';
 import '../../providers/bookmark_provider.dart';
+import '../../services/analytics_service.dart';
 
 /// BookmarkButton — ルート詳細で愛犬家が気に入ったルートを保存。
 /// 未ログイン時は誘導ダイアログ。認証後は Supabase user_bookmarks に永続化。
@@ -27,6 +31,11 @@ class _BookmarkButtonState extends ConsumerState<BookmarkButton> {
     setState(() => _busy = true);
     try {
       final next = await toggleBookmark(widget.routeId);
+      // GA4: route_bookmark_toggle (Web 同名・action は toggle 後の状態)
+      unawaited(ref.read(analyticsServiceProvider).logRouteBookmarkToggle(
+            routeSlug: widget.routeId,
+            action: next ? BookmarkAction.add : BookmarkAction.remove,
+          ));
       ref.invalidate(routeBookmarkStatusProvider(widget.routeId));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -125,7 +134,7 @@ class _BookmarkButtonState extends ConsumerState<BookmarkButton> {
 }
 
 /// ShareButton — OS共有シートを呼び出すだけ。
-class ShareButton extends StatelessWidget {
+class ShareButton extends ConsumerWidget {
   final String routeName;
   final String? areaName;
   final String? slug;
@@ -138,12 +147,17 @@ class ShareButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return _IconAction(
       icon: PhosphorIcons.shareNetwork(),
       color: WanWalkColors.textPrimary,
       tooltip: '共有',
       onTap: () {
+        // GA4: share_open (Web 同名・share_channel_click は OS sheet 仕様で取得不可)
+        unawaited(ref.read(analyticsServiceProvider).logShareOpen(
+              shareKind: ShareKind.route,
+              shareSlug: slug ?? routeName,
+            ));
         final areaText = areaName ?? '';
         final url = slug != null
             ? 'https://wanwalk.jp/routes/$slug'

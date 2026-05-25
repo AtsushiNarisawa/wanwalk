@@ -14,6 +14,7 @@ import 'config/supabase_config.dart';
 import 'config/wanwalk_theme.dart';
 import 'config/wanwalk_colors.dart';
 import 'config/env.dart';
+import 'providers/analytics_provider.dart';
 import 'providers/push_notification_provider.dart';
 import 'screens/main/main_screen.dart';
 import 'screens/onboarding/welcome_screen.dart';
@@ -126,6 +127,10 @@ class WanWalkApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // GA4 自動 screen_view 計測のための Navigator observer。
+    // Service singleton 経由で同一 observer を取得する（late final で memoize 済）。
+    final analyticsObserver = ref.read(analyticsServiceProvider).observer;
+
     return MaterialApp(
       title: 'WanWalk',
       debugShowCheckedModeBanner: false,
@@ -135,6 +140,7 @@ class WanWalkApp extends ConsumerWidget {
       themeMode: ThemeMode.light,
       // B1: 通知タップで送られる deep link を受けるための共通 navigatorKey
       navigatorKey: NotificationDeepLink.navigatorKey,
+      navigatorObservers: [analyticsObserver],
       home: const SplashScreen(),
     );
   }
@@ -175,10 +181,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // FCM 初期化は起動クリティカルパスから外す（B1 §7.4 / A4 起動速度）
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initPushNotifications();
+      _initAnalytics();
     });
 
     // 認証状態をチェックして適切な画面に遷移
     _checkAuthAndNavigate();
+  }
+
+  Future<void> _initAnalytics() async {
+    try {
+      await ref.read(analyticsServiceProvider).initialize();
+    } catch (e) {
+      if (kDebugMode) appLog('[main] analytics init failed: $e');
+    }
   }
 
   Future<void> _initPushNotifications() async {

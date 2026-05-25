@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../models/route_pin.dart';
+import '../../providers/analytics_provider.dart';
 import '../../providers/route_pin_provider.dart';
 import '../../providers/recent_pins_provider.dart';
 
@@ -202,6 +204,12 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
             : _commentController.text.trim(),
         photoFilePaths: _selectedImages.map((img) => img.path).toList(),
       );
+
+      // GA4: pin_create (Key Event 候補・UGC 投稿シグナル)
+      unawaited(ref.read(analyticsServiceProvider).logPinCreate(
+            routeSlug: widget.routeId,
+            pinType: _selectedType.value,
+          ));
 
       if (mounted) {
         ref.invalidate(recentPinsProvider);

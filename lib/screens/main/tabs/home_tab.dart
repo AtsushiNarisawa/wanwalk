@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanwalk_colors.dart';
 import '../../../config/wanwalk_icons.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
+import '../../../providers/analytics_provider.dart';
 import '../../../providers/home_feed_provider.dart';
 import '../../../providers/area_provider.dart';
+import '../../../services/analytics_service.dart';
 import '../../../models/area.dart';
 import '../../../models/official_route.dart';
 import '../../outing/area_list_screen.dart';
@@ -223,6 +227,12 @@ class HomeTab extends ConsumerWidget {
                         ? '${item.extra!['season']}のおすすめ'
                         : null,
                     onTap: () {
+                      // GA4: route_card_click (Web 同名・ホームフィード経由)
+                      unawaited(ref.read(analyticsServiceProvider).logRouteCardClick(
+                            routeSlug: item.route!.id,
+                            areaSlug: item.route!.areaId,
+                            sourcePage: AppSourcePage.home,
+                          ));
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -265,6 +275,12 @@ class HomeTab extends ConsumerWidget {
                     subAreas: subAreaNames,
                     isDark: isDark,
                     onTap: () {
+                      // GA4: area_card_click (areaFeature カード経由)
+                      // areaSlug 不明（areaName のみ保持）→ areaName を slug 代替で渡す
+                      unawaited(ref.read(analyticsServiceProvider).logAreaCardClick(
+                            areaSlug: (item.extra?['areaName'] ?? '').toString(),
+                            sourcePage: AppSourcePage.home,
+                          ));
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -326,8 +342,15 @@ class HomeTab extends ConsumerWidget {
             children: [
               const Text('おすすめピックアップ', style: WanWalkTypography.wwH3),
               const SizedBox(height: WanWalkSpacing.s2),
-              GestureDetector(
+              Consumer(builder: (context, ref, _) {
+                return GestureDetector(
                 onTap: () {
+                  // GA4: route_card_click (おすすめピックアップ経由)
+                  unawaited(ref.read(analyticsServiceProvider).logRouteCardClick(
+                        routeSlug: route.id,
+                        areaSlug: route.areaId,
+                        sourcePage: AppSourcePage.home,
+                      ));
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -398,7 +421,8 @@ class HomeTab extends ConsumerWidget {
                     ],
                   ),
                 ),
-              ),
+              );
+              }),
             ],
           ),
         );
@@ -490,6 +514,14 @@ class HomeTab extends ConsumerWidget {
                     padding: EdgeInsets.only(right: i < chips.length - 1 ? 10 : 0),
                     child: GestureDetector(
                       onTap: () {
+                        // GA4: area_card_click (ホーム上部「エリアから探す」横スクロール経由)
+                        final areaSlugForGa = chip.isHakone
+                            ? 'hakone'
+                            : (chip.area?.id ?? chip.name);
+                        unawaited(ref.read(analyticsServiceProvider).logAreaCardClick(
+                              areaSlug: areaSlugForGa,
+                              sourcePage: AppSourcePage.home,
+                            ));
                         if (chip.isHakone) {
                           final subAreaMaps = chip.hakoneSubs!
                               .map((a) => <String, dynamic>{

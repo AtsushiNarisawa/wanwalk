@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -8,7 +10,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../providers/analytics_provider.dart';
 import '../../providers/official_route_provider.dart';
+import '../../services/analytics_service.dart';
 import '../../widgets/nearby_dog_spots.dart';
 import '../../providers/route_pin_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
@@ -49,9 +53,12 @@ class RouteDetailScreen extends ConsumerStatefulWidget {
 class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
   // ピンをすべて表示するかどうかの状態
   bool _showAllPins = false;
-  
+
   // MapController：地図の中心とズームを動的に制御
   final MapController _mapController = MapController();
+
+  // GA4: route_view を 1 度だけ送信するためのフラグ
+  bool _routeViewLogged = false;
 
   @override
   void dispose() {
@@ -65,6 +72,21 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     final routeAsync = ref.watch(routeByIdProvider(widget.routeId));
     final pinsAsync = ref.watch(pinsByRouteProvider(widget.routeId));
     final userPinsAsync = ref.watch(userPinsByRouteProvider(widget.routeId));
+
+    // GA4: route_view を route データ取得後に 1 度だけ送信。
+    // ref.listen を build 内で使うのは Riverpod 公式パターン。
+    ref.listen(routeByIdProvider(widget.routeId), (prev, next) {
+      next.whenData((route) {
+        if (route != null && !_routeViewLogged) {
+          _routeViewLogged = true;
+          unawaited(ref.read(analyticsServiceProvider).logRouteView(
+                routeSlug: route.id,
+                areaSlug: route.areaId,
+                source: AppSourcePage.routeDetail,
+              ));
+        }
+      });
+    });
 
     return Scaffold(
       backgroundColor: isDark
@@ -1430,6 +1452,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
   /// 情報フィードバック用ボトムシート
   void _showFeedbackSheet(BuildContext context) {
+    // GA4: route_feedback_open (Web 同名・ログインゲート前に発火し interest 計測)
+    unawaited(ref.read(analyticsServiceProvider).logRouteFeedbackOpen(
+          routeSlug: widget.routeId,
+        ));
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1457,7 +1483,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 }
 
 /// 情報フィードバック送信シート
-class _FeedbackSheet extends StatefulWidget {
+class _FeedbackSheet extends ConsumerStatefulWidget {
   final String routeId;
   final String userId;
   final ScaffoldMessengerState scaffoldMessenger;
@@ -1469,10 +1495,10 @@ class _FeedbackSheet extends StatefulWidget {
   });
 
   @override
-  State<_FeedbackSheet> createState() => _FeedbackSheetState();
+  ConsumerState<_FeedbackSheet> createState() => _FeedbackSheetState();
 }
 
-class _FeedbackSheetState extends State<_FeedbackSheet> {
+class _FeedbackSheetState extends ConsumerState<_FeedbackSheet> {
   final _messageController = TextEditingController();
   String _selectedCategory = 'other';
   bool _isSubmitting = false;
@@ -1510,6 +1536,12 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
         'category': _selectedCategory,
         'message': message,
       });
+
+      // GA4: route_feedback_submit (Web 同名・Key Event 候補)
+      unawaited(ref.read(analyticsServiceProvider).logRouteFeedbackSubmit(
+            routeSlug: widget.routeId,
+            feedbackCategory: _selectedCategory,
+          ));
 
       if (!mounted) return;
       Navigator.of(context).pop();

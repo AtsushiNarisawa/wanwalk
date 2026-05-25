@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_icons.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../providers/analytics_provider.dart';
 import '../../providers/official_route_provider.dart';
 import '../../providers/area_provider.dart';
 import '../../models/official_route.dart';
+import '../../services/analytics_service.dart';
 import '../../utils/route_description_formatter.dart';
 import 'route_detail_screen.dart';
 
@@ -71,6 +75,12 @@ class RouteListScreen extends ConsumerWidget {
                 child: _RouteCard(
                   route: route,
                   onTap: () {
+                    // GA4: route_card_click (エリア別ルート一覧経由)
+                    unawaited(ref.read(analyticsServiceProvider).logRouteCardClick(
+                          routeSlug: route.id,
+                          areaSlug: route.areaId,
+                          sourcePage: AppSourcePage.routesList,
+                        ));
                     ref.read(selectedRouteIdProvider.notifier).selectRoute(route.id);
                     Navigator.push(
                       context,

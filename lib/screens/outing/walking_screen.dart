@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +14,7 @@ import '../../config/wanwalk_spacing.dart';
 import '../../models/official_route.dart';
 import '../../models/route_spot.dart';
 import '../../models/walk_mode.dart';
+import '../../providers/analytics_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/route_spots_provider.dart';
 import '../../services/profile_service.dart';
@@ -18,7 +22,6 @@ import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
 import '../../widgets/zoom_control_widget.dart';
 import '../../widgets/walk_completion_card.dart';
-import 'dart:io';
 
 import 'pin_create_screen.dart';
 import '../../utils/logger.dart';
@@ -96,7 +99,14 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         await showLocationPermissionDialog(context);
         if (mounted) Navigator.of(context).pop();
       }
+      return;
     }
+
+    // GA4: route_start_walk (Key Event 候補・公式ルートの実利用シグナル)
+    unawaited(ref.read(analyticsServiceProvider).logRouteStartWalk(
+          routeSlug: widget.route.id,
+          walkMode: WalkMode.outing.value,
+        ));
   }
 
   /// 散歩を終了
@@ -178,6 +188,14 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           );
           return;
         }
+
+        // GA4: walk_complete (Key Event 候補・最重要 conversion)
+        unawaited(ref.read(analyticsServiceProvider).logWalkComplete(
+              routeSlug: widget.route.id,
+              walkMode: WalkMode.outing.value,
+              distanceM: distanceMeters.round(),
+              durationSec: gpsState.elapsedSeconds,
+            ));
 
         if (kDebugMode) {
           appLog('✅ 散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');

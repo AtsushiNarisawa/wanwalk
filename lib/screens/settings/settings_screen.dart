@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../providers/analytics_provider.dart';
 import '../../providers/package_info_provider.dart';
 import '../../providers/theme_provider.dart';
 import 'account_deletion_screen.dart';
@@ -12,11 +15,81 @@ import 'help_screen.dart';
 import 'notification_settings_screen.dart';
 
 /// 設定画面
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  // 「アプリについて」項目の連続タップ回数（8 回で内部ユーザーモード切替ダイアログ表示）
+  int _aboutTapCount = 0;
+  Timer? _tapResetTimer;
+
+  @override
+  void dispose() {
+    _tapResetTimer?.cancel();
+    super.dispose();
+  }
+
+  void _handleAboutTap(BuildContext context, String versionLabel) {
+    _tapResetTimer?.cancel();
+    _aboutTapCount += 1;
+    _tapResetTimer = Timer(const Duration(seconds: 3), () {
+      _aboutTapCount = 0;
+    });
+    if (_aboutTapCount >= 8) {
+      _aboutTapCount = 0;
+      _tapResetTimer?.cancel();
+      _showInternalToggleDialog(context);
+      return;
+    }
+    showAboutDialog(
+      context: context,
+      applicationName: 'WanWalk',
+      applicationVersion: versionLabel,
+      applicationLegalese: '© 2024 WanWalk',
+    );
+  }
+
+  Future<void> _showInternalToggleDialog(BuildContext context) async {
+    final analytics = ref.read(analyticsServiceProvider);
+    final currentlyInternal = analytics.isInternalTraffic;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('内部ユーザーモード'),
+        content: Text(currentlyInternal
+            ? '現在「内部」として送信中です。\n外部（通常ユーザー）に戻しますか？'
+            : '現在「外部」として送信中です。\n内部ユーザー（GA4 集計除外）にしますか？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('キャンセル'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('切替'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await analytics.setInternalTraffic(!currentlyInternal);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(currentlyInternal
+              ? '外部ユーザー（通常）に切替えました'
+              : '内部ユーザー（GA4 集計除外）に切替えました'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeMode = ref.watch(themeProvider);
     final versionLabel = formatVersionLabel(ref.watch(packageInfoProvider));
@@ -127,14 +200,7 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: versionLabel.isEmpty
                     ? 'WanWalk'
                     : 'WanWalk v$versionLabel',
-                onTap: () {
-                  showAboutDialog(
-                    context: context,
-                    applicationName: 'WanWalk',
-                    applicationVersion: versionLabel,
-                    applicationLegalese: '© 2024 WanWalk',
-                  );
-                },
+                onTap: () => _handleAboutTap(context, versionLabel),
               ),
             ],
           ),

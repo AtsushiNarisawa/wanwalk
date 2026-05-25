@@ -6,8 +6,10 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../providers/analytics_provider.dart';
 import '../../providers/area_provider.dart';
 import '../../providers/area_list_screen_provider.dart';
+import '../../services/analytics_service.dart';
 import '../../widgets/phase1/area_card.dart';
 import 'route_list_screen.dart';
 import 'hakone_sub_area_screen.dart';
@@ -106,6 +108,17 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
                         heroImageUrl: area['hero_image_url'] as String?,
                         routeCount: (area['route_count'] as int?) ?? 0,
                         onTap: () {
+                          // GA4: area_card_click (エリア一覧画面のカード経由)
+                          final areaSlugForGa = isHakoneGroup
+                              ? 'hakone'
+                              : (area['id']?.toString() ??
+                                  (area['name'] as String? ?? ''));
+                          unawaited(ref
+                              .read(analyticsServiceProvider)
+                              .logAreaCardClick(
+                                areaSlug: areaSlugForGa,
+                                sourcePage: AppSourcePage.areasList,
+                              ));
                           if (isHakoneGroup) {
                             final subAreas = area['sub_areas']
                                 as List<Map<String, dynamic>>;
