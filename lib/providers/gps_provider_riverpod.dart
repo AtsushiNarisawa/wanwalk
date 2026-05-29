@@ -89,7 +89,25 @@ class GpsNotifier extends StateNotifier<GpsState> {
   final GpsService _gpsService = GpsService();
   final Ref ref;
 
+  /// A9: 一時停止の累積時間（経過時間から控除する）
+  Duration _pausedTotal = Duration.zero;
+
+  /// A9: 現在の一時停止が始まった時刻（停止中のみ非 null）
+  DateTime? _pausedAt;
+
   GpsNotifier(this.ref) : super(GpsState(walkMode: WalkMode.daily));
+
+  /// A9: 一時停止時間を控除した実経過秒を計算する。
+  int _activeElapsedSeconds() {
+    if (state.startTime == null) return 0;
+    final now = DateTime.now();
+    var paused = _pausedTotal;
+    if (_pausedAt != null) {
+      paused += now.difference(_pausedAt!);
+    }
+    final secs = now.difference(state.startTime!).inSeconds - paused.inSeconds;
+    return secs < 0 ? 0 : secs;
+  }
 
   /// 現在位置を取得
   Future<void> getCurrentLocation() async {
@@ -130,9 +148,19 @@ class GpsNotifier extends StateNotifier<GpsState> {
       // 現在のWalkModeを取得
       final currentMode = ref.read(walkModeProvider);
 
-      final success = await _gpsService.startRecording();
+      // A10: ストリームエラーを errorMessage で可視化する
+      final success = await _gpsService.startRecording(
+        onStreamError: (e) {
+          state = state.copyWith(
+            errorMessage: '位置情報の取得が中断されました。権限やGPSの状態を確認してください',
+          );
+        },
+      );
       if (success) {
         final now = DateTime.now();
+        // A9: 一時停止の累積をリセット
+        _pausedTotal = Duration.zero;
+        _pausedAt = null;
         state = state.copyWith(
           isInitialized: true, // スタートボタンを押した
           isRecording: true,
@@ -167,6 +195,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
     if (!state.isRecording || state.isPaused) return;
 
     _gpsService.pauseRecording();
+    _pausedAt = DateTime.now(); // A9: 停止開始時刻を記録
     state = state.copyWith(isPaused: true);
   }
 
@@ -175,7 +204,45 @@ class GpsNotifier extends StateNotifier<GpsState> {
     if (!state.isRecording || !state.isPaused) return;
 
     _gpsService.resumeRecording();
+    // A9: 停止していた時間を累積に加算
+    if (_pausedAt != null) {
+      _pausedTotal += DateTime.now().difference(_pausedAt!);
+      _pausedAt = null;
+    }
     state = state.copyWith(isPaused: false);
+  }
+
+  /// 現在の記録からルートを生成する（A5: 記録状態は変更しない）。
+  ///
+  /// 保存に失敗してもデータが残りリトライ可能。保存成功後に [finalizeWalk] を
+  /// 呼んで記録を確定終了する。
+  RouteModel? buildCurrentRoute({
+    required String userId,
+    required String title,
+    String? description,
+    String? dogId,
+    bool isPublic = false,
+  }) {
+    if (!state.isRecording) {
+      state = state.copyWith(errorMessage: '記録していません');
+      return null;
+    }
+    return _gpsService.buildCurrentRoute(
+      userId: userId,
+      title: title,
+      description: description,
+      dogId: dogId,
+      isPublic: isPublic,
+      durationSeconds: _activeElapsedSeconds(), // A9: 一時停止控除済み
+    );
+  }
+
+  /// 記録を確定終了してリセットする（A5: 保存成功後に呼ぶ）。
+  void finalizeWalk() {
+    _gpsService.finalizeRecording();
+    _pausedTotal = Duration.zero;
+    _pausedAt = null;
+    state = GpsState(walkMode: state.walkMode);
   }
 
   /// 記録を停止
@@ -224,16 +291,10 @@ class GpsNotifier extends StateNotifier<GpsState> {
   /// 記録をキャンセル
   void cancelRecording() {
     _gpsService.dispose();
-    state = state.copyWith(
-      isInitialized: false, // リセット
-      isRecording: false,
-      isPaused: false,
-      currentRoutePoints: [],
-      errorMessage: null,
-      startTime: null,
-      distance: 0.0,
-      elapsedSeconds: 0,
-    );
+    _pausedTotal = Duration.zero;
+    _pausedAt = null;
+    // copyWith は null 上書きできないため新規 state でクリーンにリセット
+    state = GpsState(walkMode: state.walkMode);
   }
 
   /// 定期的に統計情報を更新（距離・時間・ポイント数）
@@ -251,11 +312,9 @@ class GpsNotifier extends StateNotifier<GpsState> {
           totalDistance += _calculateDistance(prev, curr);
         }
         
-        // 経過時間を計算
-        final elapsed = state.startTime != null
-            ? DateTime.now().difference(state.startTime!).inSeconds
-            : 0;
-        
+        // 経過時間を計算（A9: 一時停止時間を控除した実経過秒）
+        final elapsed = _activeElapsedSeconds();
+
         // 最新の位置情報をcurrentLocationに設定
         final currentLoc = points.isNotEmpty ? points.last.latLng : null;
         

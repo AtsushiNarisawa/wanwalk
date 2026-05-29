@@ -69,8 +69,44 @@ class GpsService {
     }
   }
 
+  /// プラットフォーム別の位置情報設定を構築。
+  ///
+  /// A4: iOS はバックグラウンドでも記録を継続させるため
+  /// `allowBackgroundLocationUpdates` 等を明示的に有効化する
+  /// （Info.plist の UIBackgroundModes:location 宣言だけでは実装が無効だった）。
+  LocationSettings _buildLocationSettings() {
+    if (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 3,
+        activityType: ActivityType.fitness,
+        allowBackgroundLocationUpdates: true,
+        pauseLocationUpdatesAutomatically: false,
+        showBackgroundLocationIndicator: true,
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 3,
+        foregroundNotificationConfig: const ForegroundNotificationConfig(
+          notificationTitle: 'WanWalk',
+          notificationText: '散歩を記録中です',
+          enableWakeLock: true,
+        ),
+      );
+    }
+    return const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 3,
+    );
+  }
+
   /// ルート記録を開始
-  Future<bool> startRecording() async {
+  ///
+  /// [onStreamError] 位置情報ストリームがエラー（権限剥奪・GPS障害等）で
+  /// 中断された場合に呼ばれる。A10: 無言停止を防ぐため呼び出し側へ通知する。
+  Future<bool> startRecording({void Function(Object error)? onStreamError}) async {
     if (_isRecording) {
       if (kDebugMode) {
         appLog('既に記録中です');
@@ -91,17 +127,24 @@ class GpsService {
     _isRecording = true;
     _isPaused = false;  // 一時停止状態をリセット
 
-    // 位置情報の更新を監視
-    const locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 3, // 3メートル移動ごとに更新（テスト用に短縮）
-    );
+    // 位置情報の更新を監視（A4: プラットフォーム別設定で BG 記録を有効化）
+    final locationSettings = _buildLocationSettings();
 
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: locationSettings,
-    ).listen((Position position) {
-      _addRoutePoint(position);
-    });
+    ).listen(
+      (Position position) {
+        _addRoutePoint(position);
+      },
+      // A10: ストリームエラーを握り潰さず可視化＋通知。
+      onError: (Object e, StackTrace st) {
+        if (kDebugMode) {
+          appLog('❌ 位置情報ストリームエラー: $e');
+        }
+        onStreamError?.call(e);
+      },
+      cancelOnError: false,
+    );
 
     if (kDebugMode) {
       appLog('ルート記録を開始しました');
@@ -193,6 +236,71 @@ class GpsService {
       appLog('✅ ルート記録を停止しました: ${completedRoute.formatDistance()}, ${completedRoute.formatDuration()}');
     }
     return completedRoute;
+  }
+
+  /// 現在の記録からルートモデルを生成する（A5: 記録状態は変更しない）。
+  ///
+  /// `stopRecording` と異なり、ストリーム停止・ポイント破棄・フラグリセットを
+  /// 行わない。保存に失敗してもデータがメモリに残り、リトライ可能になる。
+  /// 保存成功後に [finalizeRecording] を呼んで初めて記録を確定終了する。
+  ///
+  /// [durationSeconds] 一時停止時間を控除した実経過秒（A9）。未指定時は
+  /// 開始からの単純経過秒。
+  RouteModel? buildCurrentRoute({
+    required String userId,
+    required String title,
+    String? description,
+    String? dogId,
+    bool isPublic = false,
+    int? durationSeconds,
+  }) {
+    if (!_isRecording) {
+      if (kDebugMode) {
+        appLog('❌ 記録していません（buildCurrentRoute）');
+      }
+      return null;
+    }
+    if (_currentRoutePoints.isEmpty) {
+      if (kDebugMode) {
+        appLog('❌ 記録されたポイントがありません（buildCurrentRoute）');
+      }
+      return null;
+    }
+
+    final duration = durationSeconds ??
+        (_startTime != null
+            ? DateTime.now().difference(_startTime!).inSeconds
+            : 0);
+
+    final route = RouteModel(
+      userId: userId,
+      dogId: dogId,
+      title: title,
+      description: description,
+      points: List.from(_currentRoutePoints),
+      duration: duration,
+      startedAt: _startTime,
+      endedAt: DateTime.now(),
+      isPublic: isPublic,
+    );
+
+    final distance = route.calculateDistance();
+    return route.copyWith(distance: distance);
+  }
+
+  /// 記録を確定終了してリセット（A5: 保存成功後に呼ぶ）。
+  ///
+  /// ストリームを停止し、ポイント・開始時刻・フラグをクリアする。
+  void finalizeRecording() {
+    _positionStreamSubscription?.cancel();
+    _positionStreamSubscription = null;
+    _currentRoutePoints.clear();
+    _startTime = null;
+    _isRecording = false;
+    _isPaused = false;
+    if (kDebugMode) {
+      appLog('✅ 記録を確定終了しました（finalizeRecording）');
+    }
   }
 
   /// 記録を一時停止

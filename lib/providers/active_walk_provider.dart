@@ -1,19 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/walk_mode.dart';
+import '../models/official_route.dart';
 
 /// 散歩記録中の状態
-/// GPS記録の補助情報（散歩モード、ルートID）を保持
+/// GPS記録の補助情報（散歩モード、ルート情報）を保持
 class ActiveWalkState {
   final bool isWalking;
   final WalkMode? walkMode; // daily or outing
   final String? routeId; // お出かけ散歩の公式ルートID
   final String? routeName; // お出かけ散歩の公式ルート名
 
+  /// A3: おでかけ散歩中バナーから記録画面へ復帰するためのルート実体。
+  final OfficialRoute? outingRoute;
+
   const ActiveWalkState({
     this.isWalking = false,
     this.walkMode,
     this.routeId,
     this.routeName,
+    this.outingRoute,
   });
 
   ActiveWalkState copyWith({
@@ -21,12 +26,14 @@ class ActiveWalkState {
     WalkMode? walkMode,
     String? routeId,
     String? routeName,
+    OfficialRoute? outingRoute,
   }) {
     return ActiveWalkState(
       isWalking: isWalking ?? this.isWalking,
       walkMode: walkMode ?? this.walkMode,
       routeId: routeId ?? this.routeId,
       routeName: routeName ?? this.routeName,
+      outingRoute: outingRoute ?? this.outingRoute,
     );
   }
 
@@ -35,12 +42,14 @@ class ActiveWalkState {
     required WalkMode mode,
     String? routeId,
     String? routeName,
+    OfficialRoute? outingRoute,
   }) {
     return ActiveWalkState(
       isWalking: true,
       walkMode: mode,
       routeId: routeId,
       routeName: routeName,
+      outingRoute: outingRoute,
     );
   }
 
@@ -59,11 +68,13 @@ class ActiveWalkNotifier extends StateNotifier<ActiveWalkState> {
     required WalkMode mode,
     String? routeId,
     String? routeName,
+    OfficialRoute? outingRoute,
   }) {
     state = state.start(
       mode: mode,
       routeId: routeId,
       routeName: routeName,
+      outingRoute: outingRoute,
     );
   }
 

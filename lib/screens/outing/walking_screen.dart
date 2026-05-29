@@ -15,6 +15,7 @@ import '../../models/official_route.dart';
 import '../../models/route_spot.dart';
 import '../../models/walk_mode.dart';
 import '../../providers/analytics_provider.dart';
+import '../../providers/active_walk_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/route_spots_provider.dart';
 import '../../services/profile_service.dart';
@@ -102,11 +103,79 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       return;
     }
 
+    // A3: グローバル散歩状態を配線（バナーからの復帰に使用）
+    ref.read(activeWalkProvider.notifier).startWalk(
+          mode: WalkMode.outing,
+          routeId: widget.route.id,
+          routeName: widget.route.name,
+          outingRoute: widget.route,
+        );
+
     // GA4: route_start_walk (Key Event 候補・公式ルートの実利用シグナル)
     unawaited(ref.read(analyticsServiceProvider).logRouteStartWalk(
           routeSlug: widget.route.id,
           walkMode: WalkMode.outing.value,
         ));
+  }
+
+  /// A3: 戻る操作のハンドリング（最小化 or 中止）。
+  ///
+  /// PopScope（システムバック・スワイプバック）と戻るボタンの両方から呼ばれる。
+  /// 記録中は「記録を続ける（最小化）/ 散歩を中止（破棄）/ キャンセル」を選択させ、
+  /// 戻るで GPS が止まらず新規散歩も開始できないデッドロックを解消する。
+  Future<void> _handleBackRequest() async {
+    final gpsState = ref.read(gpsProviderRiverpod);
+
+    // 記録していない（スタート前）ならそのまま戻る
+    if (!gpsState.isRecording) {
+      if (mounted) Navigator.of(context).pop();
+      return;
+    }
+
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('散歩はどうしますか？'),
+        content: const Text(
+          '記録を続けたまま画面を閉じることもできます。\n'
+          '下部のバナーからいつでも記録画面に戻れます。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop('cancel_dialog'),
+            child: const Text('キャンセル'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop('abort'),
+            child: const Text(
+              '散歩を中止',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop('minimize'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: WanWalkColors.accentPrimary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('記録を続ける'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+
+    if (choice == 'minimize') {
+      // 記録を継続したまま閉じる（バナーから復帰可能）
+      Navigator.of(context).pop();
+    } else if (choice == 'abort') {
+      // 記録を破棄して終了
+      ref.read(gpsProviderRiverpod.notifier).cancelRecording();
+      ref.read(activeWalkProvider.notifier).endWalk();
+      if (mounted) Navigator.of(context).pop();
+    }
+    // 'cancel_dialog' / null → 画面に留まる
   }
 
   /// 散歩を終了
@@ -136,17 +205,14 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
 
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
     final gpsState = ref.read(gpsProviderRiverpod);
-    
+
     // Supabaseから現在のユーザーIDを取得
     final userId = Supabase.instance.client.auth.currentUser?.id;
 
     if (userId == null) {
-      // GPS記録を停止してから画面を閉じる
-      gpsNotifier.stopRecording(
-        userId: 'anonymous',
-        title: '${widget.route.name}を歩きました',
-        description: 'おでかけ散歩',
-      );
+      // 未ログイン: 保存できないので記録を破棄して閉じる
+      gpsNotifier.cancelRecording();
+      ref.read(activeWalkProvider.notifier).endWalk();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -159,102 +225,132 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       return;
     }
 
-    final route = gpsNotifier.stopRecording(
+    // A5: 記録状態を変えずにスナップショットを生成（保存失敗時もデータ保持）
+    final route = gpsNotifier.buildCurrentRoute(
       userId: userId,
       title: '${widget.route.name}を歩きました',
       description: 'おでかけ散歩',
     );
 
-    if (mounted) {
-      if (route != null) {
-        final distanceMeters = gpsState.distance;
-        final durationMinutes = (gpsState.elapsedSeconds / 60).ceil();
-        
-        // 1. Supabaseに散歩記録を保存
-        final walkSaveService = WalkSaveService();
-        final walkId = await walkSaveService.saveWalk(
-          route: route,
-          userId: userId,
-          walkMode: WalkMode.outing,
-          officialRouteId: widget.route.id,
-        );
-
-        if (walkId == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('記録の保存に失敗しました'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        // GA4: walk_complete (Key Event 候補・最重要 conversion)
-        unawaited(ref.read(analyticsServiceProvider).logWalkComplete(
-              routeSlug: widget.route.id,
-              walkMode: WalkMode.outing.value,
-              distanceM: distanceMeters.round(),
-              durationSec: gpsState.elapsedSeconds,
-            ));
-
-        if (kDebugMode) {
-          appLog('✅ 散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
-        }
-
-        // 2. 写真をアップロード
-        if (_photoFiles.isNotEmpty) {
-          if (kDebugMode) {
-            appLog('📸 写真アップロード開始: ${_photoFiles.length}枚');
-          }
-          for (int i = 0; i < _photoFiles.length; i++) {
-            final file = _photoFiles[i];
-            final photoUrl = await _photoService.uploadWalkPhoto(
-              file: file,
-              walkId: walkId,
-              userId: userId,
-              displayOrder: i + 1,
-            );
-            if (photoUrl != null) {
-              if (kDebugMode) {
-                appLog('✅ 写真${i + 1}/${_photoFiles.length}アップロード成功');
-              }
-            } else {
-              if (kDebugMode) {
-                appLog('❌ 写真${i + 1}/${_photoFiles.length}アップロード失敗');
-              }
-            }
-          }
-        }
-
-        // 3. プロフィールを自動更新
-        final profileService = ProfileService();
-        await profileService.updateWalkingProfile(
-          userId: userId,
-          distanceMeters: distanceMeters,
-          durationMinutes: durationMinutes,
-        );
-        
-        // 散歩完了シートを表示（今歩いたルートを除外）
-        await showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => WalkCompletionSheet(
-            formattedDistance: gpsState.formattedDistance,
-            formattedDuration: gpsState.formattedDuration,
-            currentRouteId: widget.route.id,
-          ),
-        );
-        if (mounted) Navigator.of(context).pop(route);
-      } else {
+    if (route == null) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('記録の保存に失敗しました'),
-            backgroundColor: Colors.red,
+            content: Text('記録できる位置情報がまだありません。少し歩いてからお試しください'),
+            backgroundColor: Colors.orange,
           ),
         );
       }
+      return;
     }
+
+    final distanceMeters = gpsState.distance;
+    final durationMinutes = (gpsState.elapsedSeconds / 60).ceil();
+
+    // 1. Supabaseに散歩記録を保存
+    final walkSaveService = WalkSaveService();
+    final walkId = await walkSaveService.saveWalk(
+      route: route,
+      userId: userId,
+      walkMode: WalkMode.outing,
+      officialRouteId: widget.route.id,
+    );
+
+    if (!mounted) return;
+
+    // A5: 保存失敗 → 記録は破棄せず、リトライ導線を提示
+    if (walkId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('記録の保存に失敗しました。電波の良い場所で再度お試しください'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 8),
+          action: SnackBarAction(
+            label: '再試行',
+            textColor: Colors.white,
+            onPressed: _finishWalking,
+          ),
+        ),
+      );
+      return; // finalizeWalk は呼ばない → データ保持
+    }
+
+    // === ここから保存成功 ===
+
+    // GA4: walk_complete (Key Event 候補・最重要 conversion)
+    unawaited(ref.read(analyticsServiceProvider).logWalkComplete(
+          routeSlug: widget.route.id,
+          walkMode: WalkMode.outing.value,
+          distanceM: distanceMeters.round(),
+          durationSec: gpsState.elapsedSeconds,
+        ));
+
+    if (kDebugMode) {
+      appLog('✅ 散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
+    }
+
+    // A5: 保存成功したので記録を確定終了してリセット
+    gpsNotifier.finalizeWalk();
+    ref.read(activeWalkProvider.notifier).endWalk();
+
+    // 2. 写真をアップロード（A8: 失敗を集計してユーザーに通知）
+    int photoFailCount = 0;
+    if (_photoFiles.isNotEmpty) {
+      if (kDebugMode) {
+        appLog('📸 写真アップロード開始: ${_photoFiles.length}枚');
+      }
+      for (int i = 0; i < _photoFiles.length; i++) {
+        final file = _photoFiles[i];
+        final photoUrl = await _photoService.uploadWalkPhoto(
+          file: file,
+          walkId: walkId,
+          userId: userId,
+          displayOrder: i + 1,
+        );
+        if (photoUrl == null) {
+          photoFailCount++;
+          if (kDebugMode) {
+            appLog('❌ 写真${i + 1}/${_photoFiles.length}アップロード失敗');
+          }
+        }
+      }
+    }
+
+    if (!mounted) return;
+
+    // A8: 写真アップロード失敗をユーザーに通知（散歩記録自体は保存済み）
+    if (photoFailCount > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('写真$photoFailCount枚のアップロードに失敗しました（散歩記録は保存されています）'),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    }
+
+    // 3. プロフィールを自動更新
+    final profileService = ProfileService();
+    await profileService.updateWalkingProfile(
+      userId: userId,
+      distanceMeters: distanceMeters,
+      durationMinutes: durationMinutes,
+    );
+
+    if (!mounted) return;
+
+    // 散歩完了シートを表示（今歩いたルートを除外）
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => WalkCompletionSheet(
+        formattedDistance: gpsState.formattedDistance,
+        formattedDuration: gpsState.formattedDuration,
+        currentRouteId: widget.route.id,
+      ),
+    );
+    if (mounted) Navigator.of(context).pop(route);
   }
 
   /// 写真を撮影
@@ -397,7 +493,14 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
 
     // CEO決定 案B: マップをSafeArea内に収め、上部はベージュ帯で塗る（Wildbounds哲学）
     final topInset = MediaQuery.of(context).padding.top;
-    return Scaffold(
+    // A3: システムバック・スワイプバックも _handleBackRequest を必ず通す
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _handleBackRequest();
+      },
+      child: Scaffold(
       backgroundColor: WanWalkColors.bgSecondary,
       body: Stack(
         children: [
@@ -428,6 +531,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           // フローティングアクションボタン（ピン投稿）
           _buildFloatingButtons(gpsState),
         ],
+      ),
       ),
     );
   }
@@ -534,7 +638,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
+                // A3: PopScope と同じ戻るハンドラを通す（最小化 or 中止を選択）
+                onPressed: _handleBackRequest,
               ),
               Expanded(
                 child: Text(

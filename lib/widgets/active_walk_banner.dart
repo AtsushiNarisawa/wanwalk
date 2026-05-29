@@ -4,17 +4,18 @@ import '../config/wanwalk_colors.dart';
 import '../config/wanwalk_spacing.dart';
 import '../config/wanwalk_typography.dart';
 import '../providers/gps_provider_riverpod.dart';
+import '../providers/active_walk_provider.dart';
 import '../models/walk_mode.dart';
 import '../screens/daily/daily_walking_screen.dart';
+import '../screens/outing/walking_screen.dart';
 
 /// 散歩中バナーウィジェット
-/// 
+///
 /// 散歩記録中の場合、画面下部に固定表示され、
 /// タップすると散歩中画面へ遷移する
-/// 
-/// 注意: Outing Walkの場合、ルート情報が必要なため、
-/// バナーからの遷移は実装していません。
-/// Daily Walk専用の機能です。
+///
+/// A3: おでかけ散歩も activeWalkProvider に保持したルート実体を使って
+/// 記録画面へ復帰できる（最小化→復帰フロー）。
 class ActiveWalkBanner extends ConsumerWidget {
   const ActiveWalkBanner({super.key});
 
@@ -31,7 +32,7 @@ class ActiveWalkBanner extends ConsumerWidget {
       elevation: 8,
       color: WanWalkColors.primary,
       child: InkWell(
-        onTap: () => _navigateToWalkingScreen(context, gpsState),
+        onTap: () => _navigateToWalkingScreen(context, ref, gpsState),
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: WanWalkSpacing.md,
@@ -140,19 +141,29 @@ class ActiveWalkBanner extends ConsumerWidget {
     );
   }
 
-  /// 散歩中画面へ遷移
-  void _navigateToWalkingScreen(BuildContext context, GpsState gpsState) {
+  /// 散歩中画面へ遷移（A3: おでかけ散歩も復帰可能）
+  void _navigateToWalkingScreen(
+      BuildContext context, WidgetRef ref, GpsState gpsState) {
     if (gpsState.walkMode == WalkMode.daily) {
-      // Daily Walk画面へ遷移
-      // 注意: push（戻るボタンで戻れる）を使用
+      // Daily Walk画面へ復帰
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const DailyWalkingScreen(),
         ),
       );
+      return;
+    }
+
+    // Outing Walk: activeWalkProvider に保持したルート実体で記録画面へ復帰
+    final outingRoute = ref.read(activeWalkProvider).outingRoute;
+    if (outingRoute != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => WalkingScreen(route: outingRoute),
+        ),
+      );
     } else {
-      // Outing Walk画面は、ルート情報が必要なため、
-      // バナーからの遷移は未対応
+      // 万一ルート実体が失われている場合のフォールバック
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('おでかけ散歩中です。マップタブから確認してください。'),
