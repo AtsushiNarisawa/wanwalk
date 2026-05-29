@@ -3,7 +3,7 @@
 // 設計書: docs/mvp_specs/F0_account_deletion_design.md v1.0
 // 役割: 認証済みユーザーが自身のアカウントを完全削除する。
 //        ① NO ACTION テーブル 4 種を明示削除（route_pins / pin_bookmarks / user_badges / route_favorites）
-//        ② Storage バケット 4 種から uid 配下を再帰削除（user-avatars / walk-photos / pin_photos / dog-photos）
+//        ② Storage バケット 4 種から uid 配下を再帰削除（profile-avatars / walk-photos / pin_photos / dog-photos）
 //        ③ auth.admin.deleteUser(uid) で CASCADE 連鎖削除
 // 認証: verify_jwt: true（ユーザー自身の JWT 必須）
 // 入力: なし（uid は JWT から抽出）
@@ -42,8 +42,10 @@ const NO_ACTION_TABLES = [
 ] as const;
 
 // Storage バケットとプレフィックス規約
+// バケット名はアプリの SupabaseBuckets（lib/config/supabase_config.dart）と一致させること。
+// アバターは profile-avatars（旧コードの 'user-avatars' は実在せず削除漏れの原因だった）。
 const STORAGE_TARGETS: { bucket: string; prefix: (uid: string) => string }[] = [
-  { bucket: 'user-avatars', prefix: (uid) => uid },
+  { bucket: 'profile-avatars', prefix: (uid) => uid },
   { bucket: 'walk-photos', prefix: (uid) => uid },
   { bucket: 'pin_photos', prefix: (uid) => uid },
   { bucket: 'dog-photos', prefix: (uid) => `dogs/${uid}` },
@@ -213,6 +215,15 @@ Deno.serve(async (req: Request) => {
     });
   }
   summary.auth_deleted = true;
+
+  // 部分失敗（Storage/NO ACTION 削除エラー）は Edge Function ログに残し、後追い監査できるようにする。
+  // auth 削除自体は成功しているため UI には成功を返す（A19）。
+  if (errors.length > 0) {
+    console.error(
+      `delete-user partial failure uid=${uid} errors_count=${errors.length}`,
+      JSON.stringify(errors),
+    );
+  }
 
   // 中間エラーがあっても auth 削除さえ成功すれば成功扱い（部分削除も復元不可能・Apple Review 要件は満たす）
   return jsonResp(200, {
