@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/official_route.dart';
 import '../models/recent_pin_post.dart';
+import '../utils/logger.dart';
 
 /// フィードアイテムの種別
 enum FeedItemType {
@@ -38,7 +40,7 @@ final featuredRouteProvider = FutureProvider<OfficialRoute?>((ref) async {
         .from('featured_routes')
         .select('route_id, label, official_routes(*)')
         .eq('is_active', true)
-        .order('display_order')
+        .order('display_order', ascending: true) // A20: ASC 明示（Dart は DESC デフォルト）
         .limit(1);
 
     final list = response as List;
@@ -132,8 +134,9 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
 
   // 4. コミュニティピン（最新10件）
   try {
+    // A7: RPC の正しい引数は p_limit（limit_count は 42883 で恒久的に握り潰されていた）
     final pinsResponse = await supabase
-        .rpc('get_recent_pins', params: {'limit_count': 10});
+        .rpc('get_recent_pins', params: {'p_limit': 10});
 
     for (final pinJson in (pinsResponse as List)) {
       try {
@@ -143,9 +146,14 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
           sortDate: pin.createdAt,
           pin: pin,
         ));
-      } catch (_) {}
+      } catch (e) {
+        if (kDebugMode) appLog('communityPin parse failed: $e');
+      }
     }
-  } catch (_) {}
+  } catch (e) {
+    // A7: サイレント故障を可視化
+    if (kDebugMode) appLog('get_recent_pins failed: $e');
+  }
 
   // ソート（sortDate降順 = 最新順）
   items.sort((a, b) => b.sortDate.compareTo(a.sortDate));

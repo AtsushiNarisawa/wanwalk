@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/home_stats_service.dart';
 import '../models/route_model.dart';
 
@@ -36,7 +35,5 @@ final areasListProvider = FutureProvider<List<AreaModel>>((ref) async {
   return await service.getAreas();
 });
 
-/// 現在のユーザーIDプロバイダー
-final currentUserIdProvider = Provider<String?>((ref) {
-  return Supabase.instance.client.auth.currentUser?.id;
-});
+// A14: currentUserIdProvider の重複定義を削除。
+// 認証系 Provider は auth_provider.dart の currentUserIdProvider に一本化。

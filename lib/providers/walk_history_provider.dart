@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/walk_history_service.dart';
 import '../models/walk_history.dart';
 
@@ -159,10 +158,10 @@ final visitedAreasProvider = FutureProvider.family<List<String>, String>(
   },
 );
 
-/// 現在のユーザーIDプロバイダー
-final currentUserProvider = Provider<String?>((ref) {
-  return Supabase.instance.client.auth.currentUser?.id;
-});
+// A14: currentUserProvider(String?) の重複定義を削除。
+// 認証系 Provider は auth_provider.dart に一本化
+// （currentUserProvider=User? / currentUserIdProvider=String?）。
+// ユーザーID が必要な場合は auth_provider の currentUserIdProvider を使う。
 
 // ============================================================
 // パラメータクラス

@@ -200,6 +200,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         appLog('📤 アバターをアップロード中...');
       }
 
+      // A17: アップロード前に現在のアバターURLを控える（孤児削除用）
+      final oldAvatarUrl = _avatarUrl;
+
       // Supabase Storageにアップロード
       final fileName = 'avatar_${DateTime.now().millisecondsSinceEpoch}.jpg';
       final filePath = '$userId/$fileName';
@@ -215,6 +218,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
       if (kDebugMode) {
         appLog('✅ アバターアップロード成功: $publicUrl');
+      }
+
+      // A17: 旧アバターファイルを削除（孤児蓄積を防止）
+      if (oldAvatarUrl != null && oldAvatarUrl.isNotEmpty) {
+        await _removeOldAvatar(oldAvatarUrl, newPath: filePath);
       }
 
       setState(() {
@@ -238,6 +246,31 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     } finally {
       if (mounted) {
         setState(() => _isUploadingAvatar = false);
+      }
+    }
+  }
+
+  /// A17: 旧アバターファイルを Storage から削除する。
+  ///
+  /// publicUrl から profile-avatars 配下のストレージパスを抽出して remove。
+  /// 新しくアップロードしたファイルは削除しない。失敗しても処理は継続する。
+  Future<void> _removeOldAvatar(String oldUrl, {required String newPath}) async {
+    try {
+      final uri = Uri.parse(oldUrl);
+      final segments = uri.pathSegments;
+      final idx = segments.indexOf(SupabaseBuckets.userAvatars);
+      if (idx == -1 || idx >= segments.length - 1) return;
+      final oldPath = segments.sublist(idx + 1).join('/');
+      if (oldPath.isEmpty || oldPath == newPath) return;
+      await Supabase.instance.client.storage
+          .from(SupabaseBuckets.userAvatars)
+          .remove([oldPath]);
+      if (kDebugMode) {
+        appLog('🗑️ 旧アバター削除: $oldPath');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('旧アバター削除失敗（処理継続）: $e');
       }
     }
   }

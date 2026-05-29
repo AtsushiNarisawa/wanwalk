@@ -30,26 +30,41 @@ class PhotoService {
   }
 
   /// カメラで写真を撮影
-  /// iOS Simulatorではギャラリーから選択（実機ではカメラが使用される）
+  ///
+  /// A16: 実機ではカメラを起動する。Simulator 等カメラ非対応環境では
+  /// pickImage(camera) が例外を投げるため、その場合のみギャラリーにフォールバックする。
+  /// （ユーザーがカメラをキャンセルした場合は null が返るのでフォールバックしない）
   Future<File?> takePhoto() async {
     try {
-      // iOS Simulatorではカメラが使えないため、ギャラリーから選択
-      // 実機では Platform.isIOS && !Platform.environment.containsKey('SIMULATOR_DEVICE_NAME')
-      // でカメラを使用可能
       final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,  // Simulatorでも動作するようにgalleryを使用
+        source: ImageSource.camera,
         maxWidth: 1920,
         maxHeight: 1920,
         imageQuality: 85,
       );
-      
+
       if (image == null) return null;
       return File(image.path);
     } catch (e) {
       if (kDebugMode) {
-        appLog('カメラ撮影エラー: $e');
+        appLog('カメラ起動失敗、ギャラリーにフォールバック: $e');
       }
-      return null;
+      // Simulator 等カメラ非対応環境のフォールバック
+      try {
+        final XFile? image = await _picker.pickImage(
+          source: ImageSource.gallery,
+          maxWidth: 1920,
+          maxHeight: 1920,
+          imageQuality: 85,
+        );
+        if (image == null) return null;
+        return File(image.path);
+      } catch (e2) {
+        if (kDebugMode) {
+          appLog('ギャラリーフォールバックも失敗: $e2');
+        }
+        return null;
+      }
     }
   }
 

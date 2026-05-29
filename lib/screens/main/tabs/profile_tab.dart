@@ -9,6 +9,7 @@ import '../../../config/wanwalk_icons.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/push_notification_provider.dart';
 import '../../../providers/profile_provider.dart';
 import '../../../providers/dog_provider.dart';
 import '../../../providers/user_statistics_provider.dart';
@@ -536,6 +537,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
     if (result == true && context.mounted) {
       try {
+        // A12: ログアウト前にデバイストークンを revoke（認証中に実行）。
+        // 別ユーザーへの誤配信を防ぐ。失敗してもログアウトは継続。
+        await ref.read(pushNotificationServiceProvider).revokeCurrentDeviceToken();
         await Supabase.instance.client.auth.signOut();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

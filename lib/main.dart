@@ -18,6 +18,9 @@ import 'providers/analytics_provider.dart';
 import 'providers/push_notification_provider.dart';
 import 'screens/main/main_screen.dart';
 import 'screens/onboarding/welcome_screen.dart';
+import 'screens/settings/settings_screen.dart';
+import 'screens/auth/auth_selection_screen.dart';
+import 'screens/outing/route_detail_screen.dart';
 import 'services/notification_permission_service.dart';
 import 'services/onboarding_service.dart';
 import 'services/push_notification_service.dart';
@@ -141,6 +144,26 @@ class WanWalkApp extends ConsumerWidget {
       // B1: 通知タップで送られる deep link を受けるための共通 navigatorKey
       navigatorKey: NotificationDeepLink.navigatorKey,
       navigatorObservers: [analyticsObserver],
+      // A6: pushNamed で参照される named route を登録（未登録だと実行時クラッシュ）。
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/settings':
+            return MaterialPageRoute(
+                builder: (_) => const SettingsScreen());
+          case '/login':
+            return MaterialPageRoute(
+                builder: (_) => const AuthSelectionScreen());
+          case '/route_detail':
+            final routeId = settings.arguments as String?;
+            if (routeId != null) {
+              return MaterialPageRoute(
+                  builder: (_) => RouteDetailScreen(routeId: routeId));
+            }
+            return null;
+          default:
+            return null;
+        }
+      },
       home: const SplashScreen(),
     );
   }
