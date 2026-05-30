@@ -22,6 +22,14 @@ class ErrorHandler {
   /// Sentry の初期化が完了したか。`SentryFlutter.init` の `appRunner` 内で `true` をセット。
   static bool sentryReady = false;
 
+  /// A18: 致命例外時にユーザーをフォールバック画面へ誘導するコールバック。
+  /// material/widget 依存を `main.dart` 側に閉じ込めるため、navigatorKey 経由の
+  /// 画面 push は `main.dart` が提供する。未設定（起動超初期）なら Sentry 記録のみ。
+  static void Function()? onFatalError;
+
+  /// フォールバック画面を表示中か（多重 push 防止）。閉じたら `main.dart` が false に戻す。
+  static bool fatalFallbackActive = false;
+
   /// `main.dart` の最初期で1度だけ呼ぶ。Sentry 初期化前でも安全に登録できる。
   static void register() {
     if (_registered) return;
@@ -50,6 +58,9 @@ class ErrorHandler {
 
     PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
       _capture(error, stack: stack, hint: 'PlatformDispatcher.onError');
+      // A18: async/platform 例外（build 外）の致命例外はここを通る。
+      // 白画面放置を避けてフォールバック画面へ誘導する。
+      _maybeShowFallback();
       return true;
     };
 
@@ -61,6 +72,24 @@ class ErrorHandler {
   /// `runZonedGuarded` の onError から呼ぶ。
   static void captureZoneError(Object error, StackTrace stack) {
     _capture(error, stack: stack, hint: 'runZonedGuarded');
+    // A18: zone 内未捕捉例外もフォールバック画面へ誘導。
+    _maybeShowFallback();
+  }
+
+  /// A18: 致命例外時にフォールバック画面誘導を 1 回だけ起動する。
+  /// build 時例外（FlutterError.onError）は `ErrorWidget.builder` 側が
+  /// フォールバックを出すため、ここからは呼ばない（二重表示回避）。
+  static void _maybeShowFallback() {
+    final cb = onFatalError;
+    // navigator 未マウント（起動超初期）や多重発火時は誘導しない。
+    if (cb == null || fatalFallbackActive) return;
+    fatalFallbackActive = true;
+    try {
+      cb();
+    } catch (_) {
+      // 誘導自体の失敗で二次例外ループに陥らないよう握り、フラグを戻す。
+      fatalFallbackActive = false;
+    }
   }
 
   /// 任意の場所からの非致命報告。例：Supabase クエリ失敗時の `try-catch` ブロック。

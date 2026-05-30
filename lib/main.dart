@@ -27,6 +27,7 @@ import 'services/push_notification_service.dart';
 import 'utils/error_handler.dart';
 import 'utils/logger.dart';
 import 'utils/notification_deep_link.dart';
+import 'utils/pii_scrubber.dart';
 import 'widgets/error_fallback_widget.dart';
 
 /// Firebase Messaging のバックグラウンドハンドラ。
@@ -53,6 +54,37 @@ void main() {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       ErrorHandler.register();
+
+      // A18: 致命例外（async/platform/zone）時の白画面放置を避け、
+      // 既存の共通 navigatorKey 経由でフォールバック画面へ誘導する。
+      // material/widget 依存をここに閉じ込め、ErrorHandler は callback を呼ぶだけにする。
+      ErrorHandler.onFatalError = () {
+        final nav = NotificationDeepLink.navigatorKey.currentState;
+        if (nav == null) {
+          // navigator 未マウント（起動超初期）は誘導不能。Sentry 記録のみで継続。
+          ErrorHandler.fatalFallbackActive = false;
+          return;
+        }
+        nav
+            .push(
+              MaterialPageRoute(
+                settings: const RouteSettings(name: 'error_fallback'),
+                builder: (_) => ErrorFallbackWidget(
+                  onRetry: () {
+                    final n = NotificationDeepLink.navigatorKey.currentState;
+                    ErrorHandler.fatalFallbackActive = false;
+                    if (n != null && n.canPop()) n.pop();
+                  },
+                  onGoHome: () {
+                    final n = NotificationDeepLink.navigatorKey.currentState;
+                    ErrorHandler.fatalFallbackActive = false;
+                    if (n != null) n.popUntil((route) => route.isFirst);
+                  },
+                ),
+              ),
+            )
+            .then((_) => ErrorHandler.fatalFallbackActive = false);
+      };
 
       await initializeDateFormatting('ja', null);
 
@@ -110,6 +142,11 @@ void main() {
             options.debug = kDebugMode;
             options.attachScreenshot = false; // 個人情報配慮
             options.maxBreadcrumbs = 30;
+            // A15: PII マスキング。SDK の native 自動 PII 付与を明示的に無効化し、
+            // アプリが積む payload（不具合報告の自由記述・例外メッセージ・breadcrumb・extra）を
+            // beforeSend で一律 redact する。ReportIssue の「個人情報は含まれません」表記と整合。
+            options.sendDefaultPii = false;
+            options.beforeSend = (event, hint) => scrubSentryEvent(event);
           },
           appRunner: () async {
             await ErrorHandler.markSentryReady();
