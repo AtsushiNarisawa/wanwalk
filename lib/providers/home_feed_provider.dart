@@ -123,7 +123,8 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
       // ピックアップルートはフィードから除外（上部に別枠で表示するため）
       if (featuredRouteId != null && route.id == featuredRouteId) continue;
 
-      final createdAt = route.createdAt ?? now.subtract(const Duration(days: 30));
+      // createdAt は非null契約のため fallback は到達不能（dead_null_aware 解消）
+      final createdAt = route.createdAt;
       items.add(FeedItem(
         type: FeedItemType.officialRoute,
         sortDate: createdAt,
