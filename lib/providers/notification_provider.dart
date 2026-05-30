@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_statistics.dart';
 import '../services/notification_service.dart';
-import 'auth_provider.dart';
 import '../utils/logger.dart';
 
 /// NotificationService プロバイダー

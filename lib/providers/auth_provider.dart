@@ -22,11 +22,14 @@ class AuthState {
     User? currentUser,
     bool? isLoading,
     String? errorMessage,
+    bool clearError = false,
   }) {
     return AuthState(
       currentUser: currentUser ?? this.currentUser,
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      // clearError=true のとき明示的に null へ。?? では nullable を消せないため
+      // (spot_review_provider.dart と同パターン)
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
@@ -63,7 +66,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String password,
     required String displayName,
   }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       final response = await _authService.signUp(
@@ -83,7 +86,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String email,
     required String password,
   }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       final response = await _authService.signIn(
@@ -99,7 +102,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Apple Sign In
   Future<void> signInWithApple() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, clearError: true);
     try {
       final response = await _authService.signInWithApple();
       state = state.copyWith(currentUser: response.user, isLoading: false);
@@ -111,7 +114,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Google Sign In
   Future<void> signInWithGoogle() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, clearError: true);
     try {
       final response = await _authService.signInWithGoogle();
       state = state.copyWith(currentUser: response.user, isLoading: false);
@@ -136,7 +139,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// パスワードリセット
   Future<void> resetPassword(String email) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       await _authService.resetPassword(email);
@@ -159,7 +162,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// エラーメッセージをクリア
   void clearError() {
-    state = state.copyWith(errorMessage: null);
+    state = state.copyWith(clearError: true);
   }
 }
 

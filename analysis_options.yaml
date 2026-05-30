@@ -29,8 +29,6 @@ linter:
 
 analyzer:
   exclude:
-    - lib/services/sync_service.dart
-    - lib/providers/notification_provider.dart
-    - lib/screens/social/notification_center_screen.dart
-    - lib/widgets/sync_status_card.dart
+    # 旧3ファイルは commit 180866e で物理削除済み（死にエントリを除去）。
+    # notification_provider.dart は解析対象へ復帰（A24・盲点解消）。
     - test/widget_test.dart

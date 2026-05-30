@@ -110,18 +110,19 @@ final nearbyRoutesProvider = FutureProvider.family<List<OfficialRoute>, NearbyRo
       );
 
       return (response as List).map((json) {
+        // RPC find_nearby_routes の RETURNS TABLE 実カラム名に合わせる
+        // (id / title / estimated_duration_minutes。total_pins は未返却)
         return OfficialRoute.fromJson({
-          'id': json['route_id'],
-          'name': json['route_name'],
+          'id': json['id'],
+          'name': json['title'],
           'area_id': '',
           'description': '',
           'start_location': null,
           'end_location': null,
           'route_line': null,
           'distance_meters': json['distance_meters'],
-          'estimated_minutes': json['estimated_minutes'],
+          'estimated_minutes': json['estimated_duration_minutes'],
           'difficulty_level': json['difficulty_level'],
-          'total_pins': json['total_pins'],
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
         });
