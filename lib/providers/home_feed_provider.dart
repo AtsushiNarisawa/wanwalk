@@ -156,25 +156,43 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
     if (kDebugMode) appLog('get_recent_pins failed: $e');
   }
 
-  // ソート（sortDate降順 = 最新順）
-  items.sort((a, b) => b.sortDate.compareTo(a.sortDate));
+  return composeHomeFeed(items);
+});
 
-  // バランス調整: ルート最大10件、ルート2件ごとにピンを1件挟む
+/// ホームフィードの並び替え + バランス調整（純粋関数・A26 でテスト対象に切り出し）。
+///
+/// 1. sortDate 降順（最新順）にソート
+/// 2. ルート（official/seasonal）は最大 10 件
+/// 3. walkSummary を先頭に固定
+/// 4. ルート 2 件ごとに非ルート（ピン/エリア特集）を 1 件インターリーブ
+///
+/// 入力リストは破壊しない（コピーしてからソート）。
+List<FeedItem> composeHomeFeed(List<FeedItem> items) {
+  final sorted = [...items]..sort((a, b) => b.sortDate.compareTo(a.sortDate));
+
   final balanced = <FeedItem>[];
-  final routeItems = items.where((i) =>
-    i.type == FeedItemType.officialRoute || i.type == FeedItemType.seasonalRoute
-  ).take(10).toList();
-  final nonRouteItems = items.where((i) =>
-    i.type != FeedItemType.officialRoute && i.type != FeedItemType.seasonalRoute
-  ).toList();
+  final routeItems = sorted
+      .where((i) =>
+          i.type == FeedItemType.officialRoute ||
+          i.type == FeedItemType.seasonalRoute)
+      .take(10)
+      .toList();
+  final nonRouteItems = sorted
+      .where((i) =>
+          i.type != FeedItemType.officialRoute &&
+          i.type != FeedItemType.seasonalRoute)
+      .toList();
 
-  // walkSummaryは先頭
-  balanced.addAll(nonRouteItems.where((i) => i.type == FeedItemType.walkSummary));
+  // walkSummary は先頭
+  balanced.addAll(
+      nonRouteItems.where((i) => i.type == FeedItemType.walkSummary));
 
   // ルートとピン/エリアをインターリーブ
   int routeIdx = 0;
   int nonRouteIdx = 0;
-  final otherNonRoute = nonRouteItems.where((i) => i.type != FeedItemType.walkSummary).toList();
+  final otherNonRoute = nonRouteItems
+      .where((i) => i.type != FeedItemType.walkSummary)
+      .toList();
 
   while (routeIdx < routeItems.length || nonRouteIdx < otherNonRoute.length) {
     for (int i = 0; i < 2 && routeIdx < routeItems.length; i++) {
@@ -186,4 +204,4 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
   }
 
   return balanced;
-});
+}
