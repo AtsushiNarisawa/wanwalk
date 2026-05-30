@@ -74,10 +74,10 @@ class AuthService {
         appLog('🟢 [AuthService] user.email: ${response.user?.email}');
       }
 
-      // サインアップ成功時、usersテーブルにプロフィール作成
-      
+      // サインアップ成功時、profiles にプロフィール作成（A13: 読込先と統一）。
+      // upsert で冪等化（再試行・トリガとの競合に強い）。
       if (response.user != null) {
-        await _supabase.from(SupabaseTables.users).insert({
+        await _supabase.from(SupabaseTables.profiles).upsert({
           'id': response.user!.id,
           'email': email,
           'display_name': displayName,
@@ -277,13 +277,13 @@ class AuthService {
   }) async {
     try {
       final existing = await _supabase
-          .from(SupabaseTables.users)
+          .from(SupabaseTables.profiles)
           .select('id')
           .eq('id', userId)
           .maybeSingle();
 
       if (existing == null) {
-        await _supabase.from(SupabaseTables.users).insert({
+        await _supabase.from(SupabaseTables.profiles).insert({
           'id': userId,
           'email': email,
           'display_name': displayName,
@@ -356,10 +356,10 @@ class AuthService {
       if (targetUserId == null) return null;
 
       final response = await _supabase
-          .from(SupabaseTables.users)
+          .from(SupabaseTables.profiles)
           .select()
           .eq('id', targetUserId)
-          .single();
+          .maybeSingle();
 
       return response;
     } catch (e) {
@@ -391,7 +391,7 @@ class AuthService {
       if (updates.isEmpty) return;
 
       await _supabase
-          .from(SupabaseTables.users)
+          .from(SupabaseTables.profiles)
           .update(updates)
           .eq('id', userId!);
     } catch (e) {

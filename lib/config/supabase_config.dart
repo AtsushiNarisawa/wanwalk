@@ -43,6 +43,9 @@ class SupabaseConfig {
 
 /// Supabaseテーブル名の定数
 class SupabaseTables {
+  /// A13: プロフィールの読込/書込はすべて public.profiles に統一。
+  /// （旧 public.users は handle_new_user トリガが書く影テーブルとして当面残置）
+  static const String profiles = 'profiles';
   static const String users = 'users';
   static const String dogs = 'dogs';
   static const String routes = 'routes';
