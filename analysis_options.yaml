@@ -27,8 +27,6 @@ linter:
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 
-analyzer:
-  exclude:
-    # 旧3ファイルは commit 180866e で物理削除済み（死にエントリを除去）。
-    # notification_provider.dart は解析対象へ復帰（A24・盲点解消）。
-    - test/widget_test.dart
+# 静的解析の除外設定なし（本体コード・テストとも全て解析対象）。
+# 旧 exclude（test/widget_test.dart）は A26 で当該ファイルを健全化したため撤去。
+# 旧3ファイルは commit 180866e で物理削除済み・notification_provider.dart は A24 で復帰済み。
