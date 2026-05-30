@@ -17,6 +17,7 @@ import '../routes/public_routes_screen.dart';
 import '../pin/pin_route_picker_screen.dart';
 import '../../providers/official_routes_screen_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/gps_provider_riverpod.dart';
 import '../auth/auth_selection_screen.dart';
 
 /// MainScreen - 新UI（BottomNavigationBar採用）
@@ -51,8 +52,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // 初回起動時にコーチマークを表示
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // A11: アプリ kill/クラッシュで中断した散歩記録があれば復元し、
+      // ActiveWalkBanner から復帰できるようにする。
+      ref.read(gpsProviderRiverpod.notifier).restoreIfAny();
+      // 初回起動時にコーチマークを表示
       _checkAndShowOnboarding();
     });
   }

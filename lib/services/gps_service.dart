@@ -128,8 +128,19 @@ class GpsService {
     _isPaused = false;  // 一時停止状態をリセット
 
     // 位置情報の更新を監視（A4: プラットフォーム別設定で BG 記録を有効化）
-    final locationSettings = _buildLocationSettings();
+    _subscribePositionStream(onStreamError: onStreamError);
 
+    if (kDebugMode) {
+      appLog('ルート記録を開始しました');
+    }
+    return true;
+  }
+
+  /// 位置情報ストリームを購読する（startRecording と restoreState で共用）。
+  ///
+  /// A11: 復元時にも同じ購読ロジックを使うため private メソッドへ切り出した。
+  void _subscribePositionStream({void Function(Object error)? onStreamError}) {
+    final locationSettings = _buildLocationSettings();
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen(
@@ -145,11 +156,30 @@ class GpsService {
       },
       cancelOnError: false,
     );
+  }
 
+  /// A11: 永続化スナップショットから記録状態を復元してストリームを再購読する。
+  ///
+  /// アプリ kill/クラッシュ後の再起動時に呼ぶ。既存ポイント・開始時刻・一時停止状態を
+  /// メモリへ流し込み、位置情報ストリームを再開する。権限が剥奪されていた場合は
+  /// 購読の onError（A10）が発火して呼び出し側へ通知される（点データは保持される）。
+  void restoreState({
+    required List<RoutePoint> points,
+    required DateTime startTime,
+    required bool isPaused,
+    void Function(Object error)? onStreamError,
+  }) {
+    _positionStreamSubscription?.cancel();
+    _currentRoutePoints
+      ..clear()
+      ..addAll(points);
+    _startTime = startTime;
+    _isRecording = true;
+    _isPaused = isPaused;
+    _subscribePositionStream(onStreamError: onStreamError);
     if (kDebugMode) {
-      appLog('ルート記録を開始しました');
+      appLog('🔁 記録状態を復元: points=${_currentRoutePoints.length}, paused=$isPaused');
     }
-    return true;
   }
 
   /// ルート記録を停止

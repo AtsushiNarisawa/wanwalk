@@ -1,9 +1,14 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import '../models/official_route.dart';
 import '../models/route_model.dart';
 import '../models/walk_mode.dart';
+import '../services/active_walk_snapshot.dart';
 import '../services/gps_service.dart';
+import 'active_walk_provider.dart';
+import 'official_route_provider.dart';
 import 'walk_mode_provider.dart';
 
 /// GPS記録の状態
@@ -95,6 +100,9 @@ class GpsNotifier extends StateNotifier<GpsState> {
   /// A9: 現在の一時停止が始まった時刻（停止中のみ非 null）
   DateTime? _pausedAt;
 
+  /// A11: 直近で永続化したポイント数（差分閾値で書込みをスロットルするため）
+  int _lastPersistedPointCount = 0;
+
   GpsNotifier(this.ref) : super(GpsState(walkMode: WalkMode.daily));
 
   /// A9: 一時停止時間を控除した実経過秒を計算する。
@@ -175,6 +183,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
 
         // 定期的に統計情報を更新
         _startStatsUpdater();
+        unawaited(_persistSnapshot()); // A11: 開始直後に1度退避
         return true;
       } else {
         state = state.copyWith(
@@ -197,6 +206,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
     _gpsService.pauseRecording();
     _pausedAt = DateTime.now(); // A9: 停止開始時刻を記録
     state = state.copyWith(isPaused: true);
+    unawaited(_persistSnapshot()); // A11
   }
 
   /// 記録を再開
@@ -210,6 +220,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
       _pausedAt = null;
     }
     state = state.copyWith(isPaused: false);
+    unawaited(_persistSnapshot()); // A11
   }
 
   /// 現在の記録からルートを生成する（A5: 記録状態は変更しない）。
@@ -242,6 +253,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
     _gpsService.finalizeRecording();
     _pausedTotal = Duration.zero;
     _pausedAt = null;
+    unawaited(_clearSnapshot()); // A11: 保存成功＝退避破棄
     state = GpsState(walkMode: state.walkMode);
   }
 
@@ -269,6 +281,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
     );
 
     if (route != null) {
+      unawaited(_clearSnapshot()); // A11: 保存成功＝退避破棄
       state = state.copyWith(
         isInitialized: false, // リセット
         isRecording: false,
@@ -293,8 +306,134 @@ class GpsNotifier extends StateNotifier<GpsState> {
     _gpsService.dispose();
     _pausedTotal = Duration.zero;
     _pausedAt = null;
+    unawaited(_clearSnapshot()); // A11
     // copyWith は null 上書きできないため新規 state でクリーンにリセット
     state = GpsState(walkMode: state.walkMode);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // A11: 記録状態のローカル永続化（アプリ kill/クラッシュからの復元）
+  // ─────────────────────────────────────────────────────────────
+
+  /// 現在の記録状態を SharedPreferences へ退避する（best-effort）。
+  Future<void> _persistSnapshot() async {
+    if (!state.isRecording || state.startTime == null) return;
+    final active = ref.read(activeWalkProvider);
+    final points = _gpsService.currentRoutePoints;
+    _lastPersistedPointCount = points.length;
+    await ActiveWalkSnapshotStore.save(
+      ActiveWalkSnapshot(
+        isPaused: state.isPaused,
+        walkMode: state.walkMode,
+        startTime: state.startTime!,
+        pausedTotalMs: _pausedTotal.inMilliseconds,
+        pausedAt: _pausedAt,
+        points: points,
+        routeId: active.routeId,
+        routeName: active.routeName,
+      ),
+    );
+  }
+
+  /// 退避したスナップショットを破棄する（記録の確定終了・キャンセル時）。
+  Future<void> _clearSnapshot() async {
+    _lastPersistedPointCount = 0;
+    await ActiveWalkSnapshotStore.clear();
+  }
+
+  /// 起動時に1度だけ呼ぶ。退避された記録があれば復元してストリームを再開する。
+  ///
+  /// 冪等：既に記録中なら何もしない。破損・点なしのスナップショットは破棄して通常起動。
+  /// おでかけ散歩は公式ルート実体を再取得し、ActiveWalkBanner から復帰可能にする。
+  Future<bool> restoreIfAny() async {
+    if (state.isRecording) return false; // 二重復元防止
+    final snapshot = await ActiveWalkSnapshotStore.load();
+    if (snapshot == null) return false;
+    if (snapshot.points.isEmpty) {
+      await ActiveWalkSnapshotStore.clear();
+      return false;
+    }
+
+    try {
+      _gpsService.restoreState(
+        points: snapshot.points,
+        startTime: snapshot.startTime,
+        isPaused: snapshot.isPaused,
+        onStreamError: (e) {
+          state = state.copyWith(
+            errorMessage:
+                '位置情報の取得が中断されました。権限やGPSの状態を確認してください',
+          );
+        },
+      );
+
+      _pausedTotal = Duration(milliseconds: snapshot.pausedTotalMs);
+      _pausedAt = snapshot.pausedAt;
+      _lastPersistedPointCount = snapshot.points.length;
+
+      // 距離を再計算
+      double totalDistance = 0.0;
+      for (int i = 1; i < snapshot.points.length; i++) {
+        totalDistance += _calculateDistance(
+            snapshot.points[i - 1].latLng, snapshot.points[i].latLng);
+      }
+
+      // 経過秒を再計算（A9: 一時停止控除込み・state 確定前なので手計算）
+      final now = DateTime.now();
+      var paused = Duration(milliseconds: snapshot.pausedTotalMs);
+      if (snapshot.pausedAt != null) {
+        paused += now.difference(snapshot.pausedAt!);
+      }
+      final elapsedRaw = now.difference(snapshot.startTime).inSeconds -
+          paused.inSeconds;
+
+      state = GpsState(
+        isInitialized: true,
+        isRecording: true,
+        isPaused: snapshot.isPaused,
+        currentLocation: snapshot.points.last.latLng,
+        currentRoutePoints: snapshot.points,
+        walkMode: snapshot.walkMode,
+        startTime: snapshot.startTime,
+        distance: totalDistance,
+        elapsedSeconds: elapsedRaw < 0 ? 0 : elapsedRaw,
+      );
+
+      // ActiveWalkBanner 復帰用に散歩状態も復元
+      if (snapshot.walkMode == WalkMode.outing && snapshot.routeId != null) {
+        OfficialRoute? route;
+        try {
+          route =
+              await ref.read(routeByIdProvider(snapshot.routeId!).future);
+        } catch (_) {
+          route = null; // オフライン等で再取得失敗でも点データは保持済み
+        }
+        ref.read(activeWalkProvider.notifier).startWalk(
+              mode: WalkMode.outing,
+              routeId: snapshot.routeId,
+              routeName: snapshot.routeName,
+              outingRoute: route,
+            );
+      } else {
+        ref.read(activeWalkProvider.notifier).startWalk(mode: WalkMode.daily);
+      }
+
+      _startStatsUpdater();
+      return true;
+    } catch (e) {
+      // 復元失敗は通常起動へフォールバック（壊れたスナップショットを残さない）
+      await ActiveWalkSnapshotStore.clear();
+      _resetAfterFailedRestore();
+      return false;
+    }
+  }
+
+  void _resetAfterFailedRestore() {
+    _gpsService.dispose();
+    _pausedTotal = Duration.zero;
+    _pausedAt = null;
+    _lastPersistedPointCount = 0;
+    state = GpsState(walkMode: WalkMode.daily);
   }
 
   /// 定期的に統計情報を更新（距離・時間・ポイント数）
@@ -324,6 +463,10 @@ class GpsNotifier extends StateNotifier<GpsState> {
           distance: totalDistance,
           elapsedSeconds: elapsed,
         );
+        // A11: 一定間隔（直近退避から +5 点）で記録をローカル退避
+        if (points.length - _lastPersistedPointCount >= 5) {
+          unawaited(_persistSnapshot());
+        }
         return true;
       } else if (state.isRecording && state.isPaused) {
         // 一時停止中は時間だけ停止、ポイントは更新
