@@ -69,7 +69,7 @@ class DailyWalkDetailScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(WanWalkSpacing.sm),
                   decoration: BoxDecoration(
-                    color: WanWalkColors.accent.withOpacity(0.1),
+                    color: WanWalkColors.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -121,7 +121,7 @@ class DailyWalkDetailScreen extends StatelessWidget {
                   vertical: WanWalkSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: WanWalkColors.primary.withOpacity(0.1),
+                  color: WanWalkColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -220,10 +220,10 @@ class DailyWalkDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: WanWalkColors.accent.withOpacity(0.05),
+        color: WanWalkColors.accent.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: WanWalkColors.accent.withOpacity(0.2),
+          color: WanWalkColors.accent.withValues(alpha: 0.2),
         ),
       ),
       child: Column(

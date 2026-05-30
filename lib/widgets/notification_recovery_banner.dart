@@ -28,7 +28,7 @@ class NotificationRecoveryBanner extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Material(
-        color: WanWalkColors.primary.withOpacity(0.06),
+        color: WanWalkColors.primary.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),

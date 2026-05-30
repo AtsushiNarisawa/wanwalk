@@ -272,7 +272,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
             margin: const EdgeInsets.all(WanWalkSpacing.lg),
             padding: const EdgeInsets.all(WanWalkSpacing.md),
             decoration: BoxDecoration(
-              color: WanWalkColors.accent.withOpacity(0.1),
+              color: WanWalkColors.accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -442,8 +442,8 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
               icon,
               size: 80,
               color: isDark
-                  ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                  : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+                  ? WanWalkColors.textSecondaryDark.withValues(alpha: 0.5)
+                  : WanWalkColors.textSecondaryLight.withValues(alpha: 0.5),
             ),
             const SizedBox(height: WanWalkSpacing.lg),
             Text(
@@ -483,7 +483,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
             Icon(
               Icons.error_outline,
               size: 80,
-              color: Colors.red.withOpacity(0.5),
+              color: Colors.red.withValues(alpha: 0.5),
             ),
             const SizedBox(height: WanWalkSpacing.lg),
             Text(
@@ -522,7 +522,7 @@ class _WalkHistoryScreenState extends ConsumerState<WalkHistoryScreen>
         color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -750,10 +750,10 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(WanWalkSpacing.md),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -849,7 +849,7 @@ class _SummaryCardError extends StatelessWidget {
         child: Icon(
           Icons.error_outline,
           size: 24,
-          color: Colors.red.withOpacity(0.5),
+          color: Colors.red.withValues(alpha: 0.5),
         ),
       ),
     );

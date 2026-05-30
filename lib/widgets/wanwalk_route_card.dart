@@ -59,7 +59,7 @@ class WanWalkRouteCard extends StatelessWidget {
           borderRadius: WanWalkSpacing.borderRadiusXL,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -151,7 +151,7 @@ class WanWalkRouteCard extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.black.withOpacity(0.3),
+                  Colors.black.withValues(alpha: 0.3),
                 ],
               ),
               borderRadius: const BorderRadius.vertical(
@@ -175,7 +175,7 @@ class WanWalkRouteCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -288,7 +288,7 @@ class WanWalkRouteCard extends StatelessWidget {
             vertical: WanWalkSpacing.xxs,
           ),
           decoration: BoxDecoration(
-            color: WanWalkColors.secondary.withOpacity(0.1),
+            color: WanWalkColors.secondary.withValues(alpha: 0.1),
             borderRadius: WanWalkSpacing.borderRadiusMD,
           ),
           child: Text(

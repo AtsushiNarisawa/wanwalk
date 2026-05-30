@@ -288,7 +288,7 @@ class _MapScreenState extends State<MapScreen> {
                         Container(
                           padding: const EdgeInsets.all(WanWalkSpacing.sm),
                           decoration: BoxDecoration(
-                            color: WanWalkColors.accent.withOpacity(0.1),
+                            color: WanWalkColors.accent.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -685,7 +685,7 @@ class _MapScreenState extends State<MapScreen> {
                           border: Border.all(color: Colors.white, width: 4),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               blurRadius: 12,
                               spreadRadius: 2,
                             ),
@@ -707,7 +707,7 @@ class _MapScreenState extends State<MapScreen> {
           if (_isRecording)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
               ),
             ),
 
@@ -737,7 +737,7 @@ class _MapScreenState extends State<MapScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -778,14 +778,14 @@ class _MapScreenState extends State<MapScreen> {
     return Container(
       decoration: BoxDecoration(
         color: isDark 
-            ? WanWalkColors.surfaceDark.withOpacity(0.95)
-            : Colors.white.withOpacity(0.95),
+            ? WanWalkColors.surfaceDark.withValues(alpha: 0.95)
+            : Colors.white.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(WanWalkSpacing.radiusXXL),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -940,14 +940,14 @@ class _MapScreenState extends State<MapScreen> {
     return Container(
       decoration: BoxDecoration(
         color: isDark 
-            ? WanWalkColors.surfaceDark.withOpacity(0.95)
-            : Colors.white.withOpacity(0.95),
+            ? WanWalkColors.surfaceDark.withValues(alpha: 0.95)
+            : Colors.white.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(WanWalkSpacing.radiusXXL),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, -10),
           ),

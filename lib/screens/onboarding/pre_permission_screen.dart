@@ -76,7 +76,7 @@ class _PrePermissionScreenState extends ConsumerState<PrePermissionScreen> {
                 width: 96,
                 height: 96,
                 decoration: BoxDecoration(
-                  color: WanWalkColors.primary.withOpacity(0.08),
+                  color: WanWalkColors.primary.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -197,7 +197,7 @@ class _BulletLine extends StatelessWidget {
           width: 4,
           height: 4,
           decoration: BoxDecoration(
-            color: WanWalkColors.primary.withOpacity(0.6),
+            color: WanWalkColors.primary.withValues(alpha: 0.6),
             shape: BoxShape.circle,
           ),
         ),

@@ -167,7 +167,7 @@ class _OutingWalkDetailScreenState extends ConsumerState<OutingWalkDetailScreen>
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -361,7 +361,7 @@ class _OutingWalkDetailScreenState extends ConsumerState<OutingWalkDetailScreen>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -439,7 +439,7 @@ class _OutingWalkDetailScreenState extends ConsumerState<OutingWalkDetailScreen>
                     vertical: WanWalkSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: WanWalkColors.accent.withOpacity(0.2),
+                    color: WanWalkColors.accent.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -502,8 +502,8 @@ class _OutingWalkDetailScreenState extends ConsumerState<OutingWalkDetailScreen>
             Icons.push_pin_outlined,
             size: 48,
             color: isDark
-                ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+                ? WanWalkColors.textSecondaryDark.withValues(alpha: 0.5)
+                : WanWalkColors.textSecondaryLight.withValues(alpha: 0.5),
           ),
           const SizedBox(height: WanWalkSpacing.md),
           Text(
@@ -518,8 +518,8 @@ class _OutingWalkDetailScreenState extends ConsumerState<OutingWalkDetailScreen>
             '次の散歩で素敵な場所を見つけたら\nピンを立ててみましょう',
             style: WanWalkTypography.bodySmall.copyWith(
               color: isDark
-                  ? WanWalkColors.textSecondaryDark.withOpacity(0.7)
-                  : WanWalkColors.textSecondaryLight.withOpacity(0.7),
+                  ? WanWalkColors.textSecondaryDark.withValues(alpha: 0.7)
+                  : WanWalkColors.textSecondaryLight.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -609,7 +609,7 @@ class _StatRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(WanWalkSpacing.sm),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -748,7 +748,7 @@ class _WalkPinCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -953,7 +953,7 @@ class _WalkPinCard extends StatelessWidget {
         vertical: WanWalkSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.1),
+        color: badgeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

@@ -43,7 +43,7 @@ class _PublicRoutesMapViewState extends State<PublicRoutesMapView> {
           // ヘッダー
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Theme.of(context).primaryColor.withOpacity(0.05),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
             child: Row(
               children: [
                 Icon(
@@ -231,7 +231,7 @@ class _PublicRoutesMapViewState extends State<PublicRoutesMapView> {
         polylines: [
           Polyline(
             points: route.points.map((p) => p.latLng).toList(),
-            color: color.withOpacity(0.7),
+            color: color.withValues(alpha: 0.7),
             strokeWidth: 3.0,
           ),
         ],
@@ -271,7 +271,7 @@ class _PublicRoutesMapViewState extends State<PublicRoutesMapView> {
                   border: Border.all(color: Colors.white, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),

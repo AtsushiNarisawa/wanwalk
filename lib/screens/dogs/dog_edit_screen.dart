@@ -367,7 +367,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                       children: [
                         CircleAvatar(
                           radius: 60,
-                          backgroundColor: WanWalkColors.accent.withOpacity(0.2),
+                          backgroundColor: WanWalkColors.accent.withValues(alpha: 0.2),
                           backgroundImage: _getAvatarImage(),
                           child: _getAvatarImage() == null
                               ? Icon(
@@ -381,7 +381,7 @@ class _DogEditScreenState extends ConsumerState<DogEditScreen> {
                           Positioned.fill(
                             child: CircleAvatar(
                               radius: 60,
-                              backgroundColor: Colors.black.withOpacity(0.5),
+                              backgroundColor: Colors.black.withValues(alpha: 0.5),
                               child: const CircularProgressIndicator(
                                 color: Colors.white,
                               ),

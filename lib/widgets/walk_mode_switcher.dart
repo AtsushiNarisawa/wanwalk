@@ -25,12 +25,12 @@ class WalkModeSwitcher extends ConsumerWidget {
         color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(  // 枠線を追加（目立たせる）
-          color: WanWalkColors.accent.withOpacity(0.3),
+          color: WanWalkColors.accent.withValues(alpha: 0.3),
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: WanWalkColors.accent.withOpacity(0.15),  // accentカラーの影に変更
+            color: WanWalkColors.accent.withValues(alpha: 0.15),  // accentカラーの影に変更
             blurRadius: 15,  // 10 → 15 に変更（より強調）
             offset: const Offset(0, 6),  // 4 → 6 に変更
           ),
@@ -131,7 +131,7 @@ class _ModeButton extends StatelessWidget {
               mode.description,
               style: WanWalkTypography.caption.copyWith(
                 color: isSelected
-                    ? Colors.white.withOpacity(0.9)
+                    ? Colors.white.withValues(alpha: 0.9)
                     : (isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight),
               ),
               textAlign: TextAlign.center,

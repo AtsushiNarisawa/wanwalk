@@ -46,13 +46,13 @@ class NotificationItem extends StatelessWidget {
             color: notification.isRead
                 ? (isDark ? WanWalkColors.cardDark : Colors.white)
                 : (isDark
-                    ? WanWalkColors.accent.withOpacity(0.1)
-                    : WanWalkColors.accent.withOpacity(0.05)),
+                    ? WanWalkColors.accent.withValues(alpha: 0.1)
+                    : WanWalkColors.accent.withValues(alpha: 0.05)),
             borderRadius: BorderRadius.circular(12),
             border: notification.isRead
                 ? null
                 : Border.all(
-                    color: WanWalkColors.accent.withOpacity(0.3),
+                    color: WanWalkColors.accent.withValues(alpha: 0.3),
                     width: 1,
                   ),
           ),
@@ -154,7 +154,7 @@ class NotificationItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Icon(

@@ -93,7 +93,7 @@ class UserProfileScreen extends ConsumerWidget {
           // アバター
           CircleAvatar(
             radius: 50,
-            backgroundColor: WanWalkColors.accent.withOpacity(0.2),
+            backgroundColor: WanWalkColors.accent.withValues(alpha: 0.2),
             backgroundImage: profile?.avatarUrl != null
                 ? NetworkImage(profile!.avatarUrl!)
                 : null,

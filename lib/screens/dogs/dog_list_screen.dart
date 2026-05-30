@@ -186,7 +186,7 @@ class _DogListScreenState extends ConsumerState<DogListScreen> {
                   // 犬のアバター
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: WanWalkColors.accent.withOpacity(0.2),
+                    backgroundColor: WanWalkColors.accent.withValues(alpha: 0.2),
                     backgroundImage: dog.photoUrl != null
                         ? NetworkImage(dog.photoUrl!)
                         : null,

@@ -106,7 +106,7 @@ class WanWalkErrorCard extends StatelessWidget {
       padding: const EdgeInsets.all(WanWalkSpacing.lg),
       decoration: BoxDecoration(
         color: isDark 
-            ? WanWalkColors.surfaceDark.withOpacity(0.5)
+            ? WanWalkColors.surfaceDark.withValues(alpha: 0.5)
             : WanWalkColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -188,8 +188,8 @@ class WanWalkEmptyState extends StatelessWidget {
               icon,
               size: 80,
               color: isDark 
-                  ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                  : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+                  ? WanWalkColors.textSecondaryDark.withValues(alpha: 0.5)
+                  : WanWalkColors.textSecondaryLight.withValues(alpha: 0.5),
             ),
           const SizedBox(height: WanWalkSpacing.xl),
           
@@ -259,7 +259,7 @@ class WanWalkEmptyCard extends StatelessWidget {
       padding: const EdgeInsets.all(WanWalkSpacing.xl),
       decoration: BoxDecoration(
         color: isDark 
-            ? WanWalkColors.surfaceDark.withOpacity(0.5)
+            ? WanWalkColors.surfaceDark.withValues(alpha: 0.5)
             : WanWalkColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -275,8 +275,8 @@ class WanWalkEmptyCard extends StatelessWidget {
             icon,
             size: 48,
             color: isDark 
-                ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+                ? WanWalkColors.textSecondaryDark.withValues(alpha: 0.5)
+                : WanWalkColors.textSecondaryLight.withValues(alpha: 0.5),
           ),
           const SizedBox(height: WanWalkSpacing.md),
           Text(

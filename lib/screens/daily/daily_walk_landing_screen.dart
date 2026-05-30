@@ -56,7 +56,7 @@ class DailyWalkLandingScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(WanWalkSpacing.xl),
                 decoration: BoxDecoration(
-                  color: WanWalkColors.accent.withOpacity(0.1),
+                  color: WanWalkColors.accent.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

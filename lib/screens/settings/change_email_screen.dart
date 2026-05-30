@@ -173,7 +173,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                   padding: const EdgeInsets.all(WanWalkSpacing.medium),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? Colors.blue.shade900.withOpacity(0.3)
+                        ? Colors.blue.shade900.withValues(alpha: 0.3)
                         : Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -211,7 +211,7 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
                   padding: const EdgeInsets.all(WanWalkSpacing.medium),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? WanWalkColors.cardDark.withOpacity(0.5)
+                        ? WanWalkColors.cardDark.withValues(alpha: 0.5)
                         : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),

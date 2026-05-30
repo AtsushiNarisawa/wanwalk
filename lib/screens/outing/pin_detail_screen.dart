@@ -225,7 +225,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                   color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: WanWalkColors.accent.withOpacity(0.3),
+                    color: WanWalkColors.accent.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -242,14 +242,14 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                               errorBuilder: (_, __, ___) => Container(
                                 width: 60,
                                 height: 60,
-                                color: WanWalkColors.accent.withOpacity(0.1),
+                                color: WanWalkColors.accent.withValues(alpha: 0.1),
                                 child: Icon(Icons.map, color: WanWalkColors.accent),
                               ),
                             )
                           : Container(
                               width: 60,
                               height: 60,
-                              color: WanWalkColors.accent.withOpacity(0.1),
+                              color: WanWalkColors.accent.withValues(alpha: 0.1),
                               child: Icon(Icons.map, color: WanWalkColors.accent),
                             ),
                     ),
@@ -364,7 +364,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
         vertical: WanWalkSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.1),
+        color: badgeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: badgeColor,
@@ -453,7 +453,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                     size: 40,
                     shadows: [
                       Shadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -500,7 +500,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.2),
+                  color: Colors.amber.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -745,7 +745,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
           error: (error, _) => Container(
             padding: const EdgeInsets.all(WanWalkSpacing.md),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -873,7 +873,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
         vertical: WanWalkSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: WanWalkColors.accent.withOpacity(0.1),
+        color: WanWalkColors.accent.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

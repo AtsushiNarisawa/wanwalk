@@ -210,7 +210,7 @@ class WanWalkTypography {
   
   /// テキストスタイルに透明度を適用
   static TextStyle withOpacity(TextStyle style, Color color, double opacity) {
-    return style.copyWith(color: color.withOpacity(opacity));
+    return style.copyWith(color: color.withValues(alpha: opacity));
   }
 
   // ==================================================

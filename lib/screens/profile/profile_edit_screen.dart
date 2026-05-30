@@ -342,7 +342,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                                       )
                                     : CircleAvatar(
                                         radius: 60,
-                                        backgroundColor: WanWalkColors.accent.withOpacity(0.2),
+                                        backgroundColor: WanWalkColors.accent.withValues(alpha: 0.2),
                                         child: const Icon(
                                           Icons.person,
                                           size: 60,
@@ -440,7 +440,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                         padding: const EdgeInsets.all(WanWalkSpacing.medium),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? Colors.blue.shade900.withOpacity(0.3)
+                              ? Colors.blue.shade900.withValues(alpha: 0.3)
                               : Colors.blue.shade50,
                           borderRadius: BorderRadius.circular(12),
                         ),

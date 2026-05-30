@@ -569,7 +569,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                 strokeWidth: 6.0,
                 color: WanWalkColors.accentPrimary,
                 borderStrokeWidth: 2.0,
-                borderColor: Colors.white.withOpacity(0.8),
+                borderColor: Colors.white.withValues(alpha: 0.8),
               ),
             ],
           ),
@@ -602,7 +602,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 8,
                       ),
                     ],
@@ -629,7 +629,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.6),
+                Colors.black.withValues(alpha: 0.6),
                 Colors.transparent,
               ],
             ),
@@ -685,7 +685,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),

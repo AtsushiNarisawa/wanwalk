@@ -28,7 +28,7 @@ class RecommendedRouteCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -186,13 +186,13 @@ class RecommendedRouteCard extends StatelessWidget {
           Icon(
             Icons.landscape,
             size: 64,
-            color: WanWalkColors.accent.withOpacity(0.3),
+            color: WanWalkColors.accent.withValues(alpha: 0.3),
           ),
           const SizedBox(height: WanWalkSpacing.sm),
           Text(
             'ルート画像',
             style: WanWalkTypography.bodyMedium.copyWith(
-              color: WanWalkColors.accent.withOpacity(0.5),
+              color: WanWalkColors.accent.withValues(alpha: 0.5),
             ),
           ),
         ],

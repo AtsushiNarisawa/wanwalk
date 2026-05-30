@@ -613,7 +613,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  WanWalkColors.accentPrimary.withOpacity(0.15),
+                  WanWalkColors.accentPrimary.withValues(alpha: 0.15),
                   WanWalkColors.accentPrimarySoft,
                 ],
               ),
@@ -740,13 +740,13 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            WanWalkColors.accentPrimary.withOpacity(0.15),
-            WanWalkColors.accentPrimary.withOpacity(0.05),
+            WanWalkColors.accentPrimary.withValues(alpha: 0.15),
+            WanWalkColors.accentPrimary.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: WanWalkColors.accentPrimary.withOpacity(0.3),
+          color: WanWalkColors.accentPrimary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -755,7 +755,7 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: WanWalkColors.accentPrimary.withOpacity(0.2),
+              color: WanWalkColors.accentPrimary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -944,7 +944,7 @@ class _WalkCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -1140,7 +1140,7 @@ class _StatChip extends StatelessWidget {
         vertical: WanWalkSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: WanWalkColors.accentPrimary.withOpacity(0.1),
+        color: WanWalkColors.accentPrimary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -1183,7 +1183,7 @@ class _PinHistoryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -1337,7 +1337,7 @@ class _PinHistoryCard extends StatelessWidget {
         vertical: WanWalkSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.1),
+        color: badgeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -1391,7 +1391,7 @@ class _UnauthFeatureItem extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -1447,7 +1447,7 @@ class _TimelineCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -1462,7 +1462,7 @@ class _TimelineCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 18,
-                    backgroundColor: WanWalkColors.accentPrimary.withOpacity(0.2),
+                    backgroundColor: WanWalkColors.accentPrimary.withValues(alpha: 0.2),
                     backgroundImage: item.userAvatarUrl != null
                         ? NetworkImage(item.userAvatarUrl!)
                         : null,
@@ -1539,7 +1539,7 @@ class _TimelineCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: _pinTypeColor.withOpacity(0.15),
+                          color: _pinTypeColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

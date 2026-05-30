@@ -114,7 +114,7 @@ class WanWalkStatsRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(WanWalkSpacing.sm),
             decoration: BoxDecoration(
-              color: (stat.color ?? WanWalkColors.accent).withOpacity(0.1),
+              color: (stat.color ?? WanWalkColors.accent).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

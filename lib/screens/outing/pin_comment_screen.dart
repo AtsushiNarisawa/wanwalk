@@ -192,7 +192,7 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
                           // アバター
                           CircleAvatar(
                             radius: 20,
-                            backgroundColor: WanWalkColors.accent.withOpacity(0.2),
+                            backgroundColor: WanWalkColors.accent.withValues(alpha: 0.2),
                             backgroundImage: comment.userAvatar != null
                                 ? NetworkImage(comment.userAvatar!)
                                 : null,
@@ -292,7 +292,7 @@ class _PinCommentScreenState extends ConsumerState<PinCommentScreen> {
               color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, -2),
                 ),

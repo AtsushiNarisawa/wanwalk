@@ -178,7 +178,7 @@ class WanWalkSpacing {
   /// 小さな影 - カード
   static List<BoxShadow> get shadowSM => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withValues(alpha: 0.05),
       blurRadius: 4,
       offset: const Offset(0, 2),
     ),
@@ -187,7 +187,7 @@ class WanWalkSpacing {
   /// 中サイズの影 - カード（ホバー時）
   static List<BoxShadow> get shadowMD => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.1),
+      color: Colors.black.withValues(alpha: 0.1),
       blurRadius: 8,
       offset: const Offset(0, 4),
     ),
@@ -196,7 +196,7 @@ class WanWalkSpacing {
   /// 大きな影 - モーダル
   static List<BoxShadow> get shadowLG => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.15),
+      color: Colors.black.withValues(alpha: 0.15),
       blurRadius: 16,
       offset: const Offset(0, 8),
     ),
@@ -205,7 +205,7 @@ class WanWalkSpacing {
   /// 特大の影 - フローティングボタン
   static List<BoxShadow> get shadowXL => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.2),
+      color: Colors.black.withValues(alpha: 0.2),
       blurRadius: 24,
       offset: const Offset(0, 12),
     ),

@@ -74,7 +74,7 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -281,7 +281,7 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: WanWalkColors.primary.withOpacity(0.1),
+                  color: WanWalkColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(

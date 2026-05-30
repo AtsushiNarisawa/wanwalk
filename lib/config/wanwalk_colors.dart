@@ -111,12 +111,12 @@ class WanWalkColors {
   // ==================================================
   
   /// カードオーバーレイ（写真の上に統計を表示する時）
-  static Color get cardOverlay => Color(0xFF3D2F2B).withOpacity(0.6);
-  static Color get cardOverlayLight => Color(0xFFFDFBF7).withOpacity(0.9);
+  static Color get cardOverlay => Color(0xFF3D2F2B).withValues(alpha: 0.6);
+  static Color get cardOverlayLight => Color(0xFFFDFBF7).withValues(alpha: 0.9);
   
   /// シャドウ（柔らかく控えめ）
-  static Color get shadow => Color(0xFF3D2F2B).withOpacity(0.08);
-  static Color get shadowDark => Color(0xFF3D2F2B).withOpacity(0.15);
+  static Color get shadow => Color(0xFF3D2F2B).withValues(alpha: 0.08);
+  static Color get shadowDark => Color(0xFF3D2F2B).withValues(alpha: 0.15);
   
   // ==================================================
   // ソーシャル機能用カラー

@@ -183,7 +183,7 @@ class WanWalkStatCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(WanWalkSpacing.sm),
               decoration: BoxDecoration(
-                color: (color ?? WanWalkColors.accent).withOpacity(0.1),
+                color: (color ?? WanWalkColors.accent).withValues(alpha: 0.1),
                 borderRadius: WanWalkSpacing.borderRadiusMD,
               ),
               child: Icon(

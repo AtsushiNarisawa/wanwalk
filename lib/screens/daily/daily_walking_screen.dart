@@ -449,7 +449,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
               Polyline(
                 points: gpsState.currentRoutePoints.map((p) => p.latLng).toList(),
                 strokeWidth: 4.0,
-                color: WanWalkColors.accent.withOpacity(0.8),
+                color: WanWalkColors.accent.withValues(alpha: 0.8),
               ),
             ],
           ),
@@ -471,7 +471,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 8,
                       ),
                     ],
@@ -498,7 +498,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.6),
+                Colors.black.withValues(alpha: 0.6),
                 Colors.transparent,
               ],
             ),
@@ -552,7 +552,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),

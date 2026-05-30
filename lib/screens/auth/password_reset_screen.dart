@@ -253,7 +253,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
         Container(
           padding: const EdgeInsets.all(WanWalkSpacing.md),
           decoration: BoxDecoration(
-            color: WanWalkColors.secondary.withOpacity(0.1),
+            color: WanWalkColors.secondary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(

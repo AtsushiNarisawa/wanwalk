@@ -29,10 +29,10 @@ class WanWalkShimmer extends StatelessWidget {
       margin: margin,
       child: Shimmer.fromColors(
         baseColor: isDark 
-            ? WanWalkColors.backgroundDark.withOpacity(0.3)
+            ? WanWalkColors.backgroundDark.withValues(alpha: 0.3)
             : Colors.grey[300]!,
         highlightColor: isDark 
-            ? WanWalkColors.backgroundDark.withOpacity(0.5)
+            ? WanWalkColors.backgroundDark.withValues(alpha: 0.5)
             : Colors.grey[100]!,
         child: Container(
           decoration: BoxDecoration(

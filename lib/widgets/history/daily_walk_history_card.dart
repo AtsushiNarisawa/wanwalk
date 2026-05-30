@@ -31,8 +31,8 @@ class DailyWalkHistoryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark
-                ? WanWalkColors.textSecondaryDark.withOpacity(0.1)
-                : WanWalkColors.textSecondaryLight.withOpacity(0.1),
+                ? WanWalkColors.textSecondaryDark.withValues(alpha: 0.1)
+                : WanWalkColors.textSecondaryLight.withValues(alpha: 0.1),
             width: 1,
           ),
         ),

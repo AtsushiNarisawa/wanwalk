@@ -288,7 +288,7 @@ class _OsDeniedNotice extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(12, 16, 12, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: WanWalkColors.primary.withOpacity(0.08),
+        color: WanWalkColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

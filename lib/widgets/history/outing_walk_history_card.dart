@@ -29,7 +29,7 @@ class OutingWalkHistoryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -50,7 +50,7 @@ class OutingWalkHistoryCard extends StatelessWidget {
                       vertical: WanWalkSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: WanWalkColors.accent.withOpacity(0.1),
+                      color: WanWalkColors.accent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -221,7 +221,7 @@ class OutingWalkHistoryCard extends StatelessWidget {
                             Positioned.fill(
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.6),
+                                  color: Colors.black.withValues(alpha: 0.6),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
@@ -250,11 +250,11 @@ class OutingWalkHistoryCard extends StatelessWidget {
 
   Widget _buildPhotoPlaceholder() {
     return Container(
-      color: WanWalkColors.accent.withOpacity(0.1),
+      color: WanWalkColors.accent.withValues(alpha: 0.1),
       child: Center(
         child: Icon(
           Icons.image,
-          color: WanWalkColors.accent.withOpacity(0.3),
+          color: WanWalkColors.accent.withValues(alpha: 0.3),
           size: 48,
         ),
       ),

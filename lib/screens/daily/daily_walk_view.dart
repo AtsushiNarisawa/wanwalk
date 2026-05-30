@@ -62,13 +62,13 @@ class DailyWalkView extends ConsumerWidget {
           end: Alignment.bottomRight,
           colors: [
             WanWalkColors.accent,
-            WanWalkColors.accent.withOpacity(0.7),
+            WanWalkColors.accent.withValues(alpha: 0.7),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: WanWalkColors.accent.withOpacity(0.3),
+            color: WanWalkColors.accent.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -98,7 +98,7 @@ class DailyWalkView extends ConsumerWidget {
           Text(
             'いつものルートを記録しよう',
             style: WanWalkTypography.bodyLarge.copyWith(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
             ),
           ),
         ],
@@ -182,7 +182,7 @@ class DailyWalkView extends ConsumerWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             elevation: 8,
-            shadowColor: WanWalkColors.accent.withOpacity(0.4),
+            shadowColor: WanWalkColors.accent.withValues(alpha: 0.4),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -348,7 +348,7 @@ class _QuickActionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -401,7 +401,7 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

@@ -42,7 +42,7 @@ class ActiveWalkBanner extends ConsumerWidget {
             gradient: LinearGradient(
               colors: [
                 WanWalkColors.primary,
-                WanWalkColors.primary.withOpacity(0.8),
+                WanWalkColors.primary.withValues(alpha: 0.8),
               ],
             ),
           ),
@@ -89,28 +89,28 @@ class ActiveWalkBanner extends ConsumerWidget {
                           Text(
                             gpsState.formattedDistance,
                             style: WanWalkTypography.bodySmall.copyWith(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                           const SizedBox(width: WanWalkSpacing.sm),
                           Text(
                             '•',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                           const SizedBox(width: WanWalkSpacing.sm),
                           Text(
                             gpsState.formattedDuration,
                             style: WanWalkTypography.bodySmall.copyWith(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                           const SizedBox(width: WanWalkSpacing.sm),
                           Text(
                             '•',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                           const SizedBox(width: WanWalkSpacing.sm),
@@ -119,7 +119,7 @@ class ActiveWalkBanner extends ConsumerWidget {
                                 ? '日常散歩'
                                 : 'おでかけ散歩',
                             style: WanWalkTypography.bodySmall.copyWith(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                         ],
@@ -130,7 +130,7 @@ class ActiveWalkBanner extends ConsumerWidget {
                 // 矢印アイコン
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   size: 18,
                 ),
               ],

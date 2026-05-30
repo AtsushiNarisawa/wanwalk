@@ -434,13 +434,13 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                         Icon(
                           i == 1 ? Icons.hiking : Icons.flag,
                           size: 14,
-                          color: WanWalkColors.accent.withOpacity(0.5),
+                          color: WanWalkColors.accent.withValues(alpha: 0.5),
                         ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Container(
                             height: 1,
-                            color: (isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight).withOpacity(0.5),
+                            color: (isDark ? WanWalkColors.borderDark : WanWalkColors.borderLight).withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -902,7 +902,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                           color: isDark ? WanWalkColors.cardDark : WanWalkColors.cardLight,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -1036,7 +1036,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       width: 120,
       height: 120,
       decoration: BoxDecoration(
-        color: WanWalkColors.accent.withOpacity(0.2),
+        color: WanWalkColors.accent.withValues(alpha: 0.2),
       ),
       child: Icon(
         Icons.photo,
@@ -1370,7 +1370,7 @@ class _FeedbackSheetState extends ConsumerState<_FeedbackSheet> {
                 return ChoiceChip(
                   label: Text(entry.value),
                   selected: selected,
-                  selectedColor: WanWalkColors.accent.withOpacity(0.2),
+                  selectedColor: WanWalkColors.accent.withValues(alpha: 0.2),
                   labelStyle: TextStyle(
                     color: selected
                         ? WanWalkColors.accent
@@ -1382,7 +1382,7 @@ class _FeedbackSheetState extends ConsumerState<_FeedbackSheet> {
                   side: BorderSide(
                     color: selected
                         ? WanWalkColors.accent
-                        : Colors.grey.withOpacity(0.3),
+                        : Colors.grey.withValues(alpha: 0.3),
                   ),
                   onSelected: (_) => setState(() => _selectedCategory = entry.key),
                 );
@@ -1409,17 +1409,17 @@ class _FeedbackSheetState extends ConsumerState<_FeedbackSheet> {
                 hintText: '例: 駐車場は現在500円に値上がりしています',
                 hintStyle: TextStyle(
                   color: isDark
-                      ? WanWalkColors.textSecondaryDark.withOpacity(0.5)
-                      : WanWalkColors.textSecondaryLight.withOpacity(0.5),
+                      ? WanWalkColors.textSecondaryDark.withValues(alpha: 0.5)
+                      : WanWalkColors.textSecondaryLight.withValues(alpha: 0.5),
                   fontSize: 14,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

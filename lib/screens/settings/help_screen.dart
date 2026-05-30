@@ -248,7 +248,7 @@ class HelpScreen extends ConsumerWidget {
       leading: Container(
         padding: const EdgeInsets.all(WanWalkSpacing.small),
         decoration: BoxDecoration(
-          color: WanWalkColors.accent.withOpacity(0.1),
+          color: WanWalkColors.accent.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
