@@ -260,7 +260,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     try {
       final push = ref.read(pushNotificationServiceProvider);
       await push.initialize();
-      push.onMessageOpened.listen(NotificationDeepLink.handle);
+      // A27: 通知タップで画面遷移 + 開封ログ送信。onMessageOpened は
+      // getInitialMessage(コールド起動) と onMessageOpenedApp(BG復帰) の両経路を
+      // 流すため、ここ一箇所で両方の開封を計測できる（foreground 受信は対象外）。
+      push.onMessageOpened.listen((message) {
+        NotificationDeepLink.handle(message);
+        final logId = message.data['notification_log_id']?.toString();
+        if (logId != null && logId.isNotEmpty) {
+          unawaited(push.logNotificationOpened(logId));
+        }
+      });
 
       // 既に許可済なら APNs/FCM トークン登録（ログイン済時）
       final permState =

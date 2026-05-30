@@ -200,32 +200,41 @@ Deno.serve(async (req: Request) => {
   let failed = 0;
   const invalidTokenIds: string[] = [];
   const logRows: any[] = [];
-  const dataPayload: Record<string, string> = {
+  // A27: 開封計測のため配信1件ごとに notification_log の行 id を先に採番し、
+  // その uuid を FCM data(notification_log_id) に載せて端末へ渡す。端末は通知タップ時に
+  // この id で log_notification_opened RPC を叩く（採番しないと端末に id が届かず計測不能）。
+  const baseData: Record<string, string> = {
     category: payload.category,
     ...(payload.data ?? {}),
   };
 
   const results = await Promise.all(
-    tokens.map((t) =>
-      sendMessageToToken({
+    tokens.map((t) => {
+      const logId = crypto.randomUUID();
+      const messageData: Record<string, string> = {
+        ...baseData,
+        notification_log_id: logId,
+      };
+      return sendMessageToToken({
         accessToken,
         projectId: sa.project_id,
         fcmToken: t.fcm_token,
         notification: { title: payload.title, body: payload.body },
-        data: dataPayload,
-      }).then((r) => ({ row: t, result: r })),
-    ),
+        data: messageData,
+      }).then((r) => ({ row: t, result: r, logId, messageData }));
+    }),
   );
 
-  for (const { row, result } of results) {
+  for (const { row, result, logId, messageData } of results) {
     if (result.ok) {
       sent++;
       logRows.push({
+        id: logId,
         user_id: row.user_id,
         category: payload.category,
         title: payload.title,
         body: payload.body,
-        data: dataPayload,
+        data: messageData,
         fcm_message_id: result.messageId,
         status: 'sent',
         sent_at: new Date().toISOString(),
@@ -233,11 +242,12 @@ Deno.serve(async (req: Request) => {
     } else {
       failed++;
       logRows.push({
+        id: logId,
         user_id: row.user_id,
         category: payload.category,
         title: payload.title,
         body: payload.body,
-        data: dataPayload,
+        data: messageData,
         status: 'failed',
         error: `${result.status}:${result.errorCode ?? ''}:${result.error}`.slice(0, 1000),
       });
