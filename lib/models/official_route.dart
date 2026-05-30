@@ -287,7 +287,7 @@ class OfficialRoute {
 
   /// PostGISのLINESTRING型をLatLngリストに変換
   /// 例: "LINESTRING(139.1071 35.2328, 139.1080 35.2335, ...)"
-  /// WKB形式: "0102000020E6100000..." → List<LatLng>
+  /// WKB形式: "0102000020E6100000..." → `List<LatLng>`
   /// GeoJSON形式: {"type":"LineString","coordinates":[[139.1071,35.2328],...]}
   static List<LatLng>? _parsePostGISLineString(dynamic lineData) {
     if (lineData == null) return null;

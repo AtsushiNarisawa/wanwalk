@@ -30,7 +30,7 @@
 /// )
 /// ```
 
-library wanwalk_widgets;
+library;
 
 // ボタン
 export 'wanwalk_button.dart';
