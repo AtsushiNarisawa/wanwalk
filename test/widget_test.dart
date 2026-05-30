@@ -1,30 +1,17 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:wanwalk_v2/main.dart';
-
+// 元は `flutter create` デフォルトの widget test（`package:wanwalk_v2/main.dart` +
+// `MyApp` を参照）だったが、パッケージ名リネーム（WanMap→WanWalk）後 obsolete 化し
+// コンパイル不能なまま残っていた。analysis_options で analyze からは除外されていたが
+// `flutter test` では実行され、test/ がほぼ空だった間は誰も気づかなかった（A26）。
+// アプリ全体の起動 smoke は Supabase/Riverpod 初期化が絡むためここでは行わず、
+// 最小限のウィジェット構築が機能することのみ確認する。
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('MaterialApp の基本構築が機能する', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: Text('WanWalk'))),
+    );
+    expect(find.text('WanWalk'), findsOneWidget);
   });
 }
