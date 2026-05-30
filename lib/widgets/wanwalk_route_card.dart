@@ -209,9 +209,9 @@ class WanWalkRouteCard extends StatelessWidget {
 
     return FlutterMap(
       options: MapOptions(
-        center: routePoints!.first,
-        zoom: 14,
-        interactiveFlags: InteractiveFlag.none, // インタラクション無効
+        initialCenter: routePoints!.first,
+        initialZoom: 14,
+        interactionOptions: const InteractionOptions(flags: InteractiveFlag.none), // インタラクション無効
       ),
       children: [
         TileLayer(

@@ -23,7 +23,8 @@ dependencies:
   riverpod_annotation: ^2.6.1
   
   # 地図・GPS
-  flutter_map: ^6.1.0
+  # A25: v6→v8 メジャー移行（2026-05-31・CEO承認・最新8.x。Dart3.6+要求で環境3.10.1は余裕）
+  flutter_map: ^8.0.0
   latlong2: ^0.9.0
   geolocator: ^11.0.0
   location: ^5.0.3

@@ -429,7 +429,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       options: MapOptions(
         initialCenter: center,
         initialZoom: 16.0,
-        onPositionChanged: (position, hasGesture) {
+        onPositionChanged: (camera, hasGesture) {
           if (hasGesture) {
             setState(() {
               _isFollowingUser = false;

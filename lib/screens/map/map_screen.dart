@@ -648,8 +648,8 @@ class _MapScreenState extends State<MapScreen> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              center: _currentPosition ?? const LatLng(35.6762, 139.6503),
-              zoom: 15.0,
+              initialCenter: _currentPosition ?? const LatLng(35.6762, 139.6503),
+              initialZoom: 15.0,
             ),
             children: [
               // OpenStreetMapタイル
