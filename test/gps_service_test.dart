@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator_platform_interface/geolocator_platform_interface.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:wanwalk/models/route_model.dart';
 import 'package:wanwalk/services/gps_service.dart';
 
 /// A5/A11: 散歩保存の信頼性。

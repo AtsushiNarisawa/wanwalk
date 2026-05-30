@@ -88,6 +88,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # A26 テストで GeolocatorPlatform を fake 差し替えするため明示依存
+  geolocator_platform_interface: ^4.2.6
+  plugin_platform_interface: ^2.1.8
   flutter_lints: ^3.0.0
   flutter_launcher_icons: ^0.13.1
   build_runner: ^2.4.13
