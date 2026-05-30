@@ -70,14 +70,14 @@ void main() {
               MaterialPageRoute(
                 settings: const RouteSettings(name: 'error_fallback'),
                 builder: (_) => ErrorFallbackWidget(
+                  // フラグは push の .then(pop 完了時)で false に戻すため、
+                  // ここでは触らない（reset→pop の順序差による二重 push 窓を回避）。
                   onRetry: () {
                     final n = NotificationDeepLink.navigatorKey.currentState;
-                    ErrorHandler.fatalFallbackActive = false;
                     if (n != null && n.canPop()) n.pop();
                   },
                   onGoHome: () {
                     final n = NotificationDeepLink.navigatorKey.currentState;
-                    ErrorHandler.fatalFallbackActive = false;
                     if (n != null) n.popUntil((route) => route.isFirst);
                   },
                 ),

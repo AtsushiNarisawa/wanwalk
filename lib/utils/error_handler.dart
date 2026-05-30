@@ -72,8 +72,10 @@ class ErrorHandler {
   /// `runZonedGuarded` の onError から呼ぶ。
   static void captureZoneError(Object error, StackTrace stack) {
     _capture(error, stack: stack, hint: 'runZonedGuarded');
-    // A18: zone 内未捕捉例外もフォールバック画面へ誘導。
-    _maybeShowFallback();
+    // A18: zone 由来の未捕捉例外は fire-and-forget(unawaited)の取りこぼしを含み
+    // 多くが非致命。これをフルスクリーン昇格すると散歩中等に UI を乗っ取るため、
+    // フォールバック誘導は PlatformDispatcher.onError(フレーム/プラットフォーム級の
+    // より致命的なシグナル)に限定する。zone 由来は Sentry 記録のみで観測を担保。
   }
 
   /// A18: 致命例外時にフォールバック画面誘導を 1 回だけ起動する。

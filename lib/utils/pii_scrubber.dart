@@ -2,9 +2,10 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// A15: Sentry へ送信する前に PII を伏字へ置換するスクラバ。
 ///
-/// アプリ自身が積む payload（不具合報告 ReportIssue の自由記述 = extra['description']
-/// と例外オブジェクト `_UserReport.toString()`、例外メッセージ、breadcrumb）を一律 redact し、
+/// アプリ自身が積む payload（不具合報告 ReportIssue の自由記述が乗る extra['description']・
+/// 例外メッセージ・breadcrumb・その他 extra 値）を一律 redact し、
 /// ReportIssue UI の「メールアドレスや位置情報は含まれません」表記と実装を整合させる。
+/// （例外オブジェクト _UserReport.toString() 自体は len のみで PII レス。本文は extra に乗る）
 ///
 /// `SentryFlutter.init` の `beforeSend` から [scrubSentryEvent] を呼ぶ。
 /// SDK の `sendDefaultPii=false` で native 自動付与（IP/user）は無いが、
@@ -43,13 +44,15 @@ String redactPii(String input) {
 }
 
 /// 任意の値（String / Map / List / その他）を再帰的に redact する。
-dynamic _scrubValue(dynamic value) {
+/// [depth] 循環参照・過深ネストによる StackOverflow を防ぐ深度ガード。
+dynamic _scrubValue(dynamic value, [int depth = 0]) {
+  if (depth > 8) return '[REDACTED:deep]';
   if (value is String) return redactPii(value);
   if (value is Map) {
-    return value.map((k, v) => MapEntry(k, _scrubValue(v)));
+    return value.map((k, v) => MapEntry(k, _scrubValue(v, depth + 1)));
   }
   if (value is List) {
-    return value.map(_scrubValue).toList();
+    return value.map((e) => _scrubValue(e, depth + 1)).toList();
   }
   return value;
 }
@@ -72,20 +75,42 @@ SentryMessage? _scrubMessage(SentryMessage? message) {
 ///
 /// `copyWith` は全フィールド `?? this.x` のため、scrub 済みの非 null 値を渡した
 /// フィールドだけが置換される（user は常に null = setUser 未使用なので対象外）。
+///
+/// 重要: sentry 8.x は beforeSend が throw しても event を drop せず「未 redact の
+/// 原本」を送信してしまう。よって scrub が万一失敗しても PII 漏洩しないよう
+/// try/catch でラップし、失敗時はリスクフィールドを一律伏字化した安全イベントを返す。
 SentryEvent scrubSentryEvent(SentryEvent event) {
+  try {
+    return event.copyWith(
+      message: _scrubMessage(event.message),
+      // ignore: deprecated_member_use
+      extra: _scrubMap(event.extra),
+      breadcrumbs: event.breadcrumbs
+          ?.map((b) => b.copyWith(
+                message: b.message == null ? null : redactPii(b.message!),
+                data: _scrubMap(b.data),
+              ))
+          .toList(),
+      exceptions: event.exceptions
+          ?.map((e) =>
+              e.value == null ? e : e.copyWith(value: redactPii(e.value!)))
+          .toList(),
+    );
+  } catch (_) {
+    return _redactedFallback(event);
+  }
+}
+
+/// scrub が例外を投げた場合のフォールバック。
+/// 人手入力が乗りうるフィールドを一律伏字化（再帰しない＝再 throw しない）。
+SentryEvent _redactedFallback(SentryEvent event) {
   return event.copyWith(
-    message: _scrubMessage(event.message),
+    message: const SentryMessage('[REDACTED]'),
     // ignore: deprecated_member_use
-    extra: _scrubMap(event.extra),
-    breadcrumbs: event.breadcrumbs
-        ?.map((b) => b.copyWith(
-              message: b.message == null ? null : redactPii(b.message!),
-              data: _scrubMap(b.data),
-            ))
-        .toList(),
+    extra: <String, dynamic>{'scrub': 'failed_redacted'},
+    breadcrumbs: <Breadcrumb>[],
     exceptions: event.exceptions
-        ?.map((e) =>
-            e.value == null ? e : e.copyWith(value: redactPii(e.value!)))
+        ?.map((e) => e.value == null ? e : e.copyWith(value: '[REDACTED]'))
         .toList(),
   );
 }
