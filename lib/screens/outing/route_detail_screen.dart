@@ -11,6 +11,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/official_route_provider.dart';
+import '../../utils/map_tile_nudge.dart';
 import '../../services/analytics_service.dart';
 import '../../widgets/nearby_dog_spots.dart';
 import '../../providers/route_pin_provider.dart';
@@ -257,6 +258,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       child: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
+          onMapReady: () => nudgeMapTiles(_mapController),
           initialCenter: initialCenter,
           initialZoom: 15.0,
           minZoom: 10.0,

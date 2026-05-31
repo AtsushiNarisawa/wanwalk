@@ -14,6 +14,7 @@ import '../../config/wanwalk_spacing.dart';
 import '../../models/official_route.dart';
 import '../../models/route_spot.dart';
 import '../../models/walk_mode.dart';
+import '../../utils/map_tile_nudge.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/active_walk_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
@@ -545,6 +546,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
+        onMapReady: () => nudgeMapTiles(_mapController),
         initialCenter: center,
         initialZoom: 16.0,
         onPositionChanged: (camera, hasGesture) {

@@ -14,6 +14,7 @@ import '../../providers/official_route_provider.dart';
 import '../../providers/spot_review_provider.dart';
 import 'route_detail_screen.dart';
 import 'spot_review_form_screen.dart';
+import '../../utils/map_tile_nudge.dart';
 
 /// ピン詳細画面
 /// ユーザーが投稿したピンの詳細情報を表示
@@ -30,7 +31,7 @@ class PinDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
-
+  final MapController _mapController = MapController();
 
   @override
   Widget build(BuildContext context) {
@@ -429,7 +430,9 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: FlutterMap(
+          mapController: _mapController,
           options: MapOptions(
+            onMapReady: () => nudgeMapTiles(_mapController),
             initialCenter: pin.location,
             initialZoom: 16.0,
             interactionOptions: const InteractionOptions(

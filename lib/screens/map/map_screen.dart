@@ -12,6 +12,7 @@ import '../../config/wanwalk_spacing.dart';
 import '../../widgets/wanwalk_widgets.dart';
 import '../../models/route_model.dart';
 import '../../utils/logger.dart';
+import '../../utils/map_tile_nudge.dart';
 
 /// マップ画面
 class MapScreen extends StatefulWidget {
@@ -648,6 +649,7 @@ class _MapScreenState extends State<MapScreen> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
+              onMapReady: () => nudgeMapTiles(_mapController),
               initialCenter: _currentPosition ?? const LatLng(35.6762, 139.6503),
               initialZoom: 15.0,
             ),

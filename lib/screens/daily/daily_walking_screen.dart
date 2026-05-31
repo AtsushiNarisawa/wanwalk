@@ -10,6 +10,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../models/walk_mode.dart';
+import '../../utils/map_tile_nudge.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/active_walk_provider.dart';
 import '../../services/profile_service.dart';
@@ -427,6 +428,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
+        onMapReady: () => nudgeMapTiles(_mapController),
         initialCenter: center,
         initialZoom: 16.0,
         onPositionChanged: (camera, hasGesture) {

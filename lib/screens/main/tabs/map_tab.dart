@@ -11,6 +11,7 @@ import '../../../config/wanwalk_icons.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/gps_provider_riverpod.dart';
+import '../../../utils/map_tile_nudge.dart';
 import '../../../providers/official_route_provider.dart';
 import '../../../providers/area_provider.dart';
 import '../../../models/area.dart';
@@ -148,6 +149,7 @@ class _MapTabState extends ConsumerState<MapTab> with SingleTickerProviderStateM
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
+              onMapReady: () => nudgeMapTiles(_mapController),
               initialCenter: _currentLocation ?? const LatLng(35.3192, 139.5503),
               initialZoom: 13.0,
               minZoom: 5.0,

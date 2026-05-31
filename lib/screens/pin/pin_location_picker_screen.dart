@@ -8,6 +8,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../widgets/zoom_control_widget.dart';
 import '../outing/pin_create_screen.dart';
+import '../../utils/map_tile_nudge.dart';
 
 /// ピン投稿の場所選択画面
 ///
@@ -110,6 +111,7 @@ class _PinLocationPickerScreenState extends ConsumerState<PinLocationPickerScree
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
+              onMapReady: () => nudgeMapTiles(_mapController),
               initialCenter: _currentLocation,
               initialZoom: 17.0, // 場所選択に適した詳細なズーム
               minZoom: 5.0,
