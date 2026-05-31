@@ -93,8 +93,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       return;
     }
 
-    // GPS記録開始
-    final success = await gpsNotifier.startRecording();
+    // GPS記録開始（おでかけ散歩を明示。kill→復元時のルート再取得に必要）
+    final success = await gpsNotifier.startRecording(mode: WalkMode.outing);
     if (!success) {
       if (mounted) {
         await showLocationPermissionDialog(context);

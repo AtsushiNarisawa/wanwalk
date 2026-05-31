@@ -150,11 +150,17 @@ class GpsNotifier extends StateNotifier<GpsState> {
     }
   }
 
-  /// 記録を開始（現在のWalkModeを記録）
-  Future<bool> startRecording() async {
+  /// 記録を開始（記録モードを state に保存）。
+  ///
+  /// [mode] を渡すと、そのモードで記録する（おでかけ/日常を呼び出し画面が明示）。
+  /// 省略時は後方互換で walkModeProvider を読む。
+  /// ※ おでかけ散歩を route_detail→「このルートを歩く」から開始する経路は
+  ///   walk_mode_switcher を通らず walkModeProvider が daily のままになるため、
+  ///   walking_screen から WalkMode.outing を明示する（kill→復元時のルート再取得に必要）。
+  Future<bool> startRecording({WalkMode? mode}) async {
     try {
-      // 現在のWalkModeを取得
-      final currentMode = ref.read(walkModeProvider);
+      // 記録モードを確定（明示指定 > walkModeProvider）
+      final currentMode = mode ?? ref.read(walkModeProvider);
 
       // A10: ストリームエラーを errorMessage で可視化する
       final success = await _gpsService.startRecording(

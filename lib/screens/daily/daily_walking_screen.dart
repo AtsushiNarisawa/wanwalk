@@ -125,8 +125,8 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       return;
     }
 
-    // GPS記録開始
-    final success = await gpsNotifier.startRecording();
+    // GPS記録開始（日常散歩を明示。outing 後に daily を継承しないようにする）
+    final success = await gpsNotifier.startRecording(mode: WalkMode.daily);
     if (!success) {
       if (mounted) {
         await showLocationPermissionDialog(context);
