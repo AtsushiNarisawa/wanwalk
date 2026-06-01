@@ -100,3 +100,6 @@ lib/config/env_prod.dart
 # Firebase configuration (PUBLIC repo — must not commit FCM API keys)
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
+
+# Supabase CLI のローカルキャッシュ（バージョン記録・project-ref 等の一時ファイル）
+supabase/.temp/
