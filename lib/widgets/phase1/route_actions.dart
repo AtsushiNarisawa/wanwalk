@@ -11,6 +11,7 @@ import '../../config/wanwalk_typography.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/bookmark_provider.dart';
 import '../../services/analytics_service.dart';
+import '../../services/app_review_service.dart';
 
 /// BookmarkButton — ルート詳細で愛犬家が気に入ったルートを保存。
 /// 未ログイン時は誘導ダイアログ。認証後は Supabase user_bookmarks に永続化。
@@ -36,6 +37,10 @@ class _BookmarkButtonState extends ConsumerState<BookmarkButton> {
             routeSlug: widget.routeId,
             action: next ? BookmarkAction.add : BookmarkAction.remove,
           ));
+      // レビュー促進: ブックマーク追加はポジティブシグナル（追加時のみ）
+      if (next) {
+        unawaited(AppReviewService.instance.onStrongPositiveSignal());
+      }
       ref.invalidate(routeBookmarkStatusProvider(widget.routeId));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

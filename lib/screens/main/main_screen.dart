@@ -6,6 +6,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_icons.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../services/onboarding_service.dart';
+import '../../services/app_review_service.dart';
 import '../../utils/logger.dart';
 import '../../widgets/active_walk_banner.dart';
 import 'tabs/home_tab.dart';
@@ -57,6 +58,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       // A11: アプリ kill/クラッシュで中断した散歩記録があれば復元し、
       // ActiveWalkBanner から復帰できるようにする。
       ref.read(gpsProviderRiverpod.notifier).restoreIfAny();
+      // レビュー促進: セッション数をカウント（初回セッション除外の判定に使う）
+      AppReviewService.instance.recordLaunch();
       // 初回起動時にコーチマークを表示
       _checkAndShowOnboarding();
     });

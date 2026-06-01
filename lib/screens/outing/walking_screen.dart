@@ -23,6 +23,7 @@ import '../../providers/route_spots_provider.dart';
 import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
+import '../../services/app_review_service.dart';
 import '../../widgets/zoom_control_widget.dart';
 import '../../widgets/walk_completion_card.dart';
 
@@ -348,6 +349,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         currentRouteId: widget.route.id,
       ),
     );
+    // レビュー促進: 散歩完了は最大のポジティブな瞬間（シートを閉じた後に検討）
+    unawaited(AppReviewService.instance.onStrongPositiveSignal());
     if (mounted) Navigator.of(context).pop(route);
   }
 

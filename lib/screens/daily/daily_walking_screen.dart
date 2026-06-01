@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +18,7 @@ import '../../providers/active_walk_provider.dart';
 import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
+import '../../services/app_review_service.dart';
 import '../../widgets/zoom_control_widget.dart';
 import '../../widgets/walk_completion_card.dart';
 import '../../utils/logger.dart';
@@ -328,6 +330,8 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
         formattedDuration: gpsState.formattedDuration,
       ),
     );
+    // レビュー促進: 散歩完了は最大のポジティブな瞬間（シートを閉じた後に検討）
+    unawaited(AppReviewService.instance.onStrongPositiveSignal());
     if (mounted) Navigator.of(context).pop(route);
   }
 

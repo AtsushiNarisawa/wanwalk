@@ -13,6 +13,7 @@ import '../../providers/analytics_provider.dart';
 import '../../providers/official_route_provider.dart';
 import '../../utils/map_tile_nudge.dart';
 import '../../services/analytics_service.dart';
+import '../../services/app_review_service.dart';
 import '../../widgets/nearby_dog_spots.dart';
 import '../../providers/route_pin_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
@@ -83,6 +84,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                 areaSlug: route.areaId,
                 source: AppSourcePage.routeDetail,
               ));
+          // レビュー促進: ルート詳細の累計閲覧数をカウント（閾値到達で要求検討）
+          unawaited(AppReviewService.instance.onRouteDetailViewed());
         }
       });
     });
