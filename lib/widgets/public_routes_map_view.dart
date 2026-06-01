@@ -134,21 +134,20 @@ class _PublicRoutesMapViewState extends State<PublicRoutesMapView> {
     final mapCenter = _calculateMapCenter();
     final mapBounds = _calculateMapBounds();
 
-    // マップを範囲にフィット
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mapBounds != null && mounted) {
-        _mapController.fitCamera(
-          CameraFit.bounds(
+    // 最初のフレーム前にカメラを範囲へ確定（initialCameraFit）。
+    // 旧実装の postFrame fitCamera は実機でタイル初期化と競合し、TileLayer が
+    // タイル取得を発火しないまま固まったため廃止（Build 37 / 地図グレー真因①修正）。
+    final initialCameraFit = mapBounds != null
+        ? CameraFit.bounds(
             bounds: mapBounds,
             padding: const EdgeInsets.all(50),
-          ),
-        );
-      }
-    });
+          )
+        : null;
 
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
+        initialCameraFit: initialCameraFit,
         initialCenter: mapCenter,
         initialZoom: 12.0,
         minZoom: 8.0,

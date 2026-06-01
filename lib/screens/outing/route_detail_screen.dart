@@ -235,18 +235,15 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       ...spots.map((s) => s.location),
     ];
 
-    if (allPoints.isNotEmpty) {
-      final bounds = LatLngBounds.fromPoints(allPoints);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: bounds,
+    // 最初のフレーム前にカメラを bounds へ確定（initialCameraFit）。
+    // 旧実装の postFrame fitCamera は実機でタイル初期化と競合し、TileLayer が
+    // タイル取得を発火しないまま固まったため廃止（Build 37 / 地図グレー真因①修正）。
+    final initialCameraFit = allPoints.isNotEmpty
+        ? CameraFit.bounds(
+            bounds: LatLngBounds.fromPoints(allPoints),
             padding: const EdgeInsets.all(40),
-          ),
-        );
-      });
-    }
+          )
+        : null;
 
     final initialCenter = allPoints.isNotEmpty
         ? allPoints.first
@@ -259,6 +256,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         mapController: _mapController,
         options: MapOptions(
           onMapReady: () => nudgeMapTiles(_mapController),
+          initialCameraFit: initialCameraFit,
           initialCenter: initialCenter,
           initialZoom: 15.0,
           minZoom: 10.0,
