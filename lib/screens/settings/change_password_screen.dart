@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 
 /// パスワード変更画面
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -61,11 +62,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('パスワードを変更しました'),
-            backgroundColor: Colors.green,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'パスワードを変更しました',
+          type: WanWalkSnackBarType.success,
         );
         Navigator.of(context).pop();
       }
@@ -80,20 +80,18 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           errorMessage = '新しいパスワードは現在のパスワードと異なるものを設定してください';
         }
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          errorMessage,
+          type: WanWalkSnackBarType.error,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('エラーが発生しました: $e'),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'エラーが発生しました: $e',
+          type: WanWalkSnackBarType.error,
         );
       }
     } finally {

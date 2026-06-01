@@ -10,6 +10,7 @@ import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../widgets/wanwalk_widgets.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 import '../../models/route_model.dart';
 import '../../utils/logger.dart';
 import '../../utils/map_tile_nudge.dart';
@@ -84,21 +85,19 @@ class _MapScreenState extends State<MapScreen> {
         _totalPauseDuration = Duration.zero;  // 累積一時停止時間をリセット
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ルート記録を開始しました'),
-          backgroundColor: Colors.green,
-        ),
+      showWanWalkSnackBar(
+        context,
+        'ルート記録を開始しました',
+        type: WanWalkSnackBarType.success,
       );
 
       // 定期的にポイントを更新
       _startPointUpdateTimer();
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('記録を開始できませんでした。位置情報の権限を確認してください。'),
-          backgroundColor: Colors.red,
-        ),
+      showWanWalkSnackBar(
+        context,
+        '記録を開始できませんでした。位置情報の権限を確認してください。',
+        type: WanWalkSnackBarType.error,
       );
     }
   }
@@ -114,12 +113,11 @@ class _MapScreenState extends State<MapScreen> {
 
     _gpsService.pauseRecording();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('記録を一時停止しました'),
-        backgroundColor: Colors.orange,
-        duration: Duration(seconds: 2),
-      ),
+    showWanWalkSnackBar(
+      context,
+      '記録を一時停止しました',
+      type: WanWalkSnackBarType.warning,
+      duration: const Duration(seconds: 2),
     );
   }
 
@@ -138,12 +136,11 @@ class _MapScreenState extends State<MapScreen> {
 
     _gpsService.resumeRecording();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('記録を再開しました'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
+    showWanWalkSnackBar(
+      context,
+      '記録を再開しました',
+      type: WanWalkSnackBarType.success,
+      duration: const Duration(seconds: 2),
     );
   }
 
@@ -187,27 +184,24 @@ class _MapScreenState extends State<MapScreen> {
           _tempPhotoUrls.add(storagePath);
         });
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('写真を追加しました（${_tempPhotoUrls.length}枚）'),
-            backgroundColor: Colors.green,
-          ),
+        showWanWalkSnackBar(
+          context,
+          '写真を追加しました（${_tempPhotoUrls.length}枚）',
+          type: WanWalkSnackBarType.success,
         );
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('写真のアップロードに失敗しました'),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          '写真のアップロードに失敗しました',
+          type: WanWalkSnackBarType.error,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('エラー: $e'),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'エラー: $e',
+          type: WanWalkSnackBarType.error,
         );
       }
     }
@@ -225,11 +219,10 @@ class _MapScreenState extends State<MapScreen> {
       if (kDebugMode) {
         appLog('❌ userId が null です');
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ログインしてください'),
-          backgroundColor: Colors.red,
-        ),
+      showWanWalkSnackBar(
+        context,
+        'ログインしてください',
+        type: WanWalkSnackBarType.error,
       );
       return;
     }
@@ -242,11 +235,10 @@ class _MapScreenState extends State<MapScreen> {
       if (kDebugMode) {
         appLog('❌ 記録していません');
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('記録していません'),
-          backgroundColor: Colors.red,
-        ),
+      showWanWalkSnackBar(
+        context,
+        '記録していません',
+        type: WanWalkSnackBarType.error,
       );
       return;
     }
@@ -437,11 +429,10 @@ class _MapScreenState extends State<MapScreen> {
                               final title = titleController.text.trim();
                               
                               if (title.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('ルート名を入力してください'),
-                                    backgroundColor: WanWalkColors.error,
-                                  ),
+                                showWanWalkSnackBar(
+                                  context,
+                                  'ルート名を入力してください',
+                                  type: WanWalkSnackBarType.error,
                                 );
                                 return;
                               }
@@ -558,13 +549,10 @@ class _MapScreenState extends State<MapScreen> {
           _totalPauseDuration = Duration.zero;  // 累積一時停止時間をリセット
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'ルートを保存しました\n距離: ${route.formatDistance()}, 時間: ${route.formatDuration()}',
-            ),
-            backgroundColor: Colors.green,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'ルートを保存しました\n距離: ${route.formatDistance()}, 時間: ${route.formatDuration()}',
+          type: WanWalkSnackBarType.success,
         );
       }
 
@@ -589,11 +577,10 @@ class _MapScreenState extends State<MapScreen> {
           _totalPauseDuration = Duration.zero;  // 累積一時停止時間をリセット
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('ルートの保存に失敗しました\n$e'),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'ルートの保存に失敗しました\n$e',
+          type: WanWalkSnackBarType.error,
         );
       }
     }

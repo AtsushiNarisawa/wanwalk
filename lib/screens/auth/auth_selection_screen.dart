@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 import '../../providers/auth_provider.dart';
 import '../../screens/main/main_screen.dart';
 import 'login_screen.dart';
@@ -34,11 +35,10 @@ class _AuthSelectionScreenState extends ConsumerState<AuthSelectionScreen> {
       }
     } catch (e) {
       if (mounted && !e.toString().contains('キャンセル')) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('サインインに失敗しました'),
-            backgroundColor: WanWalkColors.error,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'サインインに失敗しました',
+          type: WanWalkSnackBarType.error,
         );
       }
     } finally {
@@ -59,12 +59,11 @@ class _AuthSelectionScreenState extends ConsumerState<AuthSelectionScreen> {
     } catch (e) {
       if (mounted && !e.toString().contains('キャンセル')) {
         final errorDetail = e.toString();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('サインイン失敗: $errorDetail'),
-            backgroundColor: WanWalkColors.error,
-            duration: const Duration(seconds: 8),
-          ),
+        showWanWalkSnackBar(
+          context,
+          'サインイン失敗: $errorDetail',
+          type: WanWalkSnackBarType.error,
+          duration: const Duration(seconds: 8),
         );
       }
     } finally {

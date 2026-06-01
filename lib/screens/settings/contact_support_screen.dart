@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 
 /// お問い合わせフォーム画面
 class ContactSupportScreen extends ConsumerStatefulWidget {
@@ -98,11 +99,10 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('送信に失敗しました: $e'),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          '送信に失敗しました: $e',
+          type: WanWalkSnackBarType.error,
         );
       }
     } finally {

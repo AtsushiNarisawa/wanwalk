@@ -76,14 +76,14 @@ class _PrePermissionScreenState extends ConsumerState<PrePermissionScreen> {
                 width: 96,
                 height: 96,
                 decoration: BoxDecoration(
-                  color: WanWalkColors.primary.withValues(alpha: 0.08),
+                  color: WanWalkColors.accentPrimary.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
                   child: Icon(
                     PhosphorIcons.bell(),
                     size: 44,
-                    color: WanWalkColors.primary,
+                    color: WanWalkColors.accentPrimary,
                   ),
                 ),
               ),
@@ -130,10 +130,10 @@ class _PrePermissionScreenState extends ConsumerState<PrePermissionScreen> {
                 child: ElevatedButton(
                   onPressed: _requesting ? null : _onAllow,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: WanWalkColors.primary,
+                    backgroundColor: WanWalkColors.accentPrimary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 0,
                   ),
@@ -197,7 +197,7 @@ class _BulletLine extends StatelessWidget {
           width: 4,
           height: 4,
           decoration: BoxDecoration(
-            color: WanWalkColors.primary.withValues(alpha: 0.6),
+            color: WanWalkColors.accentPrimary.withValues(alpha: 0.6),
             shape: BoxShape.circle,
           ),
         ),

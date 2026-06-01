@@ -9,7 +9,6 @@ import '../../models/official_route.dart';
 import '../../providers/morning_reminder_provider.dart';
 import '../../screens/outing/route_detail_screen.dart';
 import '../../utils/distance_formatter.dart';
-import '../../utils/sunrise_calculator.dart';
 
 /// 「今日のおすすめ」セクション（B2 §3.3）。
 ///
@@ -50,10 +49,6 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sunrise = SunriseCalculator.sunriseFor(DateTime.now());
-    final bestStart = sunrise.add(SunriseCalculator.recommendedSendOffset);
-    final bestEnd = SunriseCalculator.bestTimeEndAt(DateTime.now());
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -128,25 +123,6 @@ class _Card extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: WanWalkSpacing.s2),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: WanWalkColors.accentPrimarySoft,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          'ベストタイム ${_fmt(bestStart)}〜${_fmt(bestEnd)}',
-                          style: WanWalkTypography.wwLabel.copyWith(
-                            fontSize: 11,
-                            color: WanWalkColors.accentPrimary,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: WanWalkSpacing.s3),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -176,7 +152,4 @@ class _Card extends StatelessWidget {
       ],
     );
   }
-
-  static String _fmt(DateTime d) =>
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 }

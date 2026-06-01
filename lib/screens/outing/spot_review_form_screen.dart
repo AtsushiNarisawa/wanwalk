@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 import '../../models/spot_review_model.dart';
 import '../../providers/spot_review_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -155,25 +156,21 @@ class _SpotReviewFormScreenState extends ConsumerState<SpotReviewFormScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.existingReview != null
-                  ? 'レビューを更新しました'
-                  : 'レビューを投稿しました',
-            ),
-            backgroundColor: Colors.green,
-          ),
+        showWanWalkSnackBar(
+          context,
+          widget.existingReview != null
+              ? 'レビューを更新しました'
+              : 'レビューを投稿しました',
+          type: WanWalkSnackBarType.success,
         );
         Navigator.pop(context, true); // 成功フラグを返す
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('エラーが発生しました: $e'),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'エラーが発生しました: $e',
+          type: WanWalkSnackBarType.error,
         );
       }
     } finally {

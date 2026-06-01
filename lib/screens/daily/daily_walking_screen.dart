@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import '../../widgets/location_permission_dialog.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
@@ -206,11 +207,10 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       gpsNotifier.cancelRecording();
       ref.read(activeWalkProvider.notifier).endWalk();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('ログインしていないため記録を保存できません'),
-            backgroundColor: Colors.orange,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'ログインしていないため記録を保存できません',
+          type: WanWalkSnackBarType.warning,
         );
         Navigator.of(context).pop();
       }
@@ -226,11 +226,10 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
     if (route == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('記録できる位置情報がまだありません。少し歩いてからお試しください'),
-            backgroundColor: Colors.orange,
-          ),
+        showWanWalkSnackBar(
+          context,
+          '記録できる位置情報がまだありません。少し歩いてからお試しください',
+          type: WanWalkSnackBarType.warning,
         );
       }
       return;
@@ -251,16 +250,15 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
     // A5: 保存失敗 → 記録は破棄せず、リトライ導線を提示
     if (walkId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('記録の保存に失敗しました。電波の良い場所で再度お試しください'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 8),
-          action: SnackBarAction(
-            label: '再試行',
-            textColor: Colors.white,
-            onPressed: _finishWalking,
-          ),
+      showWanWalkSnackBar(
+        context,
+        '記録の保存に失敗しました。電波の良い場所で再度お試しください',
+        type: WanWalkSnackBarType.error,
+        duration: const Duration(seconds: 8),
+        action: SnackBarAction(
+          label: '再試行',
+          textColor: Colors.white,
+          onPressed: _finishWalking,
         ),
       );
       return; // finalizeWalk は呼ばない → データ保持
@@ -302,12 +300,11 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
     // A8: 写真アップロード失敗をユーザーに通知（散歩記録自体は保存済み）
     if (photoFailCount > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('写真$photoFailCount枚のアップロードに失敗しました（散歩記録は保存されています）'),
-          backgroundColor: Colors.orange,
-          duration: const Duration(seconds: 5),
-        ),
+      showWanWalkSnackBar(
+        context,
+        '写真$photoFailCount枚のアップロードに失敗しました（散歩記録は保存されています）',
+        type: WanWalkSnackBarType.warning,
+        duration: const Duration(seconds: 5),
       );
     }
 

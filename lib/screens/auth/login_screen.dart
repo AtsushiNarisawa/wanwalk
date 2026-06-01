@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 import '../../providers/auth_provider.dart';
 import 'signup_screen.dart';
 import 'password_reset_screen.dart';
@@ -50,11 +51,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } catch (e) {
       if (mounted) {
         // エラーメッセージ表示
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_getErrorMessage(e)),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          _getErrorMessage(e),
+          type: WanWalkSnackBarType.error,
         );
       }
     } finally {

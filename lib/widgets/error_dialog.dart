@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config/wanwalk_colors.dart';
 import '../models/app_exception.dart';
 import '../services/error_handler_service.dart';
 
@@ -101,7 +102,7 @@ class ErrorSnackBar {
             Expanded(child: Text(errorMessage)),
           ],
         ),
-        backgroundColor: Colors.red[700],
+        backgroundColor: WanWalkColors.semanticError,
         duration: const Duration(seconds: 4),
         action: onRetry != null
             ? SnackBarAction(

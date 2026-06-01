@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/route_model.dart';
 import '../../services/route_service.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 
 /// ルート編集画面
 class RouteEditScreen extends StatefulWidget {
@@ -39,11 +40,10 @@ class _RouteEditScreenState extends State<RouteEditScreen> {
   Future<void> _saveChanges() async {
     // バリデーション
     if (_titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('タイトルを入力してください'),
-          backgroundColor: Colors.red,
-        ),
+      showWanWalkSnackBar(
+        context,
+        'タイトルを入力してください',
+        type: WanWalkSnackBarType.error,
       );
       return;
     }
@@ -64,28 +64,25 @@ class _RouteEditScreenState extends State<RouteEditScreen> {
       if (!mounted) return;
 
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('ルートを更新しました'),
-            backgroundColor: Colors.green,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'ルートを更新しました',
+          type: WanWalkSnackBarType.success,
         );
         Navigator.of(context).pop(true); // 更新成功を通知
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('更新に失敗しました'),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          '更新に失敗しました',
+          type: WanWalkSnackBarType.error,
         );
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('エラー: $e'),
-          backgroundColor: Colors.red,
-        ),
+      showWanWalkSnackBar(
+        context,
+        'エラー: $e',
+        type: WanWalkSnackBarType.error,
       );
     } finally {
       if (mounted) {

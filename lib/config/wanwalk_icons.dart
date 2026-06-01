@@ -34,6 +34,7 @@ class WanWalkIcons {
   // 散歩系
   // ==================================================
   static IconData get clock => PhosphorIcons.clock();
+  static IconData get clockCounterClockwise => PhosphorIcons.clockCounterClockwise();
   static IconData get ruler => PhosphorIcons.ruler();
   static IconData get mountains => PhosphorIcons.mountains();
   static IconData get chartLineUp => PhosphorIcons.chartLineUp();

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 import '../../config/wanwalk_spacing.dart';
 import '../../widgets/wanwalk_button.dart';
 
@@ -69,12 +70,11 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('パスワードリセット用のメールを $email に送信しました'),
-          backgroundColor: WanWalkColors.success,
-          duration: const Duration(seconds: 5),
-        ),
+      showWanWalkSnackBar(
+        context,
+        'パスワードリセット用のメールを $email に送信しました',
+        type: WanWalkSnackBarType.success,
+        duration: const Duration(seconds: 5),
       );
     } on AuthException catch (e) {
       if (!mounted) return;
@@ -95,11 +95,10 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
           errorMessage = 'エラーが発生しました: ${e.message}';
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: WanWalkColors.error,
-        ),
+      showWanWalkSnackBar(
+        context,
+        errorMessage,
+        type: WanWalkSnackBarType.error,
       );
     } catch (e) {
       if (!mounted) return;
@@ -108,11 +107,10 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('予期しないエラーが発生しました: $e'),
-          backgroundColor: WanWalkColors.error,
-        ),
+      showWanWalkSnackBar(
+        context,
+        '予期しないエラーが発生しました: $e',
+        type: WanWalkSnackBarType.error,
       );
     }
   }

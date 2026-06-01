@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 import '../../models/route_pin.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/route_pin_provider.dart';
@@ -130,8 +131,10 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       );
       if (images.length + _selectedImages.length > 5) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('写真は最大5枚まで'), backgroundColor: Colors.orange),
+          showWanWalkSnackBar(
+            context,
+            '写真は最大5枚まで',
+            type: WanWalkSnackBarType.warning,
           );
         }
         return;
@@ -139,8 +142,10 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       setState(() { _selectedImages.addAll(images); });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('写真の選択に失敗: $e'), backgroundColor: Colors.red),
+        showWanWalkSnackBar(
+          context,
+          '写真の選択に失敗: $e',
+          type: WanWalkSnackBarType.error,
         );
       }
     }
@@ -154,8 +159,10 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       if (image == null) return;
       if (_selectedImages.length >= 5) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('写真は最大5枚まで'), backgroundColor: Colors.orange),
+          showWanWalkSnackBar(
+            context,
+            '写真は最大5枚まで',
+            type: WanWalkSnackBarType.warning,
           );
         }
         return;
@@ -163,8 +170,10 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       setState(() { _selectedImages.add(image); });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('撮影に失敗: $e'), backgroundColor: Colors.red),
+        showWanWalkSnackBar(
+          context,
+          '撮影に失敗: $e',
+          type: WanWalkSnackBarType.error,
         );
       }
     }
@@ -177,8 +186,10 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
   Future<void> _submitPin() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ログインが必要です'), backgroundColor: Colors.red),
+      showWanWalkSnackBar(
+        context,
+        'ログインが必要です',
+        type: WanWalkSnackBarType.error,
       );
       return;
     }
@@ -250,8 +261,10 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
             ),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ピンを投稿しました！'), backgroundColor: Colors.green),
+          showWanWalkSnackBar(
+            context,
+            'ピンを投稿しました！',
+            type: WanWalkSnackBarType.success,
           );
         }
 
@@ -259,8 +272,10 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('投稿に失敗: $e'), backgroundColor: Colors.red),
+        showWanWalkSnackBar(
+          context,
+          '投稿に失敗: $e',
+          type: WanWalkSnackBarType.error,
         );
       }
     } finally {

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_icons.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../services/onboarding_service.dart';
 import '../../utils/logger.dart';
@@ -274,7 +275,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            const Icon(Icons.login, color: WanWalkColors.primary),
+            Icon(WanWalkIcons.signIn, color: WanWalkColors.accentPrimary),
             const SizedBox(width: 8),
             Text(
               'ログインが必要です',
@@ -309,7 +310,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: WanWalkColors.primary,
+              backgroundColor: WanWalkColors.accentPrimary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
@@ -358,29 +359,31 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         ),
         unselectedLabelStyle: WanWalkTypography.caption,
         items: [
+          // §7 Phosphor Regular のみ。active 状態は塗りつぶし(Fill)でなく
+          // selectedItemColor(深緑) + ラベル太字で表現する。
           BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined, size: 28),
-            activeIcon: SizedBox(key: _keyNavHome, child: const Icon(Icons.home, size: 28)),
+            icon: Icon(WanWalkIcons.house, size: 28),
+            activeIcon: SizedBox(key: _keyNavHome, child: Icon(WanWalkIcons.house, size: 28)),
             label: 'ホーム',
           ),
           BottomNavigationBarItem(
-            icon: SizedBox(key: _keyNavMap, child: const Icon(Icons.map_outlined, size: 28)),
-            activeIcon: const Icon(Icons.map, size: 28),
+            icon: SizedBox(key: _keyNavMap, child: Icon(WanWalkIcons.mapTrifold, size: 28)),
+            activeIcon: Icon(WanWalkIcons.mapTrifold, size: 28),
             label: 'マップ',
           ),
           BottomNavigationBarItem(
-            icon: SizedBox(key: _keyNavWalk, child: Icon(PhosphorIcons.personSimpleWalk(), size: 30)),
-            activeIcon: Icon(PhosphorIcons.personSimpleWalk(PhosphorIconsStyle.fill), size: 30),
+            icon: SizedBox(key: _keyNavWalk, child: Icon(WanWalkIcons.personWalk, size: 30)),
+            activeIcon: Icon(WanWalkIcons.personWalk, size: 30),
             label: 'お散歩',
           ),
           BottomNavigationBarItem(
-            icon: SizedBox(key: _keyNavLibrary, child: const Icon(Icons.history, size: 28)),
-            activeIcon: const Icon(Icons.history, size: 28),
+            icon: SizedBox(key: _keyNavLibrary, child: Icon(WanWalkIcons.clockCounterClockwise, size: 28)),
+            activeIcon: Icon(WanWalkIcons.clockCounterClockwise, size: 28),
             label: 'ライブラリ',
           ),
           BottomNavigationBarItem(
-            icon: SizedBox(key: _keyNavProfile, child: const Icon(Icons.person_outline, size: 28)),
-            activeIcon: const Icon(Icons.person, size: 28),
+            icon: SizedBox(key: _keyNavProfile, child: Icon(WanWalkIcons.user, size: 28)),
+            activeIcon: Icon(WanWalkIcons.user, size: 28),
             label: 'プロフィール',
           ),
         ],

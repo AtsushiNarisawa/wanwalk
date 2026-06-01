@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_icons.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../providers/push_notification_provider.dart';
 import '../../services/onboarding_service.dart';
@@ -21,24 +21,25 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
 
+  // §7 Phosphor Regular のみ。アクセント色は accentPrimary(深緑) に統一。
   static final _slides = [
-    const _SlideData(
-      icon: Icons.route,
-      iconColor: WanWalkColors.accent,
+    _SlideData(
+      icon: WanWalkIcons.path,
+      iconColor: WanWalkColors.accentPrimary,
       title: '新しい散歩コースを発見',
       description: '公式ルートで愛犬との散歩が\nもっと楽しくなります',
       subText: '箱根・湘南・鎌倉など人気エリアのルートを収録',
     ),
-    const _SlideData(
-      icon: Icons.add_location_alt,
-      iconColor: WanWalkColors.routeOrange,
+    _SlideData(
+      icon: WanWalkIcons.mapPin,
+      iconColor: WanWalkColors.accentPrimary,
       title: 'おすすめスポットを共有',
       description: '水飲み場やドッグカフェなど\n犬連れに嬉しい情報をみんなでシェア',
       subText: 'ピン投稿で素敵な場所を教え合おう',
     ),
     _SlideData(
-      icon: PhosphorIcons.dog(),
-      iconColor: WanWalkColors.primary,
+      icon: WanWalkIcons.dog,
+      iconColor: WanWalkColors.accentPrimary,
       title: '散歩の思い出を記録',
       description: '日常散歩もお出かけ散歩も\nルートと写真で振り返れます',
       subText: '愛犬との大切な時間を残しましょう',
@@ -146,7 +147,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           color: isActive
-                              ? WanWalkColors.primary
+                              ? WanWalkColors.accentPrimary
                               : (isDark
                                   ? Colors.grey[700]
                                   : Colors.grey[300]),
@@ -163,12 +164,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                     child: ElevatedButton(
                       onPressed: _goToNext,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: WanWalkColors.primary,
+                        backgroundColor: WanWalkColors.accentPrimary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        elevation: 2,
+                        elevation: 0,
                       ),
                       child: Text(
                         _currentPage == _slides.length - 1

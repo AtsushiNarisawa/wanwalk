@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../widgets/wanwalk_snackbar.dart';
 
 /// メールアドレス変更画面
 class ChangeEmailScreen extends ConsumerStatefulWidget {
@@ -121,20 +122,18 @@ class _ChangeEmailScreenState extends ConsumerState<ChangeEmailScreen> {
           errorMessage = '現在のメールアドレスと同じです';
         }
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          errorMessage,
+          type: WanWalkSnackBarType.error,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('エラーが発生しました: $e'),
-            backgroundColor: Colors.red,
-          ),
+        showWanWalkSnackBar(
+          context,
+          'エラーが発生しました: $e',
+          type: WanWalkSnackBarType.error,
         );
       }
     } finally {
