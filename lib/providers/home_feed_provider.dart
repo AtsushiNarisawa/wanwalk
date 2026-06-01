@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/official_route.dart';
 import '../models/recent_pin_post.dart';
-import '../utils/logger.dart';
 
 /// フィードアイテムの種別
 enum FeedItemType {
@@ -133,28 +131,10 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
     }
   } catch (_) {}
 
-  // 4. コミュニティピン（最新10件）
-  try {
-    // A7: RPC の正しい引数は p_limit（limit_count は 42883 で恒久的に握り潰されていた）
-    final pinsResponse = await supabase
-        .rpc('get_recent_pins', params: {'p_limit': 10});
-
-    for (final pinJson in (pinsResponse as List)) {
-      try {
-        final pin = RecentPinPost.fromJson(pinJson);
-        items.add(FeedItem(
-          type: FeedItemType.communityPin,
-          sortDate: pin.createdAt,
-          pin: pin,
-        ));
-      } catch (e) {
-        if (kDebugMode) appLog('communityPin parse failed: $e');
-      }
-    }
-  } catch (e) {
-    // A7: サイレント故障を可視化
-    if (kDebugMode) appLog('get_recent_pins failed: $e');
-  }
+  // コミュニティピンはメインフィードに混在させない。
+  // 「最新のルート」見出し下は公式ルートのみとし、ピンはホーム末尾の
+  // 「愛犬家のスナップ」横スクロールカルーセル（recentPinsProvider）に分離した。
+  // → ルート発見導線の純化（編集コンテンツと UGC のジャンル混在を解消）。
 
   return composeHomeFeed(items);
 });

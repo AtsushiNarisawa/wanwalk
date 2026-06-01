@@ -5,7 +5,7 @@ import '../models/recent_pin_post.dart';
 import '../utils/logger.dart';
 
 /// 最新の写真付きピン投稿を取得するProvider
-/// ホーム画面で最新2件を表示するために使用
+/// ホーム画面の「愛犬家のスナップ」横スクロールカルーセルで使用
 final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
   if (kDebugMode) {
     appLog('📌 [RecentPinsProvider] Fetching recent pins from Supabase...');
@@ -16,7 +16,7 @@ final recentPinsProvider = FutureProvider<List<RecentPinPost>>((ref) async {
 
     // Supabase RPC `get_recent_pins` を呼び出し
     final response = await supabase.rpc('get_recent_pins', params: {
-      'p_limit': 2, // ホーム画面では最新2件のみ表示
+      'p_limit': 10, // 横スクロールカルーセル用に最新10件
       'p_offset': 0,
     }).select();
 

@@ -8,6 +8,7 @@ import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/analytics_provider.dart';
 import '../../../providers/home_feed_provider.dart';
+import '../../../providers/recent_pins_provider.dart';
 import '../../../providers/area_provider.dart';
 import '../../../services/analytics_service.dart';
 import '../../../models/area.dart';
@@ -19,7 +20,7 @@ import '../../outing/hakone_sub_area_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../../widgets/feed/walk_summary_card.dart';
 import '../../../widgets/feed/route_feed_card.dart';
-import '../../../widgets/feed/pin_feed_card.dart';
+import '../../../widgets/feed/pin_snap_card.dart';
 import '../../../widgets/feed/area_feature_card.dart';
 import '../../../widgets/banners/hakone_tourism_banner.dart';
 import '../../../widgets/notification_recovery_banner.dart';
@@ -33,11 +34,10 @@ import '../../../utils/notification_deep_link.dart';
 /// 1. 散歩サマリー（ログイン時のみ・先頭固定）
 /// 2. エリアから探す（横スクロール・箱根メイン）
 /// 3. 「最新のルート」セクションタイトル
-/// 4. 公式ルートカード（NEW/季節バッジ付き）
-/// 5. コミュニティピンカード
-/// 6. エリア特集カード
-/// 7. 箱根観光バナー
-/// 8. フッター
+/// 4. 公式ルートカード（NEW/季節バッジ付き・ルートのみ）
+/// 5. 「愛犬家のスナップ」横スクロールカルーセル（コミュニティピン・ルートと分離）
+/// 6. 箱根観光バナー
+/// 7. フッター
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
 
@@ -114,8 +114,8 @@ class HomeTab extends ConsumerWidget {
         final summaryCount = hasSummary ? 1 : 0;
         // 挿入: 今日のおすすめ(1) + エリアカード(1) + ピックアップ(1) + 最新ルートタイトル(1) = 4
         const insertedCount = 4;
-        // フッター: バナー(1) + Supported(1) = 2
-        const footerCount = 2;
+        // フッター: 愛犬家のスナップ(1) + バナー(1) + Supported(1) = 3
+        const footerCount = 3;
         final totalCount = items.length + insertedCount + footerCount;
 
         // 通知タップ deep link 由来の scroll セクション要求を消費。
@@ -177,6 +177,10 @@ class HomeTab extends ConsumerWidget {
                 );
               }
 
+              // フッター: 愛犬家のスナップ（コミュニティピン・横スクロール）
+              if (index == totalCount - 3) {
+                return _buildPinSnaps(context, ref, isDark);
+              }
               // フッター: バナー
               if (index == totalCount - 2) {
                 return HakoneTourismBanner(isDark: isDark);
@@ -242,30 +246,11 @@ class HomeTab extends ConsumerWidget {
                     },
                   );
 
+                // コミュニティピンはメインフィードに混在させず、末尾の
+                // 「愛犬家のスナップ」カルーセル（_buildPinSnaps）に分離した。
+                // homeFeedProvider は communityPin を emit しないため到達不能。
                 case FeedItemType.communityPin:
-                  if (item.pin == null) return const SizedBox.shrink();
-                  return PinFeedCard(
-                    pin: item.pin!,
-                    isDark: isDark,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PinDetailScreen(pinId: item.pin!.pinId),
-                        ),
-                      );
-                    },
-                    onRouteTap: item.pin!.routeId != null
-                        ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RouteDetailScreen(routeId: item.pin!.routeId!),
-                              ),
-                            );
-                          }
-                        : null,
-                  );
+                  return const SizedBox.shrink();
 
                 case FeedItemType.areaFeature:
                   final subAreaNames = (item.extra?['subAreas'] as List?)?.cast<String>() ?? [];
@@ -429,6 +414,72 @@ class HomeTab extends ConsumerWidget {
       },
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  /// 愛犬家のスナップ（コミュニティピン横スクロールカルーセル）
+  ///
+  /// 公式ルートとはジャンルが異なる UGC なので、メインフィードに混在させず
+  /// ここで写真ファーストのカルーセルとして分離表示する。ピンが無ければ非表示。
+  Widget _buildPinSnaps(BuildContext context, WidgetRef ref, bool isDark) {
+    final pinsAsync = ref.watch(recentPinsProvider);
+    return pinsAsync.maybeWhen(
+      data: (pins) {
+        if (pins.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(
+                left: WanWalkSpacing.s4,
+                right: WanWalkSpacing.s4,
+                top: WanWalkSpacing.s6,
+                bottom: WanWalkSpacing.s1,
+              ),
+              child: Text('愛犬家のスナップ', style: WanWalkTypography.wwH3),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: WanWalkSpacing.s4,
+                right: WanWalkSpacing.s4,
+                bottom: WanWalkSpacing.s2,
+              ),
+              child: Text(
+                '散歩中に見つけたおすすめスポット',
+                style: WanWalkTypography.wwBodySm.copyWith(
+                  color: WanWalkColors.textSecondary,
+                ),
+              ),
+            ),
+            SizedBox(
+              // サムネ(正方形=cardWidth) + キャプション2行ぶんの余白
+              height: PinSnapCard.cardWidth + 56,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.s4),
+                itemCount: pins.length,
+                separatorBuilder: (_, __) => const SizedBox(width: WanWalkSpacing.s3),
+                itemBuilder: (context, i) {
+                  final pin = pins[i];
+                  return PinSnapCard(
+                    pin: pin,
+                    isDark: isDark,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PinDetailScreen(pinId: pin.pinId),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
     );
   }
 
