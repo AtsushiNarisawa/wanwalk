@@ -15,6 +15,7 @@ import '../../providers/spot_review_provider.dart';
 import 'route_detail_screen.dart';
 import 'spot_review_form_screen.dart';
 import '../../utils/map_tile_nudge.dart';
+import '../../utils/distance_formatter.dart';
 
 /// ピン詳細画面
 /// ユーザーが投稿したピンの詳細情報を表示
@@ -273,7 +274,7 @@ class _PinDetailScreenState extends ConsumerState<PinDetailScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${(route.distanceMeters / 1000).toStringAsFixed(1)}km・約${route.estimatedMinutes}分',
+                            '${formatDistance(route.distanceMeters.toInt())}・約${route.estimatedMinutes}分',
                             style: WanWalkTypography.bodySmall.copyWith(
                               color: isDark
                                   ? WanWalkColors.textSecondaryDark
