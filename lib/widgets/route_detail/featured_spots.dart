@@ -7,6 +7,7 @@ import '../../models/route_spot.dart';
 import 'dog_policy_badges.dart';
 
 /// おすすめスポット表示対象のカテゴリ（infrastructure系は除外）
+/// Web の FEATURED_CATEGORIES と一致させる（shrine_temple を含む）。
 const Set<SpotCategory> _featuredCategories = {
   SpotCategory.viewpoint,
   SpotCategory.cafe,
@@ -14,6 +15,7 @@ const Set<SpotCategory> _featuredCategories = {
   SpotCategory.park,
   SpotCategory.shop,
   SpotCategory.dogRun,
+  SpotCategory.shrineTemple,
 };
 
 class _MergedSpot {

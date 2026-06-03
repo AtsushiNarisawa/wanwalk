@@ -72,6 +72,8 @@ class _TimelineRow extends StatelessWidget {
         return PhosphorIcons.binoculars();
       case SpotCategory.shop:
         return PhosphorIcons.storefront();
+      case SpotCategory.shrineTemple:
+        return PhosphorIcons.mapPin();
       case null:
         return PhosphorIcons.mapPin();
     }
@@ -87,10 +89,6 @@ class _TimelineRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dist = spot.distanceFromStart;
-    final desc = spot.description;
-    final shortDesc = (desc != null && desc.length > 60)
-        ? '${desc.substring(0, 60)}...'
-        : desc;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,20 +173,6 @@ class _TimelineRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (shortDesc != null) ...[
-                  const SizedBox(height: 2),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24),
-                    child: Text(
-                      shortDesc,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        height: 1.6,
-                        color: WanWalkColors.textTertiary,
-                      ),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

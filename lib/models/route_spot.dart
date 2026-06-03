@@ -37,8 +37,10 @@ enum RouteSpotType {
   }
 }
 
-/// 9カテゴリのスポット分類（category フィールド）
-/// Web の SpotCategory と1対1対応
+/// スポット分類（category フィールド）。DB の category 値に対応。
+/// shrine_temple は Web の「おすすめスポット」(FEATURED_CATEGORIES) と整合させるため追加。
+/// landmark / historical_landmark / beach は未マップ（fromString→null→mapPin アイコン）。
+/// これは Web 側も同じ fallback 挙動（CATEGORY_ICONS 未定義→MapPin・非featured）で一致している。
 enum SpotCategory {
   viewpoint('viewpoint', '景観'),
   cafe('cafe', 'カフェ'),
@@ -48,7 +50,8 @@ enum SpotCategory {
   dogRun('dog_run', 'ドッグラン'),
   waterStation('water_station', '給水'),
   restroom('restroom', 'トイレ'),
-  parking('parking', '駐車場');
+  parking('parking', '駐車場'),
+  shrineTemple('shrine_temple', '神社仏閣');
 
   const SpotCategory(this.value, this.label);
 
