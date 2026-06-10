@@ -8,5 +8,14 @@
 	</array>
 	<key>aps-environment</key>
 	<string>development</string>
+	<!-- A2 Universal Links: wanwalk.jp の HTTPS URL タップでアプリ起動。
+	     対になる AASA は wanwalk-web が /.well-known/apple-app-site-association で配信。
+	     ※ Apple Developer Portal の App ID で Associated Domains capability を ON にし、
+	        この entitlement を含むプロビジョニングプロファイルで署名する必要がある（Build 41）。 -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:wanwalk.jp</string>
+		<string>webcredentials:wanwalk.jp</string>
+	</array>
 </dict>
 </plist>

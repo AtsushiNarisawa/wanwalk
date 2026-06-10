@@ -270,6 +270,20 @@ class AnalyticsService {
   Future<void> logAppStoreReviewPrompt({required String context}) =>
       _log('app_store_review_prompt', {'context': context});
 
+  /// A2 Universal Links 経由でアプリが起動・遷移したときの計測（設計書 §4.3）。
+  /// [urlPath] は `/routes/xxx` のようなパス（クエリ・スラッグ値は含めない方針なら呼び出し側で正規化）。
+  /// [coldStart] はアプリ未起動からの起動か。GA4 はパラメータに bool 非対応のため int(1/0) で送る。
+  Future<void> logDeepLinkOpen({
+    required String urlPath,
+    required bool coldStart,
+    required bool loggedIn,
+  }) =>
+      _log('deep_link_open', {
+        'url_path': urlPath,
+        'cold_start': coldStart ? 1 : 0,
+        'auth_state': loggedIn ? 'logged_in' : 'logged_out',
+      });
+
   // ───────────────────────────────────────────────────────────
   // 内部 helper
   // ───────────────────────────────────────────────────────────

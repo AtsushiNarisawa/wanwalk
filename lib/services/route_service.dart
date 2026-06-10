@@ -8,6 +8,29 @@ import '../utils/logger.dart';
 class RouteService {
   final _supabase = Supabase.instance.client;
 
+  /// A2 Universal Links: wanwalk.jp/routes/{slug} の slug から
+  /// 公開中の公式ルート id（UUID）を解決する。
+  ///
+  /// アプリのルート詳細画面は id 起点（RouteDetailScreen(routeId)）のため、
+  /// Universal Link で届く slug をここで id に変換し、既存の遷移へ乗せる。
+  /// 見つからない / 非公開 / エラー時は null を返す。
+  Future<String?> getOfficialRouteIdBySlug(String slug) async {
+    try {
+      final row = await _supabase
+          .from('official_routes')
+          .select('id')
+          .eq('slug', slug)
+          .eq('is_published', true)
+          .maybeSingle();
+      return row?['id'] as String?;
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('❌ getOfficialRouteIdBySlug($slug) failed: $e');
+      }
+      return null;
+    }
+  }
+
   Future<String?> saveRoute(RouteModel route) async {
     try {
       final response = await _supabase.from('routes').insert({

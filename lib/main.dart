@@ -21,6 +21,7 @@ import 'screens/onboarding/welcome_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/auth/auth_selection_screen.dart';
 import 'screens/outing/route_detail_screen.dart';
+import 'services/deep_link_service.dart';
 import 'services/notification_permission_service.dart';
 import 'services/onboarding_service.dart';
 import 'services/push_notification_service.dart';
@@ -242,6 +243,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initPushNotifications();
       _initAnalytics();
+      _initDeepLinks();
     });
 
     // 認証状態をチェックして適切な画面に遷移
@@ -253,6 +255,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       await ref.read(analyticsServiceProvider).initialize();
     } catch (e) {
       if (kDebugMode) appLog('[main] analytics init failed: $e');
+    }
+  }
+
+  /// A2 Universal Links 受信を初期化（getInitialLink で cold-start URL を保留 + stream 購読）。
+  /// 保留分はメイン画面遷移後に [DeepLinkService.processPendingColdStartLink] で消費する。
+  Future<void> _initDeepLinks() async {
+    try {
+      await ref.read(deepLinkServiceProvider).init();
+    } catch (e) {
+      if (kDebugMode) appLog('[main] deep link init failed: $e');
     }
   }
 
@@ -302,6 +314,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MainScreen()),
       );
+      // A2: cold-start で保留した Universal Link をメイン画面の上に push して消費。
+      // （オンボーディング未完了の WelcomeScreen 経路では呼ばない＝初回はオンボ優先）
+      unawaited(ref.read(deepLinkServiceProvider).processPendingColdStartLink());
     }
   }
   
