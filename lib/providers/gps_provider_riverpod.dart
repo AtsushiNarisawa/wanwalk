@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/official_route.dart';
 import '../models/route_model.dart';
@@ -104,6 +105,10 @@ class GpsNotifier extends StateNotifier<GpsState> {
   int _lastPersistedPointCount = 0;
 
   GpsNotifier(this.ref) : super(GpsState(walkMode: WalkMode.daily));
+
+  /// LAYER1_NAV_SPEC §2: ナビレイヤー（沿線距離エンジン）が購読する生 Position ストリーム。
+  /// 記録用の毎秒統計ループとは独立した fix 駆動の経路。
+  Stream<Position> get navFixStream => _gpsService.navFixStream;
 
   /// A9: 一時停止時間を控除した実経過秒を計算する。
   int _activeElapsedSeconds() {

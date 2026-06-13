@@ -15,6 +15,8 @@ import '../../models/walk_mode.dart';
 import '../../utils/map_tile_nudge.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/active_walk_provider.dart';
+import '../../providers/analytics_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
@@ -40,6 +42,8 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
   bool _showRouteInfo = true; // 統計情報の表示/非表示
   final PhotoService _photoService = PhotoService();
   final List<File> _photoFiles = []; // 散歩中の写真を一時保存（散歩終了時にアップロード）
+  bool _permissionLogged = false; // §9: permission_result を1回だけ送る
+  bool _finishing = false; // 終了処理の再入ガード（walks 二重保存の防止）
 
   @override
   void initState() {
@@ -121,6 +125,14 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     
     // GPS権限チェック
     final hasPermission = await gpsNotifier.checkPermission();
+    // §9 F: 位置権限の結果を計測（1回だけ）。
+    if (!_permissionLogged) {
+      _permissionLogged = true;
+      unawaited(ref.read(analyticsServiceProvider).logPermissionResult(
+            type: 'location',
+            granted: hasPermission,
+          ));
+    }
     if (!hasPermission) {
       if (mounted) {
         await showLocationPermissionDialog(context);
@@ -128,6 +140,9 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       }
       return;
     }
+
+    // §8: 散歩開始時に匿名セッションを付与（未ログインでも記録・北極星計測ができる）。
+    await ref.read(authProvider.notifier).ensureSession();
 
     // GPS記録開始（日常散歩を明示。outing 後に daily を継承しないようにする）
     final success = await gpsNotifier.startRecording(mode: WalkMode.daily);
@@ -141,10 +156,17 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
     // A3: グローバル散歩状態を配線（バナーからの復帰に使用）
     ref.read(activeWalkProvider.notifier).startWalk(mode: WalkMode.daily);
+
+    // §9 計測の穴埋め: Daily も記録開始を計測（従来 Outing のみ発火していた）
+    ref.read(analyticsServiceProvider).logRouteStartWalk(walkMode: 'daily');
   }
 
   /// 散歩を終了
   Future<void> _finishWalking() async {
+    // 再入ガード: 保存中の二度押し・再試行で walks が二重保存されるのを防ぐ。
+    if (_finishing) return;
+    _finishing = true;
+
     // 写真選択ダイアログを表示
     final shouldAddPhotos = await showDialog<bool>(
       context: context,
@@ -196,27 +218,39 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       ),
     );
 
-    if (confirmed != true) return;
+    if (confirmed != true) {
+      _finishing = false;
+      return;
+    }
 
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
     final gpsState = ref.read(gpsProviderRiverpod);
 
     // Supabaseから現在のユーザーIDを取得
-    final userId = Supabase.instance.client.auth.currentUser?.id;
+    var userId = Supabase.instance.client.auth.currentUser?.id;
+
+    // §8: セッションが無ければ匿名サインインを試みる（保険）。
+    if (userId == null) {
+      await ref.read(authProvider.notifier).ensureSession();
+      if (!mounted) return;
+      userId = Supabase.instance.client.auth.currentUser?.id;
+    }
 
     if (userId == null) {
-      // 未ログイン: 保存できないので記録を破棄して閉じる
-      gpsNotifier.cancelRecording();
-      ref.read(activeWalkProvider.notifier).endWalk();
-      if (mounted) {
-        showWanWalkSnackBar(
-          context,
-          'ログインしていないため記録を保存できません',
-          type: WanWalkSnackBarType.warning,
-        );
-        Navigator.of(context).pop();
-      }
-      return;
+      // それでもセッション無し: **記録は破棄せず保持**し、再試行を促す（旧「破棄」を撤廃）。
+      _finishing = false; // 再試行を許可
+      showWanWalkSnackBar(
+        context,
+        '通信状態を確認して、もう一度「終了」をお試しください（記録は保持しています）',
+        type: WanWalkSnackBarType.warning,
+        duration: const Duration(seconds: 8),
+        action: SnackBarAction(
+          label: '再試行',
+          textColor: Colors.white,
+          onPressed: _finishWalking,
+        ),
+      );
+      return; // finalizeWalk/cancel しない → データ保持
     }
 
     // A5: 記録状態を変えずにスナップショットを生成（保存失敗時もデータ保持）
@@ -227,6 +261,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     );
 
     if (route == null) {
+      _finishing = false; // 少し歩いてから再試行を許可
       if (mounted) {
         showWanWalkSnackBar(
           context,
@@ -252,6 +287,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
 
     // A5: 保存失敗 → 記録は破棄せず、リトライ導線を提示
     if (walkId == null) {
+      _finishing = false; // 再試行を許可
       showWanWalkSnackBar(
         context,
         '記録の保存に失敗しました。電波の良い場所で再度お試しください',
@@ -270,6 +306,15 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     if (kDebugMode) {
       appLog('✅ 日常散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
     }
+
+    // §9 計測の穴埋め: Daily も完了を計測（北極星「体験到達」の分母汚染を防ぐ）。
+    // Daily は公式ルート・ナビ無し → navEnabled=false（routeSlug/進捗は付けない）。
+    ref.read(analyticsServiceProvider).logWalkComplete(
+          walkMode: 'daily',
+          distanceM: distanceMeters.round(),
+          durationSec: gpsState.elapsedSeconds,
+          navEnabled: false,
+        );
 
     // A5: 保存成功したので記録を確定終了してリセット
     gpsNotifier.finalizeWalk();
@@ -332,6 +377,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     );
     // レビュー促進: 散歩完了は最大のポジティブな瞬間（シートを閉じた後に検討）
     unawaited(AppReviewService.instance.onStrongPositiveSignal());
+    _finishing = false;
     if (mounted) Navigator.of(context).pop(route);
   }
 

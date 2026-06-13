@@ -13,6 +13,12 @@ class GpsService {
   bool _isRecording = false;
   bool _isPaused = false;
 
+  /// LAYER1_NAV_SPEC §2: ナビレイヤー（沿線距離エンジン）へ生 Position（accuracy 付き）を
+  /// 流すブロードキャスト。記録用 _addRoutePoint とは独立（毎秒O(n)統計ループに相乗りしない）。
+  final StreamController<Position> _navFixController =
+      StreamController<Position>.broadcast();
+  Stream<Position> get navFixStream => _navFixController.stream;
+
   /// 位置情報の権限をチェック
   Future<bool> checkPermission() async {
     bool serviceEnabled;
@@ -145,6 +151,9 @@ class GpsService {
       locationSettings: locationSettings,
     ).listen(
       (Position position) {
+        // nav: 生 Position（accuracy 付き）を先にナビレイヤーへ。記録の一時停止に依らず
+        // 現在地追従できるよう _addRoutePoint の早期returnより前で emit する。
+        _navFixController.add(position);
         _addRoutePoint(position);
       },
       // A10: ストリームエラーを握り潰さず可視化＋通知。

@@ -1,0 +1,565 @@
+import 'dart:math' as math;
+
+import 'package:latlong2/latlong.dart';
+
+import 'nav_geometry.dart';
+
+/// LAYER1_NAV_SPEC §2-§7 沿線距離ナビエンジン（本実装・Flutter非依存の純Dart）。
+///
+/// 設計（仕様の核）:
+/// - 全判定を「沿線距離(chainage)」基準に統一。
+/// - GPS精度ゲート(>35m除外)・窓付き投影(即時スナップ禁止)・方向推定・速度予測で
+///   往復/周回の誤吸着を抑える。
+/// - 接近は1スポット1散歩1回ラッチ・完走は25mカバレッジ80%かつゴール50m圏。
+/// - 終了忘れサスペンド（速度継続）・テレポート検出（ショートカット）。
+///
+/// このエンジンは `lib/nav/nav_geometry.dart` のプリミティブだけに依存し、
+/// `test/nav/` の GPSリプレイ・ハーネス（§14）と、アプリの nav_controller_provider が
+/// 同一コードを共有する。状態は [processFix] で更新、[state] で読む。
+
+/// エンジンへ注入する1フィックス（GPS or 合成）。
+class NavFix {
+  final LatLng position;
+  final double accuracyM; // 水平精度
+  final int tMillis; // 基準時刻からの経過(ms)
+  final bool moving; // 静止中(一時停止/匂い嗅ぎ)は false
+
+  const NavFix({
+    required this.position,
+    required this.accuracyM,
+    required this.tMillis,
+    this.moving = true,
+  });
+}
+
+/// ナビが扱うスポット（RouteSpot or fixture から構築）。
+class NavSpot {
+  final String id;
+  final String name;
+  final int? distanceFromStart;
+  final String? category;
+
+  const NavSpot({
+    required this.id,
+    required this.name,
+    this.distanceFromStart,
+    this.category,
+  });
+
+  /// §4 接近ガイド対象（景観系 + 商業系）。utility(parking/restroom/water_station) と
+  /// null は対象外（地図アイコンのみ）。
+  static const Set<String> approachCategories = {
+    'viewpoint', 'park', 'shrine_temple', 'landmark', 'historical_landmark', 'beach',
+    'cafe', 'restaurant', 'shop', 'dog_run',
+  };
+
+  bool get isApproachTarget =>
+      category != null && approachCategories.contains(category);
+}
+
+/// 閾値（§10 既定値。Build 43 で nav_params テーブルからリモート上書き）。
+class NavParams {
+  final double offRouteM; // 逸脱閾値（perp - accuracy）
+  final double accuracyGateM; // これ超の精度fixは接近/逸脱/進捗から除外
+  final double completeCoverage; // 完走カバレッジ閾値
+  final double goalRadiusM; // ゴール到達半径
+  final double suspendSpeedKmh; // 終了忘れサスペンド速度
+  final double startSnapM; // 起点圏（進捗0固定）
+  final double interpMaxSpeedMps; // カバレッジ補間を許す最大速度
+  final double reacquireJumpM; // これ超のchainage跳びは即時スナップせず再捕捉
+  final int reacquireConfirm; // 再捕捉に必要な連続一致fix数
+  final double offRouteSuspendM; // これ超の逸脱継続でサスペンド
+  final int suspendSpeedConfirm; // 高速がこの回数連続でサスペンド（§2「継続」）
+  final int initConfirm; // 初期化に使う最初のgood fix数（周回起点の0/total二義性を方向で解消）
+  final int offRouteConfirm; // 逸脱は連続この回数でエピソード計上（§6「複数fix連続」）
+  final double discontinuitySpeedMps; // 連続fix間の空間速度がこれ超=テレポートとして再捕捉
+  final double mergeM; // 接近密集マージ（§4・将来UI用）
+
+  const NavParams({
+    this.offRouteM = 50,
+    this.accuracyGateM = 35,
+    this.completeCoverage = 0.80,
+    this.goalRadiusM = 50,
+    this.suspendSpeedKmh = 12,
+    this.startSnapM = 50,
+    this.interpMaxSpeedMps = 3.0,
+    this.reacquireJumpM = 120,
+    this.reacquireConfirm = 3,
+    this.offRouteSuspendM = 500,
+    this.suspendSpeedConfirm = 4,
+    this.initConfirm = 5,
+    this.offRouteConfirm = 3,
+    this.discontinuitySpeedMps = 8.0,
+    this.mergeM = 130,
+  });
+
+  int get version => 1; // nav_params_version（全イベントへ付与・§10）
+}
+
+/// エンジンの観測可能状態（UI / 計測 / 保存が読む）。
+class NavState {
+  final bool ready; // 初期化完了（committed 確定）
+  final double chainageMeters; // 現在の沿線距離
+  final double totalMeters;
+  final double progressPct; // chainage/total（0-1）
+  final double remainingMeters; // total-chainage（線形）/ ループは戻り距離
+  final double maxProgressPct;
+  final double coveragePct;
+  final bool isCompleted;
+  final double minGoalDistanceM;
+  final double offRouteDistanceM; // 直近good fixの垂線距離
+  final bool offRouteActive;
+  final int offRouteEvents;
+  final bool suspended;
+  final int direction; // +1 / -1
+  final Set<String> firedApproachSpotIds;
+  final NavSpot? nextSpot; // 次の接近対象スポット
+  final double? nextSpotRemainingMeters; // 次スポットまでの沿線距離
+  final double? returnToParkingMeters; // §7 駐車場へルート沿いに戻る距離（parkingなければnull）
+
+  const NavState({
+    required this.ready,
+    required this.chainageMeters,
+    required this.totalMeters,
+    required this.progressPct,
+    required this.remainingMeters,
+    required this.maxProgressPct,
+    required this.coveragePct,
+    required this.isCompleted,
+    required this.minGoalDistanceM,
+    required this.offRouteDistanceM,
+    required this.offRouteActive,
+    required this.offRouteEvents,
+    required this.suspended,
+    required this.direction,
+    required this.firedApproachSpotIds,
+    required this.nextSpot,
+    required this.nextSpotRemainingMeters,
+    this.returnToParkingMeters,
+  });
+
+  static const empty = NavState(
+    ready: false,
+    chainageMeters: 0,
+    totalMeters: 0,
+    progressPct: 0,
+    remainingMeters: 0,
+    maxProgressPct: 0,
+    coveragePct: 0,
+    isCompleted: false,
+    minGoalDistanceM: double.infinity,
+    offRouteDistanceM: 0,
+    offRouteActive: false,
+    offRouteEvents: 0,
+    suspended: false,
+    direction: 1,
+    firedApproachSpotIds: <String>{},
+    nextSpot: null,
+    nextSpotRemainingMeters: null,
+  );
+}
+
+/// walks へ保存する完走の生値（§5）。NavState から構築し walk_save_service へ渡す。
+class NavCompletion {
+  final double coveragePct;
+  final double maxProgressPct;
+  final int? minGoalDistanceM;
+  final bool isRouteCompleted;
+
+  const NavCompletion({
+    required this.coveragePct,
+    required this.maxProgressPct,
+    required this.minGoalDistanceM,
+    required this.isRouteCompleted,
+  });
+
+  factory NavCompletion.fromState(NavState s) => NavCompletion(
+        coveragePct: double.parse(s.coveragePct.toStringAsFixed(4)),
+        maxProgressPct: double.parse(s.maxProgressPct.toStringAsFixed(4)),
+        minGoalDistanceM: s.minGoalDistanceM.isFinite ? s.minGoalDistanceM.round() : null,
+        isRouteCompleted: s.isCompleted,
+      );
+}
+
+/// 1スポットの接近発火イベント（B 接近ガイド／F 計測が消費）。
+class NavApproachEvent {
+  final NavSpot spot;
+  final double chainageMeters;
+  NavApproachEvent(this.spot, this.chainageMeters);
+}
+
+/// 逸脱エピソード開始イベント（D 復帰サポート／F 計測 off_route_event が消費）。
+///
+/// §14.4: Build 42 は D の UI を出さないが、accuracy_m / threshold_m / was_stationary を
+/// テレメトリとして送り、リモート閾値チューニングの「目」にする。
+class NavOffRouteEvent {
+  final double chainageMeters;
+  final double perpMeters; // 逸脱の垂線距離
+  final double accuracyM; // 発火 fix の水平精度
+  final double thresholdM; // 逸脱閾値（offRouteM）
+  final bool wasStationary; // 発火時に静止していたか（移動中のみ計上のため通常 false）
+  NavOffRouteEvent({
+    required this.chainageMeters,
+    required this.perpMeters,
+    required this.accuracyM,
+    required this.thresholdM,
+    required this.wasStationary,
+  });
+}
+
+class RouteNavEngine {
+  final List<LatLng> line;
+  final List<double> _cum;
+  final double totalMeters;
+  final List<NavSpot> spots;
+  final NavParams p;
+
+  /// 接近発火コールバック（B のカード/通知・F の計測が購読）。Build 43 でフラグ制御。
+  final void Function(NavApproachEvent event)? onApproach;
+
+  /// 逸脱エピソード開始コールバック（D の復帰バナー・F の off_route_event が購読）。
+  final void Function(NavOffRouteEvent event)? onOffRoute;
+
+  late final CoverageGrid _coverage;
+  final Set<String> _firedApproach = {};
+  int _offRouteEvents = 0;
+  bool _offRouteActive = false;
+  bool _completed = false;
+  bool _suspended = false;
+  double _minGoalDist = double.infinity;
+  double _maxChainage = 0;
+  double _lastPerp = 0;
+
+  double? _committed;
+  double? _lastGoodChainage;
+  int? _lastGoodTms;
+  int? _direction;
+  NavFix? _lastFix;
+  int _highSpeedRun = 0;
+  int _offRouteRun = 0;
+  double _recentRateMps = 0;
+  int? _lastCommitTms;
+  bool _forceReacquire = false;
+
+  final List<_InitSample> _initBuf = [];
+  final List<double> _reacqBuf = [];
+
+  RouteNavEngine(this.line, this.spots,
+      {this.p = const NavParams(), this.onApproach, this.onOffRoute})
+      : _cum = cumulativeChainage(line),
+        totalMeters = lineLengthMeters(line) {
+    _coverage = CoverageGrid(totalMeters, cellMeters: 25);
+  }
+
+  LatLng get _goal => line.last;
+
+  void processFix(NavFix fix) {
+    final prevFix = _lastFix;
+    // サスペンド: 速度継続（車発進）。あわせて単発テレポート（ショートカット）検出。
+    if (prevFix != null && !_suspended) {
+      final dtS = (fix.tMillis - prevFix.tMillis) / 1000.0;
+      if (dtS > 0.1) {
+        final sp = haversineMeters(prevFix.position, fix.position) / dtS;
+        if (sp * 3.6 > p.suspendSpeedKmh) {
+          _highSpeedRun++;
+        } else {
+          _highSpeedRun = 0;
+        }
+        if (_highSpeedRun >= p.suspendSpeedConfirm) _suspended = true;
+        if (sp > p.discontinuitySpeedMps) _forceReacquire = true;
+      }
+    }
+    _lastFix = fix;
+    if (_suspended) return;
+
+    final goodAccuracy = fix.accuracyM <= p.accuracyGateM;
+
+    // 初期化: 最初の good fix を貯め、方向と開始chainageを決める（周回二義性回避・§2）。
+    if (_committed == null) {
+      if (goodAccuracy) {
+        final g = projectToLine(fix.position, line, cumChain: _cum);
+        _initBuf.add(_InitSample(g.chainageMeters, fix.tMillis));
+        final gd = haversineMeters(fix.position, _goal);
+        if (gd < _minGoalDist) _minGoalDist = gd;
+      }
+      if (_initBuf.length >= p.initConfirm) _finalizeInit();
+      return;
+    }
+
+    // §2: accuracy>35m は進捗/接近/逸脱に使わない。カバレッジのみ chainage で塗る。
+    if (!goodAccuracy) {
+      final g = projectToLine(fix.position, line, cumChain: _cum);
+      _coverage.mark(g.chainageMeters);
+      return;
+    }
+
+    final gd = haversineMeters(fix.position, _goal);
+    if (gd < _minGoalDist) _minGoalDist = gd;
+
+    final proj = _project(fix);
+    if (proj == null) return; // 再捕捉確定までホールド
+    final newChainage = proj.chainageMeters;
+    _lastPerp = proj.perpMeters;
+
+    final prevChainage = _committed;
+    _committed = newChainage;
+    if (newChainage > _maxChainage) _maxChainage = newChainage;
+
+    if (prevChainage != null && _lastCommitTms != null) {
+      final dt = (fix.tMillis - _lastCommitTms!) / 1000.0;
+      if (dt > 0.1) {
+        var r = (newChainage - prevChainage) / dt;
+        if (r > 2.5) r = 2.5;
+        if (r < -2.5) r = -2.5;
+        _recentRateMps = _recentRateMps == 0 ? r : 0.5 * _recentRateMps + 0.5 * r;
+      }
+    }
+    _lastCommitTms = fix.tMillis;
+
+    // カバレッジ（補間は歩行速度で妥当な区間のみ＝テレポートを埋めない）。
+    _coverage.mark(newChainage);
+    if (_lastGoodChainage != null && _lastGoodTms != null) {
+      final dtS = (fix.tMillis - _lastGoodTms!) / 1000.0;
+      final dC = (newChainage - _lastGoodChainage!).abs();
+      if (dtS > 0 && (dC / dtS) <= p.interpMaxSpeedMps) {
+        _coverage.markRange(_lastGoodChainage!, newChainage);
+      }
+    }
+    _lastGoodChainage = newChainage;
+    _lastGoodTms = fix.tMillis;
+
+    if (prevChainage != null) _checkApproach(prevChainage, newChainage);
+
+    // 逸脱（連続・静止除外・低精度fixはこの分岐に来ない）。
+    if (!fix.moving) {
+      _offRouteRun = 0;
+    } else {
+      final off = proj.perpMeters - fix.accuracyM;
+      if (off > p.offRouteM) {
+        _offRouteRun++;
+        if (_offRouteRun >= p.offRouteConfirm && !_offRouteActive) {
+          _offRouteActive = true;
+          _offRouteEvents++;
+          onOffRoute?.call(NavOffRouteEvent(
+            chainageMeters: newChainage,
+            perpMeters: proj.perpMeters,
+            accuracyM: fix.accuracyM,
+            thresholdM: p.offRouteM,
+            wasStationary: !fix.moving,
+          ));
+        }
+        if (proj.perpMeters > p.offRouteSuspendM && _offRouteRun >= p.offRouteConfirm) {
+          _suspended = true;
+        }
+      } else {
+        _offRouteRun = 0;
+        if (proj.perpMeters < p.offRouteM * 0.6) _offRouteActive = false;
+      }
+    }
+
+    if (!_completed &&
+        _coverage.coverage() >= p.completeCoverage &&
+        _minGoalDist <= p.goalRadiusM) {
+      _completed = true;
+    }
+  }
+
+  void _finalizeInit() {
+    if (_initBuf.isEmpty) {
+      _committed = 0;
+      return;
+    }
+    final chains = _initBuf.map((s) => s.chain).toList();
+    if (chains.length < 2) {
+      _committed = chains.first;
+      _coverage.mark(chains.first);
+      _lastGoodChainage = chains.first;
+      _lastGoodTms = _initBuf.first.tMillis;
+      return;
+    }
+    final dir = (chains.last - chains[1]) >= 0 ? 1 : -1;
+    _direction = dir;
+    _committed = chains.last;
+    _maxChainage = chains.reduce(math.max);
+    for (var i = 1; i < chains.length; i++) {
+      _coverage.mark(chains[i]);
+      if (i > 1) _coverage.markRange(chains[i - 1], chains[i]);
+    }
+    if ((chains[0] - chains[1]).abs() < 60) {
+      _coverage.mark(chains[0]);
+      _coverage.markRange(chains[0], chains[1]);
+    }
+    _lastGoodChainage = chains.last;
+    _lastGoodTms = _initBuf.last.tMillis;
+    _lastCommitTms = _initBuf.last.tMillis;
+    _recentRateMps = dir * 0.83;
+    _checkApproach(dir > 0 ? 0.0 : totalMeters, _committed!);
+  }
+
+  LineProjection? _project(NavFix fix) {
+    if (_committed == null) {
+      final global = projectToLine(fix.position, line, cumChain: _cum);
+      final startDist = haversineMeters(fix.position, line.first);
+      if (startDist <= p.startSnapM) {
+        return LineProjection(
+            chainageMeters: 0, perpMeters: global.perpMeters, segmentIndex: 0, t: 0);
+      }
+      return global;
+    }
+
+    final dir = _direction ?? 1;
+    final dtS = _lastCommitTms != null ? (fix.tMillis - _lastCommitTms!) / 1000.0 : 0.0;
+    final rate = _recentRateMps != 0 ? _recentRateMps : dir * 0.83;
+    final predicted = _committed! + rate * (dtS > 0 && dtS < 30 ? dtS : 6.0);
+    if (!_forceReacquire) {
+      final back = dir > 0 ? 60.0 : 300.0;
+      final fwd = dir > 0 ? 300.0 : 60.0;
+      final win = _windowedBiased(
+          fix.position, _committed! - back, _committed! + fwd, predicted);
+      if (win != null && win.perpMeters < 100) {
+        _reacqBuf.clear();
+        return win;
+      }
+    }
+
+    final g = projectToLine(fix.position, line, cumChain: _cum);
+    if (!_forceReacquire && (g.chainageMeters - _committed!).abs() <= p.reacquireJumpM) {
+      _reacqBuf.clear();
+      return g;
+    }
+    _reacqBuf.add(g.chainageMeters);
+    if (_reacqBuf.length >= p.reacquireConfirm) {
+      final spread = _reacqBuf.reduce(math.max) - _reacqBuf.reduce(math.min);
+      if (spread < 80) {
+        final avg = _reacqBuf.reduce((a, b) => a + b) / _reacqBuf.length;
+        _reacqBuf.clear();
+        _forceReacquire = false;
+        _lastGoodChainage = null;
+        _lastGoodTms = null;
+        return LineProjection(
+            chainageMeters: avg, perpMeters: g.perpMeters, segmentIndex: g.segmentIndex, t: g.t);
+      }
+      _reacqBuf.removeAt(0);
+    }
+    return null;
+  }
+
+  LineProjection? _windowedBiased(LatLng pos, double lo, double hi, double predicted) {
+    const continuityWeight = 0.5;
+    double bestScore = double.infinity;
+    double bestPerp = 0, bestChain = 0, bestT = 0;
+    int bestSeg = -1;
+    for (var i = 0; i < line.length - 1; i++) {
+      final segStart = _cum[i];
+      final segEnd = _cum[i + 1];
+      if (segEnd < lo || segStart > hi) continue;
+      final r = projectPointOnSegment(pos, line[i], line[i + 1]);
+      final segChain = segStart + r.t * (segEnd - segStart);
+      final score = r.perpM + continuityWeight * (segChain - predicted).abs();
+      if (score < bestScore) {
+        bestScore = score;
+        bestPerp = r.perpM;
+        bestChain = segChain;
+        bestSeg = i;
+        bestT = r.t;
+      }
+    }
+    if (bestSeg < 0) return null;
+    return LineProjection(
+        chainageMeters: bestChain, perpMeters: bestPerp, segmentIndex: bestSeg, t: bestT);
+  }
+
+  void _checkApproach(double prevC, double newC) {
+    var lo = prevC < newC ? prevC : newC;
+    var hi = prevC < newC ? newC : prevC;
+    if (hi >= totalMeters - 3) hi = totalMeters + 5;
+    for (final s in spots) {
+      if (!s.isApproachTarget) continue;
+      final dfs = s.distanceFromStart;
+      if (dfs == null) continue;
+      if (_firedApproach.contains(s.id)) continue;
+      if (dfs >= lo && dfs <= hi) {
+        _firedApproach.add(s.id);
+        onApproach?.call(NavApproachEvent(s, newC));
+      }
+    }
+  }
+
+  /// 次の接近対象スポット（進行方向で chainage が先のもの・最も近い）。
+  ({NavSpot spot, double remainingM})? _nextSpot() {
+    if (_committed == null) return null;
+    final dir = _direction ?? 1;
+    NavSpot? best;
+    double bestRem = double.infinity;
+    for (final s in spots) {
+      if (!s.isApproachTarget) continue;
+      final dfs = s.distanceFromStart;
+      if (dfs == null) continue;
+      final rem = dir > 0 ? (dfs - _committed!) : (_committed! - dfs);
+      if (rem > 0 && rem < bestRem) {
+        bestRem = rem;
+        best = s;
+      }
+    }
+    if (best == null) return null;
+    return (spot: best, remainingM: bestRem);
+  }
+
+  /// §7 E: 駐車場へ「ルート沿いに戻って約Xkm」。
+  /// parking スポットの distance_from_start と現在進捗の差分（追加データ取得ゼロ）。
+  /// 周回（起点≈終点）は短い側を採る。直線距離+方角はやらない（誤誘導の実害・§7）。
+  double? _returnToParkingMeters() {
+    if (_committed == null) return null;
+    final isLoop = haversineMeters(line.first, line.last) <= 30;
+    double? best;
+    for (final s in spots) {
+      if (s.category != 'parking') continue;
+      final dfs = s.distanceFromStart;
+      if (dfs == null) continue;
+      var d = (dfs - _committed!).abs();
+      if (isLoop) d = math.min(d, totalMeters - d);
+      if (best == null || d < best) best = d;
+    }
+    return best;
+  }
+
+  NavState get state {
+    // 重要: この getter は**副作用を持たない**（読み取り専用）。初期化の確定は processFix が
+    // initConfirm 個の good fix を集めた時点でのみ行う。NavController.feed は毎 fix 後に
+    // この getter を読むため、ここで _finalizeInit を呼ぶと初期化バッファ（方向推定・周回の
+    // 0/total 二義性解消）が最初の1 fix で誤って確定してしまう（ライブ経路のみ顕在化し、
+    // 全 fix 投入後に1回だけ読む §14 ハーネスでは検出されない）。
+    final committed = _committed ?? 0;
+    final dir = _direction ?? 1;
+    final remaining = dir > 0
+        ? math.max(0.0, totalMeters - committed)
+        : math.max(0.0, committed);
+    final next = _nextSpot();
+    return NavState(
+      ready: _committed != null,
+      chainageMeters: committed,
+      totalMeters: totalMeters,
+      progressPct: totalMeters > 0 ? (committed / totalMeters).clamp(0.0, 1.0) : 0,
+      remainingMeters: remaining,
+      maxProgressPct: totalMeters > 0 ? (_maxChainage / totalMeters).clamp(0.0, 1.0) : 0,
+      coveragePct: _coverage.coverage(),
+      isCompleted: _completed,
+      minGoalDistanceM: _minGoalDist,
+      offRouteDistanceM: _lastPerp,
+      offRouteActive: _offRouteActive,
+      offRouteEvents: _offRouteEvents,
+      suspended: _suspended,
+      direction: dir,
+      firedApproachSpotIds: Set.unmodifiable(_firedApproach),
+      nextSpot: next?.spot,
+      nextSpotRemainingMeters: next?.remainingM,
+      returnToParkingMeters: _returnToParkingMeters(),
+    );
+  }
+}
+
+class _InitSample {
+  final double chain;
+  final int tMillis;
+  _InitSample(this.chain, this.tMillis);
+}

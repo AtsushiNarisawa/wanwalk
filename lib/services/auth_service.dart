@@ -27,6 +27,35 @@ class AuthService {
   /// ユーザーIDを取得
   String? get userId => currentUser?.id;
 
+  /// 匿名ユーザー（signInAnonymously で作られた一時アカウント）か。
+  bool get isAnonymous => currentUser?.isAnonymous ?? false;
+
+  /// LAYER1_NAV_SPEC §8: 散歩開始時に匿名セッションを付与（転換装置の入口修理）。
+  ///
+  /// 既にログイン済み（匿名含む）なら何もしない。匿名サインインが Supabase 側で無効、
+  /// またはオフラインの場合は false を返す（呼び出し側は記録継続→保存時に再試行）。
+  /// ⚠️ 事前条件: Supabase Auth 設定で「Anonymous Sign-ins」を有効化（CEO 手動）。
+  Future<bool> signInAnonymouslyIfNeeded() async {
+    if (currentUser != null) return true;
+    try {
+      final res = await _supabase.auth.signInAnonymously();
+      if (kDebugMode) {
+        appLog('🟢 [AuthService] 匿名サインイン: user.id=${res.user?.id}');
+      }
+      return res.user != null;
+    } on AuthException catch (e) {
+      if (kDebugMode) {
+        appLog('🔴 [AuthService] 匿名サインイン失敗: ${e.message} (code=${e.code})');
+      }
+      return false;
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('🔴 [AuthService] 匿名サインイン例外: $e');
+      }
+      return false;
+    }
+  }
+
   /// メールアドレスでサインアップ
   /// 
   /// [email] メールアドレス
@@ -54,15 +83,37 @@ class AuthService {
       if (kDebugMode) {
         appLog('🔵 [AuthService] Supabase signUp呼び出し中...');
       }
-      
-      // Supabase Authでサインアップ
-      final response = await _supabase.auth.signUp(
-        email: email,
-        password: password,
-        data: {
-          'display_name': displayName,
-        },
-      );
+
+      // §8 匿名→本登録の引き継ぎ: 現在が匿名ユーザーなら updateUser で同一 uid を維持し、
+      // 匿名中に貯めた散歩記録（walks）を引き継ぐ。単純 signUp だと新 uid が作られ
+      // 匿名 uid が孤立する（申し送りの linkIdentity 必須に対応）。
+      // ⚠️ Supabase で「Confirm email」が ON の場合、email 反映は確認後（uid は即時維持）。
+      final AuthResponse response;
+      if (isAnonymous) {
+        if (kDebugMode) {
+          appLog('🔵 [AuthService] 匿名→本登録（updateUser で引き継ぎ）');
+        }
+        final updated = await _supabase.auth.updateUser(
+          UserAttributes(
+            email: email,
+            password: password,
+            data: {'display_name': displayName},
+          ),
+        );
+        response = AuthResponse(
+          session: _supabase.auth.currentSession,
+          user: updated.user,
+        );
+      } else {
+        // Supabase Authでサインアップ
+        response = await _supabase.auth.signUp(
+          email: email,
+          password: password,
+          data: {
+            'display_name': displayName,
+          },
+        );
+      }
 
       if (kDebugMode) {
         appLog('🟢 [AuthService] signUp成功！');
@@ -180,7 +231,10 @@ class AuthService {
         throw Exception('Apple Sign Inに失敗しました');
       }
 
-      final response = await _supabase.auth.signInWithIdToken(
+      // §8 匿名→本登録: 匿名セッション中なら identity を link して同一 uid を維持
+      // （匿名中の散歩を引き継ぐ）。既に別アカウントに紐づく Apple ID の場合
+      // （＝既存ユーザーの再ログイン）は通常サインインにフォールバック。
+      final response = await _signInOrLinkIdToken(
         provider: OAuthProvider.apple,
         idToken: idToken,
         nonce: rawNonce,
@@ -241,7 +295,8 @@ class AuthService {
         throw Exception('Google Sign Inに失敗しました');
       }
 
-      final response = await _supabase.auth.signInWithIdToken(
+      // §8 匿名→本登録: 匿名セッション中なら link（同一 uid 維持）、既存紐づけなら通常サインイン。
+      final response = await _signInOrLinkIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: accessToken,
@@ -308,6 +363,45 @@ class AuthService {
       return [familyName, givenName].where((s) => s != null).join(' ').trim();
     }
     return null;
+  }
+
+  /// §8: idToken サインイン or 匿名→本登録の identity link。
+  ///
+  /// 匿名セッション中は [linkIdentityWithIdToken] で同一 uid を維持し、匿名中に貯めた
+  /// 散歩記録を引き継ぐ（単純 signIn だと匿名 uid が孤立する・申し送り）。
+  /// link が失敗（その Apple/Google ID が既に別アカウントに紐づく＝既存ユーザーの
+  /// 再ログイン）した場合は通常の signInWithIdToken にフォールバックする。
+  /// ⚠️ 事前条件: Supabase Auth 設定で「Manual Linking」を有効化（CEO 手動）。
+  Future<AuthResponse> _signInOrLinkIdToken({
+    required OAuthProvider provider,
+    required String idToken,
+    String? accessToken,
+    String? nonce,
+  }) async {
+    if (isAnonymous) {
+      try {
+        if (kDebugMode) {
+          appLog('🔵 [AuthService] 匿名→本登録（linkIdentityWithIdToken: ${provider.name}）');
+        }
+        return await _supabase.auth.linkIdentityWithIdToken(
+          provider: provider,
+          idToken: idToken,
+          accessToken: accessToken,
+          nonce: nonce,
+        );
+      } on AuthException catch (e) {
+        // 既存アカウントに紐づく identity 等 → 既存アカウントへの通常ログインとして扱う。
+        if (kDebugMode) {
+          appLog('⚠️ [AuthService] link 失敗→通常サインインにフォールバック: ${e.message} (code=${e.code})');
+        }
+      }
+    }
+    return _supabase.auth.signInWithIdToken(
+      provider: provider,
+      idToken: idToken,
+      accessToken: accessToken,
+      nonce: nonce,
+    );
   }
 
   /// ランダムなnonce文字列を生成

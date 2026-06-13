@@ -18,9 +18,7 @@ import '../daily/daily_walk_landing_screen.dart';
 import '../routes/public_routes_screen.dart';
 import '../pin/pin_route_picker_screen.dart';
 import '../../providers/official_routes_screen_provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
-import '../auth/auth_selection_screen.dart';
 
 /// MainScreen - 新UI（BottomNavigationBar採用）
 ///
@@ -222,13 +220,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     if (_walkSelectionActive) return;
     _walkSelectionActive = true;
 
-    // ログインチェック：散歩記録にはログインが必要
-    final isLoggedIn = ref.read(authProvider).isLoggedIn;
-    if (!isLoggedIn) {
-      _showLoginRequiredDialog();
-      _walkSelectionActive = false;
-      return;
-    }
+    // §8: ログイン必須ダイアログは撤廃。散歩記録は匿名セッションで開始でき、
+    // Web→アプリ転換コホート（=未ログイン）の北極星計測が欠落していた穴を塞ぐ。
+    // 匿名サインインは各 walking_screen の散歩開始時に Just-in-time で付与する。
 
     final result = await WalkTypeBottomSheet.show(context);
     if (!mounted) {
@@ -266,62 +260,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     } finally {
       _walkSelectionActive = false;
     }
-  }
-
-  /// ログインが必要な場合のダイアログ表示
-  void _showLoginRequiredDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? WanWalkColors.surfaceDark : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(WanWalkIcons.signIn, color: WanWalkColors.accentPrimary),
-            const SizedBox(width: 8),
-            Text(
-              'ログインが必要です',
-              style: TextStyle(
-                color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          '散歩を記録するにはログインが必要です。\nログインすると散歩の距離や時間を保存できます。',
-          style: TextStyle(
-            color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'キャンセル',
-              style: TextStyle(
-                color: isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AuthSelectionScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: WanWalkColors.accentPrimary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text('ログイン'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override

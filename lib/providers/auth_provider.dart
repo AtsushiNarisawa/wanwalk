@@ -124,6 +124,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// §8: 散歩開始時にセッションを保証する（未ログインなら匿名サインイン）。
+  ///
+  /// 戻り値 true でセッションあり（既存 or 匿名新規）。匿名サインインが Supabase 側で
+  /// 無効/オフラインなら false（呼び出し側は記録は続行し、保存時に再試行する）。
+  /// 成功時は authStateChanges リスナーが currentUser を更新する。
+  Future<bool> ensureSession() async {
+    if (state.isLoggedIn) return true;
+    final ok = await _authService.signInAnonymouslyIfNeeded();
+    if (ok) {
+      state = state.copyWith(
+        currentUser: Supabase.instance.client.auth.currentUser,
+      );
+    }
+    return ok;
+  }
+
   /// ログアウト
   Future<void> signOut() async {
     state = state.copyWith(isLoading: true);

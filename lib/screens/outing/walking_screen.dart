@@ -10,20 +10,26 @@ import '../../widgets/location_permission_dialog.dart';
 import '../../widgets/wanwalk_snackbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/wanwalk_colors.dart';
+import '../../config/wanwalk_icons.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../config/nav_flags.dart';
 import '../../models/official_route.dart';
 import '../../models/route_spot.dart';
 import '../../models/walk_mode.dart';
+import '../../nav/route_nav_engine.dart';
 import '../../utils/map_tile_nudge.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/active_walk_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
+import '../../providers/nav_controller_provider.dart';
 import '../../providers/route_spots_provider.dart';
 import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
 import '../../services/app_review_service.dart';
+import '../../services/local_notification_service.dart';
 import '../../widgets/zoom_control_widget.dart';
 import '../../widgets/walk_completion_card.dart';
 
@@ -54,10 +60,21 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   bool _isFollowingUser = true;
   bool _showRouteInfo = true;
 
+  // §3 圏外: 地図タイル取得に失敗した最終時刻（壁時計）。直近で失敗していればバナー表示。
+  int _lastTileErrorMs = 0;
+  // §2 終了忘れサスペンド: ローカル通知を1回だけ出すためのラッチ。
+  bool _suspendNotified = false;
+  // §7 E: nav_return_parking_view を1散歩1回だけ送るためのラッチ。
+  bool _parkingViewLogged = false;
+  // §8: 位置権限の permission_result を1回だけ送るためのラッチ。
+  bool _permissionLogged = false;
+  // 散歩終了処理の再入ガード（保存中の二度押し・再試行で walks が二重保存されるのを防ぐ）。
+  bool _finishing = false;
+
   @override
   void initState() {
     super.initState();
-    
+
     // デバッグ：ルートライン情報を出力
     appLog('🚶 WalkingScreen initialized for route: ${widget.route.id}');
     appLog('🛣️ route.routeLine: ${widget.route.routeLine?.length ?? 0} points');
@@ -74,6 +91,12 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     // 自動的に記録開始しない（スタートボタンを待つ）
     // ただし、現在地は取得しておく（地図表示のため）
     _initializeLocation();
+
+    // §2: kill→復元 or バナー復帰でこの画面が「既に記録中」で開かれた場合、
+    // ナビエンジンが未構成なら再構成する（_startWalking を通らない経路）。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _reconfigureNavIfRecording();
+    });
   }
 
   /// 初期位置を取得（記録は開始しない）
@@ -82,18 +105,57 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     await gpsNotifier.getCurrentLocation();
   }
 
+  /// 記録中なのにナビ未構成（kill→復元）の場合だけエンジンを再構成する。
+  ///
+  /// 最小化→バナー復帰（同一プロセス）では navControllerProvider が生存しエンジンは
+  /// 既に ready なので何もしない（configure を再実行して進捗を 0 に戻さない）。
+  Future<void> _reconfigureNavIfRecording() async {
+    if (!mounted) return;
+    final gpsState = ref.read(gpsProviderRiverpod);
+    if (!gpsState.isRecording || gpsState.walkMode != WalkMode.outing) return;
+    if (ref.read(navControllerProvider.notifier).isReady) return; // 稼働中＝復帰
+    List<RouteSpot> navSpots = const [];
+    try {
+      navSpots = await ref.read(routeSpotsProvider(widget.route.id).future);
+    } catch (_) {}
+    if (!mounted) return;
+    _configureNav(navSpots);
+  }
+
   /// 散歩を開始
   Future<void> _startWalking() async {
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
-    
+
     // GPS権限チェック
     final hasPermission = await gpsNotifier.checkPermission();
+    // §9 F: 位置権限の Just-in-time プロンプト結果を計測（1回だけ）。
+    if (!_permissionLogged) {
+      _permissionLogged = true;
+      unawaited(ref.read(analyticsServiceProvider).logPermissionResult(
+            type: 'location',
+            granted: hasPermission,
+          ));
+    }
     if (!hasPermission) {
       if (mounted) {
         await showLocationPermissionDialog(context);
         if (mounted) Navigator.of(context).pop();
       }
       return;
+    }
+
+    // §8: 散歩開始時に匿名セッションを付与（転換装置の入口修理）。未ログインでも
+    // 記録・北極星計測ができるようにする。失敗（匿名無効/オフライン）でも記録は継続し、
+    // 保存時に再試行する。
+    await ref.read(authProvider.notifier).ensureSession();
+
+    // LAYER1_NAV_SPEC §2: ナビ構成に使うスポットを先読み（記録開始直後の最初の fix を
+    // 取りこぼさないよう startRecording より前に解決。通常はルート詳細で取得済みでキャッシュ）。
+    List<RouteSpot> navSpots = const [];
+    try {
+      navSpots = await ref.read(routeSpotsProvider(widget.route.id).future);
+    } catch (_) {
+      // 取得失敗でも記録は継続（ナビは線のみで進捗を出す）
     }
 
     // GPS記録開始（おでかけ散歩を明示。kill→復元時のルート再取得に必要）
@@ -105,6 +167,9 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       }
       return;
     }
+
+    // LAYER1_NAV_SPEC §2-§7: 沿線距離ナビを起動（記録開始直後に1回だけ）。
+    _configureNav(navSpots);
 
     // A3: グローバル散歩状態を配線（バナーからの復帰に使用）
     ref.read(activeWalkProvider.notifier).startWalk(
@@ -119,6 +184,64 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           routeSlug: widget.route.id,
           walkMode: WalkMode.outing.value,
         ));
+  }
+
+  /// LAYER1_NAV_SPEC §2: 沿線距離ナビエンジンを起動する（記録開始直後に1回だけ）。
+  ///
+  /// nav 状態は navControllerProvider に持たせるため、最小化→バナー復帰で画面が作り直されても
+  /// 進捗は保持される。configure は購読を張り替え進捗を 0 に戻すので、記録中（スタート
+  /// ボタン非表示）に本メソッドが再度走らないことが前提。
+  void _configureNav(List<RouteSpot> spots) {
+    final line = widget.route.routeLine;
+    if (line == null || line.length < 2) {
+      // 線が無いルートは沿線距離を計算できない → 素の記録に劣化（仕様 §2 許容）
+      return;
+    }
+    final navSpots = <NavSpot>[
+      for (final s in spots)
+        if (s.distanceFromStart != null)
+          NavSpot(
+            id: s.id,
+            name: s.name,
+            distanceFromStart: s.distanceFromStart,
+            category: s.category?.value,
+          ),
+    ];
+    final notifier = ref.read(navControllerProvider.notifier);
+    notifier.configure(
+      line: line,
+      spots: navSpots,
+      onApproach: _onNavApproach,
+      onOffRoute: _onNavOffRoute,
+    );
+    notifier.attach(
+      ref.read(gpsProviderRiverpod.notifier).navFixStream,
+      isPaused: () => ref.read(gpsProviderRiverpod).isPaused,
+    );
+  }
+
+  /// §4 B: スポット接近（沿線距離が distance_from_start を跨いだ）。
+  /// Build 42 は既定オフ（NavFlags.approachGuideEnabled=false）。Build 43 でカード+計測を有効化。
+  void _onNavApproach(NavApproachEvent event) {
+    if (!NavFlags.approachGuideEnabled) return;
+    // Build 43: 接近カード表示 + ハプティック + logNavSpotApproach。
+  }
+
+  /// §6 D: ルート逸脱エピソード開始。
+  /// §14.4: Build 42 は D の UI（復帰バナー/通知）を出さない（recoveryEnabled=false）が、
+  /// off_route_event の計測は**常時送る**（accuracy_m/threshold_m がリモート閾値調整の「目」）。
+  void _onNavOffRoute(NavOffRouteEvent event) {
+    unawaited(ref.read(analyticsServiceProvider).logOffRouteEvent(
+          routeSlug: widget.route.id,
+          recovered: false, // Build 43 で復帰/継続秒を追跡（42は開始のみ計上）
+          durationSec: 0,
+          wasStationary: event.wasStationary,
+          accuracyM: event.accuracyM.round(),
+          thresholdM: event.thresholdM.round(),
+          navParamsVersion: const NavParams().version,
+        ));
+    if (!NavFlags.recoveryEnabled) return;
+    // Build 43: 復帰バナー + 最寄り復帰点への点線 + ハプティック。
   }
 
   /// A3: 戻る操作のハンドリング（最小化 or 中止）。
@@ -173,7 +296,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       // 記録を継続したまま閉じる（バナーから復帰可能）
       Navigator.of(context).pop();
     } else if (choice == 'abort') {
-      // 記録を破棄して終了
+      // 記録を破棄して終了（ナビ状態も破棄）
+      ref.read(navControllerProvider.notifier).reset();
       ref.read(gpsProviderRiverpod.notifier).cancelRecording();
       ref.read(activeWalkProvider.notifier).endWalk();
       if (mounted) Navigator.of(context).pop();
@@ -183,6 +307,11 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
 
   /// 散歩を終了
   Future<void> _finishWalking() async {
+    // 再入ガード: 保存中(await)の二度押し・再試行で saveWalk が二重実行され walks が
+    // 重複保存されるのを防ぐ（北極星=walks件数の汚染防止）。
+    if (_finishing) return;
+    _finishing = true;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -204,27 +333,50 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       ),
     );
 
-    if (confirmed != true) return;
+    if (confirmed != true) {
+      _finishing = false;
+      return;
+    }
 
     final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
     final gpsState = ref.read(gpsProviderRiverpod);
 
+    // LAYER1_NAV_SPEC §5: 完走の生値（カバレッジ/最大進捗/最小ゴール距離/完走フラグ）を確定。
+    // 閾値は walks に生値を保存して後から再計算できるようにする。
+    final navState = ref.read(navControllerProvider);
+    final bool navReady = navState.ready;
+    final NavCompletion? navCompletion =
+        navReady ? NavCompletion.fromState(navState) : null;
+
     // Supabaseから現在のユーザーIDを取得
-    final userId = Supabase.instance.client.auth.currentUser?.id;
+    var userId = Supabase.instance.client.auth.currentUser?.id;
+
+    // §8: セッションが無ければ匿名サインインを試みる（開始時にオフライン等で取れて
+    // いなかった場合の保険）。匿名認証導入後、ここで取得できるのが通常経路。
+    if (userId == null) {
+      await ref.read(authProvider.notifier).ensureSession();
+      if (!mounted) return;
+      userId = Supabase.instance.client.auth.currentUser?.id;
+    }
 
     if (userId == null) {
-      // 未ログイン: 保存できないので記録を破棄して閉じる
-      gpsNotifier.cancelRecording();
-      ref.read(activeWalkProvider.notifier).endWalk();
+      // それでもセッション無し（オフライン/匿名無効）: **記録は破棄せず保持**し、
+      // 電波回復後に再試行できるようにする（旧実装の「破棄して閉じる」を撤廃）。
+      _finishing = false; // 再試行を許可
       if (mounted) {
         showWanWalkSnackBar(
           context,
-          'ログインしていないため記録を保存できません',
+          '通信状態を確認して、もう一度「終了」をお試しください（記録は保持しています）',
           type: WanWalkSnackBarType.warning,
+          duration: const Duration(seconds: 8),
+          action: SnackBarAction(
+            label: '再試行',
+            textColor: Colors.white,
+            onPressed: _finishWalking,
+          ),
         );
-        Navigator.of(context).pop();
       }
-      return;
+      return; // finalizeWalk/cancel しない → データ保持
     }
 
     // A5: 記録状態を変えずにスナップショットを生成（保存失敗時もデータ保持）
@@ -235,6 +387,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     );
 
     if (route == null) {
+      _finishing = false; // 少し歩いてから再試行を許可
       if (mounted) {
         showWanWalkSnackBar(
           context,
@@ -248,19 +401,21 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     final distanceMeters = gpsState.distance;
     final durationMinutes = (gpsState.elapsedSeconds / 60).ceil();
 
-    // 1. Supabaseに散歩記録を保存
+    // 1. Supabaseに散歩記録を保存（§5: 完走の生値を同梱）
     final walkSaveService = WalkSaveService();
     final walkId = await walkSaveService.saveWalk(
       route: route,
       userId: userId,
       walkMode: WalkMode.outing,
       officialRouteId: widget.route.id,
+      completion: navCompletion,
     );
 
     if (!mounted) return;
 
     // A5: 保存失敗 → 記録は破棄せず、リトライ導線を提示
     if (walkId == null) {
+      _finishing = false; // 再試行を許可
       showWanWalkSnackBar(
         context,
         '記録の保存に失敗しました。電波の良い場所で再度お試しください',
@@ -278,11 +433,16 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     // === ここから保存成功 ===
 
     // GA4: walk_complete (Key Event 候補・最重要 conversion)
+    // §9: nav の生値（進捗/カバレッジ/完走/nav有効）を同梱。未完走でも最終進捗を送る。
     unawaited(ref.read(analyticsServiceProvider).logWalkComplete(
           routeSlug: widget.route.id,
           walkMode: WalkMode.outing.value,
           distanceM: distanceMeters.round(),
           durationSec: gpsState.elapsedSeconds,
+          progressPct: navReady ? navState.progressPct : null,
+          coveragePct: navReady ? navState.coveragePct : null,
+          isRouteCompleted: navReady ? navState.isCompleted : null,
+          navEnabled: navReady,
         ));
 
     if (kDebugMode) {
@@ -292,6 +452,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     // A5: 保存成功したので記録を確定終了してリセット
     gpsNotifier.finalizeWalk();
     ref.read(activeWalkProvider.notifier).endWalk();
+    // §2: ナビ状態を破棄（次の散歩へ持ち越さない）
+    ref.read(navControllerProvider.notifier).reset();
 
     // 2. 写真をアップロード（A8: 失敗を集計してユーザーに通知）
     int photoFailCount = 0;
@@ -347,10 +509,13 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         formattedDistance: gpsState.formattedDistance,
         formattedDuration: gpsState.formattedDuration,
         currentRouteId: widget.route.id,
+        // §5: 控えめな完走表示（祝祭演出はしない）
+        isRouteCompleted: navCompletion?.isRouteCompleted ?? false,
       ),
     );
     // レビュー促進: 散歩完了は最大のポジティブな瞬間（シートを閉じた後に検討）
     unawaited(AppReviewService.instance.onStrongPositiveSignal());
+    _finishing = false;
     if (mounted) Navigator.of(context).pop(route);
   }
 
@@ -487,6 +652,25 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final gpsState = ref.watch(gpsProviderRiverpod);
+    // LAYER1_NAV_SPEC §3: 沿線距離ナビの進捗（画面外で生存する Provider を購読）
+    final navState = ref.watch(navControllerProvider);
+    final navActive = navState.ready && gpsState.isInitialized;
+
+    // §2 終了忘れサスペンド: suspended に遷移したらローカル通知を1回だけ。
+    // §7 E: 駐車場戻り情報が初めて出たら nav_return_parking_view を1回だけ計測。
+    ref.listen<NavState>(navControllerProvider, (prev, next) {
+      if (next.suspended && !(prev?.suspended ?? false) && !_suspendNotified) {
+        _suspendNotified = true;
+        _onSuspendDetected();
+      }
+      if (next.returnToParkingMeters != null && !_parkingViewLogged) {
+        _parkingViewLogged = true;
+        unawaited(ref.read(analyticsServiceProvider).logNavReturnParkingView(
+              routeSlug: widget.route.id,
+              navParamsVersion: const NavParams().version,
+            ));
+      }
+    });
 
     // CEO決定 案B: マップをSafeArea内に収め、上部はベージュ帯で塗る（Wildbounds哲学）
     final topInset = MediaQuery.of(context).padding.top;
@@ -522,11 +706,14 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           // 上部オーバーレイ（タイトル・閉じるボタン）
           _buildTopOverlay(isDark),
 
-          // 下部オーバーレイ（統計情報）
-          if (_showRouteInfo) _buildBottomOverlay(isDark, gpsState),
+          // §3 圏外: 地図タイルが取得できなくても「案内は継続中」と明示（白地図≠故障）
+          if (_showOfflineBanner) _buildOfflineBanner(topInset),
+
+          // 下部オーバーレイ（統計情報＋ナビ進捗）
+          if (_showRouteInfo) _buildBottomOverlay(isDark, gpsState, navState),
 
           // フローティングアクションボタン（ピン投稿）
-          _buildFloatingButtons(gpsState),
+          _buildFloatingButtons(gpsState, navActive),
         ],
       ),
       ),
@@ -557,6 +744,14 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.doghub.wanwalk',
+          // §3 圏外: タイル取得失敗を記録。直近で失敗していれば「案内は継続中」バナーを出す。
+          errorTileCallback: (tile, error, stackTrace) {
+            final now = DateTime.now().millisecondsSinceEpoch;
+            final wasOffline = now - _lastTileErrorMs < _offlineWindowMs;
+            _lastTileErrorMs = now;
+            // 非表示→表示への遷移時だけ再描画（タイル毎の setState 連打を避ける）
+            if (!wasOffline && mounted) setState(() {});
+          },
         ),
         // 公式ルートライン（DESIGN_TOKENS §12-A: accent-primary 深緑）
         if (widget.route.routeLine != null && widget.route.routeLine!.isNotEmpty)
@@ -668,8 +863,8 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     );
   }
 
-  /// 下部オーバーレイ（統計情報）
-  Widget _buildBottomOverlay(bool isDark, GpsState gpsState) {
+  /// 下部オーバーレイ（統計情報＋ナビ進捗）
+  Widget _buildBottomOverlay(bool isDark, GpsState gpsState, NavState navState) {
     return Positioned(
       bottom: 0,
       left: 0,
@@ -706,6 +901,10 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
                 ),
               ),
               const SizedBox(height: WanWalkSpacing.md),
+
+              // LAYER1_NAV_SPEC §3 A: 進捗バー・残距離・次スポット（記録中かつナビ初期化済みのみ）
+              if (gpsState.isInitialized && navState.ready)
+                _buildNavProgress(isDark, navState),
 
               // 統計情報
               Row(
@@ -824,14 +1023,175 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     );
   }
 
+  /// LAYER1_NAV_SPEC §3 A: 進捗バー・残距離・次スポット（沿線距離ベース）。
+  /// Wildbounds トーン（祝祭演出はしない）。下部パネル統計の直前に差し込む。
+  Widget _buildNavProgress(bool isDark, NavState navState) {
+    final pct = navState.progressPct.clamp(0.0, 1.0);
+    final pctLabel = '${(pct * 100).round()}%';
+    final textPrimary =
+        isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight;
+    final textSecondary =
+        isDark ? WanWalkColors.textSecondaryDark : WanWalkColors.textSecondaryLight;
+    final nextSpot = navState.nextSpot;
+    final nextRem = navState.nextSpotRemainingMeters;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              navState.isCompleted ? 'ルートを歩ききりました' : 'ルート進捗 $pctLabel',
+              style: WanWalkTypography.caption.copyWith(color: textSecondary),
+            ),
+            const Spacer(),
+            Text(
+              'のこり ${_formatNavDistance(navState.remainingMeters)}',
+              style: WanWalkTypography.caption.copyWith(
+                color: textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: pct,
+            minHeight: 6,
+            backgroundColor: WanWalkColors.accentPrimary.withValues(alpha: 0.15),
+            valueColor: const AlwaysStoppedAnimation<Color>(
+              WanWalkColors.accentPrimary,
+            ),
+          ),
+        ),
+        if (nextSpot != null && nextRem != null) ...[
+          const SizedBox(height: WanWalkSpacing.sm),
+          Row(
+            children: [
+              Icon(WanWalkIcons.mapPin, size: 16, color: WanWalkColors.accent),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  '次: ${nextSpot.name} まで ${_formatNavDistance(nextRem)}',
+                  style: WanWalkTypography.bodySmall.copyWith(color: textPrimary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
+        // §7 E: 駐車場へ「ルート沿いに戻って約Xkm」（parking スポットがあるルートのみ）。
+        // 直線距離+方角はやらない（谷底/対岸での誤誘導の実害を避ける・§7）。
+        if (navState.returnToParkingMeters != null) ...[
+          const SizedBox(height: WanWalkSpacing.sm),
+          Row(
+            children: [
+              Icon(WanWalkIcons.car, size: 16, color: WanWalkColors.textSecondary),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  '駐車場まで ルート沿いに約 ${_formatNavDistance(navState.returnToParkingMeters!)}',
+                  style: WanWalkTypography.bodySmall.copyWith(color: textSecondary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: WanWalkSpacing.md),
+        Divider(height: 1, color: WanWalkColors.borderStrong.withValues(alpha: 0.4)),
+        const SizedBox(height: WanWalkSpacing.md),
+      ],
+    );
+  }
+
+  /// ナビ用の距離表記（1km 未満は m・以上は km 小数1位）。
+  /// ルート総距離の formatDistance（常に km）とは別物（短距離が "0.0km" になるのを避ける）。
+  String _formatNavDistance(double meters) {
+    final m = meters.round();
+    if (m < 1000) return '${m}m';
+    return '${(m / 1000).toStringAsFixed(1)}km';
+  }
+
+  // §3 圏外バナー: タイル取得失敗から一定時間はバナーを出す（白地図≠故障の明示）。
+  static const int _offlineWindowMs = 8000;
+  bool get _showOfflineBanner =>
+      _lastTileErrorMs != 0 &&
+      DateTime.now().millisecondsSinceEpoch - _lastTileErrorMs < _offlineWindowMs;
+
+  /// §3: 圏外（地図タイル取得失敗）でも案内は継続中であることを明示するバナー。
+  /// ポリライン・現在地・進捗・残距離はルート読込済みなら圏外でも動く。
+  Widget _buildOfflineBanner(double topInset) {
+    return Positioned(
+      top: topInset + 56,
+      left: WanWalkSpacing.md,
+      right: WanWalkSpacing.md,
+      child: SafeArea(
+        bottom: false,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: WanWalkSpacing.md,
+              vertical: WanWalkSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: WanWalkColors.textPrimaryLight.withValues(alpha: 0.88),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(WanWalkIcons.info, size: 18, color: Colors.white),
+                const SizedBox(width: WanWalkSpacing.xs),
+                Flexible(
+                  child: Text(
+                    '地図を読み込めませんが、ルート案内は継続中です',
+                    style: WanWalkTypography.bodySmall.copyWith(color: Colors.white),
+                    maxLines: 2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// §2 終了忘れサスペンド: 速度>12km/h継続 or ルートから500m超でナビ判定が止まった。
+  /// 「散歩を終了しますか？」をローカル通知で1回だけ知らせる（車移動旅行者向け）。
+  Future<void> _onSuspendDetected() async {
+    unawaited(LocalNotificationService().showNotification(
+      id: 4201,
+      title: '散歩を終了しますか？',
+      body: 'ルートから大きく離れたようです。散歩を終える場合はアプリで「終了」を押してください。',
+    ));
+    if (mounted) {
+      showWanWalkSnackBar(
+        context,
+        '移動が速いようです。散歩を終える場合は「終了」を押してください',
+        type: WanWalkSnackBarType.warning,
+        duration: const Duration(seconds: 6),
+      );
+    }
+  }
+
   /// フローティングボタン
-  Widget _buildFloatingButtons(GpsState gpsState) {
+  Widget _buildFloatingButtons(GpsState gpsState, bool navActive) {
+    // ナビ進捗セクションのぶん下部パネルが高くなるため FAB を持ち上げる
+    final double bottomOffset =
+        _showRouteInfo ? (navActive ? 348.0 : 280.0) : 120.0;
     return Stack(
       children: [
         // ズームコントロール（左下）
         Positioned(
           left: WanWalkSpacing.lg,
-          bottom: _showRouteInfo ? 280 : 120,
+          bottom: bottomOffset,
           child: ZoomControlWidget(
             mapController: _mapController,
             minZoom: 10.0,
@@ -841,7 +1201,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         // 既存のボタン群（右下）
         Positioned(
           right: WanWalkSpacing.lg,
-          bottom: _showRouteInfo ? 280 : 120,
+          bottom: bottomOffset,
           child: Column(
             children: [
               // 写真撮影ボタン

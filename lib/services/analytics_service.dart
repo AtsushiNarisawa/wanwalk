@@ -243,17 +243,114 @@ class AnalyticsService {
       });
 
   /// 散歩完了
+  /// LAYER1_NAV_SPEC §9: nav 系の生値（進捗/カバレッジ/完走/nav有効）を任意で同梱。
+  /// 未完走でも終了時に最終進捗を送る（離脱地点分布が閾値調整の生命線）。
+  /// ⚠️ progress_pct/coverage_pct/is_route_completed/nav_enabled は配信前に GA4
+  /// カスタムディメンション登録が必要（遡及不可・skill ga4-custom-dimensions-setup.md）。
   Future<void> logWalkComplete({
     String? routeSlug,
     required String walkMode,
     required int distanceM,
     required int durationSec,
+    double? progressPct,
+    double? coveragePct,
+    bool? isRouteCompleted,
+    bool? navEnabled,
   }) =>
       _log('walk_complete', {
         if (routeSlug != null) 'route_slug': routeSlug,
         'walk_mode': walkMode,
         'distance_m': distanceM,
         'duration_sec': durationSec,
+        if (progressPct != null) 'progress_pct': double.parse(progressPct.toStringAsFixed(3)),
+        if (coveragePct != null) 'coverage_pct': double.parse(coveragePct.toStringAsFixed(3)),
+        if (isRouteCompleted != null) 'is_route_completed': isRouteCompleted ? 1 : 0,
+        if (navEnabled != null) 'nav_enabled': navEnabled ? 1 : 0,
+      });
+
+  // ───────────────────────────────────────────────────────────
+  // LAYER1 ナビ計測（§9）。GA4 は bool 非対応のため int(1/0)。全 nav イベントに
+  // route_slug 必須・nav_params_version を付与。発火サイトは Build 42/43 の B/D 等。
+  // ───────────────────────────────────────────────────────────
+
+  /// 接近ガイド: スポットへ接近（沿線距離が dfs を跨いだ）。
+  Future<void> logNavSpotApproach({
+    required String routeSlug,
+    required String spotSlug,
+    String? spotCategory,
+    required int navParamsVersion,
+  }) =>
+      _log('nav_spot_approach', {
+        'route_slug': routeSlug,
+        'spot_slug': spotSlug,
+        if (spotCategory != null) 'spot_category': spotCategory,
+        'nav_params_version': navParamsVersion,
+      });
+
+  /// 接近カード表示（+展開）。
+  Future<void> logNavSpotCardView({
+    required String routeSlug,
+    required String spotSlug,
+    required bool expanded,
+    required int navParamsVersion,
+  }) =>
+      _log('nav_spot_card_view', {
+        'route_slug': routeSlug,
+        'spot_slug': spotSlug,
+        'card_expand': expanded ? 1 : 0,
+        'nav_params_version': navParamsVersion,
+      });
+
+  /// 逸脱イベント（復帰したか・継続秒・静止中か・精度・閾値）。
+  Future<void> logOffRouteEvent({
+    required String routeSlug,
+    required bool recovered,
+    required int durationSec,
+    required bool wasStationary,
+    required int accuracyM,
+    required int thresholdM,
+    required int navParamsVersion,
+  }) =>
+      _log('off_route_event', {
+        'route_slug': routeSlug,
+        'recovered': recovered ? 1 : 0,
+        'duration_sec': durationSec,
+        'was_stationary': wasStationary ? 1 : 0,
+        'accuracy_m': accuracyM,
+        'threshold_m': thresholdM,
+        'nav_params_version': navParamsVersion,
+      });
+
+  /// 復帰サポート/接近ガイドをユーザーが切った。
+  Future<void> logNavGuideDisabled({
+    required String routeSlug,
+    required String scope, // 'this_walk' | 'recovery' | 'approach'
+    required int navParamsVersion,
+  }) =>
+      _log('nav_guide_disabled', {
+        'route_slug': routeSlug,
+        'scope': scope,
+        'nav_params_version': navParamsVersion,
+      });
+
+  /// 駐車場に戻る表示（E）。
+  Future<void> logNavReturnParkingView({
+    required String routeSlug,
+    required int navParamsVersion,
+  }) =>
+      _log('nav_return_parking_view', {
+        'route_slug': routeSlug,
+        'nav_params_version': navParamsVersion,
+      });
+
+  /// 権限結果（位置/通知）。Just-in-time プロンプトの結果計測（§8）。
+  Future<void> logPermissionResult({
+    required String type, // 'location' | 'notification'
+    required bool granted,
+  }) =>
+      _log('permission_result', {
+        'type': type,
+        'granted': granted ? 1 : 0,
       });
 
   /// ピン投稿（UGC 写真）
@@ -273,15 +370,19 @@ class AnalyticsService {
   /// A2 Universal Links 経由でアプリが起動・遷移したときの計測（設計書 §4.3）。
   /// [urlPath] は `/routes/xxx` のようなパス（クエリ・スラッグ値は含めない方針なら呼び出し側で正規化）。
   /// [coldStart] はアプリ未起動からの起動か。GA4 はパラメータに bool 非対応のため int(1/0) で送る。
+  /// [routeSlug] §9: url_path は正規化済み（/routes/:slug）のため、Web→App 同一ルート
+  /// 突合の最後の糸として実 slug を別パラメータで送る（route 系 deep link のみ）。
   Future<void> logDeepLinkOpen({
     required String urlPath,
     required bool coldStart,
     required bool loggedIn,
+    String? routeSlug,
   }) =>
       _log('deep_link_open', {
         'url_path': urlPath,
         'cold_start': coldStart ? 1 : 0,
         'auth_state': loggedIn ? 'logged_in' : 'logged_out',
+        if (routeSlug != null) 'route_slug': routeSlug,
       });
 
   // ───────────────────────────────────────────────────────────

@@ -15,12 +15,14 @@ class WalkCompletionSheet extends ConsumerWidget {
   final String formattedDistance;
   final String formattedDuration;
   final String? currentRouteId; // お出かけ散歩の場合、歩いたルートID
+  final bool isRouteCompleted; // LAYER1_NAV_SPEC §5: ルート完走したか（控えめ表示）
 
   const WalkCompletionSheet({
     super.key,
     required this.formattedDistance,
     required this.formattedDuration,
     this.currentRouteId,
+    this.isRouteCompleted = false,
   });
 
   @override
@@ -62,6 +64,17 @@ class WalkCompletionSheet extends ConsumerWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
+          // §5: 控えめな完走表示（祝祭演出はしない）
+          if (isRouteCompleted) ...[
+            const SizedBox(height: 4),
+            Text(
+              'ルートを歩ききりました',
+              style: WanWalkTypography.bodySmall.copyWith(
+                color: WanWalkColors.accentPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
           const SizedBox(height: WanWalkSpacing.sm),
 
           // 散歩記録サマリー

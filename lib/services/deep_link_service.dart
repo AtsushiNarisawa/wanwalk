@@ -172,6 +172,8 @@ class DeepLinkService {
       urlPath: deepLinkLogPath(uri),
       coldStart: coldStart,
       loggedIn: loggedIn,
+      // §9: route 系のみ実 slug を付与（Web→App 同一ルート突合）。
+      routeSlug: target.type == DeepLinkType.routeSlug ? target.slug : null,
     ));
 
     switch (target.type) {

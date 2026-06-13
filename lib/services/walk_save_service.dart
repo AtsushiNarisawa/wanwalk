@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/walk_mode.dart';
+import '../nav/route_nav_engine.dart' show NavCompletion;
 import '../utils/logger.dart';
 
 /// 散歩記録保存サービス
@@ -78,6 +79,7 @@ class WalkSaveService {
     required String userId,
     required String officialRouteId,
     String? dogId,
+    NavCompletion? completion,
   }) async {
     try {
       if (kDebugMode) {
@@ -98,7 +100,8 @@ class WalkSaveService {
       }
 
       // 2. walks テーブルに保存 (walk_type='outing')
-      final walkResponse = await _supabase.from('walks').insert({
+      // LAYER1_NAV_SPEC §5: 完走の生値（coverage/進捗/ゴール距離/完走フラグ）を保存。
+      final insertData = <String, dynamic>{
         'user_id': userId,
         'walk_type': 'outing',
         'route_id': officialRouteId,
@@ -107,7 +110,14 @@ class WalkSaveService {
         'distance_meters': route.distance,
         'duration_seconds': route.duration,
         'path_geojson': pathGeoJson,
-      }).select().single();
+      };
+      if (completion != null) {
+        insertData['coverage_pct'] = completion.coveragePct;
+        insertData['max_progress_pct'] = completion.maxProgressPct;
+        insertData['min_goal_distance_m'] = completion.minGoalDistanceM;
+        insertData['is_route_completed'] = completion.isRouteCompleted;
+      }
+      final walkResponse = await _supabase.from('walks').insert(insertData).select().single();
 
       final walkId = walkResponse['id'] as String;
       if (kDebugMode) {
@@ -138,6 +148,7 @@ class WalkSaveService {
     required WalkMode walkMode,
     String? dogId,
     String? officialRouteId,
+    NavCompletion? completion,
   }) async {
     if (kDebugMode) {
       appLog('🔵 散歩自動保存: mode=${walkMode.value}');
@@ -163,6 +174,7 @@ class WalkSaveService {
         userId: userId,
         officialRouteId: officialRouteId,
         dogId: dogId,
+        completion: completion,
       );
     }
   }
