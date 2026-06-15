@@ -106,8 +106,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                       BookmarkButton(routeId: route.id),
                       ShareButton(
                         routeName: route.name,
-                        areaName: null,
-                        slug: null,
+                        areaName: route.areaName,
+                        slug: route.slug,
                       ),
                       const SizedBox(width: 4),
                     ],

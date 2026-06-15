@@ -115,6 +115,8 @@ class OfficialRoute {
   final String id;
   final String areaId;
   final String name;
+  final String? slug; // Web用の人間可読slug（共有URL https://wanwalk.jp/routes/{slug} 生成に使用）
+  final String? areaName; // エリア名（共有文の文脈付与に使用・null可）
   final String description;
   final LatLng startLocation;
   final LatLng endLocation;
@@ -135,6 +137,8 @@ class OfficialRoute {
     required this.id,
     required this.areaId,
     required this.name,
+    this.slug,
+    this.areaName,
     required this.description,
     required this.startLocation,
     required this.endLocation,
@@ -160,6 +164,8 @@ class OfficialRoute {
       id: json['id'] as String,
       areaId: json['area_id'] as String,
       name: json['name'] as String,
+      slug: json['slug'] as String?,
+      areaName: json['area_name'] as String?,
       description: json['description'] as String? ?? '',
       startLocation: _parsePostGISPoint(json['start_location']),
       endLocation: _parsePostGISPoint(json['end_location']),
@@ -449,6 +455,8 @@ class OfficialRoute {
     String? id,
     String? areaId,
     String? name,
+    String? slug,
+    String? areaName,
     String? description,
     LatLng? startLocation,
     LatLng? endLocation,
@@ -468,6 +476,8 @@ class OfficialRoute {
       id: id ?? this.id,
       areaId: areaId ?? this.areaId,
       name: name ?? this.name,
+      slug: slug ?? this.slug,
+      areaName: areaName ?? this.areaName,
       description: description ?? this.description,
       startLocation: startLocation ?? this.startLocation,
       endLocation: endLocation ?? this.endLocation,
