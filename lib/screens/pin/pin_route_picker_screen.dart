@@ -22,11 +22,24 @@ class PinRoutePickerScreen extends ConsumerStatefulWidget {
 class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
   final TextEditingController _searchController = TextEditingController();
 
+  // 案A（2026-06-15）状態汚染バグ修正: このピッカーは公式ルート一覧（お散歩タブの
+  // 直行先 PublicRoutesScreen）と同じグローバル状態（sort/search/area）を共有している。
+  // ユーザーが一覧で設定した絞り込みを壊さないよう、退出時に退避値へ復元する。
+  late final RouteSortOption _prevSort;
+  late final String _prevQuery;
+  late final String? _prevAreaId;
+
   @override
   void initState() {
     super.initState();
-    // デフォルトソートを「距離が短い順」に設定
+    // 復元用に現在のフィルタ状態を退避
+    _prevSort = ref.read(sortOptionProvider);
+    _prevQuery = ref.read(searchQueryProvider);
+    _prevAreaId = ref.read(selectedAreaIdProviderForPublicRoutes);
+
+    // ピッカー表示中は「距離が短い順・絞り込みなし」で提示
     Future.microtask(() {
+      if (!mounted) return;
       ref.read(sortOptionProvider.notifier).state = RouteSortOption.distanceAsc;
       ref.read(searchQueryProvider.notifier).state = '';
       ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = null;
@@ -44,6 +57,10 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
 
   @override
   void dispose() {
+    // 公式ルート一覧のフィルタ状態を退出前の値へ復元（状態汚染バグ修正）
+    ref.read(sortOptionProvider.notifier).state = _prevSort;
+    ref.read(searchQueryProvider.notifier).state = _prevQuery;
+    ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = _prevAreaId;
     _searchController.dispose();
     super.dispose();
   }

@@ -16,8 +16,6 @@ import '../../history/outing_walk_detail_screen.dart';
 import '../../outing/pin_detail_screen.dart';
 import '../../auth/auth_selection_screen.dart';
 import '../../statistics/statistics_dashboard_screen.dart';
-import '../../../providers/timeline_provider.dart';
-import '../../../services/timeline_service.dart';
 import '../../../utils/logger.dart';
 
 /// LibraryTab - 愛犬との散歩の思い出アルバム
@@ -25,10 +23,11 @@ import '../../../utils/logger.dart';
 /// 構成:
 /// 1. シンプルヘッダー（優しいメッセージ）
 /// 2. 今月の散歩回数（控えめ）
-/// 3. タブ切り替え（タイムライン/アルバム/お出かけ/日常/ピン投稿）
-/// 4. 思い出のタイムライン
-/// 5. 写真アルバム
+/// 3. タブ切り替え（アルバム/お出かけ/日常/ピン）
+/// 4. 写真アルバム
+/// 5. お出かけ・日常の散歩履歴
 /// 6. ピン投稿履歴
+/// ※旧「みんなのタイムライン」はホームフィードに統合済み（_buildCommunityTimeline は 2026-06-15 削除）
 class LibraryTab extends ConsumerStatefulWidget {
   const LibraryTab({super.key});
 
@@ -660,10 +659,10 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
           ),
           const SizedBox(height: WanWalkSpacing.sm),
           _UnauthFeatureItem(
-            icon: WanWalkIcons.plus,
-            color: WanWalkColors.accentGold,
-            title: 'ピン投稿',
-            description: 'お気に入りスポットを共有',
+            icon: WanWalkIcons.mapTrifold,
+            color: WanWalkColors.accentPrimary,
+            title: 'お出かけ散歩の記録',
+            description: '公式ルートを歩いた思い出を保存',
             isDark: isDark,
           ),
           const SizedBox(height: WanWalkSpacing.xl),
@@ -835,88 +834,6 @@ class _LibraryTabState extends ConsumerState<LibraryTab> with SingleTickerProvid
     return {'type': 'walk', 'data': groupedWalks.values.first.first};
   }
 
-  /// コミュニティタイムライン
-  Widget _buildCommunityTimeline(bool isDark) {
-    final userId = ref.watch(currentUserIdProvider);
-    final timelineAsync = ref.watch(
-      communityTimelineProvider(TimelineParams(userId: userId)),
-    );
-
-    return RefreshIndicator(
-      onRefresh: () async {
-        ref.invalidate(communityTimelineProvider);
-      },
-      child: timelineAsync.when(
-        data: (items) {
-          if (items.isEmpty) {
-            return ListView(
-              children: [
-                SizedBox(
-                  height: 400,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          WanWalkIcons.image,
-                          size: 64,
-                          color: WanWalkColors.textTertiary,
-                        ),
-                        const SizedBox(height: WanWalkSpacing.lg),
-                        Text(
-                          'まだ投稿がありません',
-                          style: WanWalkTypography.headlineSmall.copyWith(
-                            color: WanWalkColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: WanWalkSpacing.sm),
-                        Text(
-                          '散歩中にピンを投稿すると\nここに表示されます',
-                          style: WanWalkTypography.bodyMedium.copyWith(
-                            color: WanWalkColors.textSecondary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(WanWalkSpacing.md),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              return _TimelineCard(
-                item: items[index],
-                isDark: isDark,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PinDetailScreen(pinId: items[index].pinId),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text(
-            'データの取得に失敗しました',
-            style: WanWalkTypography.bodyMedium.copyWith(
-              color: WanWalkColors.textSecondary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 /// 散歩カード
@@ -1421,198 +1338,5 @@ class _UnauthFeatureItem extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-/// タイムラインカードウィジェット
-class _TimelineCard extends StatelessWidget {
-  final TimelineItem item;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _TimelineCard({
-    required this.item,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: WanWalkSpacing.md),
-        decoration: BoxDecoration(
-          color: WanWalkColors.bgPrimary,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(WanWalkSpacing.md),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: WanWalkColors.accentPrimary.withValues(alpha: 0.2),
-                    backgroundImage: item.userAvatarUrl != null
-                        ? NetworkImage(item.userAvatarUrl!)
-                        : null,
-                    child: item.userAvatarUrl == null
-                        ? Icon(WanWalkIcons.user, size: 18, color: WanWalkColors.accentPrimary)
-                        : null,
-                  ),
-                  const SizedBox(width: WanWalkSpacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.userName,
-                          style: WanWalkTypography.bodyMedium.copyWith(
-                            color: WanWalkColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${item.areaName} · ${item.routeName}',
-                          style: WanWalkTypography.caption.copyWith(
-                            color: WanWalkColors.textSecondary,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    item.relativeTime,
-                    style: WanWalkTypography.caption.copyWith(
-                      color: WanWalkColors.textTertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (item.hasPhotos)
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.md),
-                  itemCount: item.photoUrls.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      width: 200,
-                      margin: EdgeInsets.only(
-                        right: index < item.photoUrls.length - 1 ? WanWalkSpacing.sm : 0,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          item.photoUrls[index],
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: WanWalkColors.bgPrimary,
-                            child: Center(child: Icon(WanWalkIcons.image, size: 32)),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.all(WanWalkSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: _pinTypeColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          item.pinTypeLabel,
-                          style: WanWalkTypography.caption.copyWith(
-                            color: _pinTypeColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: WanWalkSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          item.title,
-                          style: WanWalkTypography.bodyLarge.copyWith(
-                            color: WanWalkColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (item.comment.isNotEmpty) ...[
-                    const SizedBox(height: WanWalkSpacing.xs),
-                    Text(
-                      item.comment,
-                      style: WanWalkTypography.bodyMedium.copyWith(
-                        color: WanWalkColors.textSecondary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  const SizedBox(height: WanWalkSpacing.sm),
-                  Row(
-                    children: [
-                      Icon(
-                        item.isLiked ? WanWalkIcons.heartFill : WanWalkIcons.heart,
-                        size: 18,
-                        color: item.isLiked ? Colors.red : (WanWalkColors.textSecondary),
-                      ),
-                      const SizedBox(width: 4),
-                      Text('${item.likesCount}', style: WanWalkTypography.caption.copyWith(
-                        color: WanWalkColors.textSecondary,
-                      )),
-                      const SizedBox(width: WanWalkSpacing.md),
-                      Icon(PhosphorIcons.chatCircle(), size: 18,
-                        color: WanWalkColors.textSecondary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text('${item.commentsCount}', style: WanWalkTypography.caption.copyWith(
-                        color: WanWalkColors.textSecondary,
-                      )),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color get _pinTypeColor {
-    switch (item.pinType) {
-      case 'scenery': return Colors.blue;
-      case 'shop': return Colors.orange;
-      case 'encounter': return Colors.green;
-      case 'facility': return Colors.purple;
-      default: return Colors.grey;
-    }
   }
 }

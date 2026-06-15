@@ -31,18 +31,18 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       subText: '箱根・湘南・鎌倉など人気エリアのルートを収録',
     ),
     _SlideData(
-      icon: WanWalkIcons.mapPin,
+      icon: WanWalkIcons.roadHorizon,
       iconColor: WanWalkColors.accentPrimary,
-      title: 'おすすめスポットを共有',
-      description: '水飲み場やドッグカフェなど\n犬連れに嬉しい情報をみんなでシェア',
-      subText: 'ピン投稿で素敵な場所を教え合おう',
+      title: '現地ではアプリが道案内',
+      description: '知らない土地でも、見どころや\n愛犬と入れる一軒を見逃さない',
+      subText: '選んだコースを現地で静かに案内',
     ),
     _SlideData(
-      icon: WanWalkIcons.dog,
+      icon: WanWalkIcons.images,
       iconColor: WanWalkColors.accentPrimary,
-      title: '散歩の思い出を記録',
-      description: '日常散歩もお出かけ散歩も\nルートと写真で振り返れます',
-      subText: '愛犬との大切な時間を残しましょう',
+      title: '歩いた一日を振り返る',
+      description: '公式ルートで歩いた記録を\n写真とともに残せます',
+      subText: '日常の散歩もまとめて見返せます',
     ),
   ];
 

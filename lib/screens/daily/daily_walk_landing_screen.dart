@@ -7,8 +7,9 @@ import '../daily/daily_walking_screen.dart';
 import '../history/walk_history_screen.dart';
 
 /// 日常の散歩ランディング画面
-/// 
-/// ユーザーが「クイック記録」タブをタップした際に表示
+///
+/// 公式ルート一覧の副リンク「ルートを使わず自由に記録する」から開く
+/// （案A 2026-06-15 で3択シートから副入口へ格下げ。中央タブ直行ではない）
 /// 散歩を始めるか、履歴を見るかを選択できる
 class DailyWalkLandingScreen extends StatelessWidget {
   const DailyWalkLandingScreen({super.key});
@@ -37,7 +38,7 @@ class DailyWalkLandingScreen extends StatelessWidget {
             const Icon(Icons.directions_walk, color: WanWalkColors.accent, size: 28),
             const SizedBox(width: WanWalkSpacing.sm),
             Text(
-              'クイック記録',
+              '日常の散歩',
               style: WanWalkTypography.headlineMedium.copyWith(
                 color: isDark ? WanWalkColors.textPrimaryDark : WanWalkColors.textPrimaryLight,
                 fontWeight: FontWeight.bold,
