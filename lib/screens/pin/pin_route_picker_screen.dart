@@ -25,6 +25,11 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
   // 案A（2026-06-15）状態汚染バグ修正: このピッカーは公式ルート一覧（お散歩タブの
   // 直行先 PublicRoutesScreen）と同じグローバル状態（sort/search/area）を共有している。
   // ユーザーが一覧で設定した絞り込みを壊さないよう、退出時に退避値へ復元する。
+  // dispose 内では ref を使えない（Riverpod 制約: Cannot use "ref" after disposed）ため、
+  // StateController を initState で捕捉し、dispose では捕捉済み参照で復元する。
+  StateController<RouteSortOption>? _sortCtrl;
+  StateController<String>? _queryCtrl;
+  StateController<String?>? _areaCtrl;
   late final RouteSortOption _prevSort;
   late final String _prevQuery;
   late final String? _prevAreaId;
@@ -32,24 +37,27 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
   @override
   void initState() {
     super.initState();
-    // 復元用に現在のフィルタ状態を退避
-    _prevSort = ref.read(sortOptionProvider);
-    _prevQuery = ref.read(searchQueryProvider);
-    _prevAreaId = ref.read(selectedAreaIdProviderForPublicRoutes);
+    // notifier(StateController)を捕捉し、現在のフィルタ状態を退避
+    _sortCtrl = ref.read(sortOptionProvider.notifier);
+    _queryCtrl = ref.read(searchQueryProvider.notifier);
+    _areaCtrl = ref.read(selectedAreaIdProviderForPublicRoutes.notifier);
+    _prevSort = _sortCtrl!.state;
+    _prevQuery = _queryCtrl!.state;
+    _prevAreaId = _areaCtrl!.state;
 
     // ピッカー表示中は「距離が短い順・絞り込みなし」で提示
     Future.microtask(() {
       if (!mounted) return;
-      ref.read(sortOptionProvider.notifier).state = RouteSortOption.distanceAsc;
-      ref.read(searchQueryProvider.notifier).state = '';
-      ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = null;
+      _sortCtrl!.state = RouteSortOption.distanceAsc;
+      _queryCtrl!.state = '';
+      _areaCtrl!.state = null;
     });
 
     // 検索テキストの変更を監視
     _searchController.addListener(() {
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
-          ref.read(searchQueryProvider.notifier).state = _searchController.text;
+          _queryCtrl?.state = _searchController.text;
         }
       });
     });
@@ -57,10 +65,20 @@ class _PinRoutePickerScreenState extends ConsumerState<PinRoutePickerScreen> {
 
   @override
   void dispose() {
-    // 公式ルート一覧のフィルタ状態を退出前の値へ復元（状態汚染バグ修正）
-    ref.read(sortOptionProvider.notifier).state = _prevSort;
-    ref.read(searchQueryProvider.notifier).state = _prevQuery;
-    ref.read(selectedAreaIdProviderForPublicRoutes.notifier).state = _prevAreaId;
+    // 公式ルート一覧のフィルタ状態を退出前の値へ復元。
+    // dispose 中に provider を直接書き換えると「modify a provider while building」
+    // 例外になるため、次フレーム（ビルド/破棄サイクル外）に遅延して復元する。
+    final sortCtrl = _sortCtrl;
+    final queryCtrl = _queryCtrl;
+    final areaCtrl = _areaCtrl;
+    final prevSort = _prevSort;
+    final prevQuery = _prevQuery;
+    final prevAreaId = _prevAreaId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      sortCtrl?.state = prevSort;
+      queryCtrl?.state = prevQuery;
+      areaCtrl?.state = prevAreaId;
+    });
     _searchController.dispose();
     super.dispose();
   }
