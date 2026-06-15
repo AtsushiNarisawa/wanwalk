@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -13,12 +15,10 @@ import 'tabs/home_tab.dart';
 import 'tabs/map_tab.dart';
 import 'tabs/library_tab.dart';
 import 'tabs/profile_tab.dart';
-import 'tabs/walk_type_bottom_sheet.dart';
-import '../daily/daily_walk_landing_screen.dart';
 import '../routes/public_routes_screen.dart';
-import '../pin/pin_route_picker_screen.dart';
 import '../../providers/official_routes_screen_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
+import '../../providers/analytics_provider.dart';
 
 /// MainScreen - 新UI（BottomNavigationBar採用）
 ///
@@ -29,7 +29,8 @@ import '../../providers/gps_provider_riverpod.dart';
 /// 5つのタブ:
 /// 1. ホーム - おでかけ散歩優先（エリア、公式ルート）
 /// 2. マップ - おでかけ散歩中心のマップ機能
-/// 3. お散歩 - 散歩開始の統一入口（日常散歩・お出かけ散歩）
+/// 3. お散歩 - お出かけ散歩（公式ルート一覧）への直行入口。
+///    日常散歩は一覧上部の副リンク、ピン投稿はマップ/散歩中の文脈に集約（案A 2026-06-15）
 /// 4. ライブラリ - 日常の散歩+統計+バッジ統合
 /// 5. プロフィール - アカウント管理
 class MainScreen extends ConsumerStatefulWidget {
@@ -104,7 +105,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         key: _keyNavWalk,
         identify: 'walk',
         title: 'お散歩',
-        description: 'ここから散歩を始められます！\n日常散歩・お出かけ散歩を選べます',
+        description: 'ここから公式ルートで\nお散歩を始められます',
         icon: PhosphorIcons.dog(),
         isHighlight: true,
       ),
@@ -201,9 +202,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   // タブ切り替え
   void _onItemTapped(int index) {
-    // お散歩タブ（index 2）の場合はボトムシート表示
+    // お散歩タブ（index 2）は「お出かけ散歩＝公式ルート一覧」へ直行（案A）
     if (index == 2) {
-      _showWalkTypeSelection();
+      _openWalkEntry();
       return;
     }
 
@@ -212,53 +213,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     });
   }
 
-  // M3: お散歩タブ二度押しでボトムシート/モーダル遷移が二重発火するのを抑制
-  bool _walkSelectionActive = false;
+  // M3: お散歩タブ二度押しで遷移が二重発火するのを抑制
+  bool _walkEntryActive = false;
 
-  /// 散歩タイプ選択ボトムシート（WalkTypeBottomSheetに統一）
-  void _showWalkTypeSelection() async {
-    if (_walkSelectionActive) return;
-    _walkSelectionActive = true;
+  /// 案A（2026-06-15）: お散歩タブ→公式ルート一覧（お出かけ散歩）へ直行。
+  /// 旧3択シート（お出かけ/日常/ピン投稿のみ）を廃止し、北極星=体験到達への
+  /// 最短動線に一本化。日常散歩は一覧上部の副リンク、ピン投稿はマップ/散歩中の
+  /// 文脈アクションに集約済み（機能ロスなし）。
+  /// §8: ログイン必須は撤廃済み。匿名サインインは walking_screen の散歩開始時に付与。
+  void _openWalkEntry() async {
+    if (_walkEntryActive) return;
+    _walkEntryActive = true;
 
-    // §8: ログイン必須ダイアログは撤廃。散歩記録は匿名セッションで開始でき、
-    // Web→アプリ転換コホート（=未ログイン）の北極星計測が欠落していた穴を塞ぐ。
-    // 匿名サインインは各 walking_screen の散歩開始時に Just-in-time で付与する。
-
-    final result = await WalkTypeBottomSheet.show(context);
-    if (!mounted) {
-      _walkSelectionActive = false;
-      return;
-    }
-    if (result == null) {
-      _walkSelectionActive = false;
-      return;
-    }
+    // GA4: お散歩タブからの入口計測（6月末ベンチで他入口と比較）
+    unawaited(ref.read(analyticsServiceProvider).logWalkTabOpen());
+    // 現在地から近い順で提示
+    ref.read(sortOptionProvider.notifier).state = RouteSortOption.distanceAsc;
 
     try {
-      switch (result) {
-        case 'daily':
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const DailyWalkLandingScreen()),
-          );
-          break;
-        case 'outing':
-          ref.read(sortOptionProvider.notifier).state =
-              RouteSortOption.distanceAsc;
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PublicRoutesScreen()),
-          );
-          break;
-        case 'pin_only':
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PinRoutePickerScreen()),
-          );
-          break;
-      }
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PublicRoutesScreen()),
+      );
     } finally {
-      _walkSelectionActive = false;
+      _walkEntryActive = false;
     }
   }
 

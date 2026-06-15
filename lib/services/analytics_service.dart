@@ -367,6 +367,14 @@ class AnalyticsService {
   Future<void> logAppStoreReviewPrompt({required String context}) =>
       _log('app_store_review_prompt', {'context': context});
 
+  /// 案A（2026-06-15）: お散歩タブから公式ルート一覧（=お出かけ散歩の入口）へ直行した
+  Future<void> logWalkTabOpen() => _log('walk_tab_open', const <String, Object>{});
+
+  /// 案A（2026-06-15）: ルート一覧上部の副リンクから日常散歩（自由記録）へ遷移した。
+  /// 日常散歩を格下げした影響（潜在的な日常記録ニーズ）を監視するための計測。
+  Future<void> logWalkEntryDailyTap() =>
+      _log('walk_entry_daily_tap', const <String, Object>{});
+
   /// A2 Universal Links 経由でアプリが起動・遷移したときの計測（設計書 §4.3）。
   /// [urlPath] は `/routes/xxx` のようなパス（クエリ・スラッグ値は含めない方針なら呼び出し側で正規化）。
   /// [coldStart] はアプリ未起動からの起動か。GA4 はパラメータに bool 非対応のため int(1/0) で送る。

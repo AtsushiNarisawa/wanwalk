@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/wanwalk_colors.dart';
@@ -8,7 +10,9 @@ import '../../models/area.dart';
 import '../../models/official_route.dart';
 import '../../providers/official_routes_screen_provider.dart';
 import '../../providers/area_provider.dart';
+import '../../providers/analytics_provider.dart';
 import '../outing/route_detail_screen.dart';
+import '../daily/daily_walk_landing_screen.dart';
 
 /// 公式ルート一覧画面（official_routes用）
 class PublicRoutesScreen extends ConsumerStatefulWidget {
@@ -77,6 +81,9 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
             error: (_, __) => const SizedBox(),
           ),
 
+          // 案A: 日常散歩（自由記録）への控えめな副リンク
+          _buildDailyWalkLink(context),
+
           // ルートカード一覧
           Expanded(
             child: routesAsync.when(
@@ -86,6 +93,49 @@ class _PublicRoutesScreenState extends ConsumerState<PublicRoutesScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 案A（2026-06-15）: 日常散歩（ルートを使わない自由記録）への控えめな副入口。
+  /// お出かけ散歩（公式ルート）を主役にしつつ、日常記録ニーズも一段下げて拾う。
+  Widget _buildDailyWalkLink(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        unawaited(ref.read(analyticsServiceProvider).logWalkEntryDailyTap());
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const DailyWalkLandingScreen()),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: WanWalkSpacing.s4,
+          vertical: WanWalkSpacing.s2,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              WanWalkIcons.footprints,
+              size: WanWalkIcons.sizeSm,
+              color: WanWalkColors.textSecondary,
+            ),
+            const SizedBox(width: WanWalkSpacing.s2),
+            Expanded(
+              child: Text(
+                'ルートを使わず自由に記録する',
+                style: WanWalkTypography.wwBodySm.copyWith(
+                  color: WanWalkColors.textSecondary,
+                ),
+              ),
+            ),
+            Icon(
+              WanWalkIcons.caretRight,
+              size: WanWalkIcons.sizeSm,
+              color: WanWalkColors.textTertiary,
+            ),
+          ],
+        ),
       ),
     );
   }
