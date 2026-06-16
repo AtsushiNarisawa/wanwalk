@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
+import '../config/area_taxonomy.dart';
 import '../utils/logger.dart';
 
 /// ソートオプション
@@ -37,8 +38,12 @@ final prefecturesProvider = FutureProvider<List<String>>((ref) async {
         .map((item) => item['prefecture'] as String)
         .toSet() // 重複削除
         .toList();
-    
-    prefectures.sort(); // あいうえお順
+
+    // 需要順（kPrefectureOrder）→ 未掲載は末尾であいうえお順。
+    prefectures.sort((a, b) {
+      final c = prefectureOrderIndex(a).compareTo(prefectureOrderIndex(b));
+      return c != 0 ? c : a.compareTo(b);
+    });
     return prefectures;
   } catch (e) {
     appLog('❌ 都道府県一覧取得エラー: $e');
@@ -109,62 +114,52 @@ final filteredAreasProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
     });
     
     appLog('🔍 エリア取得完了: ${areasWithCount.length}件');
-    
-    // 4. 箱根エリアをグループ化
-    return _groupHakoneAreas(areasWithCount);
+
+    // 4. 箱根サブを tier/group_key で親に合成
+    return _groupAreasByTaxonomy(areasWithCount);
   } catch (e) {
     appLog('❌ エリア一覧取得エラー: $e');
     rethrow;
   }
 });
 
-/// 箱根エリアをグループ化する
-List<Map<String, dynamic>> _groupHakoneAreas(List<Map<String, dynamic>> areas) {
-  final hakoneAreas = <Map<String, dynamic>>[];
-  final otherAreas = <Map<String, dynamic>>[];
-  
-  for (final area in areas) {
-    final name = area['name'] as String;
-    if (name.startsWith('箱根・')) {
-      appLog('🔍 箱根エリア検出: $name, route_count: ${area['route_count']}');
-      hakoneAreas.add(area);
-    } else {
-      otherAreas.add(area);
-    }
-  }
-  
-  appLog('📊 箱根エリア合計: ${hakoneAreas.length}件');
-  appLog('📊 箱根エリア合計: ${hakoneAreas.length}件');
-  
-  // 箱根エリアが複数ある場合のみグループ化
-  if (hakoneAreas.length > 1) {
-    // 箱根グループの合計ルート数を計算
-    final totalRoutes = hakoneAreas.fold<int>(
+/// 箱根サブ(tier='sub'/group_key='hakone')を1つの"箱根"親にまとめる。
+/// 旧 name.startsWith('箱根・') ハックを tier ベースに置換。
+List<Map<String, dynamic>> _groupAreasByTaxonomy(
+    List<Map<String, dynamic>> areas) {
+  bool isHakoneSub(Map<String, dynamic> a) =>
+      a['tier'] == AreaTier.sub && a['group_key'] == AreaGroupKey.hakone;
+
+  final hakoneSubs = areas.where(isHakoneSub).toList();
+  final others = areas.where((a) => !isHakoneSub(a)).toList();
+
+  // 箱根サブが複数あるときだけ親チップに集約（検索で1件のみヒット等は素通し）。
+  if (hakoneSubs.length > 1) {
+    final totalRoutes = hakoneSubs.fold<int>(
       0,
       (sum, area) => sum + ((area['route_count'] as int?) ?? 0),
     );
-    
-    appLog('📊 箱根グループ合計ルート数: $totalRoutes');
-    
-    // 箱根親エリアを作成（hero_image_url: 平和の鳥居+富士+芦ノ湖）
+
     final hakoneParent = {
       'id': 'hakone_group', // 特殊ID
       'name': '箱根',
       'prefecture': '神奈川県',
+      'slug': 'hakone',
+      'tier': AreaTier.region, // セクション分けでは region 扱い（お出かけエリア）
       'description': '神奈川県の人気観光地。温泉、美術館、芦ノ湖など多彩なスポットがあります。',
       'route_count': totalRoutes,
       'is_hakone_group': true, // 箱根グループフラグ
-      'sub_areas': hakoneAreas, // サブエリア一覧
+      'sub_areas': hakoneSubs, // サブエリア一覧
       'hero_image_url':
           'https://jkpenklhrlbctebkpvax.supabase.co/storage/v1/object/public/route-photos/ashinoko_west/01.jpg',
     };
-    
-    appLog('✅ 箱根グループ作成完了: sub_areas=${hakoneAreas.length}件');
-    
-    // 箱根親エリアを先頭に、その後に他のエリア
-    return [hakoneParent, ...otherAreas];
+
+    appLog('✅ 箱根グループ作成完了: sub_areas=${hakoneSubs.length}件');
+
+    // 箱根親を先頭に、その後に他のエリア
+    return [hakoneParent, ...others];
   } else {
-    // 箱根エリアが1つ以下の場合はそのまま返す
+    // 箱根サブが1件以下ならそのまま返す
     return areas;
   }
 }

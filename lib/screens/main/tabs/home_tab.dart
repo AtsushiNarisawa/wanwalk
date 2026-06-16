@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/wanwalk_colors.dart';
 import '../../../config/wanwalk_icons.dart';
+import '../../../config/area_taxonomy.dart';
 import '../../../config/wanwalk_typography.dart';
 import '../../../config/wanwalk_spacing.dart';
 import '../../../providers/analytics_provider.dart';
@@ -530,131 +531,262 @@ class HomeTab extends ConsumerWidget {
             ],
           ),
         ),
-        SizedBox(
-          height: 80,
-          child: areasAsync.when(
-            data: (areas) {
-              // 箱根サブエリア(箱根・XX)を1つの"箱根"親チップに統合
-              final hakoneSubs = areas.where((a) => a.name.startsWith('箱根・')).toList();
-              final otherAreas = areas.where((a) => !a.name.startsWith('箱根')).toList();
+        areasAsync.when(
+          data: (areas) {
+            // tier='region' のみをホーム chip に出す（created_at 新着順は撤廃）。
+            final regions =
+                areas.where((a) => a.tier == AreaTier.region).toList();
+            // 箱根サブ(tier='sub'/group_key='hakone')は1つの"箱根"親チップに合成。
+            final hakoneSubs = areas
+                .where((a) =>
+                    a.tier == AreaTier.sub &&
+                    a.groupKey == AreaGroupKey.hakone)
+                .toList();
 
-              final chips = <_HomeAreaChipData>[];
-              if (hakoneSubs.isNotEmpty) {
-                chips.add(_HomeAreaChipData(
-                  name: '箱根',
-                  prefecture: '神奈川県',
-                  isHakone: true,
-                  hakoneSubs: hakoneSubs,
-                ));
-              }
-              for (final a in otherAreas) {
-                chips.add(_HomeAreaChipData(
-                  name: a.name,
-                  prefecture: a.prefecture,
-                  area: a,
-                ));
-              }
+            final chips = <_HomeAreaChipData>[];
+            if (hakoneSubs.isNotEmpty) {
+              chips.add(_HomeAreaChipData(
+                name: '箱根',
+                prefecture: '神奈川県',
+                isHakone: true,
+                hakoneSubs: hakoneSubs,
+                sortIndex: homeRegionOrderIndex('hakone'),
+                routeCount:
+                    hakoneSubs.fold<int>(0, (s, a) => s + a.routeCount),
+              ));
+            }
+            for (final a in regions) {
+              chips.add(_HomeAreaChipData(
+                name: a.name,
+                prefecture: a.prefecture,
+                area: a,
+                sortIndex: homeRegionOrderIndex(a.slug),
+                routeCount: a.routeCount,
+              ));
+            }
+            // 固定 sort_order（需要×地理順）→ 同順位はルート数降順。
+            chips.sort((x, y) {
+              final c = x.sortIndex.compareTo(y.sortIndex);
+              if (c != 0) return c;
+              return y.routeCount.compareTo(x.routeCount);
+            });
 
-              return ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: WanWalkSpacing.s4),
-                itemCount: chips.length,
-                itemBuilder: (context, i) {
-                  final chip = chips[i];
-                  return Padding(
-                    padding: EdgeInsets.only(right: i < chips.length - 1 ? 10 : 0),
-                    child: GestureDetector(
-                      onTap: () {
-                        // GA4: area_card_click (ホーム上部「エリアから探す」横スクロール経由)
-                        final areaSlugForGa = chip.isHakone
-                            ? 'hakone'
-                            : (chip.area?.id ?? chip.name);
-                        unawaited(ref.read(analyticsServiceProvider).logAreaCardClick(
-                              areaSlug: areaSlugForGa,
-                              sourcePage: AppSourcePage.home,
-                            ));
-                        if (chip.isHakone) {
-                          final subAreaMaps = chip.hakoneSubs!
-                              .map((a) => <String, dynamic>{
-                                    'id': a.id,
-                                    'name': a.name,
-                                    'prefecture': a.prefecture,
-                                    'description': a.description,
-                                  })
-                              .toList();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HakoneSubAreaScreen(subAreas: subAreaMaps),
-                            ),
-                          );
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RouteListScreen(
-                                areaId: chip.area!.id,
-                                areaName: chip.area!.name,
+            // 「東京の身近な公園」ミニ枠の対象 spot（高需要のみ温存）。
+            final bySlug = {for (final a in areas) a.slug: a};
+            final tokyoParks = kHomeTokyoParkSlugs
+                .map((s) => bySlug[s])
+                .whereType<Area>()
+                .toList();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 80,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: WanWalkSpacing.s4),
+                    itemCount: chips.length,
+                    itemBuilder: (context, i) {
+                      final chip = chips[i];
+                      return Padding(
+                        padding: EdgeInsets.only(
+                            right: i < chips.length - 1 ? 10 : 0),
+                        child: GestureDetector(
+                          onTap: () {
+                            // GA4: area_card_click（ホーム「エリアから探す」chip 経由）
+                            final areaSlugForGa = chip.isHakone
+                                ? 'hakone'
+                                : (chip.area?.slug ??
+                                    chip.area?.id ??
+                                    chip.name);
+                            unawaited(ref
+                                .read(analyticsServiceProvider)
+                                .logAreaCardClick(
+                                  areaSlug: areaSlugForGa,
+                                  sourcePage: AppSourcePage.home,
+                                  tier: chip.area?.tier ?? AreaTier.region,
+                                  placement: 'home_region',
+                                ));
+                            if (chip.isHakone) {
+                              final subAreaMaps = chip.hakoneSubs!
+                                  .map((a) => <String, dynamic>{
+                                        'id': a.id,
+                                        'name': a.name,
+                                        'prefecture': a.prefecture,
+                                        'description': a.description,
+                                      })
+                                  .toList();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HakoneSubAreaScreen(
+                                      subAreas: subAreaMaps),
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RouteListScreen(
+                                    areaId: chip.area!.id,
+                                    areaName: chip.area!.name,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            width: chip.isHakone ? 130 : 110,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: chip.isHakone
+                                  ? WanWalkColors.accentPrimarySoft
+                                  : WanWalkColors.bgSecondary,
+                              borderRadius: BorderRadius.circular(
+                                  WanWalkSpacing.radiusMd),
+                              border: Border.all(
+                                color: chip.isHakone
+                                    ? WanWalkColors.accentPrimary
+                                    : WanWalkColors.borderSubtle,
+                                width: 1,
                               ),
                             ),
-                          );
-                        }
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  chip.name,
+                                  style: WanWalkTypography.wwH4.copyWith(
+                                    fontSize: 14,
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  chip.prefecture,
+                                  style: WanWalkTypography.wwLabel.copyWith(
+                                    fontSize: 10,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                if (tokyoParks.isNotEmpty)
+                  _buildTokyoParksMini(context, ref, tokyoParks),
+              ],
+            );
+          },
+          loading: () => const SizedBox(
+            height: 80,
+            child: Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: WanWalkColors.accentPrimary),
+              ),
+            ),
+          ),
+          error: (_, __) => const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  /// 「東京の身近な公園」ミニ枠（決定3＝高需要 spot を控えめに温存）。
+  Widget _buildTokyoParksMini(
+      BuildContext context, WidgetRef ref, List<Area> parks) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: WanWalkSpacing.s4,
+        right: WanWalkSpacing.s4,
+        top: WanWalkSpacing.s4,
+        bottom: WanWalkSpacing.s2,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '東京の身近な公園',
+            style: WanWalkTypography.wwLabel.copyWith(
+              color: WanWalkColors.textSecondary,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: WanWalkSpacing.s2),
+          Wrap(
+            spacing: WanWalkSpacing.s2,
+            runSpacing: WanWalkSpacing.s2,
+            children: parks
+                .map((a) => GestureDetector(
+                      onTap: () {
+                        // GA4: area_card_click（東京の身近な公園ミニ枠）
+                        unawaited(ref
+                            .read(analyticsServiceProvider)
+                            .logAreaCardClick(
+                              areaSlug: a.slug ?? a.id,
+                              sourcePage: AppSourcePage.home,
+                              tier: a.tier,
+                              placement: 'home_tokyo_parks',
+                            ));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RouteListScreen(
+                              areaId: a.id,
+                              areaName: a.name,
+                            ),
+                          ),
+                        );
                       },
                       child: Container(
-                        width: chip.isHakone ? 130 : 110,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: chip.isHakone
-                              ? WanWalkColors.accentPrimarySoft
-                              : WanWalkColors.bgSecondary,
-                          borderRadius: BorderRadius.circular(WanWalkSpacing.radiusMd),
+                          color: WanWalkColors.bgSecondary,
+                          borderRadius:
+                              BorderRadius.circular(WanWalkSpacing.radiusMd),
                           border: Border.all(
-                            color: chip.isHakone
-                                ? WanWalkColors.accentPrimary
-                                : WanWalkColors.borderSubtle,
+                            color: WanWalkColors.borderSubtle,
                             width: 1,
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              chip.name,
-                              style: WanWalkTypography.wwH4.copyWith(
-                                fontSize: 14,
-                                height: 1.2,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            Icon(
+                              WanWalkIcons.mapPin,
+                              size: WanWalkIcons.sizeXs,
+                              color: WanWalkColors.textSecondary,
                             ),
-                            const SizedBox(height: 3),
+                            const SizedBox(width: 6),
                             Text(
-                              chip.prefecture,
-                              style: WanWalkTypography.wwLabel.copyWith(
-                                fontSize: 10,
-                                letterSpacing: 0.5,
+                              a.name,
+                              style: WanWalkTypography.wwBodySm.copyWith(
+                                color: WanWalkColors.textPrimary,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-            loading: () => const Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: WanWalkColors.accentPrimary),
-              ),
-            ),
-            error: (_, __) => const SizedBox.shrink(),
+                    ))
+                .toList(),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -666,11 +798,15 @@ class _HomeAreaChipData {
   final bool isHakone;
   final Area? area; // 非箱根のとき
   final List<Area>? hakoneSubs; // 箱根の時のサブエリア
+  final int sortIndex; // kHomeRegionOrder 上の位置（小さいほど先頭）
+  final int routeCount; // 同順位のタイブレーク用
   _HomeAreaChipData({
     required this.name,
     required this.prefecture,
     this.isHakone = false,
     this.area,
     this.hakoneSubs,
+    this.sortIndex = 9999,
+    this.routeCount = 0,
   });
 }

@@ -6,6 +6,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../config/area_taxonomy.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/area_provider.dart';
 import '../../providers/area_list_screen_provider.dart';
@@ -78,75 +79,31 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
                 if (areas.isEmpty) {
                   return _buildEmptyState('該当するエリアがありません');
                 }
+                // 2セクション化: お出かけエリア(region/箱根親) / 身近な公園(spot)
+                final regions = areas
+                    .where((a) => (a['tier'] as String? ?? AreaTier.region) !=
+                        AreaTier.spot)
+                    .toList();
+                final spots = areas
+                    .where((a) =>
+                        (a['tier'] as String? ?? AreaTier.region) ==
+                        AreaTier.spot)
+                    .toList();
                 return RefreshIndicator(
                   color: WanWalkColors.accentPrimary,
                   onRefresh: () async {
                     ref.invalidate(filteredAreasProvider);
                   },
-                  child: GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(
-                      WanWalkSpacing.s4,
-                      WanWalkSpacing.s2,
-                      WanWalkSpacing.s4,
-                      WanWalkSpacing.s7,
-                    ),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: WanWalkSpacing.s5,
-                      crossAxisSpacing: WanWalkSpacing.s4,
-                      childAspectRatio: 0.64,
-                    ),
-                    itemCount: areas.length,
-                    itemBuilder: (context, index) {
-                      final area = areas[index];
-                      final isHakoneGroup =
-                          area['is_hakone_group'] as bool? ?? false;
-                      return AreaCard(
-                        name: area['name'] as String,
-                        prefecture: (area['prefecture'] as String?) ?? '',
-                        heroImageUrl: area['hero_image_url'] as String?,
-                        routeCount: (area['route_count'] as int?) ?? 0,
-                        onTap: () {
-                          // GA4: area_card_click (エリア一覧画面のカード経由)
-                          final areaSlugForGa = isHakoneGroup
-                              ? 'hakone'
-                              : (area['id']?.toString() ??
-                                  (area['name'] as String? ?? ''));
-                          unawaited(ref
-                              .read(analyticsServiceProvider)
-                              .logAreaCardClick(
-                                areaSlug: areaSlugForGa,
-                                sourcePage: AppSourcePage.areasList,
-                              ));
-                          if (isHakoneGroup) {
-                            final subAreas = area['sub_areas']
-                                as List<Map<String, dynamic>>;
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HakoneSubAreaScreen(
-                                  subAreas: subAreas,
-                                ),
-                              ),
-                            );
-                          } else {
-                            ref
-                                .read(selectedAreaIdProvider.notifier)
-                                .selectArea(area['id']);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RouteListScreen(
-                                  areaId: area['id'],
-                                  areaName: area['name'],
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    },
+                  child: CustomScrollView(
+                    slivers: [
+                      if (regions.isNotEmpty)
+                        ..._buildAreaSection('お出かけエリア', regions),
+                      if (spots.isNotEmpty)
+                        ..._buildAreaSection('身近な公園', spots),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: WanWalkSpacing.s7),
+                      ),
+                    ],
                   ),
                 );
               },
@@ -165,6 +122,89 @@ class _AreaListScreenState extends ConsumerState<AreaListScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  /// セクション（見出し + 2列グリッド）を slivers として返す。
+  List<Widget> _buildAreaSection(
+      String title, List<Map<String, dynamic>> items) {
+    return [
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
+          WanWalkSpacing.s4,
+          WanWalkSpacing.s4,
+          WanWalkSpacing.s4,
+          WanWalkSpacing.s2,
+        ),
+        sliver: SliverToBoxAdapter(
+          child: Text(title, style: WanWalkTypography.wwH3),
+        ),
+      ),
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
+          WanWalkSpacing.s4,
+          0,
+          WanWalkSpacing.s4,
+          WanWalkSpacing.s2,
+        ),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: WanWalkSpacing.s5,
+            crossAxisSpacing: WanWalkSpacing.s4,
+            childAspectRatio: 0.64,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => _buildAreaCard(context, items[index]),
+            childCount: items.length,
+          ),
+        ),
+      ),
+    ];
+  }
+
+  Widget _buildAreaCard(BuildContext context, Map<String, dynamic> area) {
+    final isHakoneGroup = area['is_hakone_group'] as bool? ?? false;
+    return AreaCard(
+      name: area['name'] as String,
+      prefecture: (area['prefecture'] as String?) ?? '',
+      heroImageUrl: area['hero_image_url'] as String?,
+      routeCount: (area['route_count'] as int?) ?? 0,
+      onTap: () {
+        // GA4: area_card_click（エリア一覧画面のカード経由）
+        final areaSlugForGa = isHakoneGroup
+            ? 'hakone'
+            : ((area['slug'] as String?) ??
+                area['id']?.toString() ??
+                (area['name'] as String? ?? ''));
+        unawaited(ref.read(analyticsServiceProvider).logAreaCardClick(
+              areaSlug: areaSlugForGa,
+              sourcePage: AppSourcePage.areasList,
+              tier: (area['tier'] as String?) ?? AreaTier.region,
+              placement: 'area_list',
+            ));
+        if (isHakoneGroup) {
+          final subAreas =
+              (area['sub_areas'] as List).cast<Map<String, dynamic>>();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HakoneSubAreaScreen(subAreas: subAreas),
+            ),
+          );
+        } else {
+          ref.read(selectedAreaIdProvider.notifier).selectArea(area['id']);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RouteListScreen(
+                areaId: area['id'],
+                areaName: area['name'],
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 

@@ -13,6 +13,18 @@ class Area {
   final String? heroImageUrl;
   final DateTime createdAt;
 
+  /// URLスラッグ（Web/ディープリンクと一致する出口キー）。
+  final String? slug;
+
+  /// 粒度。region / sub / spot（AreaTier 参照）。既定は region。
+  final String tier;
+
+  /// sub を束ねる親キー（現状は 'hakone'）。region/spot は null。
+  final String? groupKey;
+
+  /// 所属する公開ルート数（get_areas_simple が返却）。
+  final int routeCount;
+
   Area({
     required this.id,
     required this.name,
@@ -21,6 +33,10 @@ class Area {
     required this.centerLocation,
     this.heroImageUrl,
     DateTime? createdAt,
+    this.slug,
+    this.tier = 'region',
+    this.groupKey,
+    this.routeCount = 0,
   }) : createdAt = createdAt ?? DateTime.now();
 
   /// Supabaseから取得したJSONをAreaオブジェクトに変換
@@ -47,6 +63,10 @@ class Area {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
+      slug: json['slug'] as String?,
+      tier: json['tier'] as String? ?? 'region',
+      groupKey: json['group_key'] as String?,
+      routeCount: (json['route_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -71,6 +91,10 @@ class Area {
     LatLng? centerLocation,
     String? heroImageUrl,
     DateTime? createdAt,
+    String? slug,
+    String? tier,
+    String? groupKey,
+    int? routeCount,
   }) {
     return Area(
       id: id ?? this.id,
@@ -80,6 +104,10 @@ class Area {
       centerLocation: centerLocation ?? this.centerLocation,
       heroImageUrl: heroImageUrl ?? this.heroImageUrl,
       createdAt: createdAt ?? this.createdAt,
+      slug: slug ?? this.slug,
+      tier: tier ?? this.tier,
+      groupKey: groupKey ?? this.groupKey,
+      routeCount: routeCount ?? this.routeCount,
     );
   }
 

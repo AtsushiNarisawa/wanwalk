@@ -133,10 +133,14 @@ class AnalyticsService {
   Future<void> logAreaCardClick({
     required String areaSlug,
     required AppSourcePage sourcePage,
+    String? tier,
+    String? placement,
   }) =>
       _log('area_card_click', {
         'area_slug': areaSlug,
         'source_page': sourcePage.value,
+        if (tier != null) 'tier': tier,
+        if (placement != null) 'placement': placement,
       });
 
   Future<void> logSpotCardClick({
