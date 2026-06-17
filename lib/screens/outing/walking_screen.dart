@@ -186,7 +186,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
 
     // GA4: route_start_walk (Key Event 候補・公式ルートの実利用シグナル)
     unawaited(ref.read(analyticsServiceProvider).logRouteStartWalk(
-          routeSlug: widget.route.id,
+          routeSlug: widget.route.slug ?? widget.route.id,
           walkMode: WalkMode.outing.value,
           navParamsVersion: ref.read(navParamsProvider).valueOrNull?.version,
         ));
@@ -242,7 +242,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   /// off_route_event の計測は**常時送る**（accuracy_m/threshold_m がリモート閾値調整の「目」）。
   void _onNavOffRoute(NavOffRouteEvent event) {
     unawaited(ref.read(analyticsServiceProvider).logOffRouteEvent(
-          routeSlug: widget.route.id,
+          routeSlug: widget.route.slug ?? widget.route.id,
           recovered: false, // Build 43 で復帰/継続秒を追跡（42は開始のみ計上）
           durationSec: 0,
           wasStationary: event.wasStationary,
@@ -452,7 +452,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     // GA4: walk_complete (Key Event 候補・最重要 conversion)
     // §9: nav の生値（進捗/カバレッジ/完走/nav有効）を同梱。未完走でも最終進捗を送る。
     unawaited(ref.read(analyticsServiceProvider).logWalkComplete(
-          routeSlug: widget.route.id,
+          routeSlug: widget.route.slug ?? widget.route.id,
           walkMode: WalkMode.outing.value,
           distanceM: distanceMeters.round(),
           durationSec: gpsState.elapsedSeconds,
@@ -611,6 +611,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       MaterialPageRoute(
         builder: (context) => PinCreateScreen(
           routeId: widget.route.id,
+          routeSlug: widget.route.slug,
           location: currentLocation,
           fromWalking: true,
         ),
@@ -696,7 +697,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       if (next.returnToParkingMeters != null && !_parkingViewLogged) {
         _parkingViewLogged = true;
         unawaited(ref.read(analyticsServiceProvider).logNavReturnParkingView(
-              routeSlug: widget.route.id,
+              routeSlug: widget.route.slug ?? widget.route.id,
               navParamsVersion: _navParams.version,
             ));
       }

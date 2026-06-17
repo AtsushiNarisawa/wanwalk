@@ -18,6 +18,7 @@ import '../../providers/recent_pins_provider.dart';
 /// 「作業」ではなく「瞬間のシェア」体験を提供
 class PinCreateScreen extends ConsumerStatefulWidget {
   final String routeId;
+  final String? routeSlug; // GA4 route_slug 用（Web 突合・null なら routeId にフォールバック）
   final LatLng location;
   final String? areaName;
   final bool fromWalking; // 散歩中のFABから開いたかどうか
@@ -25,6 +26,7 @@ class PinCreateScreen extends ConsumerStatefulWidget {
   const PinCreateScreen({
     super.key,
     required this.routeId,
+    this.routeSlug,
     required this.location,
     this.areaName,
     this.fromWalking = false,
@@ -218,7 +220,7 @@ class _PinCreateScreenState extends ConsumerState<PinCreateScreen> {
 
       // GA4: pin_create (Key Event 候補・UGC 投稿シグナル)
       unawaited(ref.read(analyticsServiceProvider).logPinCreate(
-            routeSlug: widget.routeId,
+            routeSlug: widget.routeSlug ?? widget.routeId,
             pinType: _selectedType.value,
           ));
 

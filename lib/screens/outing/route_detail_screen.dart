@@ -80,7 +80,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
         if (route != null && !_routeViewLogged) {
           _routeViewLogged = true;
           unawaited(ref.read(analyticsServiceProvider).logRouteView(
-                routeSlug: route.id,
+                routeSlug: route.slug ?? route.id,
                 areaSlug: route.areaId,
                 source: AppSourcePage.routeDetail,
               ));
@@ -103,7 +103,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
             data: (route) => route != null
                 ? Row(
                     children: [
-                      BookmarkButton(routeId: route.id),
+                      BookmarkButton(routeId: route.id, routeSlug: route.slug),
                       ShareButton(
                         routeName: route.name,
                         areaName: route.areaName,
@@ -1197,9 +1197,13 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
   /// 情報フィードバック用ボトムシート
   void _showFeedbackSheet(BuildContext context) {
+    // route_slug は Web と突合できる人間可読 slug を送る（id は UUID で突合不可）。
+    final routeSlug =
+        ref.read(routeByIdProvider(widget.routeId)).valueOrNull?.slug ??
+            widget.routeId;
     // GA4: route_feedback_open (Web 同名・ログインゲート前に発火し interest 計測)
     unawaited(ref.read(analyticsServiceProvider).logRouteFeedbackOpen(
-          routeSlug: widget.routeId,
+          routeSlug: routeSlug,
         ));
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
@@ -1220,6 +1224,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       ),
       builder: (ctx) => _FeedbackSheet(
         routeId: widget.routeId,
+        routeSlug: routeSlug,
         userId: user.id,
         scaffoldMessenger: scaffoldMessenger,
       ),
@@ -1230,11 +1235,13 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 /// 情報フィードバック送信シート
 class _FeedbackSheet extends ConsumerStatefulWidget {
   final String routeId;
+  final String routeSlug;
   final String userId;
   final ScaffoldMessengerState scaffoldMessenger;
 
   const _FeedbackSheet({
     required this.routeId,
+    required this.routeSlug,
     required this.userId,
     required this.scaffoldMessenger,
   });
@@ -1284,7 +1291,7 @@ class _FeedbackSheetState extends ConsumerState<_FeedbackSheet> {
 
       // GA4: route_feedback_submit (Web 同名・Key Event 候補)
       unawaited(ref.read(analyticsServiceProvider).logRouteFeedbackSubmit(
-            routeSlug: widget.routeId,
+            routeSlug: widget.routeSlug,
             feedbackCategory: _selectedCategory,
           ));
 

@@ -77,7 +77,7 @@ class RouteListScreen extends ConsumerWidget {
                   onTap: () {
                     // GA4: route_card_click (エリア別ルート一覧経由)
                     unawaited(ref.read(analyticsServiceProvider).logRouteCardClick(
-                          routeSlug: route.id,
+                          routeSlug: route.slug ?? route.id,
                           areaSlug: route.areaId,
                           sourcePage: AppSourcePage.routesList,
                         ));

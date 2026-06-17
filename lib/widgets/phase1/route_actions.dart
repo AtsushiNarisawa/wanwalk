@@ -17,8 +17,9 @@ import '../../services/app_review_service.dart';
 /// 未ログイン時は誘導ダイアログ。認証後は Supabase user_bookmarks に永続化。
 class BookmarkButton extends ConsumerStatefulWidget {
   final String routeId;
+  final String? routeSlug; // GA4 route_slug 用（Web 突合・null なら routeId にフォールバック）
 
-  const BookmarkButton({super.key, required this.routeId});
+  const BookmarkButton({super.key, required this.routeId, this.routeSlug});
 
   @override
   ConsumerState<BookmarkButton> createState() => _BookmarkButtonState();
@@ -34,7 +35,7 @@ class _BookmarkButtonState extends ConsumerState<BookmarkButton> {
       final next = await toggleBookmark(widget.routeId);
       // GA4: route_bookmark_toggle (Web 同名・action は toggle 後の状態)
       unawaited(ref.read(analyticsServiceProvider).logRouteBookmarkToggle(
-            routeSlug: widget.routeId,
+            routeSlug: widget.routeSlug ?? widget.routeId,
             action: next ? BookmarkAction.add : BookmarkAction.remove,
           ));
       // レビュー促進: ブックマーク追加はポジティブシグナル（追加時のみ）
