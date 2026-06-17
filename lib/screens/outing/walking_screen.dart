@@ -24,6 +24,7 @@ import '../../providers/active_walk_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/nav_controller_provider.dart';
+import '../../providers/nav_params_provider.dart';
 import '../../providers/route_spots_provider.dart';
 import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
@@ -70,6 +71,9 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   bool _permissionLogged = false;
   // 散歩終了処理の再入ガード（保存中の二度押し・再試行で walks が二重保存されるのを防ぐ）。
   bool _finishing = false;
+  // §10: 起動時に取得したナビ閾値（未取得時は内蔵既定値）。configure 時に確定し、
+  // 全 nav イベントの nav_params_version はこの値から付与する。
+  NavParams _navParams = const NavParams();
 
   @override
   void initState() {
@@ -134,6 +138,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       unawaited(ref.read(analyticsServiceProvider).logPermissionResult(
             type: 'location',
             granted: hasPermission,
+            navParamsVersion: ref.read(navParamsProvider).valueOrNull?.version,
           ));
     }
     if (!hasPermission) {
@@ -183,6 +188,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     unawaited(ref.read(analyticsServiceProvider).logRouteStartWalk(
           routeSlug: widget.route.id,
           walkMode: WalkMode.outing.value,
+          navParamsVersion: ref.read(navParamsProvider).valueOrNull?.version,
         ));
   }
 
@@ -205,12 +211,16 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
             name: s.name,
             distanceFromStart: s.distanceFromStart,
             category: s.category?.value,
+            location: s.location, // §11 立寄りの最接近距離算出用
           ),
     ];
+    // §10: 起動時にリモート取得済みなら閾値を適用（未取得・失敗時は内蔵既定値）。
+    _navParams = ref.read(navParamsProvider).valueOrNull ?? const NavParams();
     final notifier = ref.read(navControllerProvider.notifier);
     notifier.configure(
       line: line,
       spots: navSpots,
+      params: _navParams,
       onApproach: _onNavApproach,
       onOffRoute: _onNavOffRoute,
     );
@@ -238,7 +248,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           wasStationary: event.wasStationary,
           accuracyM: event.accuracyM.round(),
           thresholdM: event.thresholdM.round(),
-          navParamsVersion: const NavParams().version,
+          navParamsVersion: _navParams.version,
         ));
     if (!NavFlags.recoveryEnabled) return;
     // Build 43: 復帰バナー + 最寄り復帰点への点線 + ハプティック。
@@ -347,6 +357,13 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     final bool navReady = navState.ready;
     final NavCompletion? navCompletion =
         navReady ? NavCompletion.fromState(navState) : null;
+    // §11: 立寄り記録は reset 前に収集する（reset でエンジンが破棄されバッファが消えるため）。
+    // 保存は walk 保存成功後にまとめて行う。visited_at の基準は nav 基準時刻（最初の GPS fix の
+    // 絶対 epoch）。route.startedAt（記録開始）とは取得レイテンシ分ずれ、復元経路では大きくずれる。
+    final navNotifier = ref.read(navControllerProvider.notifier);
+    final List<SpotVisit> spotVisits =
+        navReady ? navNotifier.collectSpotVisits() : const <SpotVisit>[];
+    final int? navStartMs = navReady ? navNotifier.navStartEpochMs : null;
 
     // Supabaseから現在のユーザーIDを取得
     var userId = Supabase.instance.client.auth.currentUser?.id;
@@ -443,7 +460,20 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
           coveragePct: navReady ? navState.coveragePct : null,
           isRouteCompleted: navReady ? navState.isCompleted : null,
           navEnabled: navReady,
+          // §9/§10: この完走分布がどの閾値セットで測られたかを識別（エンジンが実際に使った版）。
+          navParamsVersion: navReady ? _navParams.version : null,
         ));
+
+    // §11: 立寄り記録を walk_spot_visits へ保存（分析用途・失敗しても散歩完了を止めない）。
+    // 基準は nav 基準時刻（最初の GPS fix）。未取得時のみ route.startedAt にフォールバック。
+    unawaited(walkSaveService.saveSpotVisits(
+      walkId: walkId,
+      userId: userId,
+      visits: spotVisits,
+      startTime: navStartMs != null
+          ? DateTime.fromMillisecondsSinceEpoch(navStartMs)
+          : route.startedAt,
+    ));
 
     if (kDebugMode) {
       appLog('✅ 散歩記録保存成功: walkId=$walkId, 写真数=${_photoFiles.length}枚');
@@ -667,7 +697,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         _parkingViewLogged = true;
         unawaited(ref.read(analyticsServiceProvider).logNavReturnParkingView(
               routeSlug: widget.route.id,
-              navParamsVersion: const NavParams().version,
+              navParamsVersion: _navParams.version,
             ));
       }
     });

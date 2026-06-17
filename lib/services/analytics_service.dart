@@ -240,10 +240,12 @@ class AnalyticsService {
   Future<void> logRouteStartWalk({
     String? routeSlug,
     required String walkMode,
+    int? navParamsVersion,
   }) =>
       _log('route_start_walk', {
         if (routeSlug != null) 'route_slug': routeSlug,
         'walk_mode': walkMode,
+        if (navParamsVersion != null) 'nav_params_version': navParamsVersion,
       });
 
   /// 散歩完了
@@ -260,6 +262,7 @@ class AnalyticsService {
     double? coveragePct,
     bool? isRouteCompleted,
     bool? navEnabled,
+    int? navParamsVersion,
   }) =>
       _log('walk_complete', {
         if (routeSlug != null) 'route_slug': routeSlug,
@@ -270,6 +273,8 @@ class AnalyticsService {
         if (coveragePct != null) 'coverage_pct': double.parse(coveragePct.toStringAsFixed(3)),
         if (isRouteCompleted != null) 'is_route_completed': isRouteCompleted ? 1 : 0,
         if (navEnabled != null) 'nav_enabled': navEnabled ? 1 : 0,
+        // §9/§10: どの閾値セットでの完走分布かを識別（リモート閾値チューニングの生命線）。
+        if (navParamsVersion != null) 'nav_params_version': navParamsVersion,
       });
 
   // ───────────────────────────────────────────────────────────
@@ -351,10 +356,12 @@ class AnalyticsService {
   Future<void> logPermissionResult({
     required String type, // 'location' | 'notification'
     required bool granted,
+    int? navParamsVersion,
   }) =>
       _log('permission_result', {
         'type': type,
         'granted': granted ? 1 : 0,
+        if (navParamsVersion != null) 'nav_params_version': navParamsVersion,
       });
 
   /// ピン投稿（UGC 写真）

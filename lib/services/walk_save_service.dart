@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/route_model.dart';
 import '../models/walk_mode.dart';
-import '../nav/route_nav_engine.dart' show NavCompletion;
+import '../nav/route_nav_engine.dart' show NavCompletion, SpotVisit;
 import '../utils/logger.dart';
 
 /// 散歩記録保存サービス
@@ -130,6 +130,45 @@ class WalkSaveService {
         appLog('❌ おでかけ散歩保存エラー: $e');
       }
       return null;
+    }
+  }
+
+  /// LAYER1_NAV_SPEC §11: 散歩中に集めた立寄り記録を walk_spot_visits へ一括INSERTする。
+  ///
+  /// walk 保存が成功した後に1回だけ呼ぶ（散歩中は walk_id 未確定＋山間部圏外で失敗するため
+  /// リアルタイム書込はしない）。立寄りは分析用途のデータなので、保存に失敗しても散歩本体
+  /// （北極星=walks）は既に保存済み → エラーは握り潰して散歩完了フローを止めない。
+  ///
+  /// [startTime] は walk の開始時刻。各 SpotVisit の相対 ms を足して絶対 visited_at にする。
+  Future<void> saveSpotVisits({
+    required String walkId,
+    required String userId,
+    required List<SpotVisit> visits,
+    required DateTime startTime,
+  }) async {
+    if (visits.isEmpty) return;
+    try {
+      final rows = visits
+          .map((v) => <String, dynamic>{
+                'walk_id': walkId,
+                'route_spot_id': v.routeSpotId,
+                'user_id': userId,
+                'visited_at': startTime
+                    .add(Duration(milliseconds: v.firstSeenMillis))
+                    .toIso8601String(),
+                'dwell_sec': v.dwellSec,
+                if (v.minDistanceM != null) 'min_distance_m': v.minDistanceM,
+              })
+          .toList();
+      await _supabase.from('walk_spot_visits').insert(rows);
+      if (kDebugMode) {
+        appLog('✅ 立寄り記録保存: ${rows.length}件 (walkId=$walkId)');
+      }
+    } catch (e) {
+      // 立寄りは分析用途。保存失敗は致命的でない（散歩本体は既に保存済み）。
+      if (kDebugMode) {
+        appLog('⚠️ 立寄り記録の保存に失敗（無視）: $e');
+      }
     }
   }
 

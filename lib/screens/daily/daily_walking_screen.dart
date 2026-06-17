@@ -17,6 +17,7 @@ import '../../providers/gps_provider_riverpod.dart';
 import '../../providers/active_walk_provider.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/nav_params_provider.dart';
 import '../../services/profile_service.dart';
 import '../../services/walk_save_service.dart';
 import '../../services/photo_service.dart';
@@ -131,6 +132,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       unawaited(ref.read(analyticsServiceProvider).logPermissionResult(
             type: 'location',
             granted: hasPermission,
+            navParamsVersion: ref.read(navParamsProvider).valueOrNull?.version,
           ));
     }
     if (!hasPermission) {
@@ -158,7 +160,10 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
     ref.read(activeWalkProvider.notifier).startWalk(mode: WalkMode.daily);
 
     // §9 計測の穴埋め: Daily も記録開始を計測（従来 Outing のみ発火していた）
-    ref.read(analyticsServiceProvider).logRouteStartWalk(walkMode: 'daily');
+    ref.read(analyticsServiceProvider).logRouteStartWalk(
+          walkMode: 'daily',
+          navParamsVersion: ref.read(navParamsProvider).valueOrNull?.version,
+        );
   }
 
   /// 散歩を終了
@@ -314,6 +319,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
           distanceM: distanceMeters.round(),
           durationSec: gpsState.elapsedSeconds,
           navEnabled: false,
+          navParamsVersion: ref.read(navParamsProvider).valueOrNull?.version,
         );
 
     // A5: 保存成功したので記録を確定終了してリセット

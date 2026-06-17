@@ -39,11 +39,16 @@ class NavSpot {
   final int? distanceFromStart;
   final String? category;
 
+  /// スポットの実座標（§11 立寄り判定の最接近距離算出に使用）。
+  /// fixture 等で未指定なら立寄り追跡の対象外（min_distance を出せないため）。
+  final LatLng? location;
+
   const NavSpot({
     required this.id,
     required this.name,
     this.distanceFromStart,
     this.category,
+    this.location,
   });
 
   /// §4 接近ガイド対象（景観系 + 商業系）。utility(parking/restroom/water_station) と
@@ -75,6 +80,17 @@ class NavParams {
   final double discontinuitySpeedMps; // 連続fix間の空間速度がこれ超=テレポートとして再捕捉
   final double mergeM; // 接近密集マージ（§4・将来UI用）
 
+  // §4 B 接近ガイド / §6 D 復帰サポート（Build 43 有効化時に使用・先行収容）
+  final double approachPreM; // 接近予告
+  final double approachCardM; // 接近カード表示
+  final int offRouteNotifyMax; // 逸脱通知上限
+
+  // §11 walk_spot_visits 立寄り判定
+  final double visitRadiusM; // この距離内に入ったら立寄りと記録
+  final int visitDwellGapSec; // 連続滞在とみなす最大fix間隔（超で滞在加算をスキップ）
+
+  final int version; // nav_params_version（全イベントへ付与・§10）
+
   const NavParams({
     this.offRouteM = 50,
     this.accuracyGateM = 35,
@@ -91,9 +107,56 @@ class NavParams {
     this.offRouteConfirm = 3,
     this.discontinuitySpeedMps = 8.0,
     this.mergeM = 130,
+    this.approachPreM = 100,
+    this.approachCardM = 30,
+    this.offRouteNotifyMax = 2,
+    this.visitRadiusM = 40,
+    this.visitDwellGapSec = 120,
+    this.version = 1,
   });
 
-  int get version => 1; // nav_params_version（全イベントへ付与・§10）
+  /// nav_params テーブルの1行から構築（§10 リモート閾値）。
+  /// PostgREST は numeric を数値/文字列どちらでも返しうるため両対応でパースし、
+  /// 欠損キーはアプリ内蔵の既定値にフォールバックする。
+  factory NavParams.fromMap(Map<String, dynamic> m) {
+    const d = NavParams();
+    return NavParams(
+      offRouteM: _numD(m['off_route_m'], d.offRouteM),
+      accuracyGateM: _numD(m['accuracy_gate_m'], d.accuracyGateM),
+      completeCoverage: _numD(m['complete_coverage'], d.completeCoverage),
+      goalRadiusM: _numD(m['goal_radius_m'], d.goalRadiusM),
+      suspendSpeedKmh: _numD(m['suspend_speed_kmh'], d.suspendSpeedKmh),
+      startSnapM: _numD(m['start_snap_m'], d.startSnapM),
+      interpMaxSpeedMps: _numD(m['interp_max_speed_mps'], d.interpMaxSpeedMps),
+      reacquireJumpM: _numD(m['reacquire_jump_m'], d.reacquireJumpM),
+      reacquireConfirm: _numI(m['reacquire_confirm'], d.reacquireConfirm),
+      offRouteSuspendM: _numD(m['off_route_suspend_m'], d.offRouteSuspendM),
+      suspendSpeedConfirm: _numI(m['suspend_speed_confirm'], d.suspendSpeedConfirm),
+      initConfirm: _numI(m['init_confirm'], d.initConfirm),
+      offRouteConfirm: _numI(m['off_route_confirm'], d.offRouteConfirm),
+      discontinuitySpeedMps: _numD(m['discontinuity_speed_mps'], d.discontinuitySpeedMps),
+      mergeM: _numD(m['merge_m'], d.mergeM),
+      approachPreM: _numD(m['approach_pre_m'], d.approachPreM),
+      approachCardM: _numD(m['approach_card_m'], d.approachCardM),
+      offRouteNotifyMax: _numI(m['off_route_notify_max'], d.offRouteNotifyMax),
+      visitRadiusM: _numD(m['visit_radius_m'], d.visitRadiusM),
+      visitDwellGapSec: _numI(m['visit_dwell_gap_sec'], d.visitDwellGapSec),
+      version: _numI(m['version'], d.version),
+    );
+  }
+}
+
+double _numD(dynamic v, double def) {
+  if (v is num) return v.toDouble();
+  if (v is String) return double.tryParse(v) ?? def;
+  return def;
+}
+
+int _numI(dynamic v, int def) {
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v) ?? double.tryParse(v)?.toInt() ?? def;
+  return def;
 }
 
 /// エンジンの観測可能状態（UI / 計測 / 保存が読む）。
@@ -207,6 +270,33 @@ class NavOffRouteEvent {
   });
 }
 
+/// §11 立寄り記録の1件（walk保存成功時に walk_spot_visits へ一括INSERT）。
+/// [firstSeenMillis] は **nav 基準時刻（最初の GPS fix の時刻）からの相対ms**。
+/// 保存側は nav 基準時刻の絶対 epoch（NavController.navStartEpochMs）に足して絶対
+/// visited_at に変換する（エンジンは絶対時刻を知らない＝純Dartで時計に非依存）。
+class SpotVisit {
+  final String routeSpotId;
+  final int firstSeenMillis; // 最初に接近半径内へ入った相対時刻(ms)
+  final int dwellSec; // 接近半径内の連続滞在合計（秒）
+  final int? minDistanceM; // 最接近距離（m）。算出不能なら null
+
+  const SpotVisit({
+    required this.routeSpotId,
+    required this.firstSeenMillis,
+    required this.dwellSec,
+    required this.minDistanceM,
+  });
+}
+
+/// スポットごとの立寄り集計バッファ（エンジン内部状態）。
+class _VisitAccum {
+  double minDistM = double.infinity;
+  int? firstWithinMs; // 最初に半径内へ入った相対時刻(ms)
+  int dwellMs = 0; // 半径内に「居続けた」連続時間の合計
+  int? prevFixMs; // 直近 good fix の時刻（半径内外を問わず）
+  bool prevWithin = false; // 直近 good fix が半径内だったか
+}
+
 class RouteNavEngine {
   final List<LatLng> line;
   final List<double> _cum;
@@ -222,6 +312,7 @@ class RouteNavEngine {
 
   late final CoverageGrid _coverage;
   final Set<String> _firedApproach = {};
+  final Map<String, _VisitAccum> _visits = {}; // §11 立寄り集計（spot.id 別）
   int _offRouteEvents = 0;
   bool _offRouteActive = false;
   bool _completed = false;
@@ -273,6 +364,11 @@ class RouteNavEngine {
     if (_suspended) return;
 
     final goodAccuracy = fix.accuracyM <= p.accuracyGateM;
+
+    // §11: 立寄り追跡は精度ゲートを通った fix のみで行う（>35m のマルチパス系統誤差で
+    // false visit / 過小 min_distance を作らないため＝進捗/接近/逸脱と対称）。初期化前後に
+    // 依らず全 good fix で実施。サスペンド後は計上しない（上で return 済み）。
+    if (goodAccuracy) _trackVisits(fix);
 
     // 初期化: 最初の good fix を貯め、方向と開始chainageを決める（周回二義性回避・§2）。
     if (_committed == null) {
@@ -483,6 +579,50 @@ class RouteNavEngine {
         onApproach?.call(NavApproachEvent(s, newC));
       }
     }
+  }
+
+  /// §11: 各スポットへの最接近距離と接近半径内の滞在時間を更新する。
+  /// utility(parking/restroom/water_station) も含め location を持つ全スポットが対象。
+  /// 滞在は「半径内に居続けた連続時間」の合計＝直前 fix も半径内だった区間だけを積算する
+  /// （半径外を挟んだ離脱時間は数えない・周回の再通過は別区間扱い）。さらに fix 間隔が
+  /// visitDwellGapSec を超える場合は不規則サンプリングとみなし加算しない（安全弁）。
+  void _trackVisits(NavFix fix) {
+    for (final s in spots) {
+      final loc = s.location;
+      if (loc == null) continue;
+      final d = haversineMeters(fix.position, loc);
+      final acc = _visits.putIfAbsent(s.id, () => _VisitAccum());
+      if (d < acc.minDistM) acc.minDistM = d;
+      final within = d <= p.visitRadiusM;
+      if (within) {
+        if (acc.firstWithinMs == null) {
+          acc.firstWithinMs = fix.tMillis;
+        } else if (acc.prevWithin && acc.prevFixMs != null) {
+          // 直前 fix も半径内だった「連続区間」のみ滞在に加算。
+          final gap = fix.tMillis - acc.prevFixMs!;
+          if (gap >= 0 && gap <= p.visitDwellGapSec * 1000) acc.dwellMs += gap;
+        }
+      }
+      acc.prevWithin = within;
+      acc.prevFixMs = fix.tMillis;
+    }
+  }
+
+  /// §11: 立寄りが成立した（接近半径内に1回以上入った）スポットの記録を返す。
+  /// walk保存成功後に walk_spot_visits へ一括INSERTする（散歩中は書き込まない）。
+  List<SpotVisit> collectVisits() {
+    final out = <SpotVisit>[];
+    for (final s in spots) {
+      final acc = _visits[s.id];
+      if (acc == null || acc.firstWithinMs == null) continue;
+      out.add(SpotVisit(
+        routeSpotId: s.id,
+        firstSeenMillis: acc.firstWithinMs!,
+        dwellSec: (acc.dwellMs / 1000).round(),
+        minDistanceM: acc.minDistM.isFinite ? acc.minDistM.round() : null,
+      ));
+    }
+    return out;
   }
 
   /// 次の接近対象スポット（進行方向で chainage が先のもの・最も近い）。

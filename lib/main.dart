@@ -15,6 +15,7 @@ import 'config/wanwalk_theme.dart';
 import 'config/wanwalk_colors.dart';
 import 'config/env.dart';
 import 'providers/analytics_provider.dart';
+import 'providers/nav_params_provider.dart';
 import 'providers/push_notification_provider.dart';
 import 'screens/main/main_screen.dart';
 import 'screens/onboarding/welcome_screen.dart';
@@ -244,6 +245,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       _initPushNotifications();
       _initAnalytics();
       _initDeepLinks();
+      _warmNavParams();
     });
 
     // 認証状態をチェックして適切な画面に遷移
@@ -256,6 +258,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     } catch (e) {
       if (kDebugMode) appLog('[main] analytics init failed: $e');
     }
+  }
+
+  /// §10: ナビ閾値（nav_params）を起動時に先読みしておく。散歩開始（数分後）には
+  /// 解決済みになり、walking_screen が同期的に valueOrNull で参照できる。失敗時は
+  /// provider 側が内蔵既定値へフォールバックするため握り潰してよい。
+  void _warmNavParams() {
+    // provider 内で例外を握り内蔵既定値へフォールバックするため future は失敗しない。
+    unawaited(ref.read(navParamsProvider.future));
   }
 
   /// A2 Universal Links 受信を初期化（getInitialLink で cold-start URL を保留 + stream 購読）。

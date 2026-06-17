@@ -26,6 +26,14 @@ class NavController extends StateNotifier<NavState> {
   bool get isReady => _engine != null;
   NavState? get current => _engine?.state;
 
+  /// §11: 収集済みの立寄り記録。walk 保存成功後・[reset] 前に呼ぶこと
+  /// （reset でエンジンを破棄するとバッファも消えるため）。
+  List<SpotVisit> collectSpotVisits() => _engine?.collectVisits() ?? const [];
+
+  /// §11: nav 基準時刻（最初に届いた GPS fix の絶対 epoch ms）。SpotVisit.firstSeenMillis は
+  /// この時刻からの相対ms。保存側で visited_at の絶対時刻を復元するのに使う。未 attach なら null。
+  int? get navStartEpochMs => _startMs;
+
   /// ルート線＋スポットでエンジンを構成（再構成時は購読も切る）。
   void configure({
     required List<LatLng> line,
