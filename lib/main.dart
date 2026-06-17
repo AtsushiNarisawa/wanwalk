@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -339,67 +338,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: WanWalkColors.bgPrimary,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: WanWalkColors.primaryGradient,
-        ),
+        color: WanWalkColors.bgPrimary,
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // アイコン
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-  PhosphorIcons.dog(),
-                    size: 70,
-                    color: WanWalkColors.accent,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                
-                // アプリ名
+                // スタイリッシュ・ミニマル: 白背景に明朝ワードマーク1つだけ。
+                // サブタイトル/スピナー/アイコンは置かない（余白を活かした起動画面）。
                 const Text(
                   'WanWalk',
                   style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: -1.0,
+                    fontFamily: 'NotoSerifJP',
+                    fontSize: 40,
+                    fontWeight: FontWeight.w700,
+                    color: WanWalkColors.accentPrimary,
+                    letterSpacing: 1.0,
                   ),
-                ),
-                const SizedBox(height: 12),
-                
-                // サブタイトル
-                const Text(
-                  '愛犬の散歩ルート共有アプリ',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 50),
-                
-                // ローディングインジケーター
-                const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 3,
                 ),
               ],
             ),
