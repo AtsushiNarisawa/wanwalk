@@ -65,4 +65,37 @@ void main() {
     expect(c.state.ready, isFalse);
     expect(c.isReady, isFalse);
   });
+
+  test('§2: configure(restoreFrom) で kill 前の進捗を引き継いで再開する', () {
+    // 1つ目のコントローラで途中まで歩いてスナップショットを取る。
+    final a = NavController();
+    addTearDown(a.dispose);
+    a.configure(line: r.points, spots: navSpots(r));
+    final fixes = gen.generate(r.points, ReplayPattern.normal, seed: 3);
+    for (final f in fixes.take(fixes.length ~/ 2)) {
+      a.feed(NavFix(
+        position: f.position,
+        accuracyM: f.accuracyM,
+        tMillis: f.tMillis,
+        moving: f.moving,
+      ));
+    }
+    final snap = a.exportSnapshot();
+    expect(snap, isNotNull);
+    final beforeCoverage = a.state.coveragePct;
+    expect(beforeCoverage, greaterThan(0));
+
+    // 2つ目（= kill→復元相当）。restoreFrom で進捗を引き継いで ready で立ち上がる。
+    final b = NavController();
+    addTearDown(b.dispose);
+    b.configure(
+      line: r.points,
+      spots: navSpots(r),
+      restoreFrom: snap,
+      restoreStartEpochMs: 1700000000000,
+    );
+    expect(b.state.ready, isTrue, reason: '取り込み成功で即 ready');
+    expect(b.state.coveragePct, closeTo(beforeCoverage, 1e-9));
+    expect(b.navStartEpochMs, 1700000000000, reason: 'nav 基準時刻も引き継ぐ');
+  });
 }

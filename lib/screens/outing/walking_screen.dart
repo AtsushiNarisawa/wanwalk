@@ -123,7 +123,9 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       navSpots = await ref.read(routeSpotsProvider(widget.route.id).future);
     } catch (_) {}
     if (!mounted) return;
-    _configureNav(navSpots);
+    // §2: kill→復元の経路。保留中のナビスナップショット（同一ルート）があれば取り込み、
+    // クラッシュ前のカバレッジ/進捗を引き継ぐ（中途参加によるカバレッジ消失の解消）。
+    _configureNav(navSpots, restoreFromSnapshot: true);
   }
 
   /// 散歩を開始
@@ -197,7 +199,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
   /// nav 状態は navControllerProvider に持たせるため、最小化→バナー復帰で画面が作り直されても
   /// 進捗は保持される。configure は購読を張り替え進捗を 0 に戻すので、記録中（スタート
   /// ボタン非表示）に本メソッドが再度走らないことが前提。
-  void _configureNav(List<RouteSpot> spots) {
+  void _configureNav(List<RouteSpot> spots, {bool restoreFromSnapshot = false}) {
     final line = widget.route.routeLine;
     if (line == null || line.length < 2) {
       // 線が無いルートは沿線距離を計算できない → 素の記録に劣化（仕様 §2 許容）
@@ -216,6 +218,19 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
     ];
     // §10: 起動時にリモート取得済みなら閾値を適用（未取得・失敗時は内蔵既定値）。
     _navParams = ref.read(navParamsProvider).valueOrNull ?? const NavParams();
+    final gpsNotifier = ref.read(gpsProviderRiverpod.notifier);
+
+    // §2 kill→復元: 同一ルートの保留中スナップショットがあればエンジンへ取り込む。
+    // 新規 _startWalking 経路（restoreFromSnapshot=false）では復元しない。
+    NavEngineSnapshot? restoreFrom;
+    int? restoreStartMs;
+    if (restoreFromSnapshot &&
+        gpsNotifier.pendingNavRestore != null &&
+        gpsNotifier.pendingNavRouteId == widget.route.id) {
+      restoreFrom = gpsNotifier.pendingNavRestore;
+      restoreStartMs = gpsNotifier.pendingNavStartEpochMs;
+    }
+
     final notifier = ref.read(navControllerProvider.notifier);
     notifier.configure(
       line: line,
@@ -223,11 +238,15 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
       params: _navParams,
       onApproach: _onNavApproach,
       onOffRoute: _onNavOffRoute,
+      restoreFrom: restoreFrom,
+      restoreStartEpochMs: restoreStartMs,
     );
     notifier.attach(
-      ref.read(gpsProviderRiverpod.notifier).navFixStream,
+      gpsNotifier.navFixStream,
       isPaused: () => ref.read(gpsProviderRiverpod).isPaused,
     );
+    // 取り込んだら保留は破棄（同一 kill で二重取り込みしない）。
+    if (restoreFrom != null) gpsNotifier.consumePendingNavRestore();
   }
 
   /// §4 B: スポット接近（沿線距離が distance_from_start を跨いだ）。

@@ -35,6 +35,16 @@ class ActiveWalkSnapshot {
   /// おでかけ散歩の公式ルート名。
   final String? routeName;
 
+  /// §2 v2: 進行中ナビエンジンのスナップショット（`NavEngineSnapshot.toJson()` の生 Map）。
+  /// おでかけ散歩でナビが ready のときのみ非 null。復元時にエンジンへ取り込み、クラッシュ前の
+  /// カバレッジ/進捗/方向/接近発火済み/立寄りを引き継ぐ（中途参加によるカバレッジ消失の解消）。
+  /// 本サービスはエンジン型に依存しないため生 Map で保持する（直列化は呼び出し側が担う）。
+  final Map<String, dynamic>? navSnapshot;
+
+  /// §2/§11: nav 基準時刻（最初の GPS fix の絶対 epoch ms）。復元時にエンジンへ引き継ぎ、
+  /// 後続 fix のタイムライン連続性と立寄り visited_at の絶対時刻復元に使う。
+  final int? navStartEpochMs;
+
   const ActiveWalkSnapshot({
     required this.isPaused,
     required this.walkMode,
@@ -44,10 +54,14 @@ class ActiveWalkSnapshot {
     required this.points,
     required this.routeId,
     required this.routeName,
+    this.navSnapshot,
+    this.navStartEpochMs,
   });
 
   Map<String, dynamic> toJson() => {
-        'version': 1,
+        // v2: ナビ状態（navSnapshot / navStartEpochMs）を追加。version は読込時に無視されるが
+        // 形式の世代を残す（旧 v1 = navSnapshot 欠落 → null 扱いで無害に復元）。
+        'version': 2,
         'isPaused': isPaused,
         // enum index ではなく value 文字列で保存（並び順変更に強い）
         'walkMode': walkMode.value,
@@ -57,6 +71,8 @@ class ActiveWalkSnapshot {
         'points': points.map((p) => p.toJson()).toList(),
         'routeId': routeId,
         'routeName': routeName,
+        'navSnapshot': navSnapshot,
+        'navStartEpochMs': navStartEpochMs,
       };
 
   factory ActiveWalkSnapshot.fromJson(Map<String, dynamic> json) {
@@ -73,6 +89,9 @@ class ActiveWalkSnapshot {
           .toList(),
       routeId: json['routeId'] as String?,
       routeName: json['routeName'] as String?,
+      // 旧 v1 スナップショットには無いキー（null 許容で後方互換）。
+      navSnapshot: (json['navSnapshot'] as Map?)?.cast<String, dynamic>(),
+      navStartEpochMs: (json['navStartEpochMs'] as num?)?.toInt(),
     );
   }
 }

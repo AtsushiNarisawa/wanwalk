@@ -6,9 +6,11 @@ import 'package:latlong2/latlong.dart';
 import '../models/official_route.dart';
 import '../models/route_model.dart';
 import '../models/walk_mode.dart';
+import '../nav/route_nav_engine.dart';
 import '../services/active_walk_snapshot.dart';
 import '../services/gps_service.dart';
 import 'active_walk_provider.dart';
+import 'nav_controller_provider.dart';
 import 'official_route_provider.dart';
 import 'walk_mode_provider.dart';
 
@@ -103,6 +105,24 @@ class GpsNotifier extends StateNotifier<GpsState> {
 
   /// A11: 直近で永続化したポイント数（差分閾値で書込みをスロットルするため）
   int _lastPersistedPointCount = 0;
+
+  /// §2 kill→復元: 復元したナビエンジン状態（walking_screen の再構成時に取り込む）。
+  /// GpsNotifier は画面外で生存するため、復元〜記録画面を開くまで保持できる。
+  NavEngineSnapshot? _pendingNavRestore;
+  int? _pendingNavStartEpochMs;
+  String? _pendingNavRouteId;
+
+  /// 復元保留中のナビスナップショット（同一ルートのときだけ walking_screen が取り込む）。
+  NavEngineSnapshot? get pendingNavRestore => _pendingNavRestore;
+  int? get pendingNavStartEpochMs => _pendingNavStartEpochMs;
+  String? get pendingNavRouteId => _pendingNavRouteId;
+
+  /// 取り込み済み（または不要になった）保留ナビ復元を破棄する。
+  void consumePendingNavRestore() {
+    _pendingNavRestore = null;
+    _pendingNavStartEpochMs = null;
+    _pendingNavRouteId = null;
+  }
 
   GpsNotifier(this.ref) : super(GpsState(walkMode: WalkMode.daily));
 
@@ -332,6 +352,24 @@ class GpsNotifier extends StateNotifier<GpsState> {
     final active = ref.read(activeWalkProvider);
     final points = _gpsService.currentRoutePoints;
     _lastPersistedPointCount = points.length;
+    // §2 v2: おでかけ散歩でナビが ready なら、エンジン状態（カバレッジ等）も同梱する。
+    // daily / 未 ready / 線なしルートでは null（点データのみの従来挙動）。
+    NavEngineSnapshot? navSnap;
+    int? navStartMs;
+    if (state.walkMode == WalkMode.outing) {
+      final navNotifier = ref.read(navControllerProvider.notifier);
+      final live = navNotifier.exportSnapshot();
+      if (live != null) {
+        navSnap = live;
+        navStartMs = navNotifier.navStartEpochMs;
+      } else if (_pendingNavRestore != null) {
+        // 復元直後でまだ記録画面を開いていない（エンジン未構成）窓を保護する。
+        // この間に統計更新が走って null で上書きすると、二次 kill でナビ状態を失う。
+        // 取り込み待ちの保留スナップショットをそのまま書き戻して整合を保つ。
+        navSnap = _pendingNavRestore;
+        navStartMs = _pendingNavStartEpochMs;
+      }
+    }
     await ActiveWalkSnapshotStore.save(
       ActiveWalkSnapshot(
         isPaused: state.isPaused,
@@ -342,6 +380,8 @@ class GpsNotifier extends StateNotifier<GpsState> {
         points: points,
         routeId: active.routeId,
         routeName: active.routeName,
+        navSnapshot: navSnap?.toJson(),
+        navStartEpochMs: navStartMs,
       ),
     );
   }
@@ -349,6 +389,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
   /// 退避したスナップショットを破棄する（記録の確定終了・キャンセル時）。
   Future<void> _clearSnapshot() async {
     _lastPersistedPointCount = 0;
+    consumePendingNavRestore(); // 記録が確定終了/破棄されたら保留ナビ復元も不要
     await ActiveWalkSnapshotStore.clear();
   }
 
@@ -381,6 +422,22 @@ class GpsNotifier extends StateNotifier<GpsState> {
       _pausedTotal = Duration(milliseconds: snapshot.pausedTotalMs);
       _pausedAt = snapshot.pausedAt;
       _lastPersistedPointCount = snapshot.points.length;
+
+      // §2 kill→復元: ナビ状態（v2）があれば保留しておく。walking_screen が同一ルートで
+      // 記録画面を開いたときにエンジンへ取り込む（クラッシュ前カバレッジの引き継ぎ）。
+      // nav 部分が壊れていても記録本体の復元は止めない（best-effort）。
+      consumePendingNavRestore();
+      if (snapshot.walkMode == WalkMode.outing &&
+          snapshot.routeId != null &&
+          snapshot.navSnapshot != null) {
+        try {
+          _pendingNavRestore = NavEngineSnapshot.fromJson(snapshot.navSnapshot!);
+          _pendingNavStartEpochMs = snapshot.navStartEpochMs;
+          _pendingNavRouteId = snapshot.routeId;
+        } catch (_) {
+          consumePendingNavRestore();
+        }
+      }
 
       // 距離を再計算
       double totalDistance = 0.0;
@@ -444,6 +501,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
     _pausedTotal = Duration.zero;
     _pausedAt = null;
     _lastPersistedPointCount = 0;
+    consumePendingNavRestore();
     state = GpsState(walkMode: WalkMode.daily);
   }
 

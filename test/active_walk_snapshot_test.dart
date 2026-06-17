@@ -80,5 +80,63 @@ void main() {
       expect(decoded.pausedTotalMs, 0);
       expect(decoded.points, isEmpty);
     });
+
+    test('§2 v2: navSnapshot / navStartEpochMs が往復で保たれる', () {
+      final original = ActiveWalkSnapshot(
+        isPaused: false,
+        walkMode: WalkMode.outing,
+        startTime: DateTime.parse('2026-06-17T10:00:00.000'),
+        pausedTotalMs: 0,
+        pausedAt: null,
+        points: [pt(35.4361, 139.6380, 0)],
+        routeId: 'route-xyz',
+        routeName: 'テストルート',
+        navSnapshot: {
+          'v': 1,
+          'coverageBits': '111000',
+          'committedMeters': 123.4,
+          'direction': 1,
+          'firedApproachIds': ['s1', 's2'],
+          'minGoalDistanceM': 42.0,
+          'maxChainageM': 130.0,
+          'completed': false,
+          'offRouteEvents': 1,
+          'recentRateMps': 0.83,
+          'totalMeters': 150.0,
+          'visits': const [],
+        },
+        navStartEpochMs: 1700000000000,
+      );
+
+      final decoded = ActiveWalkSnapshot.fromJson(
+          jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>);
+
+      expect(decoded.navStartEpochMs, 1700000000000);
+      expect(decoded.navSnapshot, isNotNull);
+      expect(decoded.navSnapshot!['coverageBits'], '111000');
+      expect(decoded.navSnapshot!['committedMeters'], 123.4);
+      expect(decoded.navSnapshot!['firedApproachIds'], ['s1', 's2']);
+      // toJson は version 2 を書く（形式の世代）。
+      expect(original.toJson()['version'], 2);
+    });
+
+    test('旧 v1 スナップショット（nav なし）は navSnapshot=null で後方互換', () {
+      final v1 = {
+        'version': 1,
+        'isPaused': false,
+        'walkMode': 'outing',
+        'startTime': '2026-05-01T10:00:00.000',
+        'pausedTotalMs': 0,
+        'pausedAt': null,
+        'points': [pt(35.0, 139.0, 0).toJson()],
+        'routeId': 'route-old',
+        'routeName': '旧ルート',
+        // navSnapshot / navStartEpochMs は存在しない
+      };
+      final decoded = ActiveWalkSnapshot.fromJson(v1);
+      expect(decoded.navSnapshot, isNull);
+      expect(decoded.navStartEpochMs, isNull);
+      expect(decoded.routeId, 'route-old');
+    });
   });
 }

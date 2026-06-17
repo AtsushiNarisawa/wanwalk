@@ -288,6 +288,122 @@ class SpotVisit {
   });
 }
 
+/// §2 kill→復元: 進行中ナビの永続化スナップショット（v2）のうちエンジン部分（純データ）。
+///
+/// 従来の復元（GPS点のみ）はエンジンを新規生成して復元後の fix からしか積算しないため、
+/// クラッシュ前に歩いた区間のカバレッジが消失し完走判定が控えめに出ていた。これを解消するため
+/// 「セグメント訪問ビットマップ・沿線進捗・方向・接近発火済みID・立寄り」を保存し復元時に取り込む。
+///
+/// 一過性状態（直近 fix・補間アンカー・サスペンド・再捕捉バッファ）は**保存しない**。復元時に
+/// クリーン再開することで kill 跨ぎを「補間」「テレポート」「終了忘れ」と誤検出しないため（§2）。
+/// [totalMeters] と [coverageBits] の長さは復元先エンジンとのジオメトリ整合検証キーになる
+/// （ルート再densify 等で線が変わっていたら取り込まずに新規開始へフォールバック）。
+class NavEngineSnapshot {
+  static const int schemaVersion = 1;
+
+  final String coverageBits; // '0'/'1' 列。長さ = CoverageGrid セル数（整合検証キー）
+  final double committedMeters; // 沿線進捗（chainage）
+  final int? direction; // 進行方向 +1/-1（未確定なら null）
+  final List<String> firedApproachIds; // 接近発火済みスポットID（再通知防止）
+  final double? minGoalDistanceM; // ゴール最接近（infinity は null で表現）
+  final double maxChainageM; // 最大到達 chainage（maxProgressPct 復元）
+  final bool completed; // 完走確定済みか
+  final int offRouteEvents; // 逸脱エピソード累計（NavState 表示・テレメトリ継続用）
+  // 逸脱エピソードの重複防止ラッチ＋連続カウント。kill 跨ぎの一過性状態ではなく
+  // 「1エピソード=1通知」を保証する状態なので保存・復元する（保存しないと逸脱中の kill→
+  // 復元で同一エピソードの off_route_event が再発火＝二重通知になる・§14 受け入れ基準）。
+  final bool offRouteActive;
+  final int offRouteRun;
+  final double recentRateMps; // 直近の沿線速度（方向付き予測の継続用）
+  final double totalMeters; // ジオメトリ整合検証
+  final List<NavVisitSnapshot> visits; // §11 立寄り（接近半径に入った分のみ）
+
+  const NavEngineSnapshot({
+    required this.coverageBits,
+    required this.committedMeters,
+    required this.direction,
+    required this.firedApproachIds,
+    required this.minGoalDistanceM,
+    required this.maxChainageM,
+    required this.completed,
+    required this.offRouteEvents,
+    required this.offRouteActive,
+    required this.offRouteRun,
+    required this.recentRateMps,
+    required this.totalMeters,
+    required this.visits,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'v': schemaVersion,
+        'coverageBits': coverageBits,
+        'committedMeters': committedMeters,
+        'direction': direction,
+        'firedApproachIds': firedApproachIds,
+        'minGoalDistanceM': minGoalDistanceM,
+        'maxChainageM': maxChainageM,
+        'completed': completed,
+        'offRouteEvents': offRouteEvents,
+        'offRouteActive': offRouteActive,
+        'offRouteRun': offRouteRun,
+        'recentRateMps': recentRateMps,
+        'totalMeters': totalMeters,
+        'visits': visits.map((v) => v.toJson()).toList(),
+      };
+
+  factory NavEngineSnapshot.fromJson(Map<String, dynamic> j) => NavEngineSnapshot(
+        coverageBits: j['coverageBits'] as String? ?? '',
+        committedMeters: _numD(j['committedMeters'], 0),
+        direction: (j['direction'] as num?)?.toInt(),
+        firedApproachIds: (j['firedApproachIds'] as List<dynamic>? ?? const [])
+            .map((e) => e as String)
+            .toList(),
+        minGoalDistanceM:
+            j['minGoalDistanceM'] == null ? null : _numD(j['minGoalDistanceM'], 0),
+        maxChainageM: _numD(j['maxChainageM'], 0),
+        completed: j['completed'] as bool? ?? false,
+        offRouteEvents: _numI(j['offRouteEvents'], 0),
+        // 旧スナップショットには無いキー（false/0 既定で後方互換）。
+        offRouteActive: j['offRouteActive'] as bool? ?? false,
+        offRouteRun: _numI(j['offRouteRun'], 0),
+        recentRateMps: _numD(j['recentRateMps'], 0),
+        totalMeters: _numD(j['totalMeters'], 0),
+        visits: (j['visits'] as List<dynamic>? ?? const [])
+            .map((e) => NavVisitSnapshot.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
+/// §11 立寄り1件の永続化（接近半径に入ったスポットのみ保存）。
+class NavVisitSnapshot {
+  final String spotId;
+  final double? minDistanceM; // 最接近（infinity は null）
+  final int firstSeenMillis; // 最初に半径内へ入った相対ms（nav 基準時刻基準）
+  final int dwellMs; // 半径内の連続滞在合計（ms）
+
+  const NavVisitSnapshot({
+    required this.spotId,
+    required this.minDistanceM,
+    required this.firstSeenMillis,
+    required this.dwellMs,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'spotId': spotId,
+        'minDistanceM': minDistanceM,
+        'firstSeenMillis': firstSeenMillis,
+        'dwellMs': dwellMs,
+      };
+
+  factory NavVisitSnapshot.fromJson(Map<String, dynamic> j) => NavVisitSnapshot(
+        spotId: j['spotId'] as String,
+        minDistanceM:
+            j['minDistanceM'] == null ? null : _numD(j['minDistanceM'], 0),
+        firstSeenMillis: _numI(j['firstSeenMillis'], 0),
+        dwellMs: _numI(j['dwellMs'], 0),
+      );
+}
+
 /// スポットごとの立寄り集計バッファ（エンジン内部状態）。
 class _VisitAccum {
   double minDistM = double.infinity;
@@ -623,6 +739,89 @@ class RouteNavEngine {
       ));
     }
     return out;
+  }
+
+  /// §2 kill→復元: 現在のエンジン状態をスナップショット化する。
+  /// 初期化前（[state].ready=false）は復元対象外として null を返す。
+  NavEngineSnapshot? exportSnapshot() {
+    if (_committed == null) return null;
+    final visits = <NavVisitSnapshot>[];
+    for (final e in _visits.entries) {
+      final a = e.value;
+      if (a.firstWithinMs == null) continue; // 接近半径に入った分のみ（collectVisits と対称）
+      visits.add(NavVisitSnapshot(
+        spotId: e.key,
+        minDistanceM: a.minDistM.isFinite ? a.minDistM : null,
+        firstSeenMillis: a.firstWithinMs!,
+        dwellMs: a.dwellMs,
+      ));
+    }
+    return NavEngineSnapshot(
+      coverageBits: _coverage.exportBits().map((b) => b ? '1' : '0').join(),
+      committedMeters: _committed!,
+      direction: _direction,
+      firedApproachIds: _firedApproach.toList(),
+      minGoalDistanceM: _minGoalDist.isFinite ? _minGoalDist : null,
+      maxChainageM: _maxChainage,
+      completed: _completed,
+      offRouteEvents: _offRouteEvents,
+      offRouteActive: _offRouteActive,
+      offRouteRun: _offRouteRun,
+      recentRateMps: _recentRateMps,
+      totalMeters: totalMeters,
+      visits: visits,
+    );
+  }
+
+  /// §2 kill→復元: スナップショットをこのエンジンへ取り込む。
+  ///
+  /// ジオメトリが一致しない（セル数 or 総延長が違う＝ルートが変わった）場合は **取り込まず
+  /// false** を返し、呼び出し側は新規開始へフォールバックする。取り込み成功時は持続状態
+  /// （カバレッジ・進捗・方向・接近発火済み・立寄り）を復元し、一過性状態（直近 fix・補間
+  /// アンカー・サスペンド・再捕捉/初期化バッファ）はクリーン再開のためリセットする（§2）。
+  bool importSnapshot(NavEngineSnapshot s) {
+    if (s.coverageBits.length != _coverage.cellCount) return false;
+    if ((s.totalMeters - totalMeters).abs() > 1.0) return false;
+
+    final bits = [for (var i = 0; i < s.coverageBits.length; i++) s.coverageBits[i] == '1'];
+    _coverage.importBits(bits);
+    _committed = s.committedMeters;
+    _direction = s.direction;
+    _firedApproach
+      ..clear()
+      ..addAll(s.firedApproachIds);
+    _minGoalDist = s.minGoalDistanceM ?? double.infinity;
+    _maxChainage = s.maxChainageM;
+    _completed = s.completed;
+    _offRouteEvents = s.offRouteEvents;
+    // 逸脱エピソードのラッチ＋連続カウントは復元する（リセットしない）。逸脱中に kill→
+    // 復元しても同一エピソードの off_route_event を再発火させないため（§14 二重通知0件）。
+    _offRouteActive = s.offRouteActive;
+    _offRouteRun = s.offRouteRun;
+    _recentRateMps = s.recentRateMps;
+    _visits.clear();
+    for (final v in s.visits) {
+      _visits[v.spotId] = _VisitAccum()
+        ..minDistM = v.minDistanceM ?? double.infinity
+        ..firstWithinMs = v.firstSeenMillis
+        ..dwellMs = v.dwellMs;
+      // prevWithin=false / prevFixMs=null：復元後の連続滞在は次 fix から計り直す。
+    }
+
+    // 一過性状態のリセット（kill 跨ぎを補間/テレポート/終了忘れと誤検出しない・§2）。
+    // ※ _offRouteActive / _offRouteRun はエピソード重複防止ラッチなので上で復元済み（リセット
+    //   しない）。_suspended は復元後に通知が再発火しないよう false に戻す（クリーン再開）。
+    _lastFix = null;
+    _lastGoodChainage = null;
+    _lastGoodTms = null;
+    _lastCommitTms = null;
+    _forceReacquire = false;
+    _highSpeedRun = 0;
+    _suspended = false;
+    _lastPerp = 0;
+    _initBuf.clear();
+    _reacqBuf.clear();
+    return true;
   }
 
   /// 次の接近対象スポット（進行方向で chainage が先のもの・最も近い）。
