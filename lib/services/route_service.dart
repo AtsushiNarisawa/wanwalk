@@ -330,10 +330,11 @@ class RouteService {
     int limit = 100,
   }) async {
     try {
-      // データベースの実際のカラム名を使用
+      // データベースの実際のカラム名を使用。
+      // areas(slug) を埋め込み、OfficialRoute.areaSlug を満たす（GA4 area_slug 再発防止・全list源で実slug化を統一）。
       dynamic query = _supabase
           .from('official_routes')
-          .select()
+          .select('*, areas(slug)')
           .eq('is_published', true);
 
       // エリアフィルタ

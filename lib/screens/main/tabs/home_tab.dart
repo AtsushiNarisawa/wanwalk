@@ -235,7 +235,7 @@ class HomeTab extends ConsumerWidget {
                       // GA4: route_card_click (Web 同名・ホームフィード経由)
                       unawaited(ref.read(analyticsServiceProvider).logRouteCardClick(
                             routeSlug: item.route!.slug ?? item.route!.id,
-                            areaSlug: item.route!.areaId,
+                            areaSlug: item.route!.areaSlug ?? item.route!.areaId,
                             sourcePage: AppSourcePage.home,
                           ));
                       Navigator.push(
@@ -334,7 +334,7 @@ class HomeTab extends ConsumerWidget {
                   // GA4: route_card_click (おすすめピックアップ経由)
                   unawaited(ref.read(analyticsServiceProvider).logRouteCardClick(
                         routeSlug: route.slug ?? route.id,
-                        areaSlug: route.areaId,
+                        areaSlug: route.areaSlug ?? route.areaId,
                         sourcePage: AppSourcePage.home,
                       ));
                   Navigator.push(

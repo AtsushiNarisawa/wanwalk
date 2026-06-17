@@ -117,6 +117,7 @@ class OfficialRoute {
   final String name;
   final String? slug; // Web用の人間可読slug（共有URL https://wanwalk.jp/routes/{slug} 生成に使用）
   final String? areaName; // エリア名（共有文の文脈付与に使用・null可）
+  final String? areaSlug; // エリアの人間可読slug（GA4 area_slug を実slugで送り App↔Web を突合するため・null可）
   final String description;
   final LatLng startLocation;
   final LatLng endLocation;
@@ -139,6 +140,7 @@ class OfficialRoute {
     required this.name,
     this.slug,
     this.areaName,
+    this.areaSlug,
     required this.description,
     required this.startLocation,
     required this.endLocation,
@@ -166,6 +168,12 @@ class OfficialRoute {
       name: json['name'] as String,
       slug: json['slug'] as String?,
       areaName: json['area_name'] as String?,
+      // area_slug: RPC はフラットキー（area_slug）で返し、
+      // PostgREST の nested select（areas(slug)）は areas オブジェクト配下で返すため両対応。
+      areaSlug: json['area_slug'] as String? ??
+          (json['areas'] is Map
+              ? (json['areas'] as Map)['slug'] as String?
+              : null),
       description: json['description'] as String? ?? '',
       startLocation: _parsePostGISPoint(json['start_location']),
       endLocation: _parsePostGISPoint(json['end_location']),
@@ -457,6 +465,7 @@ class OfficialRoute {
     String? name,
     String? slug,
     String? areaName,
+    String? areaSlug,
     String? description,
     LatLng? startLocation,
     LatLng? endLocation,
@@ -478,6 +487,7 @@ class OfficialRoute {
       name: name ?? this.name,
       slug: slug ?? this.slug,
       areaName: areaName ?? this.areaName,
+      areaSlug: areaSlug ?? this.areaSlug,
       description: description ?? this.description,
       startLocation: startLocation ?? this.startLocation,
       endLocation: endLocation ?? this.endLocation,

@@ -81,7 +81,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           _routeViewLogged = true;
           unawaited(ref.read(analyticsServiceProvider).logRouteView(
                 routeSlug: route.slug ?? route.id,
-                areaSlug: route.areaId,
+                areaSlug: route.areaSlug ?? route.areaId,
                 source: AppSourcePage.routeDetail,
               ));
           // レビュー促進: ルート詳細の累計閲覧数をカウント（閾値到達で要求検討）

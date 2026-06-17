@@ -36,7 +36,7 @@ final featuredRouteProvider = FutureProvider<OfficialRoute?>((ref) async {
   try {
     final response = await supabase
         .from('featured_routes')
-        .select('route_id, label, official_routes(*)')
+        .select('route_id, label, official_routes(*, areas(slug))')
         .eq('is_active', true)
         .order('display_order', ascending: true) // A20: ASC 明示（Dart は DESC デフォルト）
         .limit(1);
@@ -106,9 +106,10 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
 
   // 3. 公式ルート（最新順）
   try {
+    // areas(slug) を埋め込み、OfficialRoute.areaSlug を満たす（GA4 area_slug を実slug化）
     final routesResponse = await supabase
         .from('official_routes')
-        .select()
+        .select('*, areas(slug)')
         .eq('is_published', true)
         .order('created_at', ascending: false)
         .limit(20);
