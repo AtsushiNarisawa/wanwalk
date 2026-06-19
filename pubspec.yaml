@@ -84,7 +84,10 @@ dependencies:
   phosphor_flutter: ^2.1.0
 
   # Phase 1 — 共有シート（ルート共有ボタン用）
-  share_plus: ^10.0.0
+  # 12.x へ更新（2026-06-19）: 10.1.4 は iOS 26 iPhone で sharePositionOrigin 未指定時に
+  # 共有シート提示が失敗するバグあり → v12.0.1 で修正済。新API ShareParams へ移行。
+  # 13.x は win32 ^6 を要求し package_info_plus ^8 と衝突するため 12.x を採用。
+  share_plus: ^12.0.2
 
   path: any
 dev_dependencies:

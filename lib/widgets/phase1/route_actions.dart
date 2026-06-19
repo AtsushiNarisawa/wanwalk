@@ -171,7 +171,17 @@ class ShareButton extends ConsumerWidget {
         final body = areaText.isNotEmpty
             ? '$routeName - $areaTextの犬連れ散歩コース\n$url'
             : '$routeName\n$url';
-        Share.share(body, subject: '$routeName | WanWalk');
+        // iPad ポップオーバー基準 rect。iOS 26 の iPhone でも未指定だと共有シート提示が
+        // 失敗するため、元ボタンの矩形を必ず渡す（share_plus 13.x の ShareParams 新API）。
+        final box = context.findRenderObject() as RenderBox?;
+        final origin = (box != null && box.hasSize)
+            ? box.localToGlobal(Offset.zero) & box.size
+            : null;
+        unawaited(SharePlus.instance.share(ShareParams(
+          text: body,
+          subject: '$routeName | WanWalk',
+          sharePositionOrigin: origin,
+        )));
       },
     );
   }
