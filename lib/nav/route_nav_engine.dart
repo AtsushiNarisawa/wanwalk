@@ -490,7 +490,7 @@ class RouteNavEngine {
     if (_committed == null) {
       if (goodAccuracy) {
         final g = projectToLine(fix.position, line, cumChain: _cum);
-        _initBuf.add(_InitSample(g.chainageMeters, fix.tMillis));
+        _initBuf.add(_InitSample(g.chainageMeters, fix.tMillis, fix.position));
         final gd = haversineMeters(fix.position, _goal);
         if (gd < _minGoalDist) _minGoalDist = gd;
       }
@@ -581,27 +581,51 @@ class RouteNavEngine {
       _committed = 0;
       return;
     }
-    final chains = _initBuf.map((s) => s.chain).toList();
-    if (chains.length < 2) {
-      _committed = chains.first;
-      _coverage.mark(chains.first);
-      _lastGoodChainage = chains.first;
+
+    // §2 初期化の二義性対策（折り返し/周回ルートの偽完走バグ修正・2026-06-19）。
+    // 往復(非simple)ルートは全ての物理地点が「往路 c / 復路 total-c」の2つの chainage に
+    // 投影されるため、起点付近の init fix の global 投影が 0↔total に振動する。これを raw の
+    // まま markRange で繋ぐとカバレッジ全区画が一気に true 化し、散歩開始直後に coverage≥80%
+    // かつゴール(=起点)50m圏成立で偽完走（「歩ききりました」誤表示・北極星 is_route_completed
+    // 過大計上）になっていた。
+    //
+    // 対策: ①最初のサンプルを「起点50m圏なら 0／それ以外は global投影」にアンカー（§2 起点固定）。
+    // ②以降は直前アンカー周りの窓付き投影で1レーンへ畳む（main loop の連続性スナップと同型）。
+    // 窓外＝物理的に離れた別レーンは採らず prev を据え置く（init は数m移動・据え置きは直後の
+    // main loop fix が即補正するため無害／偽完走を生む過大計上より控えめ側へ倒す）。
+    // simple ルートでは二義性が無く clean は raw と一致するため挙動は不変。
+    //
+    // ※ 周回を逆回りで歩く場合の起点アンカーは 0 のまま（dir は +1 と推定される）。これは
+    //   逆回り loop の完走感度をやや下げるが、後続サンプルの global 投影で復路を判定する案は
+    //   往路の往復ルートで誤爆し正常完走を壊したため不採用（normal 81→73 回帰を実測）。逆回り
+    //   loop の完走は §14.2「難所」の既知 follow-up（カバレッジ補間・再捕捉の堅牢化）に委ねる。
+    final startDist = haversineMeters(_initBuf.first.pos, line.first);
+    final firstAnchor = startDist <= p.startSnapM ? 0.0 : _initBuf.first.chain;
+
+    final clean = <double>[firstAnchor];
+    for (var i = 1; i < _initBuf.length; i++) {
+      final prev = clean[i - 1];
+      final win = _windowedBiased(_initBuf[i].pos, prev - 120, prev + 120, prev);
+      clean.add((win != null && win.perpMeters < 60) ? win.chainageMeters : prev);
+    }
+
+    if (clean.length < 2) {
+      _committed = clean.first;
+      _coverage.mark(clean.first);
+      _lastGoodChainage = clean.first;
       _lastGoodTms = _initBuf.first.tMillis;
       return;
     }
-    final dir = (chains.last - chains[1]) >= 0 ? 1 : -1;
+
+    final dir = (clean.last - clean.first) >= 0 ? 1 : -1;
     _direction = dir;
-    _committed = chains.last;
-    _maxChainage = chains.reduce(math.max);
-    for (var i = 1; i < chains.length; i++) {
-      _coverage.mark(chains[i]);
-      if (i > 1) _coverage.markRange(chains[i - 1], chains[i]);
+    _committed = clean.last;
+    _maxChainage = clean.reduce(math.max);
+    for (var i = 0; i < clean.length; i++) {
+      _coverage.mark(clean[i]);
+      if (i > 0) _coverage.markRange(clean[i - 1], clean[i]);
     }
-    if ((chains[0] - chains[1]).abs() < 60) {
-      _coverage.mark(chains[0]);
-      _coverage.markRange(chains[0], chains[1]);
-    }
-    _lastGoodChainage = chains.last;
+    _lastGoodChainage = clean.last;
     _lastGoodTms = _initBuf.last.tMillis;
     _lastCommitTms = _initBuf.last.tMillis;
     _recentRateMps = dir * 0.83;
@@ -898,7 +922,8 @@ class RouteNavEngine {
 }
 
 class _InitSample {
-  final double chain;
+  final double chain; // global投影の chainage（フォールバック用）
   final int tMillis;
-  _InitSample(this.chain, this.tMillis);
+  final LatLng pos; // 起点アンカー判定・窓付き再投影で1レーンへ畳むのに使う
+  _InitSample(this.chain, this.tMillis, this.pos);
 }

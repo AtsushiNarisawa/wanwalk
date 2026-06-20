@@ -131,16 +131,28 @@ void main() {
 ''');
 
     // 回帰検知ゲート（厳格§14.2は最終目標。実測ベースライン直下に個別下限）。
+    //
+    // ★ 2026-06-20 再ベースライン（折り返しルート偽完走バグ修正に伴う）:
+    //   従来 `_finalizeInit` が往復(非simple)ルートの起点二義性で chainage 0↔total に振動した
+    //   init fix を markRange で繋ぎ、起点でカバレッジ全区画を true 化していた。これが「散歩開始
+    //   直後に偽完走」の表バグであると同時に、ハードGPS（渓谷の再捕捉失敗・逆回り loop）の
+    //   完走数を水増しする裏作用も持っていた。修正でカバレッジが正直になった結果:
+    //     - shortcut/midJoin 偽完走回避: 56→85 / 80→85（=100%。バグの主指標。**上げてロック**）
+    //     - normal 完走 80→81・誤逸脱0 66→79・接近100% 76→82（改善。基礎追従の回帰なし）
+    //     - degraded 完走 54→38・reverse 完走 80→62（水増しの剥落。診断で「normal は全ルート完走」
+    //       =基礎追従は健全、渓谷再捕捉/逆回り loop のカバレッジ補間が §14.2「難所」の既知 follow-up
+    //       であることを確認。floor を実測直下へ正直に下げる）
     expect(normalComplete, greaterThanOrEqualTo((n * 0.88).floor()), reason: '正常完走 回帰');
-    expect(normalNoDeviation, greaterThanOrEqualTo((n * 0.72).floor()), reason: 'normal誤逸脱 増');
-    expect(approachPerfect, greaterThanOrEqualTo((n * 0.82).floor()), reason: '接近100% 回帰');
+    expect(normalNoDeviation, greaterThanOrEqualTo((n * 0.85).floor()), reason: 'normal誤逸脱 増');
+    expect(approachPerfect, greaterThanOrEqualTo((n * 0.90).floor()), reason: '接近100% 回帰');
     expect(noisyNoDeviation, greaterThanOrEqualTo((n * 0.97).floor()), reason: 'noisy誤逸脱 増');
-    expect(degradedComplete, greaterThanOrEqualTo((n * 0.55).floor()), reason: 'degraded完走 回帰');
-    expect(degradedNoDeviation, greaterThanOrEqualTo((n * 0.58).floor()), reason: 'degraded誤逸脱 増');
-    expect(stationaryNoDeviation, greaterThanOrEqualTo((n * 0.64).floor()), reason: 'stationary誤逸脱 増');
-    expect(reverseComplete, greaterThanOrEqualTo((n * 0.88).floor()), reason: 'reverse完走 回帰');
-    expect(shortcutNoFalseComplete, greaterThanOrEqualTo((n * 0.60).floor()), reason: 'shortcut偽完走 増');
-    expect(midJoinNoFalseComplete, greaterThanOrEqualTo((n * 0.85).floor()), reason: 'midJoin偽完走 増');
+    expect(degradedComplete, greaterThanOrEqualTo((n * 0.40).floor()), reason: 'degraded完走 回帰');
+    expect(degradedNoDeviation, greaterThanOrEqualTo((n * 0.72).floor()), reason: 'degraded誤逸脱 増');
+    expect(stationaryNoDeviation, greaterThanOrEqualTo((n * 0.80).floor()), reason: 'stationary誤逸脱 増');
+    expect(reverseComplete, greaterThanOrEqualTo((n * 0.68).floor()), reason: 'reverse完走 回帰');
+    // ★ バグ修正をロック: 起点フラッディング再発で偽完走回避は 56/80 へ崩落するため 0.98 で締める。
+    expect(shortcutNoFalseComplete, greaterThanOrEqualTo((n * 0.98).floor()), reason: 'shortcut偽完走 増（init フラッディング再発）');
+    expect(midJoinNoFalseComplete, greaterThanOrEqualTo((n * 0.98).floor()), reason: 'midJoin偽完走 増（init フラッディング再発）');
     expect(carSuspended, greaterThanOrEqualTo((n * 0.95).floor()), reason: '車発進サスペンド 回帰');
   }, timeout: const Timeout(Duration(minutes: 8)));
 }
