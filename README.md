@@ -1,5 +1,10 @@
 # WanWalk - 愛犬の散歩ルート共有モバイルアプリ
 
+> [!IMPORTANT]
+> **⚠️ このリポジトリは休眠中です（2026-06-30 CEO 決定）。**
+> 新規開発は停止していますが、App Store 版 1.1.2（Build 46）は公開のまま維持し、削除もしません。
+> 経緯・休眠の定義・復活条件は [DORMANT.md](DORMANT.md) を参照してください。
+
 <div align="center">
   <img src="assets/icon/app_icon.png" width="120" alt="WanWalk Icon">
   
@@ -500,7 +505,7 @@ flutter run --release
 
 ## 👨‍💻 開発者
 
-**成沢敦史** (Atsushi Narisawa)
+**成澤篤志** (Atsushi Narisawa)
 - マーケティングスペシャリスト兼ペット事業起業家
 - DogHub（神奈川県足柄下郡箱根町）運営
 
