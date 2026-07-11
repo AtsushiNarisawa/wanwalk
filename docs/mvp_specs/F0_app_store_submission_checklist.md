@@ -397,7 +397,7 @@ CEO 投入手順（30-45 分・チェックリスト形式）:
 - 既存 Terms: `https://wanwalk.jp/terms` / `wanwalk-app/lib/screens/legal/terms_of_service_screen.dart`
 - Sentry 運用 Runbook: `wanwalk-app/docs/runbook/sentry_postlaunch_operation.md`
 - W4 §7.2 手順書: `wanwalk-app/docs/mvp_specs/W4_chaos_defer_procedure.md`
-- 提出フロー: `.claude/skills/flutter-build.md §3 + Sentry section`
+- 提出フロー: `.claude/skills/flutter-build/SKILL.md §3 + Sentry section`
 - **apple-review@ seed 設計書**: [F0_apple_review_account_seed.md](F0_apple_review_account_seed.md)
 - **アカウント削除実装設計書**: [F0_account_deletion_design.md](F0_account_deletion_design.md)
 

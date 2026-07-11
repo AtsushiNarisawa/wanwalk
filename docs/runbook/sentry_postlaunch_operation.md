@@ -229,7 +229,7 @@ Sentry の Issue に label を付けて状態管理:
 
 ### 5-2. Hotfix 提出フロー（所要 30-60 分）
 
-day 16 確立の提出フロー再利用（`skills/flutter-build.md §3 + Sentry section`）:
+day 16 確立の提出フロー再利用（`skills/flutter-build/SKILL.md §3 + Sentry section`）:
 
 ```bash
 cd ~/projects/wanwalk/wanwalk-app
@@ -326,7 +326,7 @@ W4 で実機 E2E PASS していれば §7.2 12/12 完遂・公開後は監視の
 
 - 既存 Sentry 統合: `wanwalk-app/lib/utils/error_handler.dart`
 - Sentry init: `wanwalk-app/lib/main.dart:83-103`
-- dSYM upload 手順: `.claude/skills/flutter-build.md §Sentry Symbols Upload`
+- dSYM upload 手順: `.claude/skills/flutter-build/SKILL.md §Sentry Symbols Upload`
 - 提出フロー: 同 §3 + 末尾 Sentry section
 - §7.2 仕様: `wanwalk-app/docs/mvp_specs/A3_crash_zero.md §7.2`
 - W4 残 4 件手順書: `wanwalk-app/docs/mvp_specs/W4_chaos_defer_procedure.md`
