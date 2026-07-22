@@ -319,6 +319,7 @@ final _recommendedRoutesProvider = FutureProvider.family<List<OfficialRoute>, St
       .from('official_routes')
       .select()
       .eq('is_published', true)
+      .eq('origin', 'editorial')
       .order('created_at', ascending: false);
 
   final allRoutes = (routesResponse as List)

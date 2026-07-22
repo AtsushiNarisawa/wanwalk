@@ -113,6 +113,46 @@ class SubmissionService {
     return _insert(row, context: 'field_report');
   }
 
+  /// 自分の投稿一覧（新しい順）。ステータス画面で使用（RLS SELECT=本人 or is_admin）。
+  Future<List<Map<String, dynamic>>> fetchMySubmissions(String userId) async {
+    try {
+      final res = await _supabase
+          .from('route_submissions')
+          .select(
+              'id, type, status, proposed_name, reason, public_name, target_route_id, '
+              'editor_question, applicant_reply, editor_notes, theme, '
+              'published_route_id, created_at, updated_at')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false); // A20: 明示（Dart は DESC 既定）
+      return (res as List).cast<Map<String, dynamic>>();
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('❌ route_submissions fetch 失敗: $e');
+      }
+      throw SubmissionException('投稿の取得に失敗しました。通信環境をご確認のうえ、もう一度お試しください。');
+    }
+  }
+
+  /// 編集部のおうかがいへの追記（status='question' の時のみ有効）。
+  /// RLS UPDATE=is_admin限定のため SECURITY DEFINER RPC 経由。
+  /// 本人・question ガードは RPC 側（add_submission_reply）で担保。成功で status は reviewing に戻る。
+  Future<void> submitReply({
+    required String submissionId,
+    required String reply,
+  }) async {
+    try {
+      await _supabase.rpc('add_submission_reply', params: {
+        'p_submission_id': submissionId,
+        'p_reply': reply,
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        appLog('❌ add_submission_reply 失敗: $e');
+      }
+      throw SubmissionException('追記の送信に失敗しました。通信環境をご確認のうえ、もう一度お試しください。');
+    }
+  }
+
   Future<String> _insert(Map<String, dynamic> row,
       {required String context}) async {
     try {

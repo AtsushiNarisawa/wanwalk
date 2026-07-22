@@ -21,6 +21,7 @@ class RouteService {
           .select('id')
           .eq('slug', slug)
           .eq('is_published', true)
+          .eq('origin', 'editorial')
           .maybeSingle();
       return row?['id'] as String?;
     } catch (e) {
@@ -335,7 +336,8 @@ class RouteService {
       dynamic query = _supabase
           .from('official_routes')
           .select('*, areas(slug)')
-          .eq('is_published', true);
+          .eq('is_published', true)
+          .eq('origin', 'editorial');
 
       // エリアフィルタ
       if (areaId != null && areaId.isNotEmpty) {

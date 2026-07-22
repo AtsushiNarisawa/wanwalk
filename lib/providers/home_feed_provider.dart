@@ -111,6 +111,7 @@ final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
         .from('official_routes')
         .select('*, areas(slug)')
         .eq('is_published', true)
+        .eq('origin', 'editorial')
         .order('created_at', ascending: false)
         .limit(20);
 

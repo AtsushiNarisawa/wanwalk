@@ -2,6 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/outing/route_detail_screen.dart';
+import '../screens/submission/submission_status_screen.dart';
 
 /// 通知タップ後にホームの特定セクションへ auto-scroll させるためのキー名。
 /// HomeTab 側で対応する GlobalKey を [pendingHomeScrollSection] と突き合わせる。
@@ -75,6 +76,15 @@ class NotificationDeepLink {
         }
         // 既にホーム想定。深い画面にいる場合だけ root まで戻す。
         navigator.popUntil((route) => route.isFirst);
+        break;
+      case 'submission_status':
+        // 投稿プログラム v1: ステータス変更通知（notify_submission_status EF）から。
+        // submission_id はペイロードにあるが、一覧画面が該当行を含むため画面遷移のみで足りる。
+        await navigator.push(
+          MaterialPageRoute(
+            builder: (_) => const SubmissionStatusScreen(entryPoint: 'push'),
+          ),
+        );
         break;
       // 'url' は A2 Universal Links 側の handler に委譲。MVP では未実装。
       default:

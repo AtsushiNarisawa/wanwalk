@@ -42,7 +42,8 @@ function json(status: number, body: unknown): Response {
 type Tmpl = { title: string; body: string };
 
 // 投稿者に見せる定型文(A-4トーン・「！」/絵文字なし・「愛犬」)。詳細な理由等は画面の editor_notes 側で伝える。
-function templateFor(status: string): Tmpl | null {
+// type: 'new_route' | 'field_report'（published の文面のみ type で出し分ける）
+function templateFor(status: string, type: string): Tmpl | null {
   switch (status) {
     case 'question':
       return {
@@ -55,6 +56,12 @@ function templateFor(status: string): Tmpl | null {
         body: 'いただいた道の掲載準備を進めています。もう少しお待ちください。',
       };
     case 'published':
+      if (type === 'field_report') {
+        return {
+          title: '実走報告ありがとうございます',
+          body: 'いただいた最新情報を、ルートページに反映しました。ご協力ありがとうございます。',
+        };
+      }
       return {
         title: 'あなたの道が掲載されました',
         body: '推薦いただいた道が、WanWalkに掲載されました。ご協力ありがとうございます。',
@@ -124,7 +131,7 @@ Deno.serve(async (req: Request) => {
     return json(200, { status: sub.status, sent: 0, skipped: 'no_user' });
   }
 
-  const tmpl = templateFor(sub.status);
+  const tmpl = templateFor(sub.status, sub.type);
   if (!tmpl) {
     return json(200, { status: sub.status, sent: 0, skipped: `no_notification_for_status:${sub.status}` });
   }

@@ -49,6 +49,7 @@ class _HakoneSubAreaScreenState extends ConsumerState<HakoneSubAreaScreen> {
           .select('id')
           .eq('area_id', area['id'])
           .eq('is_published', true)
+          .eq('origin', 'editorial')
           .count(CountOption.exact);
 
       enriched.add({

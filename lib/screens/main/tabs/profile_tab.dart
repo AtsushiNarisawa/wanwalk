@@ -23,6 +23,7 @@ import '../../legal/privacy_policy_screen.dart';
 import '../../profile/profile_edit_screen.dart';
 import '../../dogs/dog_edit_screen.dart';
 import '../../settings/settings_screen.dart';
+import '../../submission/submission_status_screen.dart';
 import '../../../utils/logger.dart';
 
 /// ProfileTab - プロフィール＋愛犬管理（Phase 2 Wildboundsトーン）
@@ -473,6 +474,18 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       ),
       child: Column(
         children: [
+          _MenuItem(
+            icon: WanWalkIcons.footprints,
+            label: '投稿した道',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const SubmissionStatusScreen()),
+              );
+            },
+          ),
+          const Divider(height: 1, color: WanWalkColors.borderSubtle),
           _MenuItem(
             icon: WanWalkIcons.gear,
             label: '設定',

@@ -139,6 +139,7 @@ class MorningReminderService {
           .from('official_routes')
           .select()
           .eq('is_published', true)
+          .eq('origin', 'editorial')
           .order('id', ascending: true);
 
       final candidates = (routesResponse as List)
