@@ -5,9 +5,12 @@ import '../config/wanwalk_colors.dart';
 import '../config/wanwalk_icons.dart';
 import '../config/wanwalk_typography.dart';
 import '../config/wanwalk_spacing.dart';
+import '../config/submission_constants.dart';
 import '../models/official_route.dart';
 import '../screens/outing/route_detail_screen.dart';
 import '../utils/distance_formatter.dart';
+import 'submission/submission_launcher.dart';
+import 'wanwalk_button.dart';
 
 /// 散歩完了後に表示するおすすめルートカード
 /// 散歩完了ダイアログ内で使用
@@ -16,6 +19,7 @@ class WalkCompletionSheet extends ConsumerWidget {
   final String formattedDuration;
   final String? currentRouteId; // お出かけ散歩の場合、歩いたルートID
   final bool isRouteCompleted; // LAYER1_NAV_SPEC §5: ルート完走したか（控えめ表示）
+  final String? walkId; // 投稿導線用（この散歩のwalk_id）
 
   const WalkCompletionSheet({
     super.key,
@@ -23,6 +27,7 @@ class WalkCompletionSheet extends ConsumerWidget {
     required this.formattedDuration,
     this.currentRouteId,
     this.isRouteCompleted = false,
+    this.walkId,
   });
 
   @override
@@ -141,6 +146,36 @@ class WalkCompletionSheet extends ConsumerWidget {
           ),
 
           const SizedBox(height: WanWalkSpacing.lg),
+
+          // 投稿導線（この道を推薦 / 実走報告）
+          if (walkId != null) ...[
+            WanWalkButton(
+              text: currentRouteId != null ? 'この道の最新情報を報告' : 'この道を推薦する',
+              variant: WanWalkButtonVariant.outlined,
+              fullWidth: true,
+              onPressed: () {
+                if (currentRouteId != null) {
+                  // 実走報告はシートを閉じてから開く（シートの重なりを避ける）
+                  final rootContext =
+                      Navigator.of(context, rootNavigator: true).context;
+                  Navigator.of(context).pop();
+                  openFieldReport(
+                    rootContext,
+                    targetRouteId: currentRouteId!,
+                    walkId: walkId,
+                    entryPoint: SubmissionEntryPoint.walkEnd,
+                  );
+                } else {
+                  openNewRouteSubmission(
+                    context,
+                    walkId: walkId!,
+                    entryPoint: SubmissionEntryPoint.walkEnd,
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: WanWalkSpacing.sm),
+          ],
 
           // 閉じるボタン
           SizedBox(

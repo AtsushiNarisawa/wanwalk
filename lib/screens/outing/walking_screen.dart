@@ -558,6 +558,7 @@ class _WalkingScreenState extends ConsumerState<WalkingScreen> {
         formattedDistance: gpsState.formattedDistance,
         formattedDuration: gpsState.formattedDuration,
         currentRouteId: widget.route.id,
+        walkId: walkId,
         // §5: 控えめな完走表示（祝祭演出はしない）
         isRouteCompleted: navCompletion?.isRouteCompleted ?? false,
       ),

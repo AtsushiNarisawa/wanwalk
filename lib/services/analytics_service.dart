@@ -199,6 +199,38 @@ class AnalyticsService {
         'feedback_category': feedbackCategory,
       });
 
+  // ── 投稿プログラム v1（推薦フォーム・実走報告）───────────────
+  // カスタムディメンション entry_point / submission_type / theme は
+  // GA4 に登録済み（2026-07-22・付録3）。値は SubmissionEntryPoint /
+  // SubmissionType / SubmissionConstants と一致させること。
+
+  Future<void> logSubmitStart({
+    required String entryPoint,
+    required String submissionType,
+    required String theme,
+  }) =>
+      _log('submit_start', {
+        'entry_point': entryPoint,
+        'submission_type': submissionType,
+        'theme': theme,
+      });
+
+  Future<void> logSubmitComplete({
+    required String entryPoint,
+    required String submissionType,
+    required String theme,
+  }) =>
+      _log('submit_complete', {
+        'entry_point': entryPoint,
+        'submission_type': submissionType,
+        'theme': theme,
+      });
+
+  Future<void> logSubmitStatusView({String? entryPoint}) =>
+      _log('submit_status_view', {
+        if (entryPoint != null) 'entry_point': entryPoint,
+      });
+
   Future<void> logFilterApplySeason({
     required String season,
     required AppSourcePage sourcePage,

@@ -4,7 +4,10 @@ import 'package:intl/intl.dart';
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
 import '../../config/wanwalk_spacing.dart';
+import '../../config/submission_constants.dart';
 import '../../models/walk_history.dart';
+import '../../widgets/submission/submission_launcher.dart';
+import '../../widgets/wanwalk_button.dart';
 
 /// 日常散歩詳細画面
 /// 
@@ -44,6 +47,20 @@ class DailyWalkDetailScreen extends StatelessWidget {
             
             // 詳細情報カード
             _buildDetailCard(isDark),
+
+            const SizedBox(height: WanWalkSpacing.md),
+
+            // この道を推薦する（新しい道の推薦）
+            WanWalkButton(
+              text: 'この道を推薦する',
+              variant: WanWalkButtonVariant.outlined,
+              fullWidth: true,
+              onPressed: () => openNewRouteSubmission(
+                context,
+                walkId: history.walkId,
+                entryPoint: SubmissionEntryPoint.walkDetail,
+              ),
+            ),
           ],
         ),
       ),

@@ -9,6 +9,9 @@ import '../../config/wanwalk_spacing.dart';
 import '../../models/walk_history.dart';
 import '../../models/route_pin.dart';
 import '../../services/walk_pin_service.dart';
+import '../../config/submission_constants.dart';
+import '../../widgets/submission/submission_launcher.dart';
+import '../../widgets/wanwalk_button.dart';
 import '../outing/pin_detail_screen.dart';
 
 /// お出かけ散歩詳細画面（フルスクリーン）
@@ -135,8 +138,29 @@ class _OutingWalkDetailScreenState extends ConsumerState<OutingWalkDetailScreen>
             _buildPinsSection(isDark),
 
             const SizedBox(height: WanWalkSpacing.xl),
+
+            // この道の実走報告（歩いた公式ルートの最新情報を報告）
+            if (widget.history.routeId.isNotEmpty)
+              _buildFieldReportCta(context),
+
+            const SizedBox(height: WanWalkSpacing.xl),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 実走報告CTA（この道の最新情報を報告）
+  Widget _buildFieldReportCta(BuildContext context) {
+    return WanWalkButton(
+      text: 'この道の最新情報を報告',
+      variant: WanWalkButtonVariant.outlined,
+      fullWidth: true,
+      onPressed: () => openFieldReport(
+        context,
+        targetRouteId: widget.history.routeId,
+        walkId: widget.history.walkId,
+        entryPoint: SubmissionEntryPoint.walkDetail,
       ),
     );
   }

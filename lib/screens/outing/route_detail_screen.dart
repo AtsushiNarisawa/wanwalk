@@ -12,6 +12,7 @@ import '../../config/wanwalk_spacing.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/official_route_provider.dart';
 import '../../utils/map_tile_nudge.dart';
+import '../../widgets/submission/route_field_report_sheet.dart';
 import '../../services/analytics_service.dart';
 import '../../services/app_review_service.dart';
 import '../../widgets/nearby_dog_spots.dart';
@@ -1195,20 +1196,13 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  /// 情報フィードバック用ボトムシート
+  /// 実走報告（field_report）シートを開く。
+  /// 旧 route_feedback への直接insertは廃止し、route_submissions(type='field_report')へ寄せる。
   void _showFeedbackSheet(BuildContext context) {
-    // route_slug は Web と突合できる人間可読 slug を送る（id は UUID で突合不可）。
-    final routeSlug =
-        ref.read(routeByIdProvider(widget.routeId)).valueOrNull?.slug ??
-            widget.routeId;
-    // GA4: route_feedback_open (Web 同名・ログインゲート前に発火し interest 計測)
-    unawaited(ref.read(analyticsServiceProvider).logRouteFeedbackOpen(
-          routeSlug: routeSlug,
-        ));
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('フィードバックを送るにはログインが必要です')),
+        const SnackBar(content: Text('報告を送るにはログインが必要です')),
       );
       return;
     }
@@ -1222,256 +1216,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => _FeedbackSheet(
-        routeId: widget.routeId,
-        routeSlug: routeSlug,
-        userId: user.id,
+      builder: (ctx) => RouteFieldReportSheet(
+        targetRouteId: widget.routeId,
         scaffoldMessenger: scaffoldMessenger,
-      ),
-    );
-  }
-}
-
-/// 情報フィードバック送信シート
-class _FeedbackSheet extends ConsumerStatefulWidget {
-  final String routeId;
-  final String routeSlug;
-  final String userId;
-  final ScaffoldMessengerState scaffoldMessenger;
-
-  const _FeedbackSheet({
-    required this.routeId,
-    required this.routeSlug,
-    required this.userId,
-    required this.scaffoldMessenger,
-  });
-
-  @override
-  ConsumerState<_FeedbackSheet> createState() => _FeedbackSheetState();
-}
-
-class _FeedbackSheetState extends ConsumerState<_FeedbackSheet> {
-  final _messageController = TextEditingController();
-  String _selectedCategory = 'other';
-  bool _isSubmitting = false;
-
-  static const _categories = {
-    'parking': '駐車場',
-    'surface': '道の状態',
-    'water_station': '水飲み場',
-    'restroom': 'トイレ',
-    'pet_facilities': 'ペット施設',
-    'other': 'その他',
-  };
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    final message = _messageController.text.trim();
-    if (message.isEmpty) {
-      widget.scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('修正内容を入力してください')),
-      );
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    try {
-      await Supabase.instance.client.from('route_feedback').insert({
-        'route_id': widget.routeId,
-        'user_id': widget.userId,
-        'category': _selectedCategory,
-        'message': message,
-      });
-
-      // GA4: route_feedback_submit (Web 同名・Key Event 候補)
-      unawaited(ref.read(analyticsServiceProvider).logRouteFeedbackSubmit(
-            routeSlug: widget.routeSlug,
-            feedbackCategory: _selectedCategory,
-          ));
-
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      widget.scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('ご報告ありがとうございます！確認後に反映します。')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      widget.scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('送信に失敗しました。もう一度お試しください。')),
-      );
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: WanWalkSpacing.lg,
-          right: WanWalkSpacing.lg,
-          top: WanWalkSpacing.lg,
-          bottom: bottomInset + WanWalkSpacing.lg,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ハンドル
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: WanWalkSpacing.lg),
-
-            // タイトル
-            Text(
-              '情報の修正を提案',
-              style: WanWalkTypography.headlineSmall.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isDark
-                    ? WanWalkColors.textPrimaryDark
-                    : WanWalkColors.textPrimaryLight,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '実際に訪れた方や地元の方の情報をお待ちしています',
-              style: WanWalkTypography.bodySmall.copyWith(
-                color: isDark
-                    ? WanWalkColors.textSecondaryDark
-                    : WanWalkColors.textSecondaryLight,
-              ),
-            ),
-            const SizedBox(height: WanWalkSpacing.lg),
-
-            // カテゴリ選択
-            Text(
-              'カテゴリ',
-              style: WanWalkTypography.bodySmall.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isDark
-                    ? WanWalkColors.textPrimaryDark
-                    : WanWalkColors.textPrimaryLight,
-              ),
-            ),
-            const SizedBox(height: WanWalkSpacing.sm),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _categories.entries.map((entry) {
-                final selected = _selectedCategory == entry.key;
-                return ChoiceChip(
-                  label: Text(entry.value),
-                  selected: selected,
-                  selectedColor: WanWalkColors.accent.withValues(alpha: 0.2),
-                  labelStyle: TextStyle(
-                    color: selected
-                        ? WanWalkColors.accent
-                        : (isDark
-                            ? WanWalkColors.textSecondaryDark
-                            : WanWalkColors.textSecondaryLight),
-                    fontSize: 13,
-                  ),
-                  side: BorderSide(
-                    color: selected
-                        ? WanWalkColors.accent
-                        : Colors.grey.withValues(alpha: 0.3),
-                  ),
-                  onSelected: (_) => setState(() => _selectedCategory = entry.key),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: WanWalkSpacing.lg),
-
-            // メッセージ入力
-            Text(
-              '修正内容',
-              style: WanWalkTypography.bodySmall.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isDark
-                    ? WanWalkColors.textPrimaryDark
-                    : WanWalkColors.textPrimaryLight,
-              ),
-            ),
-            const SizedBox(height: WanWalkSpacing.sm),
-            TextField(
-              controller: _messageController,
-              maxLines: 3,
-              maxLength: 500,
-              decoration: InputDecoration(
-                hintText: '例: 駐車場は現在500円に値上がりしています',
-                hintStyle: TextStyle(
-                  color: isDark
-                      ? WanWalkColors.textSecondaryDark.withValues(alpha: 0.5)
-                      : WanWalkColors.textSecondaryLight.withValues(alpha: 0.5),
-                  fontSize: 14,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: WanWalkColors.accent),
-                ),
-                contentPadding: const EdgeInsets.all(12),
-              ),
-              style: WanWalkTypography.bodyMedium.copyWith(
-                color: isDark
-                    ? WanWalkColors.textPrimaryDark
-                    : WanWalkColors.textPrimaryLight,
-              ),
-            ),
-            const SizedBox(height: WanWalkSpacing.lg),
-
-            // 送信ボタン
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: WanWalkColors.accent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('送信する', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

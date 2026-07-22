@@ -379,6 +379,7 @@ class _DailyWalkingScreenState extends ConsumerState<DailyWalkingScreen> {
       builder: (context) => WalkCompletionSheet(
         formattedDistance: gpsState.formattedDistance,
         formattedDuration: gpsState.formattedDuration,
+        walkId: walkId,
       ),
     );
     // レビュー促進: 散歩完了は最大のポジティブな瞬間（シートを閉じた後に検討）
