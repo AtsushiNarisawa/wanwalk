@@ -36,8 +36,9 @@ final featuredRouteProvider = FutureProvider<OfficialRoute?>((ref) async {
   try {
     final response = await supabase
         .from('featured_routes')
-        .select('route_id, label, official_routes(*, areas(slug))')
+        .select('route_id, label, official_routes!inner(*, areas(slug))')
         .eq('is_active', true)
+        .eq('official_routes.origin', 'editorial') // 投稿ルート(origin=submission)はアプリに出さない
         .order('display_order', ascending: true) // A20: ASC 明示（Dart は DESC デフォルト）
         .limit(1);
 

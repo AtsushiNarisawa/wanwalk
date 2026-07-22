@@ -3,7 +3,10 @@
 // 設計書: docs/mvp_specs/B1_fcm_push_base.md v0.5 §5.2 / §6.2
 // 役割: 1 ユーザー or 一括 ユーザー宛に FCM HTTP v1 で push 配信し、notification_log に記録、
 //       invalid_registration トークンは revoked_at で論理削除する。
-// 認証: verify_jwt: true（service_role JWT 必須・cron_morning_reminder から内部呼び）
+// 認証: verify_jwt: true ＋ 本体で Authorization=service_role を必須化（内部呼び出し専用）。
+//       verify_jwt は公開 anon キーや一般ユーザーJWTも通すため認可にはならない。任意本文の
+//       プッシュ乱用（フィッシング/preference貫通）を防ぐため本体でゲートする。呼出元は
+//       cron_morning_reminder / notify_submission_status のみ（いずれも service_role で呼ぶ）。
 // 入力: { user_id? | user_ids?, category, title, body, data?, override_preferences? }
 
 // deno-lint-ignore-file no-explicit-any
@@ -83,6 +86,14 @@ function categoryEnabledColumn(category: Category): string {
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') {
     return jsonResp(405, { error: 'method_not_allowed' });
+  }
+
+  // 内部呼び出し専用ゲート: Authorization が service_role キーと一致する場合のみ許可。
+  // verify_jwt:true は有効なJWT（公開anonキー含む）を通すだけで認可ではないため、
+  // service_role を必須化して任意ユーザーへの任意本文プッシュ乱用を防ぐ。
+  const authHeader = req.headers.get('Authorization') ?? '';
+  if (authHeader.replace('Bearer ', '') !== SERVICE_ROLE_KEY) {
+    return jsonResp(403, { error: 'forbidden_service_role_only' });
   }
 
   let payload: Body;
