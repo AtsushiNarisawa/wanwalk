@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+	<!-- Release/Archive（TestFlight・App Store）は本番 APNs 環境で配信されるため production 必須。
+	     Debug/Profile は Runner.entitlements（development＝サンドボックス）を使う。
+	     ハードコード development のままだと本番プッシュが沈黙するため構成別に分割（2026-07-22）。 -->
+	<key>aps-environment</key>
+	<string>production</string>
+	<!-- A2 Universal Links: wanwalk.jp の HTTPS URL タップでアプリ起動。
+	     対になる AASA は wanwalk-web が /.well-known/apple-app-site-association で配信。
+	     ※ Apple Developer Portal の App ID で Associated Domains capability を ON にし、
+	        この entitlement を含むプロビジョニングプロファイルで署名する必要がある（Build 41）。 -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:wanwalk.jp</string>
+		<string>webcredentials:wanwalk.jp</string>
+	</array>
+</dict>
+</plist>
