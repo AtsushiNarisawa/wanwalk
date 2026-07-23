@@ -417,6 +417,14 @@ class AuthService {
   Future<void> signOut() async {
     try {
       await _supabase.auth.signOut();
+    } on AuthRetryableFetchException {
+      // gotrue の signOut はローカルセッション削除 + signedOut 発火を
+      // サーバー側 revoke より先に行う。オフライン等で revoke だけ失敗しても
+      // ローカルのログアウトは完了しているため成功扱いにする
+      // （「ログアウトに失敗しました」と未ログインUIの矛盾表示を防ぐ）。
+      if (kDebugMode) {
+        appLog('⚠️ [AuthService] server-side signOut skipped (offline)');
+      }
     } on AuthException catch (e) {
       throw AuthException(e.message);
     } catch (e) {

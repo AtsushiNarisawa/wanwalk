@@ -553,7 +553,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         // A12: ログアウト前にデバイストークンを revoke（認証中に実行）。
         // 別ユーザーへの誤配信を防ぐ。失敗してもログアウトは継続。
         await ref.read(pushNotificationServiceProvider).revokeCurrentDeviceToken();
-        await Supabase.instance.client.auth.signOut();
+        // authProvider 経由で state もリセット（Supabase 直呼びだと
+        // currentUserIdProvider が旧ユーザーを返し続ける不具合の修正）
+        await ref.read(authProvider.notifier).signOut();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('ログアウトしました')),

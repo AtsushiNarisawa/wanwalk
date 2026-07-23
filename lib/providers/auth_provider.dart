@@ -23,9 +23,12 @@ class AuthState {
     bool? isLoading,
     String? errorMessage,
     bool clearError = false,
+    bool clearUser = false,
   }) {
     return AuthState(
-      currentUser: currentUser ?? this.currentUser,
+      // clearUser=true のとき明示的に null へ（ログアウト反映用）。
+      // ?? では nullable を消せないため clearError と同パターン
+      currentUser: clearUser ? null : (currentUser ?? this.currentUser),
       isLoading: isLoading ?? this.isLoading,
       // clearError=true のとき明示的に null へ。?? では nullable を消せないため
       // (spot_review_provider.dart と同パターン)
@@ -47,7 +50,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _authService.authStateChanges.listen(
       (authState) {
         final user = authState.session?.user;
-        state = state.copyWith(currentUser: user);
+        // signedOut 等で session=null のとき明示的にクリアしないと
+        // copyWith の ?? が旧ユーザーを残す（ログアウト後UI不更新バグの真因）
+        state = state.copyWith(currentUser: user, clearUser: user == null);
         if (kDebugMode) {
           appLog('🔐 Auth state changed: userId=${user?.id ?? "null"}');
         }

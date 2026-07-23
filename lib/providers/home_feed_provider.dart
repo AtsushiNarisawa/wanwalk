@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/official_route.dart';
 import '../models/recent_pin_post.dart';
+import 'auth_provider.dart';
 
 /// フィードアイテムの種別
 enum FeedItemType {
@@ -56,7 +57,10 @@ final featuredRouteProvider = FutureProvider<OfficialRoute?>((ref) async {
 /// ホームフィードプロバイダー
 final homeFeedProvider = FutureProvider<List<FeedItem>>((ref) async {
   final supabase = Supabase.instance.client;
-  final userId = supabase.auth.currentUser?.id;
+  // authProvider 経由で watch: ログアウト/別ユーザーログインで自動再構築し、
+  // 旧ユーザーの散歩サマリーがキャッシュ残留するのを防ぐ
+  // （トークンリフレッシュでは userId 不変のため再構築されない）
+  final userId = ref.watch(currentUserIdProvider);
   final now = DateTime.now();
   final items = <FeedItem>[];
 
