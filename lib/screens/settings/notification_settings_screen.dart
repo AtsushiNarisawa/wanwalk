@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -5,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/wanwalk_colors.dart';
 import '../../config/wanwalk_typography.dart';
+import '../../providers/analytics_provider.dart';
 import '../../providers/push_notification_provider.dart';
 import '../../services/notification_permission_service.dart';
 import '../../utils/logger.dart';
@@ -26,27 +29,73 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _NotificationSettingsScreenState
-    extends ConsumerState<NotificationSettingsScreen> {
+    extends ConsumerState<NotificationSettingsScreen>
+    with WidgetsBindingObserver {
   bool _loading = true;
   bool _morningEnabled = true;
   TimeOfDay _morningTime = const TimeOfDay(hour: 6, minute: 0);
   bool _communityEnabled = true;
   bool _officialEnabled = true;
   NotificationPermissionState _osState = NotificationPermissionState.unknown;
+  // OS 状態の取得自体に失敗した場合は true。unknown（notDetermined）と区別し、
+  // granted/denied ユーザーへの「通知がオフになっています」誤表示を防ぐ。
+  bool _osSyncFailed = false;
+  bool _requestingOsPermission = false;
 
   SupabaseClient get _supabase => Supabase.instance.client;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadInitial();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// 設定アプリで通知を切り替えてアプリに戻ってきた場合に表示を追従させる。
+  /// （iOS は通知許可の変更でプロセスを kill しないため resumed で再同期が必要）
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final service = ref.read(notificationPermissionServiceProvider);
+    final push = ref.read(pushNotificationServiceProvider);
+    unawaited(() async {
+      try {
+        final wasGranted = _osState == NotificationPermissionState.granted;
+        final newState = await service.syncFromOs();
+        if (!wasGranted && newState == NotificationPermissionState.granted) {
+          // 設定アプリ経由で許可された → トークン登録（未ログイン時は内部でスキップ）
+          await push.registerCurrentDeviceToken();
+        }
+        if (!mounted) return;
+        setState(() {
+          _osState = newState;
+          _osSyncFailed = false;
+        });
+        ref.invalidate(notificationPermissionStateProvider);
+        ref.invalidate(shouldShowRecoveryBannerProvider);
+      } catch (e) {
+        appLog('[NotifSettings] resumed sync failed: $e');
+      }
+    }());
   }
 
   Future<void> _loadInitial() async {
     try {
-      final permState =
-          await ref.read(notificationPermissionServiceProvider).syncFromOs();
-      _osState = permState;
+      try {
+        final permState =
+            await ref.read(notificationPermissionServiceProvider).syncFromOs();
+        _osState = permState;
+      } catch (e) {
+        // Firebase 未初期化等で OS 状態が取れないセッションでは通知バナー類を出さない
+        _osSyncFailed = true;
+        appLog('[NotifSettings] syncFromOs failed: $e');
+      }
 
       final user = _supabase.auth.currentUser;
       if (user != null) {
@@ -123,6 +172,54 @@ class _NotificationSettingsScreenState
     }
   }
 
+  /// 未決定（notDetermined）の既存ユーザー向けに OS 許可ダイアログを発火する。
+  ///
+  /// オンボーディング（PrePermissionScreen）を通らなかった / 「あとで」した
+  /// ユーザーが後から通知をオンにできる唯一の導線（Build 48）。
+  Future<void> _requestOsPermission() async {
+    if (_requestingOsPermission) return;
+    setState(() => _requestingOsPermission = true);
+    // await 中に画面が pop されても許可成立時の副作用（計測・トークン登録）を
+    // 完遂できるよう、ref 依存のサービスは async gap の前に捕捉しておく。
+    final service = ref.read(notificationPermissionServiceProvider);
+    final analytics = ref.read(analyticsServiceProvider);
+    final push = ref.read(pushNotificationServiceProvider);
+    try {
+      final granted = await service.requestOsPermission();
+
+      // permission_result 計測（type: notification はこの導線が初出）。
+      unawaited(
+          analytics.logPermissionResult(type: 'notification', granted: granted));
+
+      if (granted) {
+        // 許可されたら即トークン登録（PrePermissionScreen と同一パターン。
+        // 未ログイン時はサービス内の currentUser ガードでスキップされる）
+        await push.registerCurrentDeviceToken();
+      }
+
+      final newState = await service.currentState();
+      if (!mounted) return;
+
+      // ホームのリカバリバナー等、許可状態を見ている表示判定を最新化
+      ref.invalidate(notificationPermissionStateProvider);
+      ref.invalidate(shouldShowRecoveryBannerProvider);
+
+      setState(() {
+        _osState = newState;
+        _osSyncFailed = false;
+      });
+      if (granted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('通知をオンにしました')),
+        );
+      }
+    } catch (e) {
+      appLog('[NotifSettings] requestOsPermission failed: $e');
+    } finally {
+      if (mounted) setState(() => _requestingOsPermission = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -140,6 +237,14 @@ class _NotificationSettingsScreenState
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
+                if (!_osSyncFailed &&
+                    (_osState == NotificationPermissionState.unknown ||
+                        _osState == NotificationPermissionState.prePromptDeferred))
+                  _OsEnableNotice(
+                    onEnable: _requestOsPermission,
+                    requesting: _requestingOsPermission,
+                    isDark: isDark,
+                  ),
                 if (_osState == NotificationPermissionState.denied)
                   _OsDeniedNotice(onOpenSettings: _openSystemSettings, isDark: isDark),
                 _Section(title: '通知の種類', isDark: isDark),
@@ -273,6 +378,65 @@ class _Card extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(children: children),
+    );
+  }
+}
+
+class _OsEnableNotice extends StatelessWidget {
+  const _OsEnableNotice({
+    required this.onEnable,
+    required this.requesting,
+    required this.isDark,
+  });
+  final VoidCallback onEnable;
+  final bool requesting;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 16, 12, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: WanWalkColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '通知がオフになっています',
+            style: WanWalkTypography.bodyMedium.copyWith(
+              color: WanWalkColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            '通知をオンにすると、朝のお散歩タイムや大切なお知らせをお届けできます',
+            style: WanWalkTypography.caption,
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: requesting ? null : onEnable,
+              child: requesting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(
+                      '通知をオンにする',
+                      style: WanWalkTypography.bodyMedium.copyWith(
+                        color: WanWalkColors.primary,
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
