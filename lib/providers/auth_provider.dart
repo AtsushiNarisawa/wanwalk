@@ -44,13 +44,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// 初期化：認証状態の変更を監視
   void _init() {
-    _authService.authStateChanges.listen((authState) {
-      final user = authState.session?.user;
-      state = state.copyWith(currentUser: user);
-      if (kDebugMode) {
-        appLog('🔐 Auth state changed: userId=${user?.id ?? "null"}');
-      }
-    });
+    _authService.authStateChanges.listen(
+      (authState) {
+        final user = authState.session?.user;
+        state = state.copyWith(currentUser: user);
+        if (kDebugMode) {
+          appLog('🔐 Auth state changed: userId=${user?.id ?? "null"}');
+        }
+      },
+      // オフライン時のトークンリフレッシュ失敗等が同じストリームに addError で
+      // 流れてくる（gotrue 仕様）。握らないと Zone 未処理例外→Sentry ノイズ。
+      onError: (Object e) {
+        if (kDebugMode) appLog('🔐 Auth stream error: $e');
+      },
+    );
 
     // 現在のユーザーを取得
     final currentUser = Supabase.instance.client.auth.currentUser;

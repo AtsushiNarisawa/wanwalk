@@ -63,10 +63,17 @@ class AnalyticsService {
 
       // Auth state 変化を購読（login / logout / token refresh）
       _authSub?.cancel();
-      _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-        final user = data.session?.user;
-        unawaited(setAuthUserId(user?.id));
-      });
+      _authSub = Supabase.instance.client.auth.onAuthStateChange.listen(
+        (data) {
+          final user = data.session?.user;
+          unawaited(setAuthUserId(user?.id));
+        },
+        // オフライン時のトークンリフレッシュ失敗等が同じストリームに addError で
+        // 流れてくる（gotrue 仕様）。握らないと Zone 未処理例外→Sentry ノイズ。
+        onError: (Object e) {
+          if (kDebugMode) appLog('[Analytics] auth stream error: $e');
+        },
+      );
 
       if (kDebugMode) {
         appLog('[Analytics] initialized (internal=$_isInternalTraffic)');

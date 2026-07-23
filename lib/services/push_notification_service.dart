@@ -44,7 +44,9 @@ class PushNotificationService {
   StreamSubscription<String>? _tokenRefreshSub;
   StreamSubscription<RemoteMessage>? _foregroundSub;
   StreamSubscription<RemoteMessage>? _openedAppSub;
+  StreamSubscription<AuthState>? _authSub;
   bool _initialized = false;
+  bool _signInRegisterInFlight = false;
 
   /// アプリ起動シーケンスから呼ぶ初期化。
   ///
@@ -93,6 +95,26 @@ class PushNotificationService {
           unawaited(_registerToken(token));
         }
       });
+
+      // ログイン確定時のトークン再登録フック。
+      // - 未ログインで OS 許可 → 後からログイン（PrePermissionScreen 経路含む）
+      // - ログアウト（revoke + deleteToken 済）→ 再ログイン
+      // の両ケースで、次回コールド起動を待たずにプッシュ到達を回復する。
+      // 購読時に BehaviorSubject がリプレイする initialSession は main.dart の
+      // 起動時登録（_initPushNotifications）と重複するため signedIn のみ反応。
+      // tokenRefreshed（約1時間ごと）は onTokenRefresh が別途担保するため無視。
+      // onError: オフライン時のリフレッシュ失敗等が同じストリームに流れてくる
+      // （supabase_flutter 内部購読と同じく握って Zone 未処理例外を防ぐ）。
+      _authSub = _supabase.auth.onAuthStateChange.listen(
+        (data) {
+          if (data.event == AuthChangeEvent.signedIn) {
+            unawaited(_registerTokenIfOsGranted());
+          }
+        },
+        onError: (Object e) {
+          if (kDebugMode) appLog('[FCM] auth stream error: $e');
+        },
+      );
     } catch (e, st) {
       // Firebase 初期化失敗時もアプリは起動継続（A3 観点）
       if (kDebugMode) appLog('[FCM] initialize failed: $e\n$st');
@@ -122,6 +144,43 @@ class PushNotificationService {
     } catch (e) {
       if (kDebugMode) appLog('[FCM] registerCurrentDeviceToken failed: $e');
       return null;
+    }
+  }
+
+  /// signedIn フック用: OS 通知許可が granted のときだけトークン登録。
+  ///
+  /// ログイン直後は APNs/FCM トークンが未準備のことがある（オフライン起動後の
+  /// 回線復帰直後・ログアウト時 deleteToken 後の再生成中）。その間 firebase_messaging
+  /// は自動再試行せず onTokenRefresh も発火しないため、null 返却時は 3 秒 / 10 秒後に
+  /// 計 2 回だけ再試行して「ログイン直後ウィンドウ」の取りこぼしを防ぐ。
+  Future<void> _registerTokenIfOsGranted() async {
+    if (_signInRegisterInFlight) return; // 再認証等での連続 signedIn は1本に集約
+    _signInRegisterInFlight = true;
+    try {
+      final settings = await _messaging.getNotificationSettings();
+      final status = settings.authorizationStatus;
+      if (status != AuthorizationStatus.authorized &&
+          status != AuthorizationStatus.provisional) {
+        return;
+      }
+      for (final delay in const [
+        Duration.zero,
+        Duration(seconds: 3),
+        Duration(seconds: 10),
+      ]) {
+        if (delay != Duration.zero) {
+          await Future<void>.delayed(delay);
+          // リトライ待機中にログアウトされたら中断
+          if (_supabase.auth.currentUser == null) return;
+        }
+        final token = await registerCurrentDeviceToken();
+        if (token != null) return;
+      }
+      if (kDebugMode) appLog('[FCM] register on signedIn gave up (token not ready)');
+    } catch (e) {
+      if (kDebugMode) appLog('[FCM] register on signedIn failed: $e');
+    } finally {
+      _signInRegisterInFlight = false;
     }
   }
 
@@ -176,6 +235,7 @@ class PushNotificationService {
   }
 
   Future<void> dispose() async {
+    await _authSub?.cancel();
     await _tokenRefreshSub?.cancel();
     await _foregroundSub?.cancel();
     await _openedAppSub?.cancel();
